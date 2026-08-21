@@ -1282,9 +1282,15 @@ const CONCEPTS_FALLBACK = [
   // What
   {id:'water',   n:'Water — states of H₂O',     t:'ROM-GT5L-7TB',c:'What', z:'kitchen',  l:{JA:true}},
   {id:'fbread',  n:'Freshness of bread',         t:'ROM-GP3LN-7TB',c:'What',z:'kitchen',  l:{}},
-  {id:'CC-0013', n:'Freshness of dairy products',t:'ROM-GPCVN',   c:'What', z:'kitchen',
-    l:{ID:'ROM-GPCVN-EN-ID-FreshnessOfDairyProducts.html'},
-    loc:{primary:['LOC-0004'], secondary:['LOC-0003','LOC-0013'], transitional:['LOC-0084','LOC-0106','LOC-0013','LOC-0003']}},
+  // Note: no fallback entry for CC-0013 (Freshness of Dairy Products) —
+  // removed 2026-08-21. The real card, loaded automatically via fetch or
+  // the folder-picker, already produces a correct entry with the right
+  // location tag once handleOpenConcept is used to open it (see the fix
+  // in renderMapSideFromNav below). A hand-written fallback here would
+  // only ever show as a SECOND, duplicate tile at the same location
+  // alongside the real one — its own link pointed at a static populated
+  // file that was never actually uploaded, since real content comes from
+  // dynamic template injection, not a pre-built file.
   {id:'wind',    n:'Wind speed',                 t:'ROM-GT5L-7TB',c:'What', z:'outdoor',  l:{}},
   // How
   {id:'diff',    n:'Level of difficulty',        t:'ROM-GT5L-7TB',c:'How',  z:'school',   l:{JA:true}},
@@ -2213,8 +2219,20 @@ function renderMapSideFromNav() {
     if (list.length) {
       const sorted = [...list].sort((a, b) => (ok(a) ? 0 : 1) - (ok(b) ? 0 : 1));
       bodyHtml = `<div class="map-concepts">${sorted.map(c => {
-        const a = ok(c); const u = url(c);
-        const clk = a ? `onclick="window.open('${u}','_blank')"` : `onclick="doRequest('${c.id}')"`;
+        const a = ok(c);
+        // Fixed 2026-08-21 — this previously built a raw URL by hand and
+        // called window.open() directly, which only worked for old-style
+        // fallback entries with a plain string path. Real concept cards
+        // (loaded via fetch or folder-picker) carry a {fromCard:true,...}
+        // OBJECT in this slot instead of a string, so that raw approach
+        // stringified it into the literal text "[object Object]" and
+        // produced a 404. handleOpenConcept is the same function the
+        // working dropdown/Browse "Open this template" button already
+        // uses — it correctly branches between card-injection and the
+        // legacy static-file path depending on what kind of entry it is.
+        const clk = a
+          ? `onclick="handleOpenConcept('${c.id}','${currentLangPair()}')"`
+          : `onclick="doRequest('${c.id}')"`;
         return `
           <div class="map-ccard" ${clk}>
             <span class="mc-name">${c.n}</span>
