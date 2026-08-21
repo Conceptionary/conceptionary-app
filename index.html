@@ -1348,6 +1348,51 @@ const LEGACY_ZONE_MAP = {
 };
 
 /* ── Registry loading ───────────────────────────────────────────────────── */
+/* Automatic fetch-based loading (added 2026-08-21) — runs on page load
+   when the App is served over http(s), so a first-time visitor gets full
+   content without ever touching the Load button. Only works over a real
+   host: fetch() of local file:// paths is blocked by browser CORS rules,
+   so this silently fails and falls through to CONCEPTS_FALLBACK when the
+   App is opened by double-clicking the file locally — the folder-picker
+   (loadRegistry, below) remains the correct way to test locally, or to
+   point the App at a DIFFERENT folder than the one it's hosted from.
+   Unlike the folder-picker, fetch() cannot list a directory's contents,
+   so which concept cards exist has to be told explicitly via
+   concept_cards/cc-index.json's card_files array rather than discovered —
+   keep that array in sync whenever a new card is added. */
+async function loadRegistryViaFetch() {
+  try {
+    const regResp = await fetch('registry/conceptionary-registry.json');
+    if (!regResp.ok) throw new Error('registry not reachable via fetch');
+    REGISTRY = await regResp.json();
+
+    const idxResp = await fetch('concept_cards/cc-index.json');
+    const cardIndex = idxResp.ok ? await idxResp.json() : { next_cc_id: 1, card_files: [] };
+
+    window._cptCardData = [];
+    window._cptUsingFetch = true;
+
+    for (const filename of (cardIndex.card_files || [])) {
+      try {
+        const cardResp = await fetch('concept_cards/' + filename);
+        if (!cardResp.ok) { console.warn('Card not found via fetch:', filename); continue; }
+        const card = await cardResp.json();
+        if (card.id && card.concept) window._cptCardData.push(card);
+      } catch (e) { console.error('Card fetch error:', filename, e); }
+    }
+
+    CONCEPTS = buildConceptsFromRegistry(REGISTRY, cardIndex);
+    buildBrowse(); buildFeatured();
+    console.log(`Auto-loaded via fetch — ${CONCEPTS.length} concepts (${window._cptCardData.length} cards)`);
+    return true;
+  } catch (e) {
+    console.log('Automatic fetch-loading unavailable (' + e.message + ') — using fallback list. Click Load to select a local folder.');
+    CONCEPTS = CONCEPTS_FALLBACK;
+    return false;
+  }
+}
+
+
 async function loadRegistry() {
   try {
     if ('showDirectoryPicker' in window) {
@@ -1479,7 +1524,8 @@ function buildConceptsFromRegistry(registry, cardIndex) {
         t: card.concept.template_id || '',
         c: topicCategory(card.concept.name),
         z: topicZone(card.concept.name),
-        l: avail, fromCard: true
+        l: avail, fromCard: true,
+        loc: card.location || null
       });
     }
   }
@@ -1557,7 +1603,7 @@ async function loadConceptCard(conceptName, langPair) {
 
 async function openConceptWithInjection(concept, langPair) {
   // 1. Try to find a local concept card
-  const hasLocal = DIR_HANDLE || window._cptUsingFileMap;
+  const hasLocal = DIR_HANDLE || window._cptUsingFileMap || window._cptUsingFetch;
   const card = hasLocal ? await loadConceptCard(concept.n, langPair) : null;
 
   if (card) {
@@ -1602,6 +1648,14 @@ async function injectAndOpen(templatePath, langConfig, card) {
       const fileHandle = await handle.getFileHandle(parts[parts.length - 1]);
       const file = await fileHandle.getFile();
       html = await file.text();
+    } else if (window._cptUsingFetch) {
+      // Hosted over http(s) — read the template via a plain relative fetch,
+      // same path convention as the folder-picker (registry/, concept_cards/,
+      // templates/phonographic|logographic/...), just retrieved over the
+      // network instead of from a locally-picked folder.
+      const resp = await fetch(templatePath);
+      if (!resp.ok) throw new Error(`Template not found at ${templatePath} (HTTP ${resp.status})`);
+      html = await resp.text();
     } else {
       throw new Error('No folder loaded. Click 📂 Load first.');
     }
@@ -1843,11 +1897,11 @@ CONCEPTS = CONCEPTS_FALLBACK;
 async function handleOpenConcept(conceptId, langPair) {
   const c = CONCEPTS.find(x => x.id === conceptId);
   if (!c) return;
-  const opened = (DIR_HANDLE || window._cptUsingFileMap)
+  const opened = (DIR_HANDLE || window._cptUsingFileMap || window._cptUsingFetch)
     ? await openConceptWithInjection(c, langPair)
     : false;
   if (!opened) {
-    showToast('Load your Conceptionary folder first to open templates locally.');
+    showToast('Content not available here yet — click 📂 Load to select a local folder.');
   }
 }
 
@@ -2381,6 +2435,27 @@ document.addEventListener('DOMContentLoaded', () => {
     sel.addEventListener('change', function() {
       this.classList.toggle('chosen', !!this.value);
     });
+  });
+
+  // Attempt automatic fetch-based loading (added 2026-08-21) — runs after
+  // the fallback content is already on screen, so there's no blank/loading
+  // flash. If the App is genuinely hosted (http/https), this quietly
+  // upgrades CONCEPTS from the small fallback list to the real registry +
+  // every concept card; if opened locally via file://, the fetch calls
+  // fail immediately and this is a silent no-op — the Load button remains
+  // the correct path for local testing.
+  loadRegistryViaFetch().then(success => {
+    if (success) {
+      buildConceptDropdown();
+      buildFeatured();
+      renderSearch('');
+      // Refresh the Map panel's side content too, if a location is
+      // currently open, so newly-available cards appear without
+      // requiring the learner to re-navigate.
+      if (typeof renderMapSideFromNav === 'function' && typeof navState !== 'undefined') {
+        renderMapSideFromNav();
+      }
+    }
   });
 });
 </script>
