@@ -1,0 +1,209 @@
+{
+  "id": "CC-0002",
+  "version": "1.2",
+  "created": "2026-06-27",
+  "last_updated": "2026-06-29",
+  "status": "active",
+  "concept": {
+    "name": "Temperature",
+    "description": "The archilexeme spanning the full scale of thermal sensation from extreme cold through neutral/ambient to extreme heat. A dynamic process concept — temperature rises and falls gradually over time rather than being a fixed static position.",
+    "taxonomy_ref": "3.3",
+    "taxonomy_path": "Sensory → Touch → Temperature (felt externally)",
+    "shape": "gradual_temporary_curve",
+    "template_family": "GTCV",
+    "template_id": "ROM-GTCV",
+    "modes_used": [
+      "states",
+      "transitions"
+    ],
+    "location_tags": {
+      "primary": [
+        "Z-01",
+        "Z-02",
+        "Z-12"
+      ],
+      "secondary": [
+        "Z-04",
+        "Z-07"
+      ],
+      "transitional": []
+    },
+    "notes": "GTCV selected over HL-BI because temperature is a DYNAMIC process concept — it rises and falls over time rather than being a static position on a spectrum. Key distinction: a learner says 'It is getting hotter' (process) not 'it IS hot right now' as a fixed location. States vocabulary covers the range from freezing to burning. Transitions vocabulary covers the process of heating and cooling. v1.1: Positions corrected for GTCV bell curve. 0=start(freezing), 50=peak(boiling), 100=end(freezing). Ascending half 0-50=getting hotter, descending half 50-100=cooling down. CRITICAL FIX: conceptData/transitionsData columns were [SL,TL] reversed from convention — corrected to [TL,SL,Quiz,Position]."
+  },
+  "template": {
+    "phonographic": {
+      "id": "ROM-GTCV",
+      "file": "templates/phonographic/ROM-GTCV-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-GTCV",
+      "file": "templates/logographic/LOG-GTCV-Generic.html",
+      "track": "logographic"
+    }
+  },
+  "language_pairs": {
+    "EN-DE": {
+      "source_language": "English",
+      "target_language": "German",
+      "track": "phonographic",
+      "generated_by": "claude-sonnet-4-6",
+      "generated_date": "2026-06-27",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "lang_config": {
+        "titles": {
+          "states": [
+            "Temperature / Temperatur",
+            "Temperatur",
+            "Temperature"
+          ],
+          "transitions": [
+            "Temperaturveränderung / Temperature Change",
+            "Deutsch",
+            "English"
+          ]
+        },
+        "ui": {
+          "states_mode_label": "Switch to Transitions",
+          "trans_mode_label": "Switch to States",
+          "quiz_placeholder": "Type in German…",
+          "quiz_button": "Check",
+          "quiz_correct": "Correct! ✓",
+          "quiz_wrong": "Try again"
+        },
+        "conceptData": [
+          [
+            "Eiskalt",
+            "Freezing cold",
+            "How do you say 'freezing cold' in German?",
+            0
+          ],
+          [
+            "Sehr kalt",
+            "Very cold",
+            "How do you say 'very cold' in German?",
+            5
+          ],
+          [
+            "Kalt",
+            "Cold",
+            "How do you say 'cold' in German?",
+            12
+          ],
+          [
+            "Kühl",
+            "Cool",
+            "How do you say 'cool' in German?",
+            20
+          ],
+          [
+            "Lauwarm",
+            "Lukewarm",
+            "How do you say 'lukewarm' in German?",
+            28
+          ],
+          [
+            "Angenehm warm",
+            "Pleasantly warm",
+            "How do you say 'pleasantly warm' in German?",
+            36
+          ],
+          [
+            "Warm",
+            "Warm",
+            "How do you say 'warm' in German?",
+            44
+          ],
+          [
+            "Heiß",
+            "Hot",
+            "How do you say 'hot' in German?",
+            50
+          ],
+          [
+            "Sehr heiß",
+            "Very hot",
+            "How do you say 'very hot' in German?",
+            58
+          ],
+          [
+            "Glühend heiß",
+            "Scorching",
+            "How do you say 'scorching' in German?",
+            66
+          ],
+          [
+            "Siedend heiß",
+            "Boiling hot",
+            "How do you say 'boiling hot' in German?",
+            74
+          ],
+          [
+            "Abkühlung",
+            "Cooling down",
+            "How do you say 'cooling down' in German?",
+            82
+          ],
+          [
+            "Wird kälter",
+            "Getting cold",
+            "How do you say 'getting cold' in German?",
+            90
+          ],
+          [
+            "Wieder kalt",
+            "Cold again",
+            "How do you say 'cold again' in German?",
+            96
+          ]
+        ],
+        "transitionsData": [
+          [
+            "Es wird kälter",
+            "It's getting colder",
+            "How do you say 'it's getting colder' in German?",
+            5
+          ],
+          [
+            "Es kühlt sich ab",
+            "It's cooling down",
+            "How do you say 'it's cooling down' in German?",
+            15
+          ],
+          [
+            "Die Temperatur steigt",
+            "The temperature is rising",
+            "How do you say 'the temperature is rising' in German?",
+            28
+          ],
+          [
+            "Es wird wärmer",
+            "It's getting warmer",
+            "How do you say 'it's getting warmer' in German?",
+            40
+          ],
+          [
+            "Es wird heiß",
+            "It's getting hot",
+            "How do you say 'it's getting hot' in German?",
+            50
+          ],
+          [
+            "Es erhitzt sich",
+            "It's heating up",
+            "How do you say 'it's heating up' in German?",
+            62
+          ],
+          [
+            "Es kocht",
+            "It's boiling",
+            "How do you say 'it's boiling' in German?",
+            74
+          ]
+        ]
+      }
+    }
+  }
+}

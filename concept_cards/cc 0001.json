@@ -1,0 +1,200 @@
+{
+  "id": "CC-0001",
+  "version": "2.0",
+  "created": "2026-06-16",
+  "last_updated": "2026-07-07",
+  "status": "active",
+  "concept": {
+    "name": "Appetite",
+    "description": "The archilexeme spanning the full scale of appetite from comfortable satisfaction at the neutral centre, through both overfull (left) and hungry (right) to the most extreme states — stomach pain from overeating and starvation — both equally intense at the bottom of the valley curve. CV-BI: both extremes are uncomfortable; the neutral centre (satisfied) is the most desirable state, at the top of the curve.",
+    "taxonomy_ref": "10.1",
+    "taxonomy_path": "Bodily / Physiological → Hunger and thirst → Appetite",
+    "shape": "bidirectional_valley_curve",
+    "template_family": "HL-BI",
+    "template_id": "ROM-CV-BI",
+    "modes_used": [
+      "states",
+      "transitions"
+    ],
+    "location_tags": {
+      "primary": [
+        "Z-01",
+        "Z-04"
+      ],
+      "secondary": [
+        "Z-07"
+      ],
+      "transitional": []
+    },
+    "notes": "v2.0: Reassigned from ROM-HL-BI to ROM-CV-BI. Appetite is a valley curve — both poles (overfull AND starving) are uncomfortable extremes of equal intensity, with the desirable neutral state (satisfied) at the centre top. CV-BI conceptData format: [TL, SL, Quiz, t-value(0.0–1.0), side(L/B/R)]."
+  },
+  "template": {
+    "phonographic": {
+      "id": "ROM-CV-BI",
+      "file": "templates/phonographic/ROM-CV-BI-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-HL-BI",
+      "file": "templates/logographic/LOG-HL-BI-Generic.html",
+      "track": "logographic"
+    }
+  },
+  "language_pairs": {
+    "EN-ID": {
+      "source_language": "English",
+      "target_language": "Bahasa Indonesia",
+      "track": "phonographic",
+      "generated_by": "claude-sonnet-4-6",
+      "generated_date": "2026-06-16",
+      "last_revised": "2026-06-27",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "lang_config": {
+        "titles": {
+          "states": [
+            "Appetite / Nafsu Makan",
+            "Nafsu Makan",
+            "Appetite"
+          ],
+          "transitions": [
+            "Perubahan Nafsu Makan / Change in Appetite",
+            "Bahasa Indonesia",
+            "English"
+          ]
+        },
+        "ui": {
+          "normal_label": "Kenyang / Satisfied",
+          "neg_pole_label": "← Terlalu kenyang",
+          "pos_pole_label": "Kelaparan →",
+          "bottom_label": "Paling ekstrem",
+          "drag_instruction": "Seret untuk menjelajahi",
+          "states_mode_label": "Beralih ke Transisi",
+          "trans_mode_label": "Beralih ke Status",
+          "quiz_placeholder": "Ketik dalam Bahasa Indonesia…",
+          "quiz_button": "Periksa",
+          "quiz_correct": "Benar! ✓",
+          "quiz_wrong": "Coba lagi",
+          "frame_colour_top": "#4CAF50",
+          "frame_colour_bottom": "#c0392b"
+        },
+        "conceptData": [
+          [
+            "Kekenyangan parah",
+            "Stuffed / in pain",
+            "How do you say 'stuffed / in pain' in Bahasa Indonesia?",
+            0.08,
+            "L"
+          ],
+          [
+            "Sangat kekenyangan",
+            "Very overfull",
+            "How do you say 'very overfull' in Bahasa Indonesia?",
+            0.28,
+            "L"
+          ],
+          [
+            "Kekenyangan",
+            "Overfull",
+            "How do you say 'overfull' in Bahasa Indonesia?",
+            0.52,
+            "L"
+          ],
+          [
+            "Agak kekenyangan",
+            "Slightly overfull",
+            "How do you say 'slightly overfull' in Bahasa Indonesia?",
+            0.78,
+            "L"
+          ],
+          [
+            "Ekstrem",
+            "Extreme",
+            "How do you say 'extreme' in Bahasa Indonesia?",
+            1.0,
+            "B"
+          ],
+          [
+            "Agak lapar",
+            "Slightly hungry",
+            "How do you say 'slightly hungry' in Bahasa Indonesia?",
+            0.78,
+            "R"
+          ],
+          [
+            "Lapar",
+            "Hungry",
+            "How do you say 'hungry' in Bahasa Indonesia?",
+            0.52,
+            "R"
+          ],
+          [
+            "Sangat lapar",
+            "Very hungry",
+            "How do you say 'very hungry' in Bahasa Indonesia?",
+            0.28,
+            "R"
+          ],
+          [
+            "Kelaparan",
+            "Starving",
+            "How do you say 'starving' in Bahasa Indonesia?",
+            0.08,
+            "R"
+          ]
+        ],
+        "transitionsData": [
+          [
+            "Mulai kekenyangan",
+            "Getting full",
+            "How do you say 'getting full' in Bahasa Indonesia?",
+            3
+          ],
+          [
+            "Semakin kekenyangan",
+            "Becoming overfull",
+            "How do you say 'becoming overfull' in Bahasa Indonesia?",
+            15
+          ],
+          [
+            "Sangat kekenyangan",
+            "Very overfull",
+            "How do you say 'very overfull' in Bahasa Indonesia?",
+            27
+          ],
+          [
+            "Hampir ekstrem",
+            "Almost at extreme",
+            "How do you say 'almost at extreme' in Bahasa Indonesia?",
+            39
+          ],
+          [
+            "Titik ekstrem",
+            "At the extreme",
+            "How do you say 'at the extreme' in Bahasa Indonesia?",
+            50
+          ],
+          [
+            "Semakin lapar",
+            "Getting hungrier",
+            "How do you say 'getting hungrier' in Bahasa Indonesia?",
+            61
+          ],
+          [
+            "Sangat lapar",
+            "Very hungry",
+            "How do you say 'very hungry' in Bahasa Indonesia?",
+            73
+          ],
+          [
+            "Hampir kelaparan",
+            "Nearly starving",
+            "How do you say 'nearly starving' in Bahasa Indonesia?",
+            85
+          ]
+        ]
+      }
+    }
+  }
+}

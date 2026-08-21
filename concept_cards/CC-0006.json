@@ -1,0 +1,74 @@
+{
+  "id": "CC-0006",
+  "version": "1.0",
+  "created": "2026-06-27",
+  "last_updated": "2026-06-27",
+  "status": "active",
+
+  "concept": {
+    "name": "Days of the Week",
+    "description": "The seven named days of the weekly cycle. A discrete named-category concept with no inherent gradient — days are positions in a repeating cycle, not points on a spectrum. Presented on the circular Days of the Week template.",
+    "taxonomy_ref": "1.1",
+    "taxonomy_path": "Temporal → Cyclical time → Days of the week",
+    "shape": "cycle",
+    "template_family": "DOW",
+    "template_id": "ROM-CR-DOW",
+    "modes_used": ["states"],
+    "location_tags": {
+      "primary": ["Z-01", "Z-08", "Z-09"],
+      "secondary": [],
+      "transitional": []
+    },
+    "notes": "ROM-CR-DOW correctly assigned — days of the week are a discrete named cyclical sequence with no gradient. States mode only (no transitions mode for categorical concepts). Monday conventionally placed at top/start of cycle for European cultures."
+  },
+
+  "template": {
+    "phonographic": {
+      "id": "ROM-CR-DOW",
+      "file": "templates/phonographic/ROM-CR-DOW-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-CR-DOW",
+      "file": "templates/logographic/LOG-CR-DOW-Generic.html",
+      "track": "logographic"
+    }
+  },
+
+  "language_pairs": {
+    "EN-DE": {
+      "source_language": "English",
+      "target_language": "German",
+      "track": "phonographic",
+      "generated_by": "claude-sonnet-4-6",
+      "generated_date": "2026-06-27",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+
+      "lang_config": {
+        "titles": {
+          "states": ["Days of the Week / Wochentage", "Wochentage", "Days of the Week"]
+        },
+
+        "ui": {
+          "states_mode_label":  "Wochentage",
+          "quiz_placeholder":   "Type in German…",
+          "quiz_button":        "Check",
+          "quiz_correct":       "Correct! ✓",
+          "quiz_wrong":         "Try again"
+        },
+
+        "conceptData": [
+          ["Montag",      "Monday",    "How do you say 'Monday' in German?",    0   ],
+          ["Dienstag",    "Tuesday",   "How do you say 'Tuesday' in German?",   51  ],
+          ["Mittwoch",    "Wednesday", "How do you say 'Wednesday' in German?", 102 ],
+          ["Donnerstag",  "Thursday",  "How do you say 'Thursday' in German?",  154 ],
+          ["Freitag",     "Friday",    "How do you say 'Friday' in German?",    205 ],
+          ["Samstag",     "Saturday",  "How do you say 'Saturday' in German?",  257 ],
+          ["Sonntag",     "Sunday",    "How do you say 'Sunday' in German?",    308 ]
+        ]
+      }
+    }
+  }
+}

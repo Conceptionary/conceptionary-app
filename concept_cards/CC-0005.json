@@ -1,0 +1,207 @@
+{
+  "id": "CC-0005",
+  "version": "1.2",
+  "created": "2026-06-27",
+  "last_updated": "2026-06-29",
+  "status": "active",
+  "concept": {
+    "name": "Anger",
+    "description": "The archilexeme spanning the emotional scale from calm through mild irritation to fury. A gradual temporary process — anger builds from a baseline of calm, peaks at fury, then subsides back to calm. Classic GTCV bell-curve shape.",
+    "taxonomy_ref": "7.2",
+    "taxonomy_path": "Emotional → Arousal spectra → Anger",
+    "shape": "gradual_temporary_curve",
+    "template_family": "GTCV",
+    "template_id": "ROM-GTCV",
+    "modes_used": [
+      "states",
+      "transitions"
+    ],
+    "location_tags": {
+      "primary": [
+        "Z-01",
+        "Z-14"
+      ],
+      "secondary": [
+        "Z-08"
+      ],
+      "transitional": []
+    },
+    "notes": "GTCV correctly assigned — anger is a textbook gradual temporary curve. It builds from calm, peaks at fury, then subsides. The bell-curve shape perfectly represents both the escalation and the de-escalation. States vocabulary: the named emotional states. Transitions vocabulary: first-person process phrases. v1.1: Positions corrected for GTCV bell curve. 0=calm(start), 50=peak(enraged/berang), 100=calm again. Ascending=building anger, descending=calming down. CRITICAL FIX: conceptData/transitionsData columns were [SL,TL] reversed from convention — corrected to [TL,SL,Quiz,Position]."
+  },
+  "template": {
+    "phonographic": {
+      "id": "ROM-GTCV",
+      "file": "templates/phonographic/ROM-GTCV-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-GTCV",
+      "file": "templates/logographic/LOG-GTCV-Generic.html",
+      "track": "logographic"
+    }
+  },
+  "language_pairs": {
+    "EN-ID": {
+      "source_language": "English",
+      "target_language": "Bahasa Indonesia",
+      "track": "phonographic",
+      "generated_by": "claude-sonnet-4-6",
+      "generated_date": "2026-06-27",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "lang_config": {
+        "titles": {
+          "states": [
+            "Anger / Kemarahan",
+            "Kemarahan",
+            "Anger"
+          ],
+          "transitions": [
+            "Proses Kemarahan / The Anger Process",
+            "Bahasa Indonesia",
+            "English"
+          ]
+        },
+        "ui": {
+          "states_mode_label": "Switch to Transitions",
+          "trans_mode_label": "Switch to States",
+          "quiz_placeholder": "Type in Bahasa Indonesia…",
+          "quiz_button": "Check",
+          "quiz_correct": "Correct! ✓",
+          "quiz_wrong": "Try again"
+        },
+        "conceptData": [
+          [
+            "Tenang",
+            "Calm",
+            "How do you say 'calm' in Bahasa Indonesia?",
+            0
+          ],
+          [
+            "Sedikit kesal",
+            "Mildly annoyed",
+            "How do you say 'mildly annoyed' in Bahasa Indonesia?",
+            8
+          ],
+          [
+            "Kesal",
+            "Annoyed",
+            "How do you say 'annoyed' in Bahasa Indonesia?",
+            16
+          ],
+          [
+            "Jengkel",
+            "Irritated",
+            "How do you say 'irritated' in Bahasa Indonesia?",
+            24
+          ],
+          [
+            "Marah",
+            "Angry",
+            "How do you say 'angry' in Bahasa Indonesia?",
+            32
+          ],
+          [
+            "Sangat marah",
+            "Very angry",
+            "How do you say 'very angry' in Bahasa Indonesia?",
+            40
+          ],
+          [
+            "Murka",
+            "Furious",
+            "How do you say 'furious' in Bahasa Indonesia?",
+            46
+          ],
+          [
+            "Mengamuk",
+            "Enraged",
+            "How do you say 'enraged' in Bahasa Indonesia?",
+            50
+          ],
+          [
+            "Berang",
+            "Livid",
+            "How do you say 'livid' in Bahasa Indonesia?",
+            56
+          ],
+          [
+            "Mulai tenang",
+            "Calming down",
+            "How do you say 'calming down' in Bahasa Indonesia?",
+            65
+          ],
+          [
+            "Semakin tenang",
+            "Getting calmer",
+            "How do you say 'getting calmer' in Bahasa Indonesia?",
+            75
+          ],
+          [
+            "Hampir tenang",
+            "Almost calm",
+            "How do you say 'almost calm' in Bahasa Indonesia?",
+            85
+          ],
+          [
+            "Tenang kembali",
+            "Calm again",
+            "How do you say 'calm again' in Bahasa Indonesia?",
+            95
+          ]
+        ],
+        "transitionsData": [
+          [
+            "Saya mulai kesal",
+            "I'm starting to get annoyed",
+            "How do you say 'I'm starting to get annoyed'?",
+            8
+          ],
+          [
+            "Saya semakin marah",
+            "I'm getting angrier",
+            "How do you say 'I'm getting angrier'?",
+            20
+          ],
+          [
+            "Saya sangat marah",
+            "I'm very angry",
+            "How do you say 'I'm very angry'?",
+            34
+          ],
+          [
+            "Saya hampir kehilangan kendali",
+            "I'm losing control",
+            "How do you say 'I'm losing control'?",
+            46
+          ],
+          [
+            "Saya sudah tidak tahan",
+            "I'm at my limit",
+            "How do you say 'I'm at my limit'?",
+            50
+          ],
+          [
+            "Saya mulai tenang",
+            "I'm starting to calm down",
+            "How do you say 'I'm starting to calm down'?",
+            62
+          ],
+          [
+            "Saya menjadi tenang",
+            "I'm calming down",
+            "How do you say 'I'm calming down'?",
+            75
+          ],
+          [
+            "Saya sudah tenang",
+            "I've calmed down",
+            "How do you say 'I've calmed down'?",
+            88
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOG-CR-DAY Generic</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .container {
+            width: 95vw; max-width: 1200px; height: 90vh;
+            background: white; border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .container > .circle-container {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: min(70vh, 70vw); height: min(70vh, 70vw);
+        }
+
+        .circle-container { position: relative; }
+        svg { width: 100%; height: 100%; }
+
+        .sector {
+            cursor: pointer;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0.7; transform-origin: center;
+        }
+        .sector:hover { opacity: 0.9; }
+        .sector.active { animation: scaleUp 0.3s ease forwards; }
+
+        @keyframes scaleUp {
+            0%   { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+
+        .hour-line  { stroke: #ccc; stroke-width: 1; }
+        .hour-label { font-size: 14px; fill: #333; text-anchor: middle; }
+
+        .time-point { fill: #ff6b6b; cursor: pointer; transition: all 0.2s; }
+        .time-point:hover { r: 8; fill: #ff5252; }
+
+        .text-box {
+            position: absolute; background: white;
+            border: 2px solid #333; border-radius: 8px;
+            padding: 8px 12px; font-size: 14px;
+            cursor: pointer; opacity: 0; display: none;
+            z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            min-width: 120px; text-align: center;
+            transition: opacity 0.3s ease;
+        }
+        .text-box.active  { opacity: 1; display: block; }
+        .text-box.learned {
+            border-color: #4caf50; background: #e8f5e9;
+            opacity: 0.5; display: block; cursor: move;
+        }
+        .text-box.learned.active { opacity: 1; cursor: move; }
+        .text-box.learned.dragging { opacity: 0.8; cursor: grabbing; z-index: 1000; }
+        .text-box.learned::after {
+            content: '✓'; position: absolute; top: -10px; right: -10px;
+            width: 24px; height: 24px; background: #4caf50; color: white;
+            border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; font-weight: bold;
+        }
+
+        .draggable-frame {
+            position: absolute; width: 40px; height: 40px;
+            border: 3px solid #2196f3; border-radius: 50%;
+            background: rgba(33,150,243,0.2); cursor: grab; z-index: 50;
+            transition: background 0.2s;
+        }
+        .draggable-frame:active { cursor: grabbing; background: rgba(33,150,243,0.4); }
+
+        .time-toggle {
+            position: absolute; bottom: 5%; right: 20%;
+            padding: 10px 20px; background: white; color: #333;
+            border: 2px solid #333; border-radius: 8px;
+            cursor: pointer; font-weight: bold; z-index: 200; font-size: 14px;
+        }
+        .time-toggle:hover { background: #f5f5f5; }
+
+        .quiz-container {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: white; border: 3px solid #2196f3;
+            border-radius: 12px; padding: 24px; z-index: 1000;
+            display: none; box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            min-width: 300px;
+        }
+        .quiz-container.visible { display: block; }
+        .quiz-container input {
+            width: 100%; padding: 10px; font-size: 16px;
+            border: 2px solid #ccc; border-radius: 6px; margin: 10px 0;
+        }
+        .quiz-container button {
+            width: 100%; padding: 10px; background: #2196f3;
+            color: white; border: none; border-radius: 6px;
+            cursor: pointer; font-weight: bold; font-size: 16px;
+        }
+        .quiz-container button:hover { background: #1976d2; }
+        .quiz-feedback {
+            margin-top: 10px; font-weight: bold;
+            text-align: center; min-height: 24px;
+        }
+
+        .progress-bar {
+            position: absolute; bottom: 5%; left: 20%;
+            background: white; border: 2px solid #333;
+            border-radius: 8px; padding: 10px 20px; z-index: 200;
+        }
+        .progress-fill {
+            height: 8px; background: #4caf50;
+            border-radius: 4px; transition: width 0.3s;
+        }
+
+        .watermark {
+            position: absolute; bottom: 5px; right: 10px;
+            font-size: 12px; color: rgba(0,0,0,0.3); font-weight: bold;
+            pointer-events: none; user-select: none; z-index: 0;
+        }
+
+        .title-box {
+            position: absolute; top: 5%; left: 5%;
+            font-size: 1em; font-weight: bold; text-align: center;
+            cursor: pointer; border: 2px solid #333;
+            padding: 10px 20px; background-color: white; z-index: 200;
+            font-family: Arial, sans-serif;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            border-radius: 8px;
+        }
+        .title-box.hidden { opacity: 0; transform: scale(0.9); }
+
+        @media (max-width: 768px) {
+            .hour-label { font-size: 11px; }
+            .text-box   { font-size: 12px; min-width: 100px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="title-box" class="title-box">TITLE_PLACEHOLDER</div>
+
+    <div class="progress-bar">
+        <div style="font-size:14px;margin-bottom:5px;">
+            <span id="progress-label">PROGRESS_LABEL</span>: <span id="progress-text">0/0</span>
+        </div>
+        <div style="background:#ddd;border-radius:4px;width:120px;">
+            <div id="progress-fill" class="progress-fill" style="width:0%"></div>
+        </div>
+    </div>
+
+    <div class="circle-container" id="circle-container">
+        <svg id="clock-svg" viewBox="-250 -250 500 500">
+            <defs>
+                <radialGradient id="dayGradient">
+                    <stop offset="0%"   style="stop-color:#87CEEB;stop-opacity:1"/>
+                    <stop offset="100%" style="stop-color:#E3F2FD;stop-opacity:1"/>
+                </radialGradient>
+                <radialGradient id="nightGradient">
+                    <stop offset="0%"   style="stop-color:#000000;stop-opacity:1"/>
+                    <stop offset="100%" style="stop-color:#1a237e;stop-opacity:1"/>
+                </radialGradient>
+                <radialGradient id="twilightGradient">
+                    <stop offset="0%"   style="stop-color:#FF6B6B;stop-opacity:1"/>
+                    <stop offset="50%"  style="stop-color:#FFA07A;stop-opacity:1"/>
+                    <stop offset="100%" style="stop-color:#FFB6C1;stop-opacity:1"/>
+                </radialGradient>
+            </defs>
+            <circle cx="0" cy="0" r="220" fill="#f5f5f5"/>
+        </svg>
+        <div id="draggable-frame" class="draggable-frame"></div>
+        <div id="text-boxes"></div>
+    </div>
+
+    <button id="time-toggle" class="time-toggle">TIME_TOGGLE_LABEL</button>
+
+    <div class="watermark">&copy; 2026 Alan William Preston</div>
+</div>
+
+<div id="quiz-container" class="quiz-container">
+    <div id="quiz-question" style="margin-bottom:10px;font-weight:bold;"></div>
+    <input type="text" id="quiz-input" placeholder="QUIZ_PLACEHOLDER">
+    <button id="quiz-submit">QUIZ_BUTTON_LABEL</button>
+    <div id="quiz-feedback" class="quiz-feedback"></div>
+</div>
+
+<script>
+
+// =====================================================================
+// =====================================================================
+// LOGOGRAPHIC VARIANT — 4-level cycle: TLR (default) → TL → SL → Quiz
+// Quiz tests TLR (romanized) reproduction with diacritic normalization.
+// =====================================================================
+// LANGUAGE CONFIGURATION BLOCK
+// To create a new language pair, replace ALL values in this section.
+// SL = Source Language  |  TL = Target Language (language being learned)
+// Do NOT change anything outside this block.
+// =====================================================================
+const LANG = {
+
+    // --- Title cycle (click title to cycle) --------------------------
+    // Title cycle: TLR (default) → TL → SL → TLR. See "Logographic
+    // UI Conventions" in Conceptionary_Template_Definitions.md.
+    // Previously this array's first element was the literal string
+    // "LOG-CR-DAY Generic" (a disconnected placeholder shown by
+    // default on load) sitting before three otherwise-correctly-
+    // ordered TLR/TL/SL elements — removed, so TLR now correctly
+    // becomes the default. Fixed 2026-07-21.
+    titles: [
+        "TLR_TITLE",
+        "TL_TITLE",
+        "SL_TITLE"
+    ],
+
+    // --- UI strings --------------------------------------------------
+    progress_label:    "PROGRESS_LABEL",   // e.g. "Progress"
+    time_toggle_label: "TIME_TOGGLE_12HR", // e.g. "12-Hour Format"
+    time_toggle_24hr:  "TIME_TOGGLE_24HR", // e.g. "24-Hour Format"
+    quiz_placeholder:  "QUIZ_PLACEHOLDER", // e.g. "Enter the [TL] word"
+    quiz_button:       "QUIZ_BUTTON",      // e.g. "Check Answer"
+    quiz_question_template: "QUIZ_Q_TEMPLATE {sl}",
+                            // e.g. 'What is the [TL] for "{sl}"?'
+                            // {sl} is replaced with the SL phrase at runtime
+    quiz_correct:      "QUIZ_CORRECT",     // e.g. "Correct! ✓"
+    quiz_wrong:        "QUIZ_WRONG",       // e.g. "Try again"
+    // --- Diacritic / romanization normalization --------------------------
+    // Shown near the quiz input so learners know they can type plain vowels.
+    diacritic_instructions: "DIACRITIC_INSTRUCTIONS",
+    // e.g. "Tip: macrons (ā→a, ō→o) may be typed as plain vowels."
+    diacritic_map: [
+        // ["ā","a"], ["ī","i"], ["ū","u"], ["ē","e"], ["ō","o"]
+    ],
+    collapse_double_vowels: false,
+
+    // --- Vocabulary data (27 items) ----------------------------------
+    // Each sector entry:  { type:'sector', id, start, end, ring, sl, tlr, tl, color }
+    // Each point entry:   { type:'point',  id, hour,         sl, tlr, tl }
+    // start/end/hour = hour on 24-hour clock (0–24)
+    // ring = 'outer' | 'middle' | 'inner'
+    // color = any CSS color string or SVG gradient reference (e.g. 'url(#dayGradient)')
+
+    vocabularyData: [
+        // --- Outer ring — broad periods ------------------------------
+        { type:'sector', id:'am',        start:0,  end:12, ring:'outer',  sl:'SL-AM',        tlr:'TLR-AM', tl:'TL-AM',        color:'#E3F2FD' },
+        { type:'sector', id:'pm',        start:12, end:24, ring:'outer',  sl:'SL-PM',        tlr:'TLR-PM', tl:'TL-PM',        color:'#FFE0B2' },
+        { type:'sector', id:'darkness',  start:18, end:30, ring:'outer',  sl:'SL-DARKNESS',  tlr:'TLR-DARKNESS', tl:'TL-DARKNESS',  color:'url(#nightGradient)' },
+        { type:'sector', id:'daylight',  start:6,  end:18, ring:'outer',  sl:'SL-DAYLIGHT',  tlr:'TLR-DAYLIGHT', tl:'TL-DAYLIGHT',  color:'url(#dayGradient)' },
+
+        // --- Middle ring — major periods -----------------------------
+        { type:'sector', id:'morning',   start:6,  end:12, ring:'middle', sl:'SL-MORNING',   tlr:'TLR-MORNING', tl:'TL-MORNING',   color:'#B3E5FC' },
+        { type:'sector', id:'afternoon', start:12, end:18, ring:'middle', sl:'SL-AFTERNOON', tlr:'TLR-AFTERNOON', tl:'TL-AFTERNOON', color:'#FFE082' },
+        { type:'sector', id:'evening',   start:17, end:19, ring:'middle', sl:'SL-EVENING',   tlr:'TLR-EVENING', tl:'TL-EVENING',   color:'#FFAB91' },
+        { type:'sector', id:'night',     start:19, end:29, ring:'middle', sl:'SL-NIGHT',     tlr:'TLR-NIGHT', tl:'TL-NIGHT',     color:'#424242' },
+
+        // --- Inner ring — specific periods ---------------------------
+        { type:'sector', id:'midnight-dawn',   start:0,  end:6,  ring:'inner', sl:'SL-MIDNIGHT-DAWN',   tlr:'TLR-MIDNIGHT-DAWN', tl:'TL-MIDNIGHT-DAWN',   color:'#000000' },
+        { type:'sector', id:'dawn',            start:5,  end:6,  ring:'inner', sl:'SL-DAWN',            tlr:'TLR-DAWN', tl:'TL-DAWN',            color:'url(#twilightGradient)' },
+        { type:'sector', id:'dusk',            start:18, end:19, ring:'inner', sl:'SL-DUSK',            tlr:'TLR-DUSK', tl:'TL-DUSK',            color:'url(#twilightGradient)' },
+        { type:'sector', id:'after-midnight',  start:0,  end:2,  ring:'inner', sl:'SL-AFTER-MIDNIGHT',  tlr:'TLR-AFTER-MIDNIGHT', tl:'TL-AFTER-MIDNIGHT',  color:'#1a1a1a' },
+        { type:'sector', id:'wee-hours',       start:0,  end:4,  ring:'inner', sl:'SL-WEE-HOURS',       tlr:'TLR-WEE-HOURS', tl:'TL-WEE-HOURS',       color:'#0d0d0d' },
+        { type:'sector', id:'dead-night',      start:0,  end:5,  ring:'inner', sl:'SL-DEAD-NIGHT',      tlr:'TLR-DEAD-NIGHT', tl:'TL-DEAD-NIGHT',      color:'#000000' },
+
+        // --- Inner ring — morning subdivisions -----------------------
+        { type:'sector', id:'early-morning',   start:6,  end:8,  ring:'inner', sl:'SL-EARLY-MORNING',   tlr:'TLR-EARLY-MORNING', tl:'TL-EARLY-MORNING',   color:'#81D4FA' },
+        { type:'sector', id:'mid-morning',     start:8,  end:10, ring:'inner', sl:'SL-MID-MORNING',     tlr:'TLR-MID-MORNING', tl:'TL-MID-MORNING',     color:'#4FC3F7' },
+        { type:'sector', id:'late-morning',    start:10, end:12, ring:'inner', sl:'SL-LATE-MORNING',    tlr:'TLR-LATE-MORNING', tl:'TL-LATE-MORNING',    color:'#29B6F6' },
+
+        // --- Inner ring — afternoon subdivisions ---------------------
+        { type:'sector', id:'early-afternoon', start:12, end:14, ring:'inner', sl:'SL-EARLY-AFTERNOON', tlr:'TLR-EARLY-AFTERNOON', tl:'TL-EARLY-AFTERNOON', color:'#FFD54F' },
+        { type:'sector', id:'mid-afternoon',   start:14, end:16, ring:'inner', sl:'SL-MID-AFTERNOON',   tlr:'TLR-MID-AFTERNOON', tl:'TL-MID-AFTERNOON',   color:'#FFCA28' },
+        { type:'sector', id:'late-afternoon',  start:16, end:18, ring:'inner', sl:'SL-LATE-AFTERNOON',  tlr:'TLR-LATE-AFTERNOON', tl:'TL-LATE-AFTERNOON',  color:'#FFC107' },
+
+        // --- Inner ring — evening / late night -----------------------
+        { type:'sector', id:'early-evening',   start:18, end:20, ring:'inner', sl:'SL-EARLY-EVENING',   tlr:'TLR-EARLY-EVENING', tl:'TL-EARLY-EVENING',   color:'#FF8A65' },
+        { type:'sector', id:'late-evening',    start:20, end:22, ring:'inner', sl:'SL-LATE-EVENING',    tlr:'TLR-LATE-EVENING', tl:'TL-LATE-EVENING',    color:'#E64A19' },
+        { type:'sector', id:'late-night',      start:22, end:24, ring:'inner', sl:'SL-LATE-NIGHT',      tlr:'TLR-LATE-NIGHT', tl:'TL-LATE-NIGHT',      color:'#263238' },
+
+        // --- Time points ---------------------------------------------
+        { type:'point', id:'sunrise',  hour:6,  sl:'SL-SUNRISE',  tlr:'TLR-SUNRISE', tl:'TL-SUNRISE'  },
+        { type:'point', id:'midday',   hour:12, sl:'SL-MIDDAY',   tlr:'TLR-MIDDAY', tl:'TL-MIDDAY'   },
+        { type:'point', id:'sunset',   hour:18, sl:'SL-SUNSET',   tlr:'TLR-SUNSET', tl:'TL-SUNSET'   },
+        { type:'point', id:'midnight', hour:0,  sl:'SL-MIDNIGHT', tlr:'TLR-MIDNIGHT', tl:'TL-MIDNIGHT' }
+    ]
+};
+// =====================================================================
+// END OF LANGUAGE CONFIGURATION BLOCK
+
+// --- Answer normalization (diacritic-tolerant for TLR quiz answers) ---
+const AnswerUtils = {
+    normalize: function(text) {
+        let t = text.toLowerCase();
+        LANG.diacritic_map.forEach(([accented, plain]) => {
+            t = t.split(accented).join(plain);
+        });
+        if (LANG.collapse_double_vowels) {
+            t = t.replace(/aa/g,'a').replace(/ee/g,'e').replace(/ii/g,'i')
+                 .replace(/oo/g,'o').replace(/uu/g,'u');
+        }
+        return t.replace(/\s+/g,' ').trim().toLowerCase();
+    },
+    checkAnswer: function(userInput, correct) {
+        return this.normalize(userInput) === this.normalize(correct);
+    }
+};
+
+// No language-specific content appears below this line.
+// =====================================================================
+
+
+// --- Apply UI strings on load ---------------------------------------
+document.getElementById('title-box').textContent       = LANG.titles[0];
+document.getElementById('progress-label').textContent  = LANG.progress_label;
+document.getElementById('time-toggle').textContent     = LANG.time_toggle_label;
+document.getElementById('quiz-input').placeholder      = LANG.quiz_placeholder;
+document.getElementById('quiz-submit').textContent     = LANG.quiz_button;
+document.getElementById('progress-text').textContent   = `0/${LANG.vocabularyData.length}`;
+
+// --- Runtime state --------------------------------------------------
+const vocabularyData    = LANG.vocabularyData;
+let learned             = new Set();
+let currentItem         = null;
+let displayMode         = {};   // 'tl' | 'sl' | 'quiz'
+let use24Hour           = false;
+let currentTitleIndex   = 0;
+
+const svg               = document.getElementById('clock-svg');
+const textBoxContainer  = document.getElementById('text-boxes');
+const draggableFrame    = document.getElementById('draggable-frame');
+const quizContainer     = document.getElementById('quiz-container');
+const circleContainer   = document.getElementById('circle-container');
+const titleBox          = document.getElementById('title-box');
+
+// --- Init -----------------------------------------------------------
+function init() {
+    drawClock();
+    createTextBoxes();
+    positionDraggableFrame(6);
+    updateProgress();
+    vocabularyData.forEach(item => { displayMode[item.id] = 'tlr'; });
+}
+
+// --- Clock drawing --------------------------------------------------
+function drawClock() {
+    const outerR = 200, middleR = 150, innerR = 100;
+
+    vocabularyData.filter(i => i.type === 'sector').forEach(sector => {
+        const outerRadius = sector.ring === 'outer'  ? outerR  :
+                            sector.ring === 'middle' ? middleR : innerR;
+        const innerRadius = sector.ring === 'outer'  ? middleR :
+                            sector.ring === 'middle' ? innerR  : 50;
+        const startAngle  = (sector.start / 24) * 360 - 90;
+        const endAngle    = (sector.end   / 24) * 360 - 90;
+        const pathEl = document.createElementNS('http://www.w3.org/2000/svg','path');
+        pathEl.setAttribute('d', createArcPath(0,0, innerRadius, outerRadius, startAngle, endAngle));
+        pathEl.setAttribute('fill',  sector.color);
+        pathEl.setAttribute('class', 'sector');
+        pathEl.setAttribute('data-id', sector.id);
+        pathEl.addEventListener('click', () => handleItemClick(sector));
+        svg.appendChild(pathEl);
+    });
+
+    for (let i = 0; i < 24; i++) {
+        const angle = (i / 24) * 360 - 90;
+        const rad   = angle * Math.PI / 180;
+        const line  = document.createElementNS('http://www.w3.org/2000/svg','line');
+        line.setAttribute('x1', Math.cos(rad) * innerR);
+        line.setAttribute('y1', Math.sin(rad) * innerR);
+        line.setAttribute('x2', Math.cos(rad) * outerR);
+        line.setAttribute('y2', Math.sin(rad) * outerR);
+        line.setAttribute('class','hour-line');
+        svg.appendChild(line);
+
+        const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+        lbl.setAttribute('x', Math.cos(rad) * (outerR + 20));
+        lbl.setAttribute('y', Math.sin(rad) * (outerR + 20));
+        lbl.setAttribute('class','hour-label');
+        lbl.textContent = formatHour(i);
+        svg.appendChild(lbl);
+    }
+
+    vocabularyData.filter(i => i.type === 'point').forEach(point => {
+        const angle = (point.hour / 24) * 360 - 90;
+        const rad   = angle * Math.PI / 180;
+        const c     = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        c.setAttribute('cx', Math.cos(rad) * outerR);
+        c.setAttribute('cy', Math.sin(rad) * outerR);
+        c.setAttribute('r', 6);
+        c.setAttribute('class','time-point');
+        c.setAttribute('data-id', point.id);
+        c.addEventListener('click', () => handleItemClick(point));
+        svg.appendChild(c);
+    });
+}
+
+function createArcPath(cx, cy, innerR, outerR, startAngle, endAngle) {
+    const s1 = polar(cx, cy, outerR, endAngle),   e1 = polar(cx, cy, outerR, startAngle);
+    const s2 = polar(cx, cy, innerR, endAngle),   e2 = polar(cx, cy, innerR, startAngle);
+    const la = endAngle - startAngle <= 180 ? 0 : 1;
+    return `M ${s1.x} ${s1.y} A ${outerR} ${outerR} 0 ${la} 0 ${e1.x} ${e1.y} L ${e2.x} ${e2.y} A ${innerR} ${innerR} 0 ${la} 1 ${s2.x} ${s2.y} Z`;
+}
+
+function polar(cx, cy, r, angle) {
+    const rad = angle * Math.PI / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
+// --- Text boxes -----------------------------------------------------
+function createTextBoxes() {
+    vocabularyData.forEach(item => {
+        const box = document.createElement('div');
+        box.className = 'text-box';
+        box.id = `box-${item.id}`;
+        box.textContent = item.tlr; // starts at TLR — LOG convention
+        box.addEventListener('click', e => {
+            if (!learned.has(item.id) || !e.target.classList.contains('dragging')) {
+                cycleDisplay(item);
+            }
+        });
+
+        // Drag for learned items
+        let isDraggingBox = false, startX, startY, initLeft, initTop;
+        box.addEventListener('mousedown', e => {
+            if (learned.has(item.id)) {
+                isDraggingBox = true; box.classList.add('dragging');
+                startX = e.clientX; startY = e.clientY;
+                initLeft = parseFloat(box.style.left) || 0;
+                initTop  = parseFloat(box.style.top)  || 0;
+                e.stopPropagation();
+            }
+        });
+        document.addEventListener('mousemove', e => {
+            if (isDraggingBox && learned.has(item.id)) {
+                box.style.left = `${initLeft + e.clientX - startX}px`;
+                box.style.top  = `${initTop  + e.clientY - startY}px`;
+                e.preventDefault();
+            }
+        });
+        document.addEventListener('mouseup', () => {
+            if (isDraggingBox) { isDraggingBox = false; box.classList.remove('dragging'); }
+        });
+
+        textBoxContainer.appendChild(box);
+    });
+}
+
+function positionTextBox(item) {
+    const box = document.getElementById(`box-${item.id}`);
+    if (!box) return;
+    let angle;
+    if (item.type === 'point') {
+        angle = (item.hour / 24) * 360 - 90;
+    } else {
+        angle = ((item.start + item.end) / 2 / 24) * 360 - 90;
+    }
+    const rad      = angle * Math.PI / 180;
+    const dist     = learned.has(item.id) ? 280 : 260;
+    const rect     = circleContainer.getBoundingClientRect();
+    box.style.left = `${rect.width  / 2 + Math.cos(rad) * dist}px`;
+    box.style.top  = `${rect.height / 2 + Math.sin(rad) * dist}px`;
+    box.style.transform = 'translate(-50%, -50%)';
+}
+
+// --- Click handlers -------------------------------------------------
+function handleItemClick(item) { showTextBox(item); }
+
+function showTextBox(item) {
+    document.querySelectorAll('.text-box').forEach(b => {
+        if (!learned.has(b.id.replace('box-',''))) b.classList.remove('active');
+    });
+    document.querySelectorAll('.sector').forEach(s => s.classList.remove('active'));
+
+    currentItem = item;
+    const box = document.getElementById(`box-${item.id}`);
+    box.classList.add('active');
+    positionTextBox(item);
+    if (learned.has(item.id)) { box.classList.add('learned'); box.classList.add('active'); }
+    if (item.type === 'sector') {
+        const el = document.querySelector(`[data-id="${item.id}"]`);
+        if (el) el.classList.add('active');
+    }
+}
+
+function hideAllNonLearned() {
+    document.querySelectorAll('.text-box').forEach(b => {
+        if (!learned.has(b.id.replace('box-',''))) b.classList.remove('active');
+    });
+    document.querySelectorAll('.sector').forEach(s => s.classList.remove('active'));
+}
+
+// --- Display cycle: TL → SL → Quiz ----------------------------------
+function cycleDisplay(item) {
+    const mode = displayMode[item.id];
+    const box  = document.getElementById(`box-${item.id}`);
+    // Fixed 2026-07-21: this LOG template's generic file was apparently
+    // built from its ROM counterpart and never received a TLR layer at
+    // all — no tlr property existed anywhere in vocabularyData, and this
+    // function only ever cycled TL→SL→Quiz. Confirmed against Alan's
+    // populated Daily_cycle_-_JAP.html reference, which correctly cycles
+    // TLR(romaji)→TL(ja)→SL(en)→Quiz — rebuilt to match that logic here
+    // using the generic sl/tlr/tl placeholder names.
+    if (learned.has(item.id)) {
+        // Learned: cycle TLR → TL → SL → TLR
+        if (mode === 'tlr') { box.textContent = item.tl;  displayMode[item.id] = 'tl';  }
+        else if (mode === 'tl') { box.textContent = item.sl;  displayMode[item.id] = 'sl';  }
+        else                    { box.textContent = item.tlr; displayMode[item.id] = 'tlr'; }
+    } else {
+        // Not learned: TLR → TL → SL → Quiz
+        if (mode === 'tlr') { box.textContent = item.tl;  displayMode[item.id] = 'tl';  }
+        else if (mode === 'tl') { box.textContent = item.sl;  displayMode[item.id] = 'sl';  }
+        else if (mode === 'sl') { showQuiz(item); displayMode[item.id] = 'quiz'; }
+    }
+}
+
+function repositionAllLearned() {
+    learned.forEach(id => {
+        const item = vocabularyData.find(v => v.id === id);
+        if (item) positionTextBox(item);
+    });
+}
+
+// --- Quiz -----------------------------------------------------------
+function showQuiz(item) {
+    document.getElementById('quiz-question').textContent =
+        LANG.quiz_question_template.replace('{sl}', item.sl);
+    document.getElementById('quiz-input').value   = '';
+    document.getElementById('quiz-feedback').textContent = '';
+    quizContainer.classList.add('visible');
+    document.getElementById('quiz-input').focus();
+
+    const checkAnswer = () => {
+        const answer  = document.getElementById('quiz-input').value.trim();
+        // LOG convention: the quiz tests TLR (romanized), not TL (script)
+        // — was incorrectly testing item.tl (and tlr didn't exist at all
+        // before this fix). Fixed 2026-07-21.
+        const correct = item.tlr.toLowerCase().trim();
+        const fb      = document.getElementById('quiz-feedback');
+        if (answer.toLowerCase() === correct) {
+            fb.textContent = LANG.quiz_correct;
+            fb.style.color = '#4caf50';
+            learned.add(item.id);
+            displayMode[item.id] = 'tlr';
+            updateProgress();
+            const box = document.getElementById(`box-${item.id}`);
+            box.classList.add('learned','active');
+            box.textContent = item.tlr;
+            repositionAllLearned();
+            setTimeout(() => { quizContainer.classList.remove('visible'); }, 1500);
+        } else {
+            fb.textContent = LANG.quiz_wrong;
+            fb.style.color = '#f44336';
+        }
+    };
+
+    document.getElementById('quiz-submit').onclick = checkAnswer;
+    document.getElementById('quiz-input').onkeypress = e => { if (e.key === 'Enter') checkAnswer(); };
+}
+
+// --- Draggable frame ------------------------------------------------
+function positionDraggableFrame(hour) {
+    const angle = (hour / 24) * 360 - 90;
+    const rad   = angle * Math.PI / 180;
+    const r     = 175;
+    const rect  = circleContainer.getBoundingClientRect();
+    draggableFrame.style.left = `${rect.width  / 2 + Math.cos(rad) * r - 20}px`;
+    draggableFrame.style.top  = `${rect.height / 2 + Math.sin(rad) * r - 20}px`;
+
+    hideAllNonLearned();
+
+    const overlapping = vocabularyData.filter(item => {
+        if (item.type !== 'sector') return false;
+        const h = hour % 24, s = item.start % 24, e = item.end % 24;
+        return e > s ? (h >= s && h < e) : (h >= s || h < e);
+    });
+    if (overlapping.length > 0) {
+        const smallest = overlapping.reduce((min, item) => {
+            const d = (item.end - item.start + 24) % 24;
+            const m = (min.end  - min.start  + 24) % 24;
+            return d < m ? item : min;
+        });
+        showTextBox(smallest);
+    }
+}
+
+// --- Utility --------------------------------------------------------
+function formatHour(hour) {
+    if (use24Hour) return hour;
+    if (hour === 0)  return '12 AM';
+    if (hour < 12)   return `${hour} AM`;
+    if (hour === 12) return '12 PM';
+    return `${hour - 12} PM`;
+}
+
+function updateProgress() {
+    const total = vocabularyData.length;
+    document.getElementById('progress-text').textContent  = `${learned.size}/${total}`;
+    document.getElementById('progress-fill').style.width  = `${(learned.size / total) * 100}%`;
+}
+
+// --- Event listeners ------------------------------------------------
+let isDragging = false;
+draggableFrame.addEventListener('mousedown',  e => { isDragging = true; e.preventDefault(); });
+draggableFrame.addEventListener('touchstart', e => { isDragging = true; e.preventDefault(); });
+
+document.addEventListener('mousemove', drag);
+document.addEventListener('touchmove', drag);
+function drag(e) {
+    if (!isDragging) return;
+    const touch  = e.touches ? e.touches[0] : e;
+    const rect   = circleContainer.getBoundingClientRect();
+    const dx     = touch.clientX - (rect.left + rect.width  / 2);
+    const dy     = touch.clientY - (rect.top  + rect.height / 2);
+    const angle  = ((Math.atan2(dy, dx) * 180 / Math.PI) + 90 + 360) % 360;
+    positionDraggableFrame((angle / 360) * 24);
+}
+
+document.addEventListener('mouseup',   () => isDragging = false);
+document.addEventListener('touchend',  () => isDragging = false);
+
+document.getElementById('time-toggle').addEventListener('click', () => {
+    use24Hour = !use24Hour;
+    document.getElementById('time-toggle').textContent =
+        use24Hour ? LANG.time_toggle_24hr : LANG.time_toggle_label;
+    document.querySelectorAll('.hour-label').forEach((lbl, i) => {
+        lbl.textContent = formatHour(i);
+    });
+});
+
+document.addEventListener('click', e => {
+    if (!quizContainer.contains(e.target) &&
+        !e.target.closest('.text-box') &&
+        quizContainer.classList.contains('visible')) {
+        quizContainer.classList.remove('visible');
+        if (currentItem && !learned.has(currentItem.id)) {
+            displayMode[currentItem.id] = 'tlr';
+            const box = document.getElementById(`box-${currentItem.id}`);
+            if (box) box.textContent = currentItem.tlr;
+        }
+    }
+});
+
+svg.addEventListener('click', e => {
+    if (e.target === svg || e.target.classList.contains('hour-line')) hideAllNonLearned();
+});
+
+titleBox.addEventListener('click', () => {
+    titleBox.classList.add('hidden');
+    setTimeout(() => {
+        currentTitleIndex = (currentTitleIndex + 1) % LANG.titles.length;
+        titleBox.textContent = LANG.titles[currentTitleIndex];
+        titleBox.classList.remove('hidden');
+    }, 500);
+});
+
+init();
+</script>
+</body>
+</html>

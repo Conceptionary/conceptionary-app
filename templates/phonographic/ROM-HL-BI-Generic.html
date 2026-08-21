@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bidirectional Horizontal Line — Phonographic — Generic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0; padding: 0;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; background-color: #f9f9f9; overflow: hidden;
+        }
+        .a4-page {
+            width: 90vw; height: 70vh;
+            border: 5px solid black; background-color: white;
+            box-sizing: border-box; position: relative;
+            touch-action: none; z-index: 1; overflow: hidden;
+        }
+        .watermark {
+            position: absolute; bottom: 5px; width: 100%;
+            text-align: center; font-size: 12px;
+            color: rgba(0,0,0,0.3); font-weight: bold;
+            pointer-events: none; user-select: none; z-index: 0;
+        }
+        svg { width: 100%; height: 100%; overflow: visible; }
+
+        /* ── Path line ── */
+        .path-line { stroke: #888; stroke-width: 0.4; fill: none; }
+
+        /* ── Pole labels ── */
+        .pole-label {
+            font-size: 3px; fill: #888;
+            font-style: italic; font-family: Arial, sans-serif;
+            pointer-events: none;
+        }
+
+        /* ── Background gradient — negative left, neutral centre, positive right ── */
+        #conceptBackground { opacity: 0.12; }
+
+        /* ── Draggable frame ── */
+        #draggableFrame {
+            stroke: #1a1a1a; stroke-width: 0.8;
+            cursor: grab;
+        }
+        #draggableFrame.dragging { cursor: grabbing; stroke-width: 1.2; }
+
+        /* ── Text boxes ── */
+        .textBox {
+            cursor: pointer; font-size: 0.8em; fill: black;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out, transform 0.3s ease-in-out;
+            transform: scale(0.5);
+        }
+        .textBox.active  { opacity: 1; transform: scale(1) translateY(0); }
+        .textBox.learned { opacity: 1; transform: scale(1) translateY(0); }
+        .textBox.learned-neg .tl-text { fill: #8b0000; }
+        .textBox.learned-pos .tl-text { fill: #00008b; }
+        .textBox.at-centre .tl-text { fill: #2c7a2c; font-weight: bold; }
+
+        /* ── Transitions sliding text ── */
+        .sliding-text {
+            font-size: 4px; fill: #333;
+            font-family: Arial, sans-serif;
+        }
+        .sliding-text-centre { fill: #2c7a2c; font-weight: bold; }
+
+        /* ── Mode toggle ── */
+        .mode-toggle {
+            position: absolute; bottom: 30px; left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em; padding: 6px 14px;
+            background-color: #f0f0f0; border: 1px solid #ccc;
+            border-radius: 4px; cursor: pointer; z-index: 3;
+        }
+
+        /* ── Title box ── */
+        .title-box {
+            position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+            font-size: 1em; font-weight: bold; text-align: center;
+            cursor: pointer; border: 1px solid black; padding: 8px 14px;
+            background-color: white; z-index: 2;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            white-space: nowrap;
+        }
+        .title-box.hidden { opacity: 0; transform: translateX(-50%) scale(0.9); }
+
+        /* ── Drag instruction ── */
+        .drag-instruction {
+            position: absolute; top: 25%; left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.85em; padding: 7px 16px;
+            background-color: rgba(255,255,255,0.95); border: 1px solid #bbb;
+            border-radius: 6px; z-index: 3; opacity: 1;
+            transition: opacity 3s ease;
+            white-space: nowrap; text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+        .drag-instruction.fade { opacity: 0; }
+
+        /* ── Quiz ── */
+        .quiz-container {
+            position: fixed; top: 40%; left: 50%;
+            transform: translate(-50%,-50%);
+            background-color: white; border: 3px solid #3366cc;
+            border-radius: 4px; padding: 0; z-index: 9999;
+            display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            max-width: 340px; width: 340px;
+            user-select: none;
+        }
+        .quiz-drag-handle {
+            background: #3366cc; color: white;
+            padding: 6px 10px; font-size: 12px;
+            cursor: grab; border-radius: 2px 2px 0 0;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .quiz-drag-handle:active { cursor: grabbing; }
+        .quiz-drag-handle span { font-size: 16px; cursor: pointer; opacity: 0.8; }
+        .quiz-drag-handle span:hover { opacity: 1; }
+        .quiz-inner { padding: 12px; }
+        .quiz-container input {
+            width: 100%; padding: 8px; font-size: 14px;
+            border: 1px solid #ccc; border-radius: 4px;
+            margin-bottom: 8px; font-family: Arial, sans-serif;
+            box-sizing: border-box;
+        }
+        .quiz-container button {
+            width: 100%; padding: 8px; background-color: #3366cc;
+            color: white; border: none; border-radius: 4px;
+            cursor: pointer; font-weight: bold;
+        }
+        .quiz-container button:hover { background-color: #254e9c; }
+        #quizFeedback { text-align: center; font-weight: bold; margin-top: 8px; min-height: 20px; }
+    </style>
+</head>
+<body>
+<div class="a4-page">
+    <div id="title-box" class="title-box">SL_TITLE / TL_TITLE</div>
+    <div id="drag-instruction" class="drag-instruction">DRAG_INSTRUCTION</div>
+    <button id="modeToggle" class="mode-toggle">STATES_MODE_LABEL</button>
+
+    <svg id="svgCanvas" viewBox="0 0 160 50" preserveAspectRatio="xMidYMid meet">
+        <defs>
+            <!-- Bidirectional background band gradient -->
+            <linearGradient id="biGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%"   style="stop-color:#8b0000;stop-opacity:1"/>
+                <stop offset="46%"  style="stop-color:#cccccc;stop-opacity:1"/>
+                <stop offset="50%"  style="stop-color:#2c7a2c;stop-opacity:1"/>
+                <stop offset="54%"  style="stop-color:#cccccc;stop-opacity:1"/>
+                <stop offset="100%" style="stop-color:#00008b;stop-opacity:1"/>
+            </linearGradient>
+        </defs>
+
+        <!-- Background band -->
+        <rect id="conceptBackground" x="5" y="23" width="150" height="4"
+              fill="url(#biGradient)" rx="2" style="pointer-events:none;"/>
+
+        <!-- Main horizontal line -->
+        <line id="horizontalLine" class="path-line" x1="5" y1="25" x2="155" y2="25"
+              style="pointer-events:none;"/>
+
+        <!-- Pole end markers -->
+        <circle cx="5"   cy="25" r="1.2" fill="#8b0000" opacity="0.6" style="pointer-events:none;"/>
+        <circle cx="155" cy="25" r="1.2" fill="#00008b" opacity="0.6" style="pointer-events:none;"/>
+
+        <!-- Pole direction labels -->
+        <text id="negPoleLabel" class="pole-label" x="5"   y="21" text-anchor="start" style="pointer-events:none;">NEG_POLE_LABEL</text>
+        <text id="posPoleLabel" class="pole-label" x="155" y="21" text-anchor="end"   style="pointer-events:none;">POS_POLE_LABEL</text>
+
+        <!-- Draggable circle — sits BEHIND textboxes in z-order.
+             Fill colour interpolates along neg→neutral→pos spectrum as it moves.
+             Only drag (mousedown+move) is handled here. -->
+        <circle id="draggableFrame" cx="80" cy="25" r="3.5"
+                fill="#00bcd4" stroke="#1a1a1a" stroke-width="0.8"
+                style="cursor:grab; pointer-events:fill; filter:drop-shadow(0 0 1px rgba(0,0,0,0.3));"/>
+
+        <!-- Sliding text path (transitions mode) -->
+        <text id="interactiveText" class="sliding-text" style="display:none;">
+            <textPath id="slidingText" href="#horizontalLine" startOffset="0%">
+                TL-T-NEG4
+            </textPath>
+        </text>
+        <!-- Invisible wider hit area for transitions click/drag -->
+        <rect id="transHitArea" x="0" y="19" width="40" height="12"
+              fill="transparent" style="display:none; cursor:grab; pointer-events:fill;"/>
+        <!-- Learned transition labels — permanently visible below the line -->
+        <g id="learnedTransLabels"></g>
+    </svg>
+
+    <div class="watermark">&copy; 2026 Alan William Preston</div>
+</div>
+
+<!-- Quiz -->
+<div id="quizContainer" class="quiz-container">
+    <div class="quiz-drag-handle" id="quizHandle">
+        <span id="quizHandleLabel">Quiz</span>
+        <span onclick="document.getElementById('quizContainer').style.display='none';currentQuizIdx=-1;" title="Close">✕</span>
+    </div>
+    <div class="quiz-inner">
+        <div id="quizQuestion" style="font-size:13px;margin-bottom:8px;color:#333;"></div>
+        <input type="text" id="quizInput" placeholder="QUIZ_PLACEHOLDER">
+        <button id="quizCheck">QUIZ_BUTTON</button>
+        <div id="quizFeedback"></div>
+    </div>
+</div>
+
+<script>
+// =====================================================================
+// LANGUAGE CONFIGURATION BLOCK
+// To create a new language pair, replace ALL values in this section.
+// SL = Source Language  |  TL = Target Language (language being learned)
+//
+// STRUCTURE: This is a BIDIRECTIONAL template. The neutral zero point
+// sits at position 80 (centre of the 0–160 unit line). Negative-pole
+// states occupy positions 0–75 (left of centre); positive-pole states
+// occupy positions 85–160 (right of centre). The centre position (80)
+// is reserved for the neutral/zero-point state.
+//
+// States layout (9 textboxes):
+//   NEG4 · NEG3 · NEG2 · NEG1 · NEUTRAL · POS1 · POS2 · POS3 · POS4
+//
+// Transitions layout (8 positions — midpoints between states, plus
+// a special CENTRE-CROSS transition for movement through neutral):
+//   T-NEG4 · T-NEG3 · T-NEG2 · T-NEG1 · [CENTRE-CROSS] · T-POS1 · T-POS2 · T-POS3
+//
+// Do NOT change anything outside this block.
+// =====================================================================
+const LANG = {
+
+    // --- Title cycle (click title box to cycle) ----------------------
+    titles: [
+        "SL_TITLE / TL_TITLE",
+        "TL_TITLE",
+        "SL_TITLE"
+    ],
+
+    // --- Pole labels (shown at each end of the line) -----------------
+    neg_pole_label:   "NEG_POLE_LABEL",   // e.g. "← Overfull"
+    pos_pole_label:   "POS_POLE_LABEL",   // e.g. "Starving →"
+
+    // --- UI strings --------------------------------------------------
+    drag_instruction:     "DRAG_INSTRUCTION",     // e.g. "Drag to explore the spectrum"
+    states_mode_label:    "STATES_MODE_LABEL",     // e.g. "Switch to Transitions"
+    trans_mode_label:     "TRANS_MODE_LABEL",      // e.g. "Switch to States"
+    quiz_placeholder:     "QUIZ_PLACEHOLDER",      // e.g. "Type in [TL]…"
+    quiz_button:          "QUIZ_BUTTON",           // e.g. "Check"
+    quiz_correct:         "QUIZ_CORRECT",          // e.g. "Correct!"
+    quiz_wrong:           "QUIZ_WRONG",            // e.g. "Try again"
+
+    // --- Draggable frame colour spectrum -----------------------------
+    // Three colours defining the gradient of the draggable circle:
+    // neg_colour = extreme negative pole colour
+    // neutral_colour = centre / neutral colour
+    // pos_colour = extreme positive pole colour
+    // Choose one of the four natural spectrums, or define your own.
+    // Option 1 Acoustic/Light: '#6a0dad', '#2ecc71', '#ff1493'
+    // Option 2 Humidity:       '#c8860a', '#8fbc8f', '#1a237e'
+    // Option 3 Psych/Energy:   '#808080', '#00bcd4', '#aaff00'
+    // Option 4 Material:       '#e8e8e8', '#aaaaaa', '#1a1a1a'
+    frame_colour_neg:     "#808080",   // Ash grey  (catatonic / stuffed)
+    frame_colour_neutral: "#00bcd4",   // Turquoise (calm / neither)
+    frame_colour_pos:     "#aaff00",   // Toxic lime (frenzied / starving)
+    // Format: [TL, SL, Quiz question, Position (0–160)]
+    // Position 80 = neutral centre. Left of 80 = negative pole.
+    // Right of 80 = positive pole.
+    conceptData: [
+        ["TL-NEG4", "SL-NEG4", "QUIZ-NEG4",  5  ],   // extreme negative pole
+        ["TL-NEG3", "SL-NEG3", "QUIZ-NEG3",  25 ],
+        ["TL-NEG2", "SL-NEG2", "QUIZ-NEG2",  45 ],
+        ["TL-NEG1", "SL-NEG1", "QUIZ-NEG1",  65 ],
+        ["TL-NEUTRAL","SL-NEUTRAL","QUIZ-NEUTRAL", 80],  // ← neutral zero point
+        ["TL-POS1", "SL-POS1", "QUIZ-POS1",  95 ],
+        ["TL-POS2", "SL-POS2", "QUIZ-POS2",  115],
+        ["TL-POS3", "SL-POS3", "QUIZ-POS3",  135],
+        ["TL-POS4", "SL-POS4", "QUIZ-POS4",  155]    // extreme positive pole
+    ],
+
+    // --- Transitions data (8 items + 1 centre-cross) -----------------
+    // The centre-cross transition (index 4) marks movement through the
+    // neutral point — a special semantic moment worth highlighting.
+    transitionsData: [
+        ["TL-T-NEG4", "SL-T-NEG4", "QUIZ-T-NEG4", 15 ],
+        ["TL-T-NEG3", "SL-T-NEG3", "QUIZ-T-NEG3", 35 ],
+        ["TL-T-NEG2", "SL-T-NEG2", "QUIZ-T-NEG2", 55 ],
+        ["TL-T-NEG1", "SL-T-NEG1", "QUIZ-T-NEG1", 72 ],
+        ["TL-T-CENTRE","SL-T-CENTRE","QUIZ-T-CENTRE", 80], // ← crossing neutral
+        ["TL-T-POS1", "SL-T-POS1", "QUIZ-T-POS1", 87 ],
+        ["TL-T-POS2", "SL-T-POS2", "QUIZ-T-POS2", 105],
+        ["TL-T-POS3", "SL-T-POS3", "QUIZ-T-POS3", 125],
+        ["TL-T-POS4", "SL-T-POS4", "QUIZ-T-POS4", 145]
+    ]
+};
+// =====================================================================
+// END OF LANGUAGE CONFIGURATION BLOCK
+// No language-specific content appears below this line.
+// =====================================================================
+
+// --- Apply static UI strings from config -----------------------------
+document.getElementById('title-box').textContent          = LANG.titles[0];
+document.getElementById('drag-instruction').textContent   = LANG.drag_instruction;
+document.getElementById('modeToggle').textContent         = LANG.states_mode_label;
+document.getElementById('quizInput').placeholder          = LANG.quiz_placeholder;
+document.getElementById('quizCheck').textContent          = LANG.quiz_button;
+document.getElementById('negPoleLabel').textContent       = LANG.neg_pole_label;
+document.getElementById('posPoleLabel').textContent       = LANG.pos_pole_label;
+
+// --- Runtime state ---------------------------------------------------
+const NEUTRAL_POS  = 80;    // SVG x-coordinate of neutral centre
+const NEUTRAL_ZONE = 5;     // px either side of neutral = "at centre"
+const LINE_X1 = 5, LINE_X2 = 155;
+const LINE_WIDTH = LINE_X2 - LINE_X1;
+
+let isStatesMode    = true;
+let currentQuizIdx  = -1;
+let learnedStates   = new Array(LANG.conceptData.length).fill(false);
+let learnedTrans    = new Array(LANG.transitionsData.length).fill(false);
+let textBoxEls      = [];
+let currentFrameX   = NEUTRAL_POS;
+let isDragging      = false;
+let titleIndex      = 0;
+let closedIdx       = -1;
+
+// --- Helpers ---------------------------------------------------------
+function isAtCentre(x) {
+    return Math.abs(x - NEUTRAL_POS) <= NEUTRAL_ZONE;
+}
+
+function isNegative(pos) { return pos < NEUTRAL_POS - NEUTRAL_ZONE; }
+function isPositive(pos) { return pos > NEUTRAL_POS + NEUTRAL_ZONE; }
+
+function posToPercent(pos) {
+    return ((pos - LINE_X1) / LINE_WIDTH * 100).toFixed(2) + '%';
+}
+
+function closestStateIndex(x) {
+    let best = 0, minD = Infinity;
+    LANG.conceptData.forEach((d, i) => {
+        const dist = Math.abs(d[3] - x);
+        if (dist < minD) { minD = dist; best = i; }
+    });
+    return best;
+}
+
+function closestTransIndex(x) {
+    let best = 0, minD = Infinity;
+    LANG.transitionsData.forEach((d, i) => {
+        const dist = Math.abs(d[3] - x);
+        if (dist < minD) { minD = dist; best = i; }
+    });
+    return best;
+}
+
+// --- Create textboxes (states mode) ----------------------------------
+function createTextBoxes() {
+    const svg = document.getElementById('svgCanvas');
+    document.querySelectorAll('.textBox').forEach(b => b.parentNode && b.parentNode.removeChild(b));
+    textBoxEls = [];
+
+    LANG.conceptData.forEach((d, i) => {
+        const x   = d[3];
+        const atC = isAtCentre(x);
+        const neg = isNegative(x);
+
+        const boxW = (d[3] <= 10 || d[3] >= 150) ? 36 : 26;  // wider at extremes
+        const boxH = 13;
+        const margin = 1; // minimum distance from SVG edge
+
+        // Centre the box on x, then clamp so it stays within [margin, LINE_X2+margin-boxW]
+        let boxX = x - boxW / 2;
+        boxX = Math.max(margin, Math.min(LINE_X2 + margin - boxW, boxX));
+
+        // Arc y-position: cosine curve — extremes high, centre near line
+        // y=2 at pos 5/155 (extremes), y=17 at pos 80 (centre/neutral)
+        const yTop    = 2;
+        const yCentre = 17;
+        const dist    = Math.abs(d[3] - NEUTRAL_POS) / (NEUTRAL_POS - LINE_X1);
+        const boxY    = Math.round(yTop + (yCentre - yTop) * Math.pow(Math.cos(dist * Math.PI / 2), 2));
+
+        const fo = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+        fo.setAttribute('x', boxX.toFixed(1));
+        fo.setAttribute('y', boxY);
+        fo.setAttribute('width',  boxW);
+        fo.setAttribute('height', atC ? 16 : 14);
+        fo.setAttribute('class', 'textBox' + (atC ? ' at-centre' : ''));
+        fo.setAttribute('data-index', i);
+        fo.style.pointerEvents = 'auto';
+
+        const div = document.createElement('div');
+        div.style.textAlign  = 'center';
+        div.style.fontSize   = (d[3] <= 10 || d[3] >= 150) ? '2.6px' : '3px';
+        div.style.fontWeight = atC ? 'bold' : 'normal';
+        div.style.color      = atC ? '#2c7a2c' : (neg ? '#8b0000' : '#00008b');
+        div.style.fontFamily = 'Arial, sans-serif';
+        div.style.cursor     = 'pointer';
+        div.style.lineHeight = '1.3';
+        div.style.wordBreak  = 'break-word';
+        div.style.padding    = '1px 2px';
+        div.textContent      = d[0]; // start with TL
+        fo.appendChild(div);
+
+        fo.addEventListener('click', function() {
+            const idx = parseInt(this.getAttribute('data-index'));
+            const div = this.querySelector('div');
+            const data = LANG.conceptData;
+            const qc   = document.getElementById('quizContainer');
+
+            if (qc.style.display !== 'none' && currentQuizIdx === idx) return;
+
+            const tlText = data[idx][0];
+            const slText = data[idx][1];
+
+            if (learnedStates[idx]) {
+                div.textContent = (div.textContent === tlText) ? slText : tlText;
+            } else {
+                if (div.textContent === tlText) {
+                    div.textContent = slText;
+                } else if (div.textContent === slText) {
+                    showQuiz(idx);
+                }
+            }
+        });
+
+        const frame = document.getElementById('draggableFrame');
+        // Append after frame so textboxes sit ABOVE frame in z-order
+        svg.appendChild(fo);
+        textBoxEls.push(fo);
+    });
+
+    // Ensure frame stays below all textboxes
+    const frame2 = document.getElementById('draggableFrame');
+    if (frame2) {
+        const lg = document.getElementById('svgCanvas');
+        // Move frame to just before the first textbox (keeps it behind)
+        const firstTB = lg.querySelector('.textBox');
+        if (firstTB) lg.insertBefore(frame2, firstTB);
+    }
+}
+
+// --- Update visible textboxes ----------------------------------------
+function updateVisibleTextBoxes(x) {
+    const activeIdx = closestStateIndex(x);
+
+    textBoxEls.forEach((tb, i) => {
+        if (!tb) return;
+        const atC = isAtCentre(LANG.conceptData[i][3]);
+
+        // Skip neutral centre — removed from display
+        if (atC) {
+            tb.style.opacity = '0'; tb.style.display = 'none';
+            return;
+        }
+
+        if (i === activeIdx) {
+            tb.classList.add('active');
+            tb.style.opacity = '1'; tb.style.display = 'block';
+        } else if (learnedStates[i]) {
+            // Learned items stay permanently visible on the line at full opacity
+            tb.classList.remove('active');
+            tb.style.opacity = '1'; tb.style.display = 'block';
+        } else {
+            tb.classList.remove('active');
+            tb.style.opacity = '0'; tb.style.display = 'none';
+        }
+    });
+
+    // Highlight frame with neutral colour stroke when at centre
+    const frame = document.getElementById('draggableFrame');
+    if (isAtCentre(x)) {
+        frame.style.stroke = '#2c7a2c';
+        frame.style.strokeWidth = '1.2';
+    } else {
+        frame.style.stroke = '#1a1a1a';
+        frame.style.strokeWidth = '0.8';
+    }
+}
+
+// --- Transitions mode ------------------------------------------------
+// Each transition has three levels: TL (default) → SL → Quiz
+// After correct quiz answer, item stays permanently visible on the line.
+const transDisplayLevel = new Array(100).fill(0);
+let lastTransIdx = -1;      // tracks which item is currently shown
+let transClickTimer = null; // debounce guard
+
+function updateSlidingText(x) {
+    const tIdx = closestTransIndex(x);
+    lastTransIdx = tIdx;    // lock current index for click handler
+    const d    = LANG.transitionsData[tIdx];
+    const textPath = document.getElementById('slidingText');
+    const text     = document.getElementById('interactiveText');
+
+    const level = transDisplayLevel[tIdx];
+    textPath.textContent = (level === 1) ? d[1] : d[0];
+
+    // Clamp startOffset: 0%–85% so text never runs off right edge
+    const rawPct = (d[3] - LINE_X1) / LINE_WIDTH * 100;
+    const pct = Math.max(0, Math.min(85, rawPct));
+    textPath.setAttribute('startOffset', pct.toFixed(2) + '%');
+
+    // Position hit area over the text
+    const hitX = LINE_X1 + (pct / 100) * LINE_WIDTH;
+    const hitArea = document.getElementById('transHitArea');
+    hitArea.setAttribute('x', hitX.toFixed(1));
+    hitArea.style.display = 'block';
+
+    if (isAtCentre(d[3])) {
+        text.classList.add('sliding-text-centre');
+    } else {
+        text.classList.remove('sliding-text-centre');
+    }
+
+}
+
+function handleTransClick() {
+    // Use lastTransIdx (locked when text was last rendered) not currentFrameX
+    // which may have drifted. Debounce to prevent double-fires.
+    if (transClickTimer) return;
+    transClickTimer = setTimeout(() => { transClickTimer = null; }, 400);
+
+    const tIdx = lastTransIdx;
+    if (tIdx < 0 || tIdx >= LANG.transitionsData.length) return;
+    const d    = LANG.transitionsData[tIdx];
+    const tp   = document.getElementById('slidingText');
+    const level = transDisplayLevel[tIdx];
+
+    if (learnedTrans[tIdx]) {
+        // Learned — cycle TL ↔ SL for review
+        transDisplayLevel[tIdx] = (level === 0) ? 1 : 0;
+        tp.textContent = (transDisplayLevel[tIdx] === 1) ? d[1] : d[0];
+    } else if (level === 0) {
+        // TL → show SL
+        transDisplayLevel[tIdx] = 1;
+        tp.textContent = d[1];
+    } else if (level === 1) {
+        // SL → launch quiz
+        showQuizTrans(tIdx);
+    }
+}
+
+// --- Quiz (states) ---------------------------------------------------
+function showQuiz(idx) {
+    currentQuizIdx = idx;
+    const d  = LANG.conceptData[idx];
+    const qc = document.getElementById('quizContainer');
+    document.getElementById('quizQuestion').textContent = d[2];
+    document.getElementById('quizInput').value = '';
+    document.getElementById('quizFeedback').textContent = '';
+    qc.style.transform = 'translate(-50%,-50%)';
+    qc.style.left = '50%'; qc.style.top = '40%';
+    qc.style.display = 'block';
+    setTimeout(() => { try { document.getElementById('quizInput').focus(); } catch(e){} }, 80);
+}
+
+function showQuizTrans(idx) {
+    currentQuizIdx = -(idx + 1); // negative = transitions
+    const d  = LANG.transitionsData[idx];
+    const qc = document.getElementById('quizContainer');
+    document.getElementById('quizQuestion').textContent = d[2];
+    document.getElementById('quizInput').value = '';
+    document.getElementById('quizFeedback').textContent = '';
+    qc.style.transform = 'translate(-50%,-50%)';
+    qc.style.left = '50%'; qc.style.top = '40%';
+    qc.style.display = 'block';
+    setTimeout(() => { try { document.getElementById('quizInput').focus(); } catch(e){} }, 80);
+}
+
+function checkQuizAnswer() {
+    const input = document.getElementById('quizInput').value.trim();
+    const fb    = document.getElementById('quizFeedback');
+
+    if (currentQuizIdx >= 0) {
+        // States quiz
+        const correct = LANG.conceptData[currentQuizIdx][0];
+        if (input.toLowerCase() === correct.toLowerCase()) {
+            fb.textContent = LANG.quiz_correct; fb.style.color = 'green';
+            learnedStates[currentQuizIdx] = true;
+            const tb = textBoxEls[currentQuizIdx];
+            if (tb) {
+                tb.classList.add('learned');
+                tb.style.pointerEvents = 'none'; // frame remains grabbable through learned textbox
+                const div = tb.querySelector('div');
+                if (div) div.textContent = correct;
+            }
+            closedIdx = currentQuizIdx;
+            setTimeout(() => {
+                if (currentQuizIdx === closedIdx) {
+                    document.getElementById('quizContainer').style.display = 'none';
+                    currentQuizIdx = -1;
+                }
+            }, 1500);
+        } else {
+            fb.textContent = LANG.quiz_wrong; fb.style.color = 'red';
+            const tb = textBoxEls[currentQuizIdx];
+            if (tb) { const div = tb.querySelector('div'); if (div) div.textContent = correct; }
+        }
+    } else {
+        // Transitions quiz
+        const tIdx = -(currentQuizIdx + 1);
+        const correct = LANG.transitionsData[tIdx][0];
+        if (input.toLowerCase() === correct.toLowerCase()) {
+            fb.textContent = LANG.quiz_correct; fb.style.color = 'green';
+            learnedTrans[tIdx] = true;
+            transDisplayLevel[tIdx] = 0;
+            document.getElementById('slidingText').textContent = correct;
+            showLearnedTransLabel(tIdx); // show permanently below the line
+            closedIdx = currentQuizIdx;
+            setTimeout(() => {
+                if (currentQuizIdx === closedIdx) {
+                    document.getElementById('quizContainer').style.display = 'none';
+                    currentQuizIdx = -1;
+                }
+            }, 1500);
+        } else {
+            fb.textContent = LANG.quiz_wrong; fb.style.color = 'red';
+        }
+    }
+}
+
+// --- Colour interpolation for draggable circle -----------------------
+function hexToRgb(hex) {
+    const r = parseInt(hex.slice(1,3),16);
+    const g = parseInt(hex.slice(3,5),16);
+    const b = parseInt(hex.slice(5,7),16);
+    return [r,g,b];
+}
+function rgbToHex(r,g,b) {
+    return '#' + [r,g,b].map(v => Math.round(v).toString(16).padStart(2,'0')).join('');
+}
+function lerpColour(c1, c2, t) {
+    const [r1,g1,b1] = hexToRgb(c1);
+    const [r2,g2,b2] = hexToRgb(c2);
+    return rgbToHex(r1+(r2-r1)*t, g1+(g2-g1)*t, b1+(b2-b1)*t);
+}
+function updateFrameColour(x) {
+    const neg = LANG.frame_colour_neg;
+    const neu = LANG.frame_colour_neutral;
+    const pos = LANG.frame_colour_pos;
+    let colour;
+    if (x <= NEUTRAL_POS) {
+        const t = (x - LINE_X1) / (NEUTRAL_POS - LINE_X1);
+        colour = lerpColour(neg, neu, Math.max(0, Math.min(1, t)));
+    } else {
+        const t = (x - NEUTRAL_POS) / (LINE_X2 - NEUTRAL_POS);
+        colour = lerpColour(neu, pos, Math.max(0, Math.min(1, t)));
+    }
+    // Use style.fill — overrides any CSS rules, works in all browsers
+    const circle = document.getElementById('draggableFrame');
+    circle.style.fill = colour;
+}
+
+// --- Frame positioning -----------------------------------------------
+function positionFrame(x) {
+    x = Math.max(LINE_X1, Math.min(LINE_X2, x));
+    currentFrameX = x;
+    document.getElementById('draggableFrame').setAttribute('cx', x);
+
+    updateFrameColour(x);
+
+    if (isStatesMode) {
+        updateVisibleTextBoxes(x);
+    } else {
+        updateSlidingText(x);
+    }
+}
+
+// --- Drag logic ------------------------------------------------------
+function getSvgX(e) {
+    const svg = document.getElementById('svgCanvas');
+    const pt  = svg.createSVGPoint();
+    pt.x = e.clientX || (e.touches && e.touches[0].clientX);
+    pt.y = e.clientY || (e.touches && e.touches[0].clientY);
+    return pt.matrixTransform(svg.getScreenCTM().inverse()).x;
+}
+
+function initDrag() {
+    const frame = document.getElementById('draggableFrame');
+    const svg   = document.getElementById('svgCanvas');
+
+    function onStart(e) {
+        isDragging = true;
+        frame.classList.add('dragging');
+        // Disable pointer events on foreignObjects during drag
+        document.querySelectorAll('.textBox').forEach(tb => {
+            tb.style.pointerEvents = 'none';
+        });
+        e.preventDefault();
+    }
+
+    let lastX = NEUTRAL_POS;
+    function onMove(e) {
+        if (!isDragging) return;
+        const svgX = getSvgX(e);
+        // Dead-zone of 0.5 SVG units prevents jitter on slow drags
+        if (Math.abs(svgX - lastX) < 0.5) return;
+        lastX = svgX;
+        positionFrame(svgX);
+        e.preventDefault();
+    }
+
+    function onEnd(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        frame.classList.remove('dragging');
+        // Re-enable pointer events on foreignObjects
+        document.querySelectorAll('.textBox').forEach(tb => {
+            tb.style.pointerEvents = 'auto';
+        });
+    }
+
+    // Start drag on frame
+    frame.addEventListener('mousedown',  onStart);
+    frame.addEventListener('touchstart', onStart, {passive: false});
+
+    // Drag is restricted to the frame circle only — clicking elsewhere
+    // on the SVG does not initiate a drag.
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('touchmove', onMove, {passive: false});
+    document.addEventListener('mouseup',   onEnd);
+    document.addEventListener('touchend',  onEnd);
+}
+
+// --- Transitions drag logic ------------------------------------------
+function initTransDrag() {
+    const hitArea = document.getElementById('transHitArea');
+    const svg     = document.getElementById('svgCanvas');
+    let isDraggingTrans = false;
+
+    function tStart(e) {
+        isDraggingTrans = true;
+        hitArea.style.cursor = 'grabbing';
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+    function tMove(e) {
+        if (!isDraggingTrans) return;
+        const svgX = getSvgX(e);
+        const clamped = Math.max(LINE_X1, Math.min(LINE_X2, svgX));
+        updateSlidingText(clamped);
+        e.preventDefault();
+    }
+
+    function tEnd() {
+        if (!isDraggingTrans) return;
+        isDraggingTrans = false;
+        hitArea.style.cursor = 'grab';
+    }
+
+    hitArea.addEventListener('mousedown',  tStart);
+    hitArea.addEventListener('touchstart', tStart, {passive: false});
+    document.addEventListener('mousemove', tMove);
+    document.addEventListener('touchmove', tMove, {passive: false});
+    document.addEventListener('mouseup',   tEnd);
+    document.addEventListener('touchend',  tEnd);
+}
+
+// --- Show learned transition as permanent label below the line -------
+//
+// Labels are laid out flush-left across the FULL canvas width (0 to the
+// SVG viewBox width), not just the narrower draggable travel-line span —
+// these are annotations below the line, not the draggable frame itself,
+// so they're free to use the margin outside the travel line for extra
+// breathing room. The leftmost learned item sits flush against the true
+// left edge of the canvas; each subsequent item is placed at the minimum
+// distance needed to avoid overlapping its predecessor, accounting for
+// each label's anchor direction ('start' text extends fully rightward,
+// 'end' text extends fully leftward, 'middle' text is centred — treating
+// every label as centred, as an earlier version did, under-reserves space
+// at the two ends of the line where the extreme-pole labels sit). If the
+// full set of labels doesn't fit at the ideal gap, the gap shrinks
+// gracefully toward (but never below) zero rather than letting labels
+// run past the canvas edge.
+function showLearnedTransLabel(tIdx) {
+    const ns = 'http://www.w3.org/2000/svg';
+    const g  = document.getElementById('learnedTransLabels');
+    const CANVAS_X1 = 0, CANVAS_X2 = 160; // full SVG viewBox width
+
+    // Collect all currently learned indices in natural (data) order —
+    // transitionsData is already stored in ascending x-position order,
+    // so this iteration order is also ascending-position order.
+    const learnedIdxs = [];
+    LANG.transitionsData.forEach((d, i) => {
+        if (learnedTrans[i] || i === tIdx) learnedIdxs.push(i);
+    });
+
+    // Anchor direction is decided from the item's true spectrum position
+    // (unrelated to canvas layout) — extreme poles read outward, away
+    // from the frame; everything else is centred on its point.
+    function anchorFor(i) {
+        const x = LANG.transitionsData[i][3];
+        let pct;
+        if (x <= NEUTRAL_POS) {
+            pct = 1 + ((x - LINE_X1) / (NEUTRAL_POS - LINE_X1)) * 49;
+        } else {
+            pct = 50 + ((x - NEUTRAL_POS) / (LINE_X2 - NEUTRAL_POS)) * 49;
+        }
+        return pct < 20 ? 'start' : pct > 80 ? 'end' : 'middle';
+    }
+
+    // Rough label width in SVG units, based on glyph count at the fixed
+    // 2.8-unit font size (avg glyph width ~0.6 * font-size).
+    function estimateLabelWidth(text) {
+        return text.length * 2.8 * 0.6;
+    }
+
+    const items = learnedIdxs.map(i => ({
+        idx:    i,
+        text:   LANG.transitionsData[i][0], // TL
+        anchor: anchorFor(i)
+    }));
+
+    const n = items.length;
+    if (n >= 1) {
+        // Extent of each label to the left and right of its x position.
+        const leftExt  = items.map(it => {
+            const w = estimateLabelWidth(it.text);
+            return it.anchor === 'end' ? w : it.anchor === 'start' ? 0 : w / 2;
+        });
+        const rightExt = items.map(it => {
+            const w = estimateLabelWidth(it.text);
+            return it.anchor === 'start' ? w : it.anchor === 'end' ? 0 : w / 2;
+        });
+
+        // Find the largest gap (up to the ideal) that still lets every
+        // label fit within the canvas; degrades toward 0 gracefully as
+        // more/longer labels are learned simultaneously.
+        const idealPad = 1.5;
+        let pad = idealPad;
+        if (n > 1) {
+            let fixedWidth = leftExt[0] + rightExt[n - 1];
+            for (let k = 1; k < n; k++) fixedWidth += rightExt[k - 1] + leftExt[k];
+            const available = (CANVAS_X2 - CANVAS_X1) - fixedWidth;
+            const maxPad = available / (n - 1);
+            pad = Math.max(0, Math.min(idealPad, maxPad));
+        }
+
+        // Lay out flush-left with that gap.
+        items[0].x = CANVAS_X1 + leftExt[0];
+        for (let k = 1; k < n; k++) {
+            items[k].x = items[k - 1].x + rightExt[k - 1] + leftExt[k] + pad;
+        }
+    }
+
+    // Redraw all learned labels
+    Array.from(g.children).forEach(el => g.removeChild(el));
+
+    items.forEach(it => {
+        const y = 34;
+
+        const label = document.createElementNS(ns, 'text');
+        label.setAttribute('x', it.x.toFixed(1));
+        label.setAttribute('y', y);
+        label.setAttribute('text-anchor', it.anchor);
+        label.setAttribute('font-size', '2.8');
+        label.setAttribute('fill', '#2c7a2c');
+        label.setAttribute('font-weight', 'bold');
+        label.setAttribute('font-family', 'Arial, sans-serif');
+        label.setAttribute('pointer-events', 'none');
+        label.setAttribute('data-tidx', it.idx);
+        label.textContent = it.text;
+        g.appendChild(label);
+    });
+}
+
+// --- Quiz drag logic -------------------------------------------------
+function initQuizDrag() {
+    const qc     = document.getElementById('quizContainer');
+    const handle = document.getElementById('quizHandle');
+    let qDragging = false, qStartX, qStartY, qOrigLeft, qOrigTop;
+
+    function qStart(e) {
+        qDragging = true;
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+        const rect = qc.getBoundingClientRect();
+        qStartX  = clientX;
+        qStartY  = clientY;
+        qOrigLeft = rect.left;
+        qOrigTop  = rect.top;
+        // Switch from transform-based centering to absolute position
+        qc.style.transform = 'none';
+        qc.style.left = qOrigLeft + 'px';
+        qc.style.top  = qOrigTop  + 'px';
+        handle.style.cursor = 'grabbing';
+        e.preventDefault();
+    }
+    function qMove(e) {
+        if (!qDragging) return;
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+        qc.style.left = (qOrigLeft + clientX - qStartX) + 'px';
+        qc.style.top  = (qOrigTop  + clientY - qStartY) + 'px';
+        e.preventDefault();
+    }
+    function qEnd() {
+        qDragging = false;
+        handle.style.cursor = 'grab';
+    }
+
+    handle.addEventListener('mousedown',  qStart);
+    handle.addEventListener('touchstart', qStart, {passive: false});
+    document.addEventListener('mousemove', qMove);
+    document.addEventListener('touchmove', qMove, {passive: false});
+    document.addEventListener('mouseup',   qEnd);
+    document.addEventListener('touchend',  qEnd);
+}
+
+
+function toggleMode() {
+    isStatesMode = !isStatesMode;
+    document.getElementById('modeToggle').textContent =
+        isStatesMode ? LANG.states_mode_label : LANG.trans_mode_label;
+
+    const frame = document.getElementById('draggableFrame');
+    const text  = document.getElementById('interactiveText');
+
+    const hitArea = document.getElementById('transHitArea');
+    if (isStatesMode) {
+        frame.style.display = 'block';
+        text.style.display  = 'none';
+        hitArea.style.display = 'none';
+        textBoxEls.forEach(tb => { if (tb) tb.style.display = 'none'; });
+        updateVisibleTextBoxes(currentFrameX);
+    } else {
+        frame.style.display = 'none';
+        text.style.display  = 'block';
+        hitArea.style.display = 'block';
+        textBoxEls.forEach(tb => { if (tb) tb.style.display = 'none'; });
+        updateSlidingText(currentFrameX);
+    }
+}
+
+// --- Title cycle -----------------------------------------------------
+function cycleTitles() {
+    titleIndex = (titleIndex + 1) % LANG.titles.length;
+    const tb = document.getElementById('title-box');
+    tb.classList.add('hidden');
+    setTimeout(() => {
+        tb.textContent = LANG.titles[titleIndex];
+        tb.classList.remove('hidden');
+    }, 400);
+}
+
+// --- Init ------------------------------------------------------------
+function initializeApp() {
+    createTextBoxes();
+    positionFrame(NEUTRAL_POS); // start at neutral centre
+    updateFrameColour(NEUTRAL_POS); // set initial colour
+
+    initDrag();
+    initTransDrag();
+    initQuizDrag();
+
+    document.getElementById('title-box').addEventListener('click', cycleTitles);
+    document.getElementById('modeToggle').addEventListener('click', toggleMode);
+    document.getElementById('quizCheck').addEventListener('click', checkQuizAnswer);
+    document.getElementById('quizInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') checkQuizAnswer();
+    });
+    // Transitions — use click on wide hit area (pointerdown caused open+close race)
+    const hitArea = document.getElementById('transHitArea');
+    hitArea.addEventListener('click', e => {
+        e.stopPropagation();
+        handleTransClick();
+    });
+    // Keep text click as fallback
+    document.getElementById('interactiveText').addEventListener('click', e => {
+        e.stopPropagation();
+        handleTransClick();
+    });
+
+    document.addEventListener('click', function(e) {
+        const qc = document.getElementById('quizContainer');
+        if (qc.style.display === 'none') return;
+        if (qc.contains(e.target)) return;
+        if (textBoxEls.some(b => b && b.contains(e.target))) return;
+        // Don't close when clicking the transitions hit area or text
+        const hitArea = document.getElementById('transHitArea');
+        if (hitArea && hitArea.contains(e.target)) return;
+        const interText = document.getElementById('interactiveText');
+        if (interText && interText.contains(e.target)) return;
+        // Close quiz and reset the triggering textbox back to TL (default display)
+        if (currentQuizIdx >= 0 && textBoxEls[currentQuizIdx]) {
+            const div = textBoxEls[currentQuizIdx].querySelector('div');
+            if (div) div.textContent = LANG.conceptData[currentQuizIdx][0]; // reset to TL
+        }
+        qc.style.display = 'none';
+        currentQuizIdx = -1;
+    });
+
+    // Also allow Escape key to dismiss the quiz
+    document.addEventListener('keydown', function(e) {
+        if (e.key !== 'Escape') return;
+        const qc = document.getElementById('quizContainer');
+        if (qc.style.display === 'none') return;
+        if (currentQuizIdx >= 0 && textBoxEls[currentQuizIdx]) {
+            const div = textBoxEls[currentQuizIdx].querySelector('div');
+            if (div) div.textContent = LANG.conceptData[currentQuizIdx][0]; // reset to TL
+        }
+        qc.style.display = 'none';
+        currentQuizIdx = -1;
+    });
+
+    document.getElementById('quizContainer').style.display = 'none';
+
+    // Fade drag instruction after 15 seconds
+    setTimeout(() => {
+        const di = document.getElementById('drag-instruction');
+        if (di) { di.classList.add('fade'); setTimeout(() => di.style.display = 'none', 3000); }
+    }, 15000);
+}
+
+document.addEventListener('DOMContentLoaded', initializeApp);
+</script>
+</body>
+</html>

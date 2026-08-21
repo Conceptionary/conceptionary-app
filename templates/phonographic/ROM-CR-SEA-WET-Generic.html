@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seasons — Wet/Dry Tropics — Phonographic — Generic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0; padding: 0;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; background-color: #f9f9f9; overflow: hidden;
+        }
+        .a4-page {
+            width: 90vw; height: 70vh;
+            border: 5px solid black; background-color: white;
+            box-sizing: border-box; position: relative;
+            touch-action: none; z-index: 1; overflow: hidden;
+        }<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>365-Day Radial Calendar — English for German Speakers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0; padding: 0;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; background: #f9f9f9; overflow: hidden;
+        }
+        .a4-page {
+            width: 90vw; height: 70vh;
+            border: 5px solid black; background: white;
+            box-sizing: border-box; position: relative; overflow: hidden;
+        }
+        svg { width: 100%; height: 100%; }
+        .watermark {
+            position: absolute; bottom: 5px; width: 100%;
+            text-align: center; font-size: 12px;
+            color: rgba(0,0,0,0.3); font-weight: bold;
+            pointer-events: none; user-select: none;
+        }
+
+        /* ── Title ──────────────────────────────────────────────────── */
+        .title-box {
+            position: absolute; top: 2%; left: 50%;
+            transform: translateX(-50%);
+            font-size: 1em; font-weight: bold; text-align: center;
+            border: 1px solid black; padding: 8px 14px;
+            background: white; z-index: 2; white-space: nowrap;
+            cursor: pointer; transition: opacity 0.5s ease;
+        }
+        .title-box.hidden { opacity: 0; pointer-events: none; }
+
+        /* ── Ordinary-day hover tooltip ─────────────────────────────── */
+        #day-tooltip {
+            position: fixed; display: none;
+            background: rgba(255,255,255,0.97);
+            border: 1px solid #aaa; border-radius: 3px;
+            padding: 4px 10px; pointer-events: none;
+            z-index: 200; text-align: center;
+            box-shadow: 1px 2px 6px rgba(0,0,0,0.18);
+            min-width: 90px;
+        }
+        #day-tooltip .tip-en { font-size: 12px; font-weight: bold; color: #222; }
+        #day-tooltip .tip-de { font-size: 11px; color: #666; }
+
+        /* ── Special-day info panel ──────────────────────────────────── */
+        #info-panel {
+            position: absolute; top: 50%; right: 14px;
+            transform: translateY(-50%);
+            background: white; border: 2px solid #3366cc;
+            border-radius: 6px; padding: 10px 14px;
+            z-index: 100; display: none; min-width: 148px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+        #info-panel .info-en   { font-size: 1em;   font-weight: bold; color: #1a1a1a; margin-bottom: 4px; }
+        #info-panel .info-de   { font-size: 0.85em; color: #555; margin-bottom: 4px; }
+        #info-panel .info-date { font-size: 0.72em; color: #999; }
+
+        /* ── Quiz container ──────────────────────────────────────────── */
+        .quiz-container {
+            position: fixed; top: 40%; left: 75%;
+            transform: translate(-50%, -50%);
+            background: white; border: 3px solid #3366cc;
+            border-radius: 4px; padding: 12px; z-index: 9999;
+            display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.2); width: 320px;
+        }
+        #quizQuestion { margin-bottom: 10px; font-weight: bold; font-size: 13px; }
+        .quiz-container input {
+            width: 100%; padding: 8px; font-size: 14px;
+            border: 1px solid #ccc; border-radius: 4px;
+            margin-bottom: 8px; box-sizing: border-box;
+        }
+        .char-row { display: flex; gap: 4px; justify-content: center; margin-bottom: 8px; flex-wrap: wrap; }
+        .char-button {
+            padding: 5px 8px; background: #f5f5f5;
+            border: 2px solid #2196f3; border-radius: 4px;
+            cursor: pointer; font-weight: bold; font-size: 13px; color: #2196f3;
+        }
+        .char-button:hover { background: #e3f2fd; }
+        #quizCheck {
+            width: 100%; padding: 8px; background: #3366cc;
+            color: white; border: none; border-radius: 4px;
+            cursor: pointer; font-weight: bold;
+        }
+        #quizCheck:hover { background: #254e9c; }
+        #quizFeedback { text-align: center; font-weight: bold; margin-top: 8px; min-height: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="a4-page">
+    <div id="title-box" class="title-box">365-Day Calendar / 365-Tage-Kalender</div>
+
+    <!-- Ordinary-day hover tooltip -->
+    <div id="day-tooltip">
+        <div class="tip-en" id="tip-en"></div>
+        <div class="tip-de" id="tip-de"></div>
+    </div>
+
+    <!-- Special-day info panel (TL → SL click cycle) -->
+    <div id="info-panel">
+        <div class="info-en" id="info-en"></div>
+        <div class="info-de" id="info-de" style="display:none"></div>
+        <div class="info-date" id="info-date"></div>
+    </div>
+
+    <svg id="svgCanvas" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+
+        <!-- Inner seasonal disc (proportional sectors, built in JS) -->
+        <g id="inner-disc"></g>
+
+        <!-- Season name labels (built in JS) -->
+        <g id="season-labels" pointer-events="none"></g>
+
+        <!-- Central seasonal decoration icons -->
+        <g opacity="0.18" pointer-events="none">
+            <path  id="snowflake"  d="M50 45 L50 55 M45 50 L55 50 M47 47 L53 53 M47 53 L53 47" stroke="#87CEEB" stroke-width="0.5" fill="none" opacity="0"/>
+            <circle id="cherry1"   cx="48" cy="48" r="1.5" fill="#FFB7C5" opacity="0"/>
+            <circle id="cherry2"   cx="52" cy="48" r="1.5" fill="#FFB7C5" opacity="0"/>
+            <circle id="cherry3"   cx="50" cy="52" r="1.5" fill="#FFB7C5" opacity="0"/>
+            <circle id="cherry4"   cx="48" cy="52" r="1.5" fill="#FFB7C5" opacity="0"/>
+            <circle id="cherry5"   cx="52" cy="52" r="1.5" fill="#FFB7C5" opacity="0"/>
+            <circle id="summer-sun" cx="50" cy="50" r="3"  fill="#FFD700" opacity="0"/>
+            <path  id="leaf"       d="M50 48 Q48 50 50 52 Q52 50 50 48" fill="#FF8C00" opacity="0"/>
+        </g>
+
+        <!-- 365-day outer ring (built in JS) -->
+        <g id="day-ring"></g>
+
+        <!-- Circle outlines -->
+        <circle cx="50" cy="50" r="30" fill="none" stroke="#666" stroke-width="0.25"/>
+        <circle cx="50" cy="50" r="40" fill="none" stroke="#666" stroke-width="0.25"/>
+    </svg>
+
+    <div class="watermark">&copy; 2026 Alan William Preston</div>
+</div>
+
+<!-- Quiz -->
+<div id="quizContainer" class="quiz-container">
+    <div id="quizQuestion"></div>
+    <input type="text" id="quizInput" placeholder="Type the English name…">
+    <div class="char-row">
+        <button class="char-button" data-char="ä">ä</button>
+        <button class="char-button" data-char="ö">ö</button>
+        <button class="char-button" data-char="ü">ü</button>
+        <button class="char-button" data-char="ß">ß</button>
+        <button class="char-button" data-char="Ä">Ä</button>
+        <button class="char-button" data-char="Ö">Ö</button>
+        <button class="char-button" data-char="Ü">Ü</button>
+    </div>
+    <button id="quizCheck">Prüfen / Check</button>
+    <div id="quizFeedback"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════════════════════════════════════
+const CX = 50, CY = 50;
+const R_IN  = 30;   // inner edge of day ring (= outer edge of seasonal disc)
+const R_OUT = 40;   // outer edge of day ring
+const DEG   = 360 / 365;   // degrees per day
+
+// Season boundaries (day indices, day 0 = 21 Jun)
+const SEASON_BOUNDS = { summer:[0,93], autumn:[94,182], winter:[183,271], spring:[272,364] };
+
+// Colour palette — matches Seasons-of-the-Year template
+const SC = {
+    summer: { base:'rgba(34,139,34,0.35)',   hover:'rgba(15,90,15,0.62)'  },
+    autumn: { base:'rgba(255,140,0,0.35)',   hover:'rgba(190,95,0,0.62)'  },
+    winter: { base:'rgba(176,224,230,0.50)', hover:'rgba(90,150,180,0.75)'},
+    spring: { base:'rgba(144,238,144,0.50)', hover:'rgba(40,170,40,0.70)' }
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+//  DAY GENERATION  (day 0 = 21 June)
+// ═══════════════════════════════════════════════════════════════════════
+function ord(n) {
+    // English ordinal: 1st, 2nd, 3rd, 4th … 11th, 12th, 13th … 21st …
+    const s = ['th','st','nd','rd'], v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+function buildDays() {
+    // [monthEN, monthDE, lastDay, startDay]
+    const spec = [
+        ['June','Juni',30,21], ['July','Juli',31,1],
+        ['August','August',31,1], ['September','September',30,1],
+        ['October','Oktober',31,1], ['November','November',30,1],
+        ['December','Dezember',31,1], ['January','Januar',31,1],
+        ['February','Februar',28,1],  // 2026 — not a leap year
+        ['March','März',31,1], ['April','April',30,1],
+        ['May','Mai',31,1], ['June','Juni',20,1]   // Jun 1–20
+    ];
+    const days = [];
+    spec.forEach(([mEN,mDE,last,start]) => {
+        for (let d = start; d <= last; d++) {
+            days.push({
+                index : days.length,
+                day   : d, mEN, mDE,
+                dateEN: ord(d) + ' ' + mEN,
+                dateDE: d + '. ' + mDE
+            });
+        }
+    });
+    return days; // exactly 365
+}
+const DAYS = buildDays();
+
+// ═══════════════════════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════════════════════
+function seasonOf(i) {
+    if (i <  94) return 'summer';
+    if (i < 183) return 'autumn';
+    if (i < 272) return 'winter';
+    return 'spring';
+}
+
+// Polar → SVG  (0° = top, clockwise)
+function pol(angleDeg, r) {
+    const a = (angleDeg - 90) * Math.PI / 180;
+    return [CX + r * Math.cos(a), CY + r * Math.sin(a)];
+}
+
+// Arc path for one day segment (ring between R_IN and R_OUT)
+function arcPath(i) {
+    const a1 = (i * DEG - 90) * Math.PI / 180;
+    const a2 = ((i + 1) * DEG - 90) * Math.PI / 180;
+    const xi1 = CX + R_IN  * Math.cos(a1), yi1 = CY + R_IN  * Math.sin(a1);
+    const xi2 = CX + R_IN  * Math.cos(a2), yi2 = CY + R_IN  * Math.sin(a2);
+    const xo1 = CX + R_OUT * Math.cos(a1), yo1 = CY + R_OUT * Math.sin(a1);
+    const xo2 = CX + R_OUT * Math.cos(a2), yo2 = CY + R_OUT * Math.sin(a2);
+    return `M${xi1} ${yi1} L${xo1} ${yo1} A${R_OUT} ${R_OUT} 0 0 1 ${xo2} ${yo2} L${xi2} ${yi2} A${R_IN} ${R_IN} 0 0 0 ${xi1} ${yi1}Z`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  SPECIAL DAYS  (Solar events + 2026 German calendar)
+//  dayIndex counted from day 0 = 21 Jun
+//
+//  Key day-index values (verified):
+//    day  0 = 21 Jun (Summer Solstice)
+//    day 94 = 23 Sep (Autumnal Equinox)
+//    day 183= 21 Dec (Winter Solstice)
+//    day 272= 20 Mar (Spring Equinox)
+//    day 104= 03 Oct, day 132= 31 Oct, day 133= 01 Nov
+//    day 168= 06 Dec, day 186= 24 Dec, day 187= 25 Dec
+//    day 188= 26 Dec, day 193= 31 Dec, day 194= 01 Jan
+//    day 199= 06 Jan, day 238= 14 Feb, day 240= 16 Feb (Rosenmontag 2026)
+//    day 286= 03 Apr (Karfreitag 2026), day 288= 05 Apr (Ostersonntag)
+//    day 289= 06 Apr (Ostermontag),     day 314= 01 May
+//    day 327= 14 May (Himmelfahrt),     day 337= 24 May (Pfingstsonntag)
+//    day 338= 25 May (Pfingstmontag),   day 348= 04 Jun (Fronleichnam)
+// ═══════════════════════════════════════════════════════════════════════
+const SPECIAL = [
+    // ── Solar events ──────────────────────────────────────────────────
+    { i:  0, en:'Summer Solstice',   de:'Sommersonnenwende',
+      q:"Wie heißt die 'Sommersonnenwende' auf Englisch?",               t:'solar'   },
+    { i: 94, en:'Autumnal Equinox',  de:'Herbst-Tagundnachtgleiche',
+      q:"Wie heißt die 'Herbst-Tagundnachtgleiche' auf Englisch?",       t:'solar'   },
+    { i:183, en:'Winter Solstice',   de:'Wintersonnenwende',
+      q:"Wie heißt die 'Wintersonnenwende' auf Englisch?",               t:'solar'   },
+    { i:272, en:'Spring Equinox',    de:'Frühlings-Tagundnachtgleiche',
+      q:"Wie heißt die 'Frühlings-Tagundnachtgleiche' auf Englisch?",    t:'solar'   },
+    // ── Public holidays & cultural days ───────────────────────────────
+    { i:104, en:'German Unity Day',  de:'Tag der Deutschen Einheit',
+      q:"Wie heißt 'Tag der Deutschen Einheit' auf Englisch?",           t:'holiday' },
+    { i:132, en:'Reformation Day',   de:'Reformationstag',
+      q:"Wie heißt 'Reformationstag' auf Englisch?",                     t:'holiday' },
+    { i:133, en:"All Saints' Day",   de:'Allerheiligen',
+      q:"Wie heißt 'Allerheiligen' auf Englisch?",                       t:'holiday' },
+    { i:168, en:"St. Nicholas Day",  de:'Nikolaustag',
+      q:"Wie heißt 'Nikolaustag' auf Englisch?",                         t:'holiday' },
+    { i:186, en:'Christmas Eve',     de:'Heiligabend',
+      q:"Wie heißt 'Heiligabend' auf Englisch?",                         t:'holiday' },
+    { i:187, en:'Christmas Day',     de:'1. Weihnachtstag',
+      q:"Wie heißt '1. Weihnachtstag' auf Englisch?",                    t:'holiday' },
+    { i:188, en:'Boxing Day',        de:'2. Weihnachtstag',
+      q:"Wie heißt '2. Weihnachtstag' auf Englisch?",                    t:'holiday' },
+    { i:193, en:"New Year's Eve",    de:'Silvester',
+      q:"Wie heißt 'Silvester' auf Englisch?",                           t:'holiday' },
+    { i:194, en:"New Year's Day",    de:'Neujahr',
+      q:"Wie heißt 'Neujahr' auf Englisch?",                             t:'holiday' },
+    { i:199, en:'Epiphany',          de:'Heilige Drei Könige',
+      q:"Wie heißt 'Heilige Drei Könige' auf Englisch?",                 t:'holiday' },
+    { i:238, en:"Valentine's Day",   de:'Valentinstag',
+      q:"Wie heißt 'Valentinstag' auf Englisch?",                        t:'holiday' },
+    { i:240, en:'Rose Monday',       de:'Rosenmontag',
+      q:"Wie heißt 'Rosenmontag' auf Englisch?",                         t:'holiday' },
+    { i:286, en:'Good Friday',       de:'Karfreitag',
+      q:"Wie heißt 'Karfreitag' auf Englisch?",                          t:'holiday' },
+    { i:288, en:'Easter Sunday',     de:'Ostersonntag',
+      q:"Wie heißt 'Ostersonntag' auf Englisch?",                        t:'holiday' },
+    { i:289, en:'Easter Monday',     de:'Ostermontag',
+      q:"Wie heißt 'Ostermontag' auf Englisch?",                         t:'holiday' },
+    { i:314, en:'Labour Day',        de:'Tag der Arbeit',
+      q:"Wie heißt 'Tag der Arbeit' auf Englisch?",                      t:'holiday' },
+    { i:327, en:'Ascension Day',     de:'Christi Himmelfahrt',
+      q:"Wie heißt 'Christi Himmelfahrt' auf Englisch?",                 t:'holiday' },
+    { i:337, en:'Whit Sunday',       de:'Pfingstsonntag',
+      q:"Wie heißt 'Pfingstsonntag' auf Englisch?",                      t:'holiday' },
+    { i:338, en:'Whit Monday',       de:'Pfingstmontag',
+      q:"Wie heißt 'Pfingstmontag' auf Englisch?",                       t:'holiday' },
+    { i:348, en:'Corpus Christi',    de:'Fronleichnam',
+      q:"Wie heißt 'Fronleichnam' auf Englisch?",                        t:'holiday' },
+];
+
+const SPECIAL_MAP = {};   // dayIndex → special object
+SPECIAL.forEach(s => { SPECIAL_MAP[s.i] = s; });
+
+// ═══════════════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════════════
+const clickState = {};    // dayIndex → 0 (hidden) | 1 (TL shown) | 2 (SL shown)
+const learned    = {};    // dayIndex → boolean
+SPECIAL.forEach(s => { clickState[s.i] = 0; learned[s.i] = false; });
+let activeDay     = -1;   // day index of currently open info panel
+let currentQuizDay = -1;
+
+// ═══════════════════════════════════════════════════════════════════════
+//  BUILD INNER SEASONAL DISC
+//  Sectors are proportional to actual season lengths, so they align
+//  exactly with the outer day ring.
+// ═══════════════════════════════════════════════════════════════════════
+function buildInnerDisc() {
+    const g  = document.getElementById('inner-disc');
+    const lg = document.getElementById('season-labels');
+
+    // Season sector definitions: [name, startDayIdx, endDayIdx (exclusive)]
+    const sectors = [
+        { name:'SUMMER', s:0,   e:94,  cls:'summer' },
+        { name:'AUTUMN', s:94,  e:183, cls:'autumn' },
+        { name:'WINTER', s:183, e:272, cls:'winter' },
+        { name:'SPRING', s:272, e:365, cls:'spring' },
+    ];
+
+    sectors.forEach(sec => {
+        const angStart = sec.s * DEG;
+        const angEnd   = sec.e * DEG;
+        const span     = angEnd - angStart;
+        const a1 = (angStart - 90) * Math.PI / 180;
+        const a2 = (angEnd   - 90) * Math.PI / 180;
+        const x1 = CX + R_IN * Math.cos(a1), y1 = CY + R_IN * Math.sin(a1);
+        const x2 = CX + R_IN * Math.cos(a2), y2 = CY + R_IN * Math.sin(a2);
+        const laf = span > 180 ? 1 : 0;
+
+        const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        p.setAttribute('d', `M${CX} ${CY} L${x1} ${y1} A${R_IN} ${R_IN} 0 ${laf} 1 ${x2} ${y2} Z`);
+        p.style.fill        = SC[sec.cls].base;
+        p.style.stroke      = '#bbb';
+        p.style.strokeWidth = '0.2';
+        g.appendChild(p);
+
+        // Season name label at midpoint, r = 18 (well inside disc)
+        const midAng = angStart + span / 2;
+        const [lx, ly] = pol(midAng, 18);
+        const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', lx); t.setAttribute('y', ly);
+        t.setAttribute('text-anchor', 'middle');
+        t.setAttribute('dominant-baseline', 'central');
+        t.setAttribute('font-size', '2.8');
+        t.setAttribute('font-weight', 'bold');
+        t.setAttribute('font-family', 'Arial,sans-serif');
+        t.setAttribute('fill', '#444');
+        t.textContent = sec.name;
+        lg.appendChild(t);
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  BUILD 365-DAY OUTER RING
+// ═══════════════════════════════════════════════════════════════════════
+function buildDayRing() {
+    const g      = document.getElementById('day-ring');
+    const tooltip = document.getElementById('day-tooltip');
+    const tipEN  = document.getElementById('tip-en');
+    const tipDE  = document.getElementById('tip-de');
+
+    DAYS.forEach(day => {
+        const i   = day.index;
+        const col = SC[seasonOf(i)];
+        const sp  = SPECIAL_MAP[i];
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', arcPath(i));
+        path.setAttribute('data-day', i);
+
+        // Visual styling
+        path.style.fill        = learned[i] ? 'rgba(255,215,0,0.55)' : col.base;
+        path.style.stroke      = sp
+            ? (sp.t === 'solar'   ? '#FFD700' : '#D4900A')
+            : 'rgba(0,0,0,0.07)';
+        path.style.strokeWidth = sp
+            ? (sp.t === 'solar'   ? '0.35' : '0.22')
+            : '0.05';
+        path.style.cursor      = sp ? 'pointer' : 'default';
+
+        // ── Mouseover: darken segment + show date tooltip ──────────────
+        path.addEventListener('mouseenter', () => {
+            if (!learned[i]) path.style.fill = col.hover;
+            if (sp) path.style.strokeWidth = sp.t === 'solar' ? '0.55' : '0.40';
+            tipEN.textContent = day.dateEN;
+            tipDE.textContent = day.dateDE;
+            tooltip.style.display = 'block';
+            updateDecoration(i);
+        });
+        path.addEventListener('mousemove', e => {
+            tooltip.style.left = (e.clientX + 14) + 'px';
+            tooltip.style.top  = (e.clientY - 40) + 'px';
+        });
+        path.addEventListener('mouseleave', () => {
+            path.style.fill = learned[i] ? 'rgba(255,215,0,0.55)' : col.base;
+            if (sp) path.style.strokeWidth = sp.t === 'solar' ? '0.35' : '0.22';
+            tooltip.style.display = 'none';
+        });
+
+        // ── Click: special days only (TL → SL → Quiz) ─────────────────
+        if (sp) {
+            path.addEventListener('click', () => handleSpecialClick(i));
+        }
+
+        g.appendChild(path);
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  SPECIAL DAY CLICK HANDLER
+// ═══════════════════════════════════════════════════════════════════════
+const infoPanel = document.getElementById('info-panel');
+const infoEN    = document.getElementById('info-en');
+const infoDE    = document.getElementById('info-de');
+const infoDate  = document.getElementById('info-date');
+
+function handleSpecialClick(dayIdx) {
+    if (learned[dayIdx]) return;
+
+    const sp  = SPECIAL_MAP[dayIdx];
+    const day = DAYS[dayIdx];
+
+    if (activeDay !== dayIdx) {
+        // New segment clicked — reset to state 1 (TL)
+        clickState[dayIdx] = 1;
+        activeDay = dayIdx;
+    } else {
+        clickState[dayIdx]++;
+    }
+
+    const state = clickState[dayIdx];
+
+    if (state === 1) {
+        // Show English name (TL)
+        infoEN.textContent       = sp.en;
+        infoDE.style.display     = 'none';
+        infoDate.textContent     = day.dateEN + '  ·  ' + day.dateDE;
+        infoPanel.style.display  = 'block';
+
+    } else if (state === 2) {
+        // Show German name (SL)
+        infoEN.textContent       = sp.en;
+        infoDE.textContent       = sp.de;
+        infoDE.style.display     = 'block';
+        infoDate.textContent     = day.dateEN + '  ·  ' + day.dateDE;
+        infoPanel.style.display  = 'block';
+
+    } else {
+        // Launch quiz
+        infoPanel.style.display = 'none';
+        launchQuiz(dayIdx);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  QUIZ
+// ═══════════════════════════════════════════════════════════════════════
+function launchQuiz(dayIdx) {
+    currentQuizDay = dayIdx;
+    const sp = SPECIAL_MAP[dayIdx];
+    document.getElementById('quizQuestion').textContent = sp.q;
+    document.getElementById('quizInput').value = '';
+    document.getElementById('quizFeedback').textContent = '';
+    document.getElementById('quizContainer').style.display = 'block';
+    setTimeout(() => {
+        try { document.getElementById('quizInput').focus(); } catch(e) {}
+    }, 100);
+}
+
+function checkQuiz() {
+    if (currentQuizDay < 0) return;
+    const sp     = SPECIAL_MAP[currentQuizDay];
+    const answer = document.getElementById('quizInput').value.trim();
+    const fb     = document.getElementById('quizFeedback');
+
+    if (answer.toLowerCase() === sp.en.toLowerCase()) {
+        fb.textContent = 'Richtig! ✓ / Correct!';
+        fb.style.color = 'green';
+        learned[currentQuizDay] = true;
+        markLearned(currentQuizDay);
+        setTimeout(() => {
+            document.getElementById('quizContainer').style.display = 'none';
+            currentQuizDay = -1;
+            activeDay = -1;
+        }, 1500);
+    } else {
+        fb.textContent = 'Versuche es nochmal! / Try again';
+        fb.style.color = 'red';
+    }
+}
+
+function markLearned(dayIdx) {
+    // Permanently gold segment in the ring
+    const path = document.querySelector(`[data-day="${dayIdx}"]`);
+    if (path) {
+        path.style.fill        = 'rgba(255,215,0,0.55)';
+        path.style.stroke      = '#B8860B';
+        path.style.strokeWidth = '0.45';
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  CENTRAL SEASONAL DECORATION
+// ═══════════════════════════════════════════════════════════════════════
+function updateDecoration(dayIdx) {
+    const ids = ['snowflake','cherry1','cherry2','cherry3','cherry4','cherry5','summer-sun','leaf'];
+    ids.forEach(id => { const el = document.getElementById(id); if (el) el.setAttribute('opacity','0'); });
+
+    switch (seasonOf(dayIdx)) {
+        case 'winter':
+            document.getElementById('snowflake').setAttribute('opacity','1'); break;
+        case 'spring':
+            ['cherry1','cherry2','cherry3','cherry4','cherry5'].forEach(id =>
+                document.getElementById(id).setAttribute('opacity','1'));
+            break;
+        case 'summer':
+            document.getElementById('summer-sun').setAttribute('opacity','1'); break;
+        case 'autumn':
+            document.getElementById('leaf').setAttribute('opacity','1'); break;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TITLE CYCLE
+// ═══════════════════════════════════════════════════════════════════════
+const titles = [
+    '365-Day Calendar',
+    '365-Tage-Kalender',
+    '365-Day Calendar / 365-Tage-Kalender'
+];
+let titleIdx = 0;
+
+// ═══════════════════════════════════════════════════════════════════════
+//  OUTSIDE-CLICK DISMISSAL
+// ═══════════════════════════════════════════════════════════════════════
+document.addEventListener('click', e => {
+    const ring = document.getElementById('day-ring');
+    const qc   = document.getElementById('quizContainer');
+
+    // Dismiss info panel if click is outside ring and panel
+    if (infoPanel.style.display !== 'none' &&
+        !infoPanel.contains(e.target) &&
+        !ring.contains(e.target)) {
+        infoPanel.style.display = 'none';
+        if (activeDay >= 0) clickState[activeDay] = 0;
+        activeDay = -1;
+    }
+
+    // Dismiss quiz if click is outside quiz and ring
+    if (qc.style.display !== 'none' &&
+        !qc.contains(e.target) &&
+        !ring.contains(e.target)) {
+        qc.style.display = 'none';
+        if (currentQuizDay >= 0) clickState[currentQuizDay] = 0;
+        currentQuizDay = -1;
+    }
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+//  INITIALISE
+// ═══════════════════════════════════════════════════════════════════════
+function init() {
+    buildInnerDisc();
+    buildDayRing();
+    updateDecoration(0);  // Start with summer decoration visible
+
+    // Title click
+    document.getElementById('title-box').addEventListener('click', function () {
+        this.classList.add('hidden');
+        setTimeout(() => {
+            titleIdx = (titleIdx + 1) % 3;
+            this.textContent = titles[titleIdx];
+            this.classList.remove('hidden');
+        }, 500);
+    });
+
+    // Quiz events
+    document.getElementById('quizCheck').addEventListener('click', checkQuiz);
+    document.getElementById('quizInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') checkQuiz();
+    });
+
+    // German special character buttons
+    document.querySelectorAll('.char-button').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.preventDefault();
+            const ch  = btn.getAttribute('data-char');
+            const inp = document.getElementById('quizInput');
+            const pos = inp.selectionStart;
+            inp.value = inp.value.substring(0, pos) + ch + inp.value.substring(pos);
+            inp.focus();
+            inp.setSelectionRange(pos + 1, pos + 1);
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
+        .watermark {
+            position: absolute; bottom: 5px; width: 100%;
+            text-align: center; font-size: 12px;
+            color: rgba(0,0,0,0.3); font-weight: bold;
+            pointer-events: none; user-select: none; z-index: 0;
+        }
+        svg { width: 100%; height: 100%; overflow: visible; }
+        .circle-path { stroke: #333; stroke-width: 0.5; fill: none; }
+        .season-segment { stroke: #ddd; stroke-width: 0.3; transition: fill 0.3s ease; }
+        .segment-highlighted { stroke: #ffd700; stroke-width: 1px; filter: brightness(1.1); }
+        .segment-label {
+            font-size: 2.8px; font-weight: bold; fill: #333;
+            text-anchor: middle; dominant-baseline: central;
+            pointer-events: none; font-family: Arial, sans-serif;
+        }
+        .dry-segment { fill: rgba(173,216,230,0.4); }
+        .wet-segment { fill: rgba(128,128,128,0.4); }
+
+        .textBox {
+            cursor: pointer; font-size: 0.8em; fill: black;
+            opacity: 0; display: none;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transform: scale(0.5); text-anchor: middle; font-family: Arial, sans-serif;
+        }
+        .textBox.active  { opacity: 1; display: block; transform: scale(1) translateY(0); }
+        .textBox.learned { opacity: 0.5; display: block; transform: scale(1) translateY(0); fill: green; }
+        .textBox.learned.active { opacity: 1; }
+        .textBox.hidden  { opacity: 0; display: none; }
+
+        #draggableFrame {
+            cursor: grab; fill: url(#sunGradient);
+            stroke: #2c5aa0; stroke-width: 2px;
+            pointer-events: all; opacity: 0.9; transition: fill 0.2s ease; z-index: 1000;
+        }
+        #draggableFrame:hover { stroke-width: 3px; }
+        #draggableFrame.dragging { cursor: grabbing; stroke: #1e90ff; stroke-width: 3px; }
+
+        .title-box {
+            position: absolute; top: 2%; left: 50%; transform: translateX(-50%);
+            font-size: 1em; font-weight: bold; text-align: center;
+            cursor: pointer; border: 1px solid black; padding: 10px;
+            background-color: white; z-index: 2;
+            transition: opacity 0.5s ease, transform 0.5s ease; font-family: Arial, sans-serif;
+        }
+        .title-box.hidden { opacity: 0; transform: translateX(-50%) scale(0.9); }
+
+        .mode-toggle {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            font-size: 0.8em; padding: 8px 16px;
+            background-color: #f0f0f0; border: 1px solid #ccc;
+            border-radius: 4px; cursor: pointer; z-index: 3;
+        }
+        .season-indicator {
+            position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%);
+            font-size: 1em; padding: 5px 10px;
+            background-color: white; border: 1px solid #555; border-radius: 4px; z-index: 3;
+        }
+        .drag-instruction {
+            position: absolute; top: 60px; right: 10px;
+            font-size: 0.9em; padding: 5px 10px;
+            background-color: rgba(255,255,255,0.9); border: 1px solid #ccc;
+            border-radius: 4px; z-index: 3; opacity: 1;
+            transition: opacity 3s ease; max-width: 200px;
+        }
+        .drag-instruction.fade { opacity: 0; }
+
+        .quiz-container {
+            position: fixed; top: 40%; left: 75%; transform: translate(-50%,-50%);
+            background-color: white; border: 3px solid #3366cc;
+            border-radius: 4px; padding: 12px; z-index: 9999;
+            display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            max-width: 360px; width: 360px;
+        }
+        .quiz-container input {
+            width: 100%; padding: 8px; font-size: 14px;
+            border: 1px solid #ccc; border-radius: 4px;
+            margin-bottom: 10px; font-family: Arial, sans-serif;
+        }
+        .quiz-container button {
+            width: 100%; padding: 8px; background-color: #3366cc;
+            color: white; border: none; border-radius: 4px;
+            cursor: pointer; font-weight: bold;
+        }
+        .quiz-container button:hover { background-color: #254e9c; }
+        #quizFeedback { text-align: center; font-weight: bold; margin-top: 8px; min-height: 20px; }
+
+        .learned-vocabulary {
+            position: absolute; top: 100px; left: 5px;
+            width: 25%; max-height: 40vh; overflow-y: auto;
+            background-color: rgba(255,255,255,0.9); border: 1px solid #ccc;
+            border-radius: 4px; padding: 5px; z-index: 4; display: block;
+        }
+        .array-title {
+            font-size: 0.9em; text-align: center; font-weight: bold;
+            margin-bottom: 5px; padding: 3px;
+            background-color: #f0f0f0; border-bottom: 1px solid #ccc;
+        }
+        .vocabulary-item {
+            display: flex; flex-direction: column; font-size: 0.75em;
+            margin: 3px 0; padding: 5px; border: 1px solid #ddd;
+            border-radius: 3px; background-color: #f9f9f9;
+            transition: background-color 0.3s ease;
+        }
+        .vocabulary-item:hover { background-color: #eaf2ff; }
+        .vocabulary-item .tl-word {
+            font-weight: bold; color: green; cursor: pointer;
+            padding: 2px 5px; border-radius: 3px; font-family: Arial, sans-serif;
+        }
+        .vocabulary-item .sl-word {
+            color: #555; cursor: pointer; padding: 2px 5px; border-radius: 3px;
+        }
+        .vocabulary-item .tl-word.hidden,
+        .vocabulary-item .sl-word.hidden {
+            color: transparent; user-select: none; background-color: #f0f0f0;
+        }
+        .toggle-visibility {
+            position: absolute; top: 5px; right: 5px; font-size: 0.7em;
+            padding: 2px 5px; background-color: #eee; border: 1px solid #ccc;
+            border-radius: 3px; cursor: pointer; z-index: 5;
+        }
+        .seasonal-icon { opacity: 0.15; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div class="a4-page">
+        <div id="title-box" class="title-box">TITLE_PLACEHOLDER</div>
+        <div id="season-indicator" class="season-indicator">INDICATOR_PLACEHOLDER</div>
+        <div id="drag-instruction" class="drag-instruction">DRAG_INSTRUCTION_PLACEHOLDER</div>
+
+        <div id="learned-vocabulary" class="learned-vocabulary">
+            <div class="array-title" id="array-title">ARRAY_TITLE_PLACEHOLDER</div>
+            <button class="toggle-visibility" id="toggle-learned">HIDE_ALL_LABEL</button>
+            <div id="learned-items"></div>
+        </div>
+
+        <svg id="svgCanvas" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+            <defs>
+                <radialGradient id="sunGradient" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%"   style="stop-color:#ffff00;stop-opacity:1"/>
+                    <stop offset="60%"  style="stop-color:#ffaa00;stop-opacity:1"/>
+                    <stop offset="100%" style="stop-color:#ff7f00;stop-opacity:1"/>
+                </radialGradient>
+            </defs>
+
+            <circle id="circlePath" cx="50" cy="50" r="30" class="circle-path"/>
+
+            <!-- Two-season segments (each spans 180°) -->
+            <path id="dry-segment" class="season-segment dry-segment"/>
+            <path id="wet-segment" class="season-segment wet-segment"/>
+
+            <!-- Seasonal decorations in centre -->
+            <g id="seasonal-decorations" class="seasonal-icon" style="display:none;">
+                <!-- Sun rays for dry season -->
+                <circle id="dry-sun" cx="50" cy="50" r="4" fill="#FFD700" opacity="0"/>
+                <line id="ray1" x1="50" y1="42" x2="50" y2="38" stroke="#FFD700" stroke-width="0.5" opacity="0"/>
+                <line id="ray2" x1="50" y1="58" x2="50" y2="62" stroke="#FFD700" stroke-width="0.5" opacity="0"/>
+                <line id="ray3" x1="42" y1="50" x2="38" y2="50" stroke="#FFD700" stroke-width="0.5" opacity="0"/>
+                <line id="ray4" x1="58" y1="50" x2="62" y2="50" stroke="#FFD700" stroke-width="0.5" opacity="0"/>
+
+                <!-- Raindrops for wet season -->
+                <path id="drop1" d="M 48 45 Q 48 48 48 50 Q 48 52 46 52 Q 44 52 44 50 Q 44 48 44 45 Q 46 42 48 45" fill="#4682B4" opacity="0"/>
+                <path id="drop2" d="M 54 48 Q 54 51 54 53 Q 54 55 52 55 Q 50 55 50 53 Q 50 51 50 48 Q 52 45 54 48" fill="#4682B4" opacity="0"/>
+                <path id="drop3" d="M 48 53 Q 48 56 48 58 Q 48 60 46 60 Q 44 60 44 58 Q 44 56 44 53 Q 46 50 48 53" fill="#4682B4" opacity="0"/>
+            </g>
+
+            <!-- Segment labels — populated from LANG config at runtime -->
+            <text id="label-dry" class="segment-label" x="74" y="50"></text>
+            <text id="label-wet" class="segment-label" x="26" y="50"></text>
+
+            <circle id="draggableFrame" cx="50" cy="20" r="4"/>
+        </svg>
+
+        <div class="watermark">&copy; 2026 Alan William Preston</div>
+    </div>
+
+    <div id="quizContainer" class="quiz-container">
+        <input type="text" id="quizInput" placeholder="QUIZ_PLACEHOLDER">
+        <button id="quizCheck">QUIZ_BUTTON_LABEL</button>
+        <div id="quizFeedback"></div>
+    </div>
+
+    <script>
+
+    // =====================================================================
+    // LANGUAGE CONFIGURATION BLOCK
+    // To create a new language pair, replace ALL values in this section.
+    // SL = Source Language  |  TL = Target Language (language being learned)
+    //
+    // This template is designed for any climate with two broad annual
+    // seasons spanning roughly 180° each — most commonly a Dry Season and
+    // a Wet Season (e.g. tropical monsoon climates). The right-hand
+    // segment (0°–180°) is treated as "Season A" and the left-hand
+    // segment (180°–360°) as "Season B"; rename via segment labels below.
+    // Do NOT change anything outside this block.
+    // =====================================================================
+    const LANG = {
+
+        // --- Title cycle (click title box to cycle) ----------------------
+        titles: [
+            "SL_TITLE",          // e.g. "Bali Seasons"
+            "TL_TITLE",          // e.g. "Musim di Bali"
+            "SL_TITLE / TL_TITLE"
+        ],
+
+        // --- UI strings --------------------------------------------------
+        drag_instruction: "DRAG_INSTRUCTION",   // e.g. "Drag the sun around to explore the seasons!"
+        array_title:      "ARRAY_TITLE",         // e.g. "Learned Vocabulary"
+        hide_all_label:   "HIDE_ALL_LABEL",      // e.g. "Hide All"
+        show_all_label:   "SHOW_ALL_LABEL",      // e.g. "Show All"
+        quiz_placeholder: "QUIZ_PLACEHOLDER",    // e.g. "Enter the [TL] phrase"
+        quiz_button:      "QUIZ_BUTTON_LABEL",   // e.g. "Check"
+        quiz_correct:     "QUIZ_CORRECT",        // e.g. "Correct! ✓"
+        quiz_wrong:       "QUIZ_WRONG",          // e.g. "Try again"
+
+        // --- Segment labels (Season A = right/0-180°, Season B = left/180-360°) ---
+        label_season_a: "SEASON_A_LABEL",  // e.g. "DRY SEASON"
+        label_season_b: "SEASON_B_LABEL",  // e.g. "WET SEASON"
+
+        // --- Seasonal decoration mapping -----------------------------------
+        // 'a' = sun/rays decoration shown during Season A (right half, 0–180°)
+        // 'b' = raindrops decoration shown during Season B (left half, 180–360°)
+        // If your TL culture's seasons don't map to sun/rain imagery,
+        // set decorations_enabled to false and the central icons stay hidden.
+        decorations_enabled: true,
+
+        // --- Vocabulary data (8 items) --------------------------------------
+        // Format: [ SL phrase, TL phrase, Quiz question, TriggerAngle, DisplayAngle ]
+        // Both angles run 0–360°. TriggerAngle positions the draggable sun;
+        // DisplayAngle positions the text box (usually identical).
+        // Angle 0/360 = top of circle; increases clockwise.
+        // 0–180° = Season A (right half); 180–360° = Season B (left half).
+        seasonsData: [
+            ["SL-1", "TL-1", "QUIZ-1", 30,  30 ],
+            ["SL-2", "TL-2", "QUIZ-2", 90,  90 ],
+            ["SL-3", "TL-3", "QUIZ-3", 150, 150],
+            ["SL-4", "TL-4", "QUIZ-4", 180, 180],
+            ["SL-5", "TL-5", "QUIZ-5", 210, 210],
+            ["SL-6", "TL-6", "QUIZ-6", 270, 270],
+            ["SL-7", "TL-7", "QUIZ-7", 330, 330],
+            ["SL-8", "TL-8", "QUIZ-8", 0,   0  ]
+        ]
+    };
+    // =====================================================================
+    // END OF LANGUAGE CONFIGURATION BLOCK
+    // No language-specific content appears below this line.
+    // =====================================================================
+
+
+    // --- Apply UI strings from config ------------------------------------
+    document.getElementById('title-box').textContent        = LANG.titles[0];
+    document.getElementById('drag-instruction').textContent = LANG.drag_instruction;
+    document.getElementById('array-title').textContent      = LANG.array_title;
+    document.getElementById('toggle-learned').textContent   = LANG.hide_all_label;
+    document.getElementById('quizInput').placeholder        = LANG.quiz_placeholder;
+    document.getElementById('quizCheck').textContent        = LANG.quiz_button;
+    document.getElementById('label-dry').textContent        = LANG.label_season_a;
+    document.getElementById('label-wet').textContent        = LANG.label_season_b;
+    document.getElementById('season-indicator').textContent = LANG.seasonsData[5][0];
+
+    // --- Runtime state -----------------------------------------------------
+    const seasonsData = LANG.seasonsData;
+    let currentQuizIndex = -1;
+    let learnedItems      = new Array(seasonsData.length).fill(false);
+    let textBoxElements   = [];
+    let currentSeason     = 5;
+    let isDragging        = false;
+    let currentTextIndex  = 0;
+    let closedIdx         = -1;
+
+    function getLearnedRadius() { return 22; }
+
+    // --- Vocabulary array panel --------------------------------------------
+    function toggleArrayVisibility() {
+        const container = document.getElementById('learned-items');
+        const button    = document.getElementById('toggle-learned');
+        if (!container || !button) return;
+        const spans = container.querySelectorAll('.vocabulary-item .tl-word, .vocabulary-item .sl-word');
+        let visibleCount = 0;
+        spans.forEach(s => { if (!s.classList.contains('hidden')) visibleCount++; });
+        const mostlyVisible = visibleCount > spans.length / 2;
+        spans.forEach(s => s.classList.toggle('hidden', mostlyVisible));
+        button.textContent = mostlyVisible ? LANG.show_all_label : LANG.hide_all_label;
+    }
+
+    function addToVocabularyArray(index) {
+        const tl = seasonsData[index][1];
+        const sl = seasonsData[index][0];
+        const item = document.createElement('div');
+        item.className = 'vocabulary-item';
+        const tlSpan = document.createElement('span');
+        tlSpan.className = 'tl-word';
+        tlSpan.textContent = tl;
+        const slSpan = document.createElement('span');
+        slSpan.className = 'sl-word';
+        slSpan.textContent = sl;
+        [tlSpan, slSpan].forEach(s => {
+            s.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('hidden');
+            });
+        });
+        item.appendChild(tlSpan);
+        item.appendChild(slSpan);
+        document.getElementById('learned-items').appendChild(item);
+    }
+
+    // --- Two-segment geometry -----------------------------------------------
+    function createSegments() {
+        const c = { x: 50, y: 50 }, r = 30;
+
+        // Season A: right half (0°–180°)
+        let a1 = (0   - 90) * Math.PI / 180;
+        let a2 = (180 - 90) * Math.PI / 180;
+        let x1 = c.x + r * Math.cos(a1), y1 = c.y + r * Math.sin(a1);
+        let x2 = c.x + r * Math.cos(a2), y2 = c.y + r * Math.sin(a2);
+        document.getElementById('dry-segment').setAttribute('d',
+            `M ${c.x} ${c.y} L ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2} Z`);
+
+        // Season B: left half (180°–360°)
+        a1 = (180 - 90) * Math.PI / 180;
+        a2 = (360 - 90) * Math.PI / 180;
+        x1 = c.x + r * Math.cos(a1); y1 = c.y + r * Math.sin(a1);
+        x2 = c.x + r * Math.cos(a2); y2 = c.y + r * Math.sin(a2);
+        document.getElementById('wet-segment').setAttribute('d',
+            `M ${c.x} ${c.y} L ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2} Z`);
+    }
+
+    function updateSegmentHighlight(angle) {
+        const norm = ((angle % 360) + 360) % 360;
+        const segA = document.getElementById('dry-segment');
+        const segB = document.getElementById('wet-segment');
+        if (norm > 0 && norm < 180) {
+            segA.classList.add('segment-highlighted');
+            segB.classList.remove('segment-highlighted');
+            updateSeasonalDecoration('a');
+        } else {
+            segB.classList.add('segment-highlighted');
+            segA.classList.remove('segment-highlighted');
+            updateSeasonalDecoration('b');
+        }
+    }
+
+    function updateSeasonalDecoration(season) {
+        if (!LANG.decorations_enabled) return;
+        const aElements = ['dry-sun','ray1','ray2','ray3','ray4'];
+        const bElements = ['drop1','drop2','drop3'];
+        const show = season === 'a' ? aElements : bElements;
+        const hide = season === 'a' ? bElements : aElements;
+        show.forEach(id => { const el = document.getElementById(id); if (el) el.setAttribute('opacity','1'); });
+        hide.forEach(id => { const el = document.getElementById(id); if (el) el.setAttribute('opacity','0'); });
+    }
+
+    // --- Text boxes -----------------------------------------------------
+    function createTextBoxes() {
+        const svg = document.getElementById('svgCanvas');
+        document.querySelectorAll('.textBox').forEach(b => b.parentNode && b.parentNode.removeChild(b));
+        textBoxElements = [];
+
+        const c = { x: 50, y: 50 };
+
+        seasonsData.forEach((item, index) => {
+            const displayAngle = (item[4] - 90) * Math.PI / 180;
+            const angle = item[4];
+            let baseRadius = ((angle >= 315 && angle <= 360) || (angle >= 0 && angle <= 45)) ? 12 : 35;
+            const r = learnedItems[index] ? getLearnedRadius() : baseRadius;
+            const x = c.x + r * Math.cos(displayAngle);
+            const y = c.y + r * Math.sin(displayAngle);
+
+            const fo = document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+            fo.setAttribute('x', x - 30);
+            fo.setAttribute('y', y - 12);
+            fo.setAttribute('width',  '60');
+            fo.setAttribute('height', '24');
+            fo.setAttribute('class', 'textBox');
+            fo.setAttribute('data-index', index);
+            fo.style.pointerEvents = 'auto';
+            fo.style.zIndex = '500';
+
+            const div = document.createElement('div');
+            div.style.textAlign  = 'center';
+            div.style.fontSize   = '3.44px';
+            div.style.fontFamily = 'Arial, sans-serif';
+            div.style.color      = 'black';
+            div.style.cursor     = 'pointer';
+            div.style.lineHeight = '1.1';
+            div.style.fontWeight = 'normal';
+            div.style.textShadow = '1px 1px 2px rgba(255,255,255,0.8)';
+            div.textContent = item[1]; // start with TL
+            fo.appendChild(div);
+
+            if (learnedItems[index]) fo.classList.add('learned');
+
+            fo.addEventListener('click', function() {
+                const idx = parseInt(this.getAttribute('data-index'));
+                const div = this.querySelector('div');
+                const data = seasonsData;
+
+                if (document.getElementById('quizContainer').style.display !== 'none'
+                    && currentQuizIndex === idx) return;
+
+                const tlText = data[idx][1];
+                const slText = data[idx][0];
+
+                if (learnedItems[idx]) {
+                    div.textContent = (div.textContent === tlText) ? slText : tlText;
+                    div.style.fontSize = (div.textContent === slText) ? '3.13px' : '3.44px';
+                } else {
+                    if (div.textContent === tlText) {
+                        div.textContent = slText;
+                        div.style.fontSize = '3.13px';
+                    } else if (div.textContent === slText) {
+                        showQuiz(idx);
+                    } else {
+                        div.textContent = tlText;
+                        div.style.fontSize = '3.44px';
+                    }
+                }
+            });
+
+            const draggableFrame = document.getElementById('draggableFrame');
+            if (draggableFrame && draggableFrame.parentNode) {
+                draggableFrame.parentNode.insertBefore(fo, draggableFrame);
+            } else {
+                svg.appendChild(fo);
+            }
+            textBoxElements.push(fo);
+        });
+
+        const frame = document.getElementById('draggableFrame');
+        if (frame && frame.parentNode) frame.parentNode.appendChild(frame);
+    }
+
+    // --- Frame & visibility -------------------------------------------------
+    function findClosestSeason(angle) {
+        const norm = ((angle % 360) + 360) % 360;
+        let closest = 0, minDiff = 360;
+        seasonsData.forEach((item, i) => {
+            let diff = Math.abs(norm - item[3]);
+            if (diff > 180) diff = 360 - diff;
+            if (diff < minDiff) { minDiff = diff; closest = i; }
+        });
+        return closest;
+    }
+
+    function updateVisibleTextBoxes(seasonIndex) {
+        textBoxElements.forEach((tb, i) => {
+            if (!tb) return;
+            if (i === seasonIndex) {
+                tb.classList.add('active'); tb.classList.remove('hidden');
+                tb.style.opacity = '1'; tb.style.display = 'block';
+            } else if (learnedItems[i]) {
+                tb.classList.remove('active'); tb.classList.remove('hidden');
+                tb.style.opacity = '0.5'; tb.style.display = 'block';
+            } else {
+                tb.classList.remove('active'); tb.classList.add('hidden');
+                tb.style.opacity = '0'; tb.style.display = 'none';
+            }
+        });
+        document.getElementById('season-indicator').textContent = seasonsData[seasonIndex][0];
+    }
+
+    function positionFrameOnSeason(seasonIndex) {
+        const c = { x: 50, y: 50 }, r = 30;
+        const triggerAngle = (seasonsData[seasonIndex][3] - 90) * Math.PI / 180;
+        const frame = document.getElementById('draggableFrame');
+        frame.setAttribute('cx', c.x + r * Math.cos(triggerAngle));
+        frame.setAttribute('cy', c.y + r * Math.sin(triggerAngle));
+        currentSeason = seasonIndex;
+        updateVisibleTextBoxes(seasonIndex);
+        updateSegmentHighlight(seasonsData[seasonIndex][3]);
+    }
+
+    // --- Quiz -----------------------------------------------------------
+    function showQuiz(index) {
+        currentQuizIndex = index;
+        const qc = document.getElementById('quizContainer');
+        document.getElementById('quizInput').placeholder = seasonsData[index][2];
+        document.getElementById('quizInput').value = '';
+        document.getElementById('quizFeedback').textContent = '';
+        qc.style.display    = 'block';
+        qc.style.visibility = 'visible';
+        qc.style.opacity    = '1';
+        qc.style.zIndex     = '9999';
+        setTimeout(() => { try { document.getElementById('quizInput').focus(); } catch(e){} }, 100);
+    }
+
+    function checkQuizAnswer() {
+        if (currentQuizIndex < 0) return;
+        const input   = document.getElementById('quizInput').value.trim();
+        const correct = seasonsData[currentQuizIndex][1];
+        const fb      = document.getElementById('quizFeedback');
+
+        if (input.toLowerCase() === correct.toLowerCase()) {
+            fb.textContent = LANG.quiz_correct;
+            fb.style.color = 'green';
+            learnedItems[currentQuizIndex] = true;
+
+            const tb = textBoxElements[currentQuizIndex];
+            if (tb) {
+                tb.classList.add('learned');
+                const div = tb.querySelector('div');
+                if (div) div.textContent = correct;
+                const c = { x: 50, y: 50 };
+                const angle = (seasonsData[currentQuizIndex][4] - 90) * Math.PI / 180;
+                const lr = getLearnedRadius();
+                tb.setAttribute('x', c.x + lr * Math.cos(angle) - 30);
+                tb.setAttribute('y', c.y + lr * Math.sin(angle) - 12);
+            }
+            addToVocabularyArray(currentQuizIndex);
+            closedIdx = currentQuizIndex;
+            setTimeout(() => {
+                if (currentQuizIndex === closedIdx) {
+                    document.getElementById('quizContainer').style.display = 'none';
+                    currentQuizIndex = -1;
+                }
+            }, 1500);
+        } else {
+            fb.textContent = LANG.quiz_wrong;
+            fb.style.color = 'red';
+            const tb = textBoxElements[currentQuizIndex];
+            if (tb) {
+                const div = tb.querySelector('div');
+                if (div) { div.textContent = correct; div.style.fontSize = '3.44px'; }
+            }
+        }
+    }
+
+    // --- Init -----------------------------------------------------------
+    function initializeApp() {
+        const svg       = document.getElementById('svgCanvas');
+        const frame     = document.getElementById('draggableFrame');
+        const titleBox  = document.getElementById('title-box');
+        const qc        = document.getElementById('quizContainer');
+        const quizInput = document.getElementById('quizInput');
+
+        if (!svg || !frame || !titleBox) return;
+
+        createSegments();
+        createTextBoxes();
+        positionFrameOnSeason(5);
+
+        frame.style.pointerEvents = 'all';
+        frame.style.cursor = 'grab';
+        frame.style.zIndex = '1000';
+
+        frame.addEventListener('mousedown',  e => { isDragging = true; frame.classList.add('dragging'); e.preventDefault(); e.stopPropagation(); });
+        frame.addEventListener('touchstart', e => { isDragging = true; frame.classList.add('dragging'); e.preventDefault(); e.stopPropagation(); }, { passive: false });
+
+        function onMove(e) {
+            if (!isDragging) return;
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            try {
+                const rect = svg.getBoundingClientRect();
+                const svgX = ((clientX - rect.left) / rect.width)  * 100;
+                const svgY = ((clientY - rect.top)  / rect.height) * 100;
+                const angle = Math.atan2(svgY - 50, svgX - 50);
+                const r = 30;
+                frame.setAttribute('cx', 50 + r * Math.cos(angle));
+                frame.setAttribute('cy', 50 + r * Math.sin(angle));
+                const deg = (angle * 180 / Math.PI + 90 + 360) % 360;
+                const idx = findClosestSeason(deg);
+                currentSeason = idx;
+                updateVisibleTextBoxes(idx);
+                updateSegmentHighlight(deg);
+            } catch (err) { console.error('drag error:', err); }
+            e.preventDefault(); e.stopPropagation();
+        }
+
+        function onEnd(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            frame.classList.remove('dragging');
+            frame.style.cursor = 'grab';
+            positionFrameOnSeason(currentSeason);
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+        }
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('mouseup',   onEnd);
+        document.addEventListener('touchend',  onEnd);
+        document.addEventListener('mouseleave',onEnd);
+
+        titleBox.addEventListener('click', function() {
+            this.classList.add('hidden');
+            setTimeout(() => {
+                currentTextIndex = (currentTextIndex + 1) % LANG.titles.length;
+                this.textContent = LANG.titles[currentTextIndex];
+                this.classList.remove('hidden');
+            }, 500);
+        });
+
+        document.getElementById('quizCheck').addEventListener('click', checkQuizAnswer);
+        quizInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkQuizAnswer(); });
+        document.getElementById('toggle-learned').addEventListener('click', toggleArrayVisibility);
+
+        document.addEventListener('click', function(e) {
+            if (qc.style.display === 'none') return;
+            if (qc.contains(e.target)) return;
+            if (textBoxElements.some(b => b && b.contains(e.target))) return;
+            if (currentQuizIndex >= 0 && !learnedItems[currentQuizIndex]) {
+                const tb = textBoxElements[currentQuizIndex];
+                if (tb) {
+                    const div = tb.querySelector('div');
+                    if (div) { div.textContent = seasonsData[currentQuizIndex][1]; div.style.fontSize = '3.44px'; }
+                }
+            }
+            qc.style.display = 'none';
+            currentQuizIndex = -1;
+        });
+
+        qc.style.display = 'none';
+
+        setTimeout(() => {
+            const di = document.getElementById('drag-instruction');
+            if (di) {
+                di.classList.add('fade');
+                setTimeout(() => { di.style.display = 'none'; }, 3000);
+            }
+        }, 15000);
+    }
+
+    document.addEventListener('DOMContentLoaded', initializeApp);
+
+    </script>
+</body>
+</html>

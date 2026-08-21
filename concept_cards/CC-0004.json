@@ -1,0 +1,213 @@
+{
+  "id": "CC-0004",
+  "version": "1.1",
+  "created": "2026-06-27",
+  "last_updated": "2026-07-01",
+  "status": "active",
+  "concept": {
+    "name": "Difficulty",
+    "description": "The archilexeme spanning the scale of challenge from effortless through moderate to impossible. A gradual positive-gradient concept — difficulty increases as a task becomes more challenging. Uses the logographic template for Japanese.",
+    "taxonomy_ref": "4.2",
+    "taxonomy_path": "Action → Effort and difficulty → Difficulty",
+    "shape": "gradual_temporary_curve",
+    "template_family": "GTCV",
+    "template_id": "LOG-GTCV",
+    "modes_used": [
+      "states",
+      "transitions"
+    ],
+    "location_tags": {
+      "primary": [
+        "Z-08",
+        "Z-09"
+      ],
+      "secondary": [
+        "Z-01"
+      ],
+      "transitional": []
+    },
+    "notes": "LOG-GTCV selected (not LOG-GT5L-7TB) because difficulty is a gradual continuous scale rather than discrete permanent steps. Logographic template required for Japanese (non-romanized script). 4-level cycle: TLR (romaji default) → TL (kanji/kana) → SL (English) → Quiz (tests TLR). v1.1: Positions corrected for GTCV bell-curve convention. Peak (most difficult/impossible) now at 50%. Items distributed 0-50% on ascending half."
+  },
+  "template": {
+    "phonographic": {
+      "id": "ROM-GTCV",
+      "file": "templates/phonographic/ROM-GTCV-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-GTCV",
+      "file": "templates/logographic/LOG-GTCV-Generic.html",
+      "track": "logographic"
+    }
+  },
+  "language_pairs": {
+    "EN-JA": {
+      "source_language": "English",
+      "target_language": "Japanese",
+      "track": "logographic",
+      "generated_by": "claude-sonnet-4-6",
+      "generated_date": "2026-06-27",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "lang_config": {
+        "titles": {
+          "states": [
+            "Difficulty / 難易度 (Nan'ido)",
+            "難易度",
+            "Difficulty"
+          ],
+          "transitions": [
+            "難しくなる / Getting Harder",
+            "日本語",
+            "English"
+          ]
+        },
+        "ui": {
+          "show_tlr_label": "ローマ字を表示",
+          "show_tl_label": "日本語を表示",
+          "show_sl_label": "英語を表示",
+          "states_mode_label": "Switch to Transitions",
+          "trans_mode_label": "Switch to States",
+          "quiz_placeholder": "ローマ字で入力してください…",
+          "quiz_button": "確認",
+          "quiz_correct": "正解！ ✓",
+          "quiz_wrong": "もう一度",
+          "diacritic_instructions": "Tip: long vowels — ō = o or oo, ū = u or uu"
+        },
+        "diacritic_map": [
+          [
+            "ā",
+            "a"
+          ],
+          [
+            "ī",
+            "i"
+          ],
+          [
+            "ū",
+            "u"
+          ],
+          [
+            "ē",
+            "e"
+          ],
+          [
+            "ō",
+            "o"
+          ]
+        ],
+        "collapse_double_vowels": true,
+        "conceptData": [
+          [
+            "簡単",
+            "Easy",
+            "How do you say 'easy' in Japanese? (romaji)",
+            0,
+            "Kantan"
+          ],
+          [
+            "やさしい",
+            "Simple",
+            "How do you say 'simple' in Japanese? (romaji)",
+            6.25,
+            "Yasashii"
+          ],
+          [
+            "普通",
+            "Ordinary",
+            "How do you say 'ordinary difficulty' in Japanese?",
+            12.5,
+            "Futsū"
+          ],
+          [
+            "少し難しい",
+            "A bit hard",
+            "How do you say 'a bit hard' in Japanese? (romaji)",
+            18.75,
+            "Sukoshi muzukashii"
+          ],
+          [
+            "難しい",
+            "Difficult",
+            "How do you say 'difficult' in Japanese? (romaji)",
+            25,
+            "Muzukashii"
+          ],
+          [
+            "かなり難しい",
+            "Quite hard",
+            "How do you say 'quite hard' in Japanese? (romaji)",
+            31.25,
+            "Kanari muzukashii"
+          ],
+          [
+            "とても難しい",
+            "Very hard",
+            "How do you say 'very hard' in Japanese? (romaji)",
+            37.5,
+            "Totemo muzukashii"
+          ],
+          [
+            "超難しい",
+            "Extremely hard",
+            "How do you say 'extremely hard' in Japanese? (romaji)",
+            43.75,
+            "Chō muzukashii"
+          ],
+          [
+            "不可能",
+            "Impossible",
+            "How do you say 'impossible' in Japanese? (romaji)",
+            50,
+            "Fukanō"
+          ]
+        ],
+        "transitionsData": [
+          [
+            "簡単になる",
+            "Getting easier",
+            "How do you say 'getting easier' in Japanese? (romaji)",
+            6,
+            "Kantan ni naru"
+          ],
+          [
+            "楽になる",
+            "Becoming easier",
+            "How do you say 'becoming easier' in Japanese? (romaji)",
+            12,
+            "Raku ni naru"
+          ],
+          [
+            "難しくなる",
+            "Getting harder",
+            "How do you say 'getting harder' in Japanese? (romaji)",
+            22,
+            "Muzukashiku naru"
+          ],
+          [
+            "もっと難しい",
+            "Even harder",
+            "How do you say 'even harder' in Japanese? (romaji)",
+            33,
+            "Motto muzukashii"
+          ],
+          [
+            "手に負えない",
+            "Getting out of hand",
+            "How do you say 'getting out of hand'? (romaji)",
+            42,
+            "Te ni oenai"
+          ],
+          [
+            "諦める",
+            "Giving up",
+            "How do you say 'giving up' in Japanese? (romaji)",
+            48,
+            "Akirameru"
+          ]
+        ]
+      }
+    }
+  }
+}

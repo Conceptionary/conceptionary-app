@@ -1,0 +1,2388 @@
+<!-- Last updated: 2026-08-17 @ 5:00 p.m. (Mangawhai, NZ) -->
+<!DOCTYPE html>
+<!--
+  CONCEPTIONARY — Standalone Web Application
+  © 2026 Alan William Preston @ Mangawhai, New Zealand
+  Version 1.0
+
+  A full-page, responsive language learning interface.
+  Four views: Home · Map · Browse · Search
+  Language pair persists across all views.
+  Language preferences saved to sessionStorage.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+<meta name="theme-color" content="#0C2B3A">
+<title>Conceptionary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────
+   ROOT VARIABLES
+───────────────────────────────────────── */
+:root {
+  --ink:         #0C2B3A;
+  --ink-mid:     #2A4A5A;
+  --sky:         #87CEEB;
+  --sky-deep:    #4A9EC8;
+  --sky-light:   #C4E6F8;
+  --sky-pale:    #EBF6FD;
+  --green:       #3A9A6A;
+  --green-pale:  #EBF8F2;
+  --amber:       #D4840A;
+  --amber-pale:  #FDF3E3;
+  --white:       #FFFFFF;
+  --off:         #F6F9FC;
+  --border:      #D4E5F0;
+  --muted:       #7A9AB0;
+  --text:        #1C3040;
+  --radius:      10px;
+  --radius-sm:   6px;
+  --shadow:      0 3px 14px rgba(12,43,58,0.10);
+  --shadow-lg:   0 8px 32px rgba(12,43,58,0.14);
+  --hdr-h:       58px;
+  --nav-h:       52px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--off);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─────────────────────────────────────────
+   APP HEADER
+───────────────────────────────────────── */
+.app-header {
+  background: var(--ink);
+  height: var(--hdr-h);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  flex-shrink: 0;
+}
+
+.hdr-brand {
+  font-family: 'Raleway', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--sky);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.hdr-sub {
+  font-size: 9px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 500;
+  display: block;
+  margin-top: 2px;
+}
+
+/* language pair in header */
+.hdr-lang {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: auto;
+}
+
+.hdr-lang-label {
+  font-size: 10px;
+  color: rgba(255,255,255,0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.hdr-select {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.20);
+  border-radius: var(--radius-sm);
+  padding: 5px 24px 5px 9px;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='rgba(255,255,255,0.5)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 7px center;
+  min-width: 100px;
+  transition: border-color 0.15s;
+}
+.hdr-select:focus { outline: none; border-color: var(--sky); }
+.hdr-select option { background: var(--ink); color: #fff; }
+
+.hdr-arrow { color: rgba(255,255,255,0.35); font-size: 16px; flex-shrink: 0; }
+
+/* desktop tab nav in header */
+.hdr-nav {
+  display: flex;
+  gap: 2px;
+  margin-left: 20px;
+  flex-shrink: 0;
+}
+
+.hdr-nav-btn {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.55);
+  background: transparent;
+  border: none;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.hdr-nav-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.hdr-nav-btn.active { color: var(--sky); background: rgba(135,206,235,0.12); font-weight: 600; }
+
+/* ─────────────────────────────────────────
+   MAIN CONTENT
+───────────────────────────────────────── */
+.app-main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 70px; /* room for mobile nav */
+}
+
+/* ─────────────────────────────────────────
+   PANELS
+───────────────────────────────────────── */
+.panel {
+  display: none;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  animation: fadeUp 0.22s ease;
+}
+.panel.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─────────────────────────────────────────
+   HOME PANEL
+───────────────────────────────────────── */
+.home-hero {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: var(--shadow);
+  margin-bottom: 22px;
+}
+
+.hero-title {
+  font-family: 'Raleway', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.hero-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 22px;
+}
+
+.three-cols {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-mid);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.main-select {
+  width: 100%;
+  padding: 11px 30px 11px 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--sky-light);
+  border: 2px solid var(--sky-light);
+  border-radius: var(--radius);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(0,60,100,0.4)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.main-select:focus { outline: none; border-color: var(--sky-deep); box-shadow: 0 0 0 3px rgba(74,158,200,0.15); }
+.main-select option { background: #fff; color: var(--text); }
+.main-select optgroup { color: var(--sky-deep); font-weight: 700; font-size: 11px; }
+.main-select.chosen { border-left: 4px solid var(--green); }
+
+#home-concept { background: #B8DFEF; border-color: #B8DFEF; }
+
+.avail-note {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-top: 5px;
+  text-align: right;
+  min-height: 15px;
+}
+.avail-note.has  { color: var(--green); }
+.avail-note.none { color: var(--amber); }
+
+.hero-btns { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+.start-btn {
+  padding: 13px 44px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  background: #28A745;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
+}
+.start-btn:hover {
+  background: #1F8A38;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(40,167,69,0.28);
+}
+.start-btn:active { transform: translateY(0); }
+
+.hint-text { font-size: 12px; color: var(--muted); font-style: italic; }
+
+/* result panel */
+.result-box {
+  display: none;
+  margin-top: 18px;
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  border-left: 4px solid var(--sky);
+  background: var(--sky-pale);
+  animation: fadeUp 0.22s ease;
+}
+.result-box.ok { border-left-color: var(--green); background: var(--green-pale); }
+.result-box.no { border-left-color: var(--amber); background: var(--amber-pale); }
+
+.result-path { font-size: 14px; line-height: 1.9; color: var(--ink-mid); margin-bottom: 12px; }
+
+.open-btn {
+  display: inline-block;
+  padding: 9px 26px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--green);
+  color: #fff;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s;
+  border: none;
+  cursor: pointer;
+}
+.open-btn:hover { background: #2A8A58; transform: translateY(-1px); }
+
+.req-btn {
+  display: inline-block;
+  padding: 9px 22px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--amber);
+  background: transparent;
+  border: 2px solid var(--amber);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.req-btn:hover { background: var(--amber); color: #fff; }
+.na-msg { font-size: 12px; color: #A08050; margin-bottom: 10px; }
+
+/* featured concepts */
+.section-ttl {
+  font-family: 'Raleway', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.featured-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.feat-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 14px 12px;
+  cursor: pointer;
+  transition: all 0.14s;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  box-shadow: var(--shadow-sm, 0 1px 5px rgba(0,0,0,0.06));
+}
+.feat-card:hover { border-color: var(--sky-deep); box-shadow: var(--shadow); transform: translateY(-2px); }
+
+.feat-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.feat-meta { display: flex; align-items: center; gap: 6px; }
+
+.tmpl-tag {
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--sky-pale);
+  color: var(--sky-deep);
+  padding: 1px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.03em;
+}
+
+.avail-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.avail-dot.yes { background: var(--green); }
+.avail-dot.no  { background: var(--border); }
+
+/* ─────────────────────────────────────────
+   MAP PANEL
+───────────────────────────────────────── */
+.map-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 18px;
+  align-items: start;
+}
+
+.map-wrap {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.map-intro-text {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
+.map-svg-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+#neighbourhood-map {
+  width: 100%;
+  height: auto;
+  min-width: 580px;
+  display: block;
+}
+
+/* SVG zone interactivity */
+#neighbourhood-map .mz {
+  cursor: pointer;
+  transition: opacity 0.12s;
+}
+#neighbourhood-map .mz:hover { opacity: 0.82; }
+#neighbourhood-map .mz.sel rect:first-child,
+#neighbourhood-map .mz.sel polygon:first-child {
+  stroke: var(--sky-deep) !important;
+  stroke-width: 3 !important;
+}
+
+/* map side panel */
+.map-side {
+  position: sticky;
+  top: calc(var(--hdr-h) + 16px);
+}
+
+.map-side-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+  min-height: 200px;
+}
+
+.map-side-ttl {
+  font-family: 'Raleway', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.map-concepts { display: flex; flex-direction: column; gap: 5px; }
+
+.map-ccard {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.12s;
+  background: var(--off);
+}
+.map-ccard:hover { border-color: var(--sky); background: var(--sky-pale); }
+.map-ccard .mc-name { flex: 1; font-size: 12px; font-weight: 500; color: var(--text); }
+.map-ccard .mc-avail { font-size: 10px; font-weight: 600; }
+.map-ccard .mc-avail.y { color: var(--green); }
+.map-ccard .mc-avail.n { color: var(--muted); }
+
+/* Location hierarchy navigator — added 2026-08-17, drives the Map
+   panel's side card from the real Location Index data instead of a
+   flat zone filter. */
+.loc-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px;
+  margin-bottom: 10px;
+  font-size: 11.5px;
+}
+.loc-crumb {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px 3px;
+  font-size: 11.5px;
+  font-family: inherit;
+}
+.loc-crumb:hover { color: var(--sky-deep); text-decoration: underline; }
+.loc-crumb.current { color: var(--text); font-weight: 600; cursor: default; }
+.loc-crumb.current:hover { text-decoration: none; }
+.loc-sep { color: var(--border); font-size: 11px; }
+
+.loc-tiles { display: flex; flex-direction: column; gap: 5px; }
+.loc-tile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.12s;
+  background: var(--off);
+  font-size: 12px;
+  color: var(--text);
+  text-align: left;
+}
+.loc-tile:hover { border-color: var(--sky); background: var(--sky-pale); }
+.loc-tile .loc-tile-arrow { margin-left: auto; color: var(--muted); font-size: 11px; }
+
+.loc-empty {
+  padding: 16px 10px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.loc-placeholder-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--sky-deep);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.loc-placeholder-btn:hover { border-color: var(--sky-deep); background: var(--sky-pale); }
+
+.map-placeholder {
+  text-align: center;
+  padding: 36px 16px;
+  color: var(--muted);
+}
+.map-placeholder .pi { font-size: 36px; margin-bottom: 10px; }
+.map-placeholder p { font-size: 13px; line-height: 1.6; }
+
+/* ─────────────────────────────────────────
+   BROWSE PANEL
+───────────────────────────────────────── */
+.browse-layout {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.browse-cat {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.15s;
+}
+.browse-cat:hover { box-shadow: var(--shadow-lg); }
+
+.browse-cat-hdr {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  cursor: pointer;
+  background: var(--white);
+  transition: background 0.12s;
+  user-select: none;
+}
+.browse-cat-hdr:hover { background: var(--sky-pale); }
+.browse-cat-hdr.open { background: var(--sky-pale); }
+
+.browse-cat-ico { font-size: 24px; flex-shrink: 0; }
+.browse-cat-word {
+  font-family: 'Raleway', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ink);
+  flex: 1;
+}
+.browse-cat-desc { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.browse-cat-count { font-size: 12px; font-weight: 600; color: var(--sky-deep); }
+.browse-chevron { font-size: 12px; color: var(--muted); transition: transform 0.2s; }
+.browse-cat-hdr.open .browse-chevron { transform: rotate(180deg); }
+
+.browse-cat-body {
+  display: none;
+  padding: 0 16px 14px;
+  border-top: 1px solid var(--border);
+}
+.browse-cat-body.open { display: block; }
+
+.browse-concept-list { display: flex; flex-direction: column; gap: 4px; margin-top: 12px; }
+
+.browse-ccard {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.12s;
+  background: var(--off);
+}
+.browse-ccard:hover { border-color: var(--sky); background: var(--sky-pale); }
+.browse-ccard .bc-name { flex: 1; font-size: 13px; font-weight: 500; color: var(--text); }
+.browse-ccard .bc-avail { font-size: 11px; font-weight: 600; }
+.browse-ccard .bc-avail.y { color: var(--green); }
+.browse-ccard .bc-avail.n { color: var(--muted); }
+
+/* ─────────────────────────────────────────
+   SEARCH PANEL
+───────────────────────────────────────── */
+.search-hero {
+  background: var(--ink);
+  border-radius: 16px;
+  padding: 28px 28px 32px;
+  margin-bottom: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.search-hero::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(135,206,235,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.search-hero-ttl {
+  font-family: 'Raleway', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--sky-light);
+  margin-bottom: 14px;
+}
+
+.search-wrap {
+  position: relative;
+}
+.search-ico {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: var(--muted);
+  pointer-events: none;
+}
+.search-input {
+  width: 100%;
+  padding: 14px 44px 14px 42px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  background: var(--white);
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  color: var(--text);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.search-input:focus {
+  outline: none;
+  border-color: var(--sky);
+  box-shadow: 0 0 0 3px rgba(135,206,235,0.2);
+}
+.search-input::placeholder { color: #A0B8C8; }
+
+.search-clr {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 16px;
+  cursor: pointer;
+  display: none;
+  padding: 3px 5px;
+  border-radius: 50%;
+}
+.search-clr:hover { background: var(--border); }
+
+.search-results-hdr {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.search-list { display: flex; flex-direction: column; gap: 7px; }
+
+.search-ccard {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: default;
+  transition: all 0.12s;
+  box-shadow: var(--shadow-sm, 0 1px 4px rgba(0,0,0,0.05));
+}
+.search-ccard:hover { border-color: var(--sky-light); box-shadow: var(--shadow); }
+.search-ccard.unavail { opacity: 0.68; }
+
+.sc-main { flex: 1; min-width: 0; }
+.sc-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.sc-meta { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--muted); flex-wrap: wrap; }
+
+.search-avail { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; }
+.search-avail.y { color: var(--green); }
+.search-avail.n { color: var(--muted); }
+
+.s-open-btn {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--sky-deep);
+  text-decoration: none;
+  padding: 6px 14px;
+  border: 1.5px solid var(--sky);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.12s;
+}
+.s-open-btn:hover { background: var(--sky); color: var(--ink); }
+
+.s-req-btn {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--amber);
+  background: var(--amber-pale);
+  border: 1.5px solid var(--amber);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.12s;
+}
+.s-req-btn:hover { background: var(--amber); color: #fff; }
+
+.empty-state {
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--muted);
+}
+.empty-state .ei { font-size: 40px; margin-bottom: 12px; }
+.empty-state .et { font-size: 15px; font-weight: 600; color: var(--ink-mid); margin-bottom: 6px; }
+.empty-state .es { font-size: 13px; line-height: 1.6; }
+
+.ai-request-box {
+  margin-top: 14px;
+  padding: 14px 18px;
+  background: var(--amber-pale);
+  border: 1px dashed var(--amber);
+  border-radius: var(--radius);
+  text-align: center;
+}
+.ai-request-box p { font-size: 13px; color: var(--ink-mid); margin-bottom: 10px; }
+.ai-btn {
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--amber);
+  color: #fff;
+  border: none;
+  padding: 9px 22px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: opacity 0.12s;
+}
+.ai-btn:hover { opacity: 0.85; }
+
+/* prompt box */
+.prompt-box {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.prompt-ico { font-size: 28px; flex-shrink: 0; }
+.prompt-ttl { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+.prompt-sub { font-size: 12px; color: var(--muted); }
+
+/* ─────────────────────────────────────────
+   MOBILE BOTTOM NAV
+───────────────────────────────────────── */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-h);
+  background: var(--ink);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  z-index: 100;
+  padding: 0 4px;
+}
+
+.mobile-nav-inner {
+  display: flex;
+  height: 100%;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.mob-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.45);
+  cursor: pointer;
+  padding: 6px 4px;
+  border-radius: 8px;
+  transition: all 0.14s;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.mob-btn:hover { color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.06); }
+.mob-btn.active { color: var(--sky); }
+.mob-btn .mbi { font-size: 18px; }
+.mob-btn .mbl { font-size: 9px; font-weight: 600; letter-spacing: 0.04em; }
+
+/* ─────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────── */
+@media (max-width: 800px) {
+  .hdr-nav { display: none; }
+  .mobile-nav { display: flex; }
+  .app-main { padding-bottom: calc(var(--nav-h) + 12px); }
+  .map-layout { grid-template-columns: 1fr; }
+  .map-side { position: static; }
+  .browse-layout { grid-template-columns: 1fr; }
+  .three-cols { grid-template-columns: 1fr; gap: 12px; }
+  .hero-btns { flex-direction: column; align-items: stretch; }
+  .start-btn { width: 100%; text-align: center; padding: 13px 20px; }
+  .hdr-brand .hdr-sub { display: none; }
+  .panel { padding: 16px 14px; }
+  .hdr-lang-label { display: none; }
+}
+
+@media (max-width: 480px) {
+  .featured-grid { grid-template-columns: 1fr 1fr; }
+  .hdr-select { min-width: 80px; font-size: 12px; }
+  .hdr-brand { font-size: 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     APP HEADER
+═══════════════════════════════════════ -->
+<header class="app-header">
+  <div class="hdr-brand">
+    Conceptionary
+    <span class="hdr-sub">Interactive Vocabulary</span>
+  </div>
+
+  <div class="hdr-nav">
+    <button class="hdr-nav-btn active" data-tab="home">🏠 Home</button>
+    <button class="hdr-nav-btn" data-tab="map">🗺 Map</button>
+    <button class="hdr-nav-btn" data-tab="browse">📚 Browse</button>
+    <button class="hdr-nav-btn" data-tab="search">🔍 Search</button>
+  </div>
+
+  <div class="hdr-lang">
+    <span class="hdr-lang-label">I speak</span>
+    <select class="hdr-select" id="hdr-src">
+      <option value="EN">🇬🇧 English</option>
+      <option value="DE">🇩🇪 Deutsch</option>
+      <option value="ID">🇮🇩 Bahasa Indonesia</option>
+      <option value="JA">🇯🇵 日本語</option>
+      <option value="MI">🇳🇿 Te Reo Māori</option>
+      <option value="IT">🇮🇹 Italiano</option>
+      <option value="ZH">🇨🇳 中文</option>
+    </select>
+    <span class="hdr-arrow">→</span>
+    <span class="hdr-lang-label">learning</span>
+    <select class="hdr-select" id="hdr-tgt">
+      <option value="">— select —</option>
+      <option value="DE">🇩🇪 Deutsch</option>
+      <option value="ID">🇮🇩 Bahasa Indonesia</option>
+      <option value="JA">🇯🇵 日本語</option>
+      <option value="MI">🇳🇿 Te Reo Māori</option>
+      <option value="IT">🇮🇹 Italiano</option>
+      <option value="ZH">🇨🇳 中文</option>
+      <option value="TH">🇹🇭 ภาษาไทย</option>
+    </select>
+  </div>
+
+  <button id="loadRegBtn" onclick="loadRegistry()" title="Load your local Conceptionary folder"
+    style="margin-left:12px;padding:6px 12px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#fff;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background 0.2s;"
+    onmouseover="this.style.background='rgba(255,255,255,0.22)'"
+    onmouseout="this.style.background='rgba(255,255,255,0.12)'">
+    📂 Load
+  </button>
+</header>
+
+<!-- ═══════════════════════════════════════
+     MAIN CONTENT
+═══════════════════════════════════════ -->
+<main class="app-main">
+
+  <!-- ─── HOME PANEL ─── -->
+  <div class="panel active" id="panel-home">
+    <div class="home-hero">
+      <div class="hero-title">🌍 Choose your learning path</div>
+      <div class="hero-sub">Select what you speak, what you want to learn, and what you want to learn about.</div>
+
+      <div class="three-cols">
+        <div>
+          <label class="field-label">🗣️ I speak</label>
+          <select class="main-select" id="home-src">
+            <option value="">Select…</option>
+            <option value="EN">🇬🇧 English</option>
+            <option value="DE">🇩🇪 Deutsch</option>
+            <option value="ID">🇮🇩 Bahasa Indonesia</option>
+            <option value="JA">🇯🇵 日本語 (Nihongo)</option>
+            <option value="MI">🇳🇿 Te Reo Māori</option>
+            <option value="IT">🇮🇹 Italiano</option>
+            <option value="ZH">🇨🇳 中文 (Putonghua)</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">📚 I want to learn</label>
+          <select class="main-select" id="home-tgt">
+            <option value="">Select…</option>
+            <option value="DE">🇩🇪 Deutsch</option>
+            <option value="ID">🇮🇩 Bahasa Indonesia</option>
+            <option value="JA">🇯🇵 日本語 (Nihongo)</option>
+            <option value="MI">🇳🇿 Te Reo Māori</option>
+            <option value="IT">🇮🇹 Italiano</option>
+            <option value="ZH">🇨🇳 中文 (Putonghua)</option>
+            <option value="TH">🇹🇭 ภาษาไทย (Thai)</option>
+          </select>
+        </div>
+        <div style="position:relative;">
+          <label class="field-label">🎯 I want to learn about</label>
+          <input type="text" class="main-select" id="home-concept-input"
+                 placeholder="Select a language pair first…"
+                 autocomplete="off" disabled
+                 oninput="filterConceptSuggestions(this.value)"
+                 onfocus="filterConceptSuggestions(this.value)"
+                 style="width:100%;cursor:text;box-sizing:border-box;"/>
+          <input type="hidden" id="home-concept" value=""/>
+          <div id="concept-suggestions" style="
+            display:none;position:absolute;top:100%;left:0;right:0;
+            background:white;border:1px solid #B8DFEF;border-top:none;
+            border-radius:0 0 8px 8px;max-height:200px;overflow-y:auto;
+            z-index:999;box-shadow:0 4px 12px rgba(0,0,0,0.15);"></div>
+          <div class="avail-note" id="home-avail-note"></div>
+        </div>
+      </div>
+
+      <div class="hero-btns">
+        <button class="start-btn" onclick="startLearning()">🚀 Start Learning!</button>
+        <span class="hint-text">Or explore using Map, Browse or Search above.</span>
+      </div>
+
+      <div class="result-box" id="home-result">
+        <div class="result-path" id="home-result-path"></div>
+        <div id="home-result-action"></div>
+      </div>
+    </div>
+
+    <!-- Featured concepts -->
+    <div id="featured-section" style="display:none">
+      <div class="section-ttl">⭐ Available for this language pair</div>
+      <div class="featured-grid" id="featured-grid"></div>
+    </div>
+
+    <div id="home-prompt-section">
+      <div class="prompt-box">
+        <div class="prompt-ico">🌐</div>
+        <div>
+          <div class="prompt-ttl">Select your language pair to begin</div>
+          <div class="prompt-sub">Use the dropdowns above — or the selectors in the header to keep your language pair as you navigate.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── MAP PANEL ─── -->
+  <div class="panel" id="panel-map">
+    <div class="map-layout">
+
+      <div class="map-wrap">
+        <p class="map-intro-text">Click any location to see available concepts for your language pair.</p>
+        <div class="map-svg-container">
+
+          <svg id="neighbourhood-map" viewBox="0 0 1000 600"
+               xmlns="http://www.w3.org/2000/svg" font-family="'Plus Jakarta Sans', sans-serif">
+
+            <!-- ── ZONE BACKGROUNDS ── -->
+            <!-- Community outdoor background -->
+            <rect x="370" y="0" width="400" height="450" fill="#E8EDF5"/>
+            <!-- Garden -->
+            <rect x="370" y="0" width="160" height="450" fill="#C0E4B8"/>
+            <!-- Road strip label area -->
+            <rect x="770" y="0" width="60" height="450" fill="#D0DFE8"/>
+            <!-- Beach / Travel -->
+            <rect x="830" y="0" width="170" height="450" fill="#A0CCEB"/>
+            <!-- Transport strip -->
+            <rect x="0" y="450" width="1000" height="150" fill="#E8E2DC"/>
+
+            <!-- ── HOME FLOOR PLAN ── -->
+            <rect x="0" y="0" width="370" height="450" fill="#F8F5EF" stroke="#C8C0B4" stroke-width="2"/>
+            <!-- Home title bar -->
+            <rect x="0" y="0" width="370" height="28" fill="#E0D8CC"/>
+            <text x="185" y="19" text-anchor="middle" font-size="13" font-weight="700" fill="#5A4A3A">At home</text>
+
+            <!-- Kitchen (clickable) -->
+            <g class="mz" data-z="kitchen" onclick="mapZoneClick('kitchen')">
+              <rect x="5" y="30" width="185" height="108" fill="#FFFCF0" stroke="#C8BCA8" stroke-width="1.5" rx="3"/>
+              <text x="97" y="76" text-anchor="middle" font-size="11" font-weight="600" fill="#5A4A30">🍳</text>
+              <text x="97" y="92" text-anchor="middle" font-size="10.5" font-weight="600" fill="#5A4A30">In the kitchen</text>
+            </g>
+
+            <!-- Dining room -->
+            <g class="mz" data-z="home" onclick="mapZoneClick('home')">
+              <rect x="5" y="142" width="185" height="92" fill="#FFFCF0" stroke="#C8BCA8" stroke-width="1.5" rx="3"/>
+              <text x="97" y="191" text-anchor="middle" font-size="10.5" font-weight="500" fill="#5A4A30">In the dining room</text>
+            </g>
+
+            <!-- Living room -->
+            <g class="mz" data-z="home" onclick="mapZoneClick('home')">
+              <rect x="5" y="238" width="185" height="155" fill="#FFFCF0" stroke="#C8BCA8" stroke-width="1.5" rx="3"/>
+              <text x="97" y="322" text-anchor="middle" font-size="10.5" font-weight="500" fill="#5A4A30">In the living room</text>
+            </g>
+
+            <!-- Right column of home: Laundry, Toilet, Bathroom, Bed, Bedroom -->
+            <g class="mz" data-z="home" onclick="mapZoneClick('home')">
+              <rect x="195" y="30" width="170" height="62" fill="#EEF4FF" stroke="#C8BCA8" stroke-width="1.5" rx="3"/>
+              <text x="280" y="65" text-anchor="middle" font-size="10.5" font-weight="500" fill="#4A5A7A">In the laundry</text>
+            </g>
+            <g class="mz" data-z="home" onclick="mapZoneClick('home')">
+              <rect x="195" y="96" width="170" height="58" fill="#EEF4FF" stroke="#C8BCA8" stroke-width="1.5" rx="3"/>
+              <text x="280" y="129" text-anchor="middle" font-size="10.5" font-weight="500" fill="#4A5A7A">In the toilet</text>
+            </g>
+            <g class="mz" data-z="home" onclick="mapZoneClick('home')">
+              <rect x="195" y="158" width="170" height="66" fill="#EEF4FF" stroke="#C8BCA8" stroke-width="1.5" rx="3"/>
+              <text x="280" y="195" text-anchor="middle" font-size="10.5" font-weight="500" fill="#4A5A7A">In the bathroom</text>
+            </g>
+            <g class="mz" data-z="home" onclick="mapZoneClick('home')">
+              <rect x="195" y="228" width="170" height="58" fill="#EEF0F8" stroke="#C8BCA8" stroke-width="1.5" rx="3"/>
+              <text x="280" y="261" text-anchor="middle" font-size="10.5" font-weight="500" fill="#5A4A7A">In bed</text>
+            </g>
+            <g class="mz" data-z="home" onclick="mapZoneClick('home')">
+              <rect x="195" y="290" width="170" height="130" fill="#EEF0F8" stroke="#C8BCA8" stroke-width="1.5" rx="3"/>
+              <text x="280" y="358" text-anchor="middle" font-size="10.5" font-weight="500" fill="#5A4A7A">In my bedroom</text>
+            </g>
+
+            <!-- Door -->
+            <text x="185" y="444" text-anchor="middle" font-size="9.5" fill="#9A8A7A">Door</text>
+            <line x1="100" y1="426" x2="100" y2="448" stroke="#9A8A7A" stroke-width="1"/>
+
+            <!-- ── GARDEN ── -->
+            <g class="mz" data-z="outdoor" onclick="mapZoneClick('outdoor')">
+              <rect x="370" y="0" width="160" height="450" fill="transparent"/>
+              <text x="450" y="175" text-anchor="middle" font-size="13" font-weight="700"
+                    font-style="italic" fill="#2A6A2A"
+                    transform="rotate(-90,450,225)">In the garden</text>
+              <text x="450" y="290" text-anchor="middle" font-size="26">🌿</text>
+            </g>
+
+            <!-- ── COMMUNITY ── -->
+            <!-- School -->
+            <g class="mz" data-z="school" onclick="mapZoneClick('school')">
+              <rect x="534" y="4" width="228" height="82" fill="#FFFFFF" stroke="#A8BBD0" stroke-width="1.5" rx="4"/>
+              <text x="648" y="40" text-anchor="middle" font-size="13" font-weight="700" fill="#2A4A6A">At school</text>
+              <text x="648" y="58" text-anchor="middle" font-size="10" fill="#5A7A9A">In the school café · In the classroom</text>
+            </g>
+
+            <!-- At work -->
+            <g class="mz" data-z="work" onclick="mapZoneClick('work')">
+              <rect x="534" y="92" width="228" height="115" fill="#FFFFFF" stroke="#A8BBD0" stroke-width="1.5" stroke-dasharray="5,3" rx="4"/>
+              <text x="648" y="148" text-anchor="middle" font-size="13" font-weight="700" fill="#2A4A6A">At work</text>
+              <text x="648" y="170" text-anchor="middle" font-size="10" fill="#5A7A9A">💼</text>
+            </g>
+
+            <!-- Friend's place -->
+            <g class="mz" data-z="social" onclick="mapZoneClick('social')">
+              <rect x="534" y="213" width="228" height="75" fill="#FFFFFF" stroke="#A8BBD0" stroke-width="1.5" rx="4"/>
+              <text x="648" y="248" text-anchor="middle" font-size="12" font-weight="600" fill="#2A4A6A">Over at a friend's place</text>
+            </g>
+
+            <!-- Pub -->
+            <g class="mz" data-z="social" onclick="mapZoneClick('social')">
+              <rect x="534" y="294" width="228" height="75" fill="#FFFFFF" stroke="#A8BBD0" stroke-width="1.5" rx="4"/>
+              <text x="648" y="330" text-anchor="middle" font-size="12" font-weight="600" fill="#2A4A6A">At the pub</text>
+            </g>
+
+            <!-- Shop / Bank -->
+            <g class="mz" data-z="universal" onclick="mapZoneClick('universal')">
+              <rect x="534" y="375" width="228" height="70" fill="#FFFFFF" stroke="#A8BBD0" stroke-width="1.5" rx="4"/>
+              <text x="648" y="405" text-anchor="middle" font-size="11" font-weight="600" fill="#2A4A6A">In a shop · At the bank</text>
+              <text x="648" y="426" text-anchor="middle" font-size="10" fill="#5A7A9A">🛒  🏦</text>
+            </g>
+
+            <!-- ── OUT ON THE ROAD ── -->
+            <rect x="770" y="0" width="60" height="450" fill="#C8D8E4"/>
+            <text x="800" y="225" text-anchor="middle" font-size="11.5" font-weight="800"
+                  fill="#2A4A5A" transform="rotate(-90,800,225)" letter-spacing="1">OUT ON THE ROAD</text>
+
+            <!-- ── BEACH / TRAVEL ── -->
+            <g class="mz" data-z="beach" onclick="mapZoneClick('beach')">
+              <rect x="834" y="4" width="162" height="205" fill="rgba(255,255,255,0.65)" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" rx="4"/>
+              <text x="915" y="90" text-anchor="middle" font-size="24">🏖</text>
+              <text x="915" y="118" text-anchor="middle" font-size="12" font-weight="700" fill="#0A3A5A">At the beach</text>
+            </g>
+            <g class="mz" data-z="transport" onclick="mapZoneClick('transport')">
+              <rect x="834" y="215" width="162" height="115" fill="rgba(255,255,255,0.65)" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" rx="4"/>
+              <text x="915" y="267" text-anchor="middle" font-size="22">✈️</text>
+              <text x="915" y="293" text-anchor="middle" font-size="12" font-weight="700" fill="#0A3A5A">Travelling</text>
+            </g>
+            <text x="850" y="22" font-size="10" font-weight="700" fill="rgba(255,255,255,0.85)" letter-spacing="0.05em">TRAVEL</text>
+
+            <!-- ── TRANSPORT STRIP ── -->
+            <!-- Walking -->
+            <g class="mz" data-z="transport" onclick="mapZoneClick('transport')">
+              <rect x="2" y="453" width="165" height="144" fill="#FAFAF6" stroke="#C8BEB4" stroke-width="1" rx="4"/>
+              <text x="84" y="510" text-anchor="middle" font-size="26">🚶</text>
+              <text x="84" y="542" text-anchor="middle" font-size="10" font-weight="600" fill="#4A4A4A">At the train station</text>
+              <text x="84" y="558" text-anchor="middle" font-size="10" fill="#6A6A6A">At the bus stop</text>
+            </g>
+            <!-- Bus -->
+            <g class="mz" data-z="transport">
+              <rect x="171" y="453" width="165" height="144" fill="#FAFAF6" stroke="#C8BEB4" stroke-width="1" rx="4"/>
+              <text x="253" y="510" text-anchor="middle" font-size="26">🚌</text>
+              <text x="253" y="542" text-anchor="middle" font-size="10" font-weight="600" fill="#4A4A4A">On the bus</text>
+              <text x="253" y="558" text-anchor="middle" font-size="10" fill="#6A6A6A">On the school bus</text>
+            </g>
+            <!-- Bicycle -->
+            <g class="mz" data-z="transport">
+              <rect x="340" y="453" width="165" height="144" fill="#FAFAF6" stroke="#C8BEB4" stroke-width="1" rx="4"/>
+              <text x="422" y="510" text-anchor="middle" font-size="26">🚲</text>
+              <text x="422" y="542" text-anchor="middle" font-size="10" font-weight="600" fill="#4A4A4A">On a bicycle</text>
+            </g>
+            <!-- Car / Taxi -->
+            <g class="mz" data-z="transport">
+              <rect x="509" y="453" width="165" height="144" fill="#FAFAF6" stroke="#C8BEB4" stroke-width="1" rx="4"/>
+              <text x="591" y="510" text-anchor="middle" font-size="26">🚗</text>
+              <text x="591" y="542" text-anchor="middle" font-size="10" font-weight="600" fill="#4A4A4A">In the car</text>
+              <text x="591" y="558" text-anchor="middle" font-size="10" fill="#6A6A6A">In a taxi</text>
+            </g>
+            <!-- Train -->
+            <g class="mz" data-z="transport">
+              <rect x="678" y="453" width="320" height="144" fill="#F4F0EA" stroke="#C8BEB4" stroke-width="1" rx="4"/>
+              <text x="838" y="510" text-anchor="middle" font-size="26">🚂</text>
+              <text x="838" y="548" text-anchor="middle" font-size="12" font-weight="700" fill="#4A4A4A">On the train</text>
+            </g>
+
+          </svg>
+        </div>
+      </div>
+
+      <!-- Map side panel -->
+      <div class="map-side">
+        <div class="map-side-card">
+          <div class="map-side-ttl" id="map-side-ttl">
+            <span>Select a location</span>
+          </div>
+          <div id="map-side-body">
+            <div class="map-placeholder">
+              <div class="pi">🗺</div>
+              <p>Click any location on the map to see concepts available in your language pair.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /map-layout -->
+  </div><!-- /panel-map -->
+
+  <!-- ─── BROWSE PANEL ─── -->
+  <div class="panel" id="panel-browse">
+    <div class="section-ttl">📚 Browse by category</div>
+    <div class="browse-layout" id="browse-layout"></div>
+  </div>
+
+  <!-- ─── SEARCH PANEL ─── -->
+  <div class="panel" id="panel-search">
+    <div class="search-hero">
+      <div class="search-hero-ttl">🔍 Find a concept</div>
+      <div class="search-wrap">
+        <span class="search-ico">🔍</span>
+        <input type="text" class="search-input" id="search-input"
+          placeholder="Type to search… e.g. seasons, compass, illness, H₂O, tidal">
+        <button class="search-clr" id="search-clr">✕</button>
+      </div>
+    </div>
+    <div id="search-out"></div>
+  </div>
+
+</main><!-- /app-main -->
+
+<!-- ═══════════════════════════════════════
+     MOBILE BOTTOM NAV
+═══════════════════════════════════════ -->
+<nav class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <button class="mob-btn active" data-tab="home">
+      <span class="mbi">🏠</span><span class="mbl">Home</span>
+    </button>
+    <button class="mob-btn" data-tab="map">
+      <span class="mbi">🗺</span><span class="mbl">Map</span>
+    </button>
+    <button class="mob-btn" data-tab="browse">
+      <span class="mbi">📚</span><span class="mbl">Browse</span>
+    </button>
+    <button class="mob-btn" data-tab="search">
+      <span class="mbi">🔍</span><span class="mbl">Search</span>
+    </button>
+  </div>
+</nav>
+
+<script>
+/* ═══════════════════════════════════════════════
+   CONCEPT DATA
+═══════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════
+   REGISTRY — loaded from local conceptionary-registry.json
+   and concept_cards/ folder via File System Access API.
+   Falls back to the built-in CONCEPTS_FALLBACK if no
+   registry has been loaded yet.
+═══════════════════════════════════════════════ */
+
+let REGISTRY   = null;   // full registry JSON
+let DIR_HANDLE = null;   // FileSystemDirectoryHandle for Conceptionary/ root
+let CONCEPTS   = [];     // active concept list (from registry or fallback)
+
+/* ── Built-in fallback (existing concepts with Google Sites links) ──────── */
+const CONCEPTS_FALLBACK = [
+  // When
+  {id:'clock',   n:'Clock — hours of the day',  t:'ROM-CR-CLK', c:'When', z:'universal', l:{DE:true,ID:true,JA:true,MI:true}},
+  {id:'teltime', n:'Telling the time',           t:'ROM-CR-TTT', c:'When', z:'universal', l:{ID:true}},
+  {id:'partday', n:'Parts of the day',           t:'ROM-CR-DAY', c:'When', z:'universal', l:{DE:true,ID:true,JA:true}},
+  {id:'daysweek',n:'Days of the week',           t:'ROM-CR-DOW', c:'When', z:'universal', l:{DE:true,ID:true,JA:true,MI:true}},
+  {id:'months',  n:'Months of the year',         t:'ROM-CR-MOY', c:'When', z:'universal', l:{DE:true,ID:true,JA:true,MI:true}},
+  {id:'seasons', n:'Seasons of the year',        t:'Seasons',    c:'When', z:'universal', l:{DE:true,ID:true,JA:true,MI:true}},
+  {id:'lunar',   n:'Lunar cycle',                t:'ROM-CR-LUN', c:'When', z:'outdoor',   l:{DE:true,ID:true,JA:true,MI:true}},
+  {id:'tidalD',  n:'Tidal cycle — daily',        t:'ROM-CR-TDL', c:'When', z:'beach',     l:{DE:true,ID:true,MI:true}},
+  {id:'tidalM',  n:'Tidal cycle — monthly',      t:'ROM-CR-TML', c:'When', z:'beach',     l:{DE:true,ID:true,JA:true}},
+  {id:'rice',    n:'Rice growing cycle',         t:'ROM-CR-MOY', c:'When', z:'outdoor',   l:{JA:true}},
+  {id:'menstr',  n:'Menstrual cycle',            t:'ROM-CR-MEN', c:'When', z:'home',      l:{DE:true}},
+  // Where
+  {id:'compass', n:'Compass directions',         t:'ROM-CR-CMP', c:'Where', z:'outdoor',  l:{DE:true,JA:true}},
+  {id:'driving', n:'Driving directions',         t:'ROM-CR-SW',  c:'Where', z:'transport', l:{DE:true,JA:true}},
+  // What
+  {id:'water',   n:'Water — states of H₂O',     t:'ROM-GT5L-7TB',c:'What', z:'kitchen',  l:{JA:true}},
+  {id:'fbread',  n:'Freshness of bread',         t:'ROM-GP3LN-7TB',c:'What',z:'kitchen',  l:{}},
+  {id:'CC-0013', n:'Freshness of dairy products',t:'ROM-GPCVN',   c:'What', z:'kitchen',
+    l:{ID:'ROM-GPCVN-EN-ID-FreshnessOfDairyProducts.html'},
+    loc:{primary:['LOC-0004'], secondary:['LOC-0003','LOC-0013'], transitional:['LOC-0084','LOC-0106','LOC-0013','LOC-0003']}},
+  {id:'wind',    n:'Wind speed',                 t:'ROM-GT5L-7TB',c:'What', z:'outdoor',  l:{}},
+  // How
+  {id:'diff',    n:'Level of difficulty',        t:'ROM-GT5L-7TB',c:'How',  z:'school',   l:{JA:true}},
+  // Who / Bodily
+  {id:'hunger',  n:'Hunger',                     t:'ROM-GP3LP-7TB',c:'Who', z:'home',     l:{ID:true}},
+  {id:'illness', n:'Illness — progression',      t:'ROM-GTCVI-Wide',c:'Who',z:'home',     l:{JA:true}},
+  {id:'sleep',   n:'Sleep',                      t:'ROM-GT5L-7TB',c:'Who',  z:'home',     l:{}},
+  {id:'fatigue', n:'Fatigue — level',            t:'ROM-GT5L-7TB',c:'Who',  z:'home',     l:{}},
+  {id:'anger',   n:'Anger — intensity',          t:'ROM-GTCV',    c:'Who',  z:'universal',l:{}},
+  {id:'trust',   n:'Level of trust',             t:'ROM-GP3LP-7TB',c:'Who', z:'universal',l:{}},
+];
+
+const CATS = [
+  {id:'When',  ico:'📅', word:'When',  desc:'Time · cycles · sequences'},
+  {id:'Where', ico:'📍', word:'Where', desc:'Places · directions · location'},
+  {id:'What',  ico:'🔷', word:'What',  desc:'Things · properties · quantities'},
+  {id:'How',   ico:'⚙️', word:'How',   desc:'Actions · processes · methods'},
+  {id:'Who',   ico:'👤', word:'Who',   desc:'People · family · relationships'},
+];
+
+
+/* ── Spatial Location Index data (embedded 2026-08-17) ──────────────────
+   Generated from registry/Conceptionary_Location_Index.md via
+   parse_location_index.py. Regenerate this block from the markdown
+   whenever the index changes -- the markdown remains the source of
+   truth, this is a build artifact, not hand-maintained. ──────────────── */
+const LOCATIONS = [{"id":"LOC-0001","name":"At home (general)","parentId":null,"tier":2,"zone":"Z-01","zoneName":"Personal / Home","childIds":["LOC-0002","LOC-0016","LOC-0018","LOC-0021","LOC-0030","LOC-0034","LOC-0035","LOC-0180","LOC-0038","LOC-0041","LOC-0043","LOC-0039"]},{"id":"LOC-0002","name":"In the kitchen","parentId":"LOC-0001","tier":3,"zone":"Z-01","zoneName":"Personal / Home","childIds":["LOC-0003","LOC-0010","LOC-0011","LOC-0012","LOC-0013","LOC-0181","LOC-0182","LOC-0183","LOC-0184","LOC-0185","LOC-0014","LOC-0015"]},{"id":"LOC-0003","name":"In the fridge","parentId":"LOC-0002","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":["LOC-0004","LOC-0005","LOC-0006","LOC-0007","LOC-0008","LOC-0009"]},{"id":"LOC-0004","name":"Top shelf (fridge)","parentId":"LOC-0003","tier":5,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0005","name":"Middle shelf (fridge)","parentId":"LOC-0003","tier":5,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0006","name":"Bottom shelf (fridge)","parentId":"LOC-0003","tier":5,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0007","name":"Door shelves (fridge)","parentId":"LOC-0003","tier":5,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0008","name":"Crisper drawer (fridge)","parentId":"LOC-0003","tier":5,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0009","name":"Freezer compartment (fridge)","parentId":"LOC-0003","tier":5,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0010","name":"In the pantry","parentId":"LOC-0002","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0011","name":"In the cupboards (kitchen)","parentId":"LOC-0002","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0012","name":"In the drawers (kitchen)","parentId":"LOC-0002","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0013","name":"On the bench","parentId":"LOC-0002","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0181","name":"Kitchen wall","parentId":"LOC-0002","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0182","name":"Kitchen ceiling","parentId":"LOC-0002","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0183","name":"Kitchen floor","parentId":"LOC-0002","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0184","name":"Kitchen window","parentId":"LOC-0002","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0185","name":"On the stove-top","parentId":"LOC-0002","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0014","name":"In the microwave","parentId":"LOC-0002","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0015","name":"In the dishwasher","parentId":"LOC-0002","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0016","name":"In the dining room","parentId":"LOC-0001","tier":3,"zone":"Z-01","zoneName":"Personal / Home","childIds":["LOC-0017","LOC-0197","LOC-0198","LOC-0199","LOC-0200"]},{"id":"LOC-0017","name":"At the dining table","parentId":"LOC-0016","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0197","name":"Dining room wall","parentId":"LOC-0016","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0198","name":"Dining room ceiling","parentId":"LOC-0016","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0199","name":"Dining room floor","parentId":"LOC-0016","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0200","name":"Dining room window","parentId":"LOC-0016","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0018","name":"In the living room","parentId":"LOC-0001","tier":3,"zone":"Z-01","zoneName":"Personal / Home","childIds":["LOC-0019","LOC-0020","LOC-0193","LOC-0194","LOC-0195","LOC-0196"]},{"id":"LOC-0019","name":"On the couch","parentId":"LOC-0018","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0020","name":"Near the TV","parentId":"LOC-0018","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0193","name":"Living room wall","parentId":"LOC-0018","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0194","name":"Living room ceiling","parentId":"LOC-0018","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0195","name":"Living room floor","parentId":"LOC-0018","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0196","name":"Living room window","parentId":"LOC-0018","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0021","name":"In the bedroom","parentId":"LOC-0001","tier":3,"zone":"Z-01","zoneName":"Personal / Home","childIds":["LOC-0022","LOC-0023","LOC-0027","LOC-0028","LOC-0192","LOC-0029","LOC-0190","LOC-0191"]},{"id":"LOC-0022","name":"In bed","parentId":"LOC-0021","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0023","name":"In the wardrobe","parentId":"LOC-0021","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":["LOC-0024","LOC-0025","LOC-0026"]},{"id":"LOC-0024","name":"In the drawer (wardrobe)","parentId":"LOC-0023","tier":5,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0025","name":"On the shelves (wardrobe)","parentId":"LOC-0023","tier":5,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0026","name":"On the hanging rail (wardrobe)","parentId":"LOC-0023","tier":5,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0027","name":"On the window sill (bedroom)","parentId":"LOC-0021","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0028","name":"Out the window","parentId":"LOC-0021","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0192","name":"At the window (bedroom)","parentId":"LOC-0021","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0029","name":"On the wall (bedroom)","parentId":"LOC-0021","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0190","name":"Bedroom ceiling","parentId":"LOC-0021","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0191","name":"Bedroom floor","parentId":"LOC-0021","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0030","name":"In the bathroom","parentId":"LOC-0001","tier":3,"zone":"Z-01","zoneName":"Personal / Home","childIds":["LOC-0031","LOC-0032","LOC-0033","LOC-0186","LOC-0187","LOC-0188","LOC-0189"]},{"id":"LOC-0031","name":"In the shower","parentId":"LOC-0030","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0032","name":"In the bath","parentId":"LOC-0030","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0033","name":"At the basin","parentId":"LOC-0030","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0186","name":"Bathroom wall","parentId":"LOC-0030","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0187","name":"Bathroom ceiling","parentId":"LOC-0030","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0188","name":"Bathroom floor","parentId":"LOC-0030","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0189","name":"Bathroom window","parentId":"LOC-0030","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0034","name":"In the toilet","parentId":"LOC-0001","tier":3,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0035","name":"In the laundry","parentId":"LOC-0001","tier":3,"zone":"Z-01","zoneName":"Personal / Home","childIds":["LOC-0036","LOC-0037","LOC-0201","LOC-0202","LOC-0203","LOC-0204"]},{"id":"LOC-0036","name":"In the washing machine","parentId":"LOC-0035","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0037","name":"In the dryer","parentId":"LOC-0035","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0201","name":"Laundry wall","parentId":"LOC-0035","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0202","name":"Laundry ceiling","parentId":"LOC-0035","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0203","name":"Laundry floor","parentId":"LOC-0035","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0204","name":"Laundry window","parentId":"LOC-0035","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0180","name":"On the stairs","parentId":"LOC-0001","tier":3,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0038","name":"In the garden","parentId":"LOC-0001","tier":3,"zone":"Z-01","zoneName":"Personal / Home","childIds":["LOC-0038a","LOC-0038b","LOC-0038c","LOC-0038d","LOC-0205","LOC-0042"]},{"id":"LOC-0038a","name":"On the lawn","parentId":"LOC-0038","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0038b","name":"Under the trees","parentId":"LOC-0038","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0038c","name":"In the garden bed / vegetable patch","parentId":"LOC-0038","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0038d","name":"On the patio / deck","parentId":"LOC-0038","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0205","name":"On the path","parentId":"LOC-0038","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0041","name":"In the garage","parentId":"LOC-0001","tier":3,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0042","name":"In the garden shed","parentId":"LOC-0038","tier":4,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0043","name":"On the balcony (balcony garden)","parentId":"LOC-0001","tier":3,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0039","name":"At the door / threshold","parentId":"LOC-0001","tier":3,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0040","name":"Over at a friend's place","parentId":null,"tier":2,"zone":"Z-01","zoneName":"Personal / Home","childIds":[]},{"id":"LOC-0050","name":"At school","parentId":null,"tier":2,"zone":"Z-02","zoneName":"Educational","childIds":["LOC-0051","LOC-0056","LOC-0057","LOC-0058","LOC-0059","LOC-0060","LOC-0210","LOC-0211","LOC-0212","LOC-0213","LOC-0214","LOC-0215"]},{"id":"LOC-0051","name":"In the classroom","parentId":"LOC-0050","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":["LOC-0052","LOC-0053","LOC-0054","LOC-0055","LOC-0216","LOC-0217","LOC-0218","LOC-0219","LOC-0220"]},{"id":"LOC-0052","name":"At my desk (classroom)","parentId":"LOC-0051","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0053","name":"At the whiteboard","parentId":"LOC-0051","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0054","name":"In my bag","parentId":"LOC-0051","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0055","name":"In my locker","parentId":"LOC-0051","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0216","name":"Classroom wall","parentId":"LOC-0051","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0217","name":"Classroom ceiling","parentId":"LOC-0051","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0218","name":"Classroom floor","parentId":"LOC-0051","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0219","name":"Classroom window","parentId":"LOC-0051","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0220","name":"At the classroom door","parentId":"LOC-0051","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0056","name":"In the school café","parentId":"LOC-0050","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":["LOC-0224","LOC-0225"]},{"id":"LOC-0224","name":"At the servery / counter","parentId":"LOC-0056","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0225","name":"At the café tables","parentId":"LOC-0056","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0057","name":"In the playground","parentId":"LOC-0050","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0058","name":"In the corridor","parentId":"LOC-0050","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0059","name":"In the school library","parentId":"LOC-0050","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":["LOC-0221","LOC-0222","LOC-0223"]},{"id":"LOC-0221","name":"School library bookshelves","parentId":"LOC-0059","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0222","name":"At the reading table","parentId":"LOC-0059","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0223","name":"At the circulation desk","parentId":"LOC-0059","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0060","name":"In the school office","parentId":"LOC-0050","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0210","name":"In the school gymnasium","parentId":"LOC-0050","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":["LOC-0226","LOC-0227"]},{"id":"LOC-0226","name":"In the changing rooms","parentId":"LOC-0210","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0227","name":"In the sports equipment store","parentId":"LOC-0210","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0211","name":"In the school hall (assembly)","parentId":"LOC-0050","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0212","name":"In the staff room","parentId":"LOC-0050","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0213","name":"In the school toilets","parentId":"LOC-0050","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0214","name":"At the school entrance / reception","parentId":"LOC-0050","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0215","name":"On the sports field","parentId":"LOC-0050","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0061","name":"At the library (public)","parentId":null,"tier":2,"zone":"Z-02","zoneName":"Educational","childIds":["LOC-0230","LOC-0231","LOC-0232","LOC-0233","LOC-0234","LOC-0235","LOC-0236","LOC-0237","LOC-0238","LOC-0239"]},{"id":"LOC-0230","name":"In the stacks (bookshelves)","parentId":"LOC-0061","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0231","name":"At the reading table","parentId":"LOC-0061","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0232","name":"At the circulation desk","parentId":"LOC-0061","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0233","name":"In the children's section","parentId":"LOC-0061","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0234","name":"At the computer terminals","parentId":"LOC-0061","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0235","name":"In the meeting room (library)","parentId":"LOC-0061","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0236","name":"Library wall","parentId":"LOC-0061","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0237","name":"Library ceiling","parentId":"LOC-0061","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0238","name":"Library floor","parentId":"LOC-0061","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0239","name":"Library window","parentId":"LOC-0061","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0062","name":"At university","parentId":null,"tier":2,"zone":"Z-02","zoneName":"Educational","childIds":["LOC-0240","LOC-0247","LOC-0248","LOC-0249","LOC-0250","LOC-0251","LOC-0252","LOC-0253","LOC-0254"]},{"id":"LOC-0240","name":"In the lecture hall","parentId":"LOC-0062","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":["LOC-0241","LOC-0242","LOC-0243","LOC-0244","LOC-0245","LOC-0246"]},{"id":"LOC-0241","name":"At the lectern","parentId":"LOC-0240","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0242","name":"In the seating tiers","parentId":"LOC-0240","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0243","name":"At the projector screen","parentId":"LOC-0240","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0244","name":"Lecture hall wall","parentId":"LOC-0240","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0245","name":"Lecture hall ceiling","parentId":"LOC-0240","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0246","name":"Lecture hall floor","parentId":"LOC-0240","tier":4,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0247","name":"In the seminar room","parentId":"LOC-0062","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0248","name":"In the university library","parentId":"LOC-0062","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0249","name":"In the student union / cafeteria","parentId":"LOC-0062","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0250","name":"In halls of residence","parentId":"LOC-0062","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0251","name":"On the campus grounds / quad","parentId":"LOC-0062","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0252","name":"In the laboratory","parentId":"LOC-0062","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0253","name":"In the professor's / tutor's office","parentId":"LOC-0062","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0254","name":"At student services / admin office","parentId":"LOC-0062","tier":3,"zone":"Z-02","zoneName":"Educational","childIds":[]},{"id":"LOC-0070","name":"At work","parentId":null,"tier":2,"zone":"Z-03","zoneName":"Work / Professional","childIds":["LOC-0071","LOC-0072","LOC-0073","LOC-0260","LOC-0261","LOC-0262","LOC-0263","LOC-0264","LOC-0265"]},{"id":"LOC-0071","name":"At the desk","parentId":"LOC-0070","tier":3,"zone":"Z-03","zoneName":"Work / Professional","childIds":["LOC-0266","LOC-0267","LOC-0268","LOC-0269","LOC-0270","LOC-0271"]},{"id":"LOC-0072","name":"In the meeting room","parentId":"LOC-0070","tier":3,"zone":"Z-03","zoneName":"Work / Professional","childIds":[]},{"id":"LOC-0073","name":"In the break room","parentId":"LOC-0070","tier":3,"zone":"Z-03","zoneName":"Work / Professional","childIds":[]},{"id":"LOC-0260","name":"In reception","parentId":"LOC-0070","tier":3,"zone":"Z-03","zoneName":"Work / Professional","childIds":[]},{"id":"LOC-0261","name":"In the manager's office","parentId":"LOC-0070","tier":3,"zone":"Z-03","zoneName":"Work / Professional","childIds":[]},{"id":"LOC-0262","name":"On the open-plan floor","parentId":"LOC-0070","tier":3,"zone":"Z-03","zoneName":"Work / Professional","childIds":[]},{"id":"LOC-0263","name":"In the print / supply room","parentId":"LOC-0070","tier":3,"zone":"Z-03","zoneName":"Work / Professional","childIds":[]},{"id":"LOC-0264","name":"In the workplace toilets","parentId":"LOC-0070","tier":3,"zone":"Z-03","zoneName":"Work / Professional","childIds":[]},{"id":"LOC-0265","name":"In the car park","parentId":"LOC-0070","tier":3,"zone":"Z-03","zoneName":"Work / Professional","childIds":[]},{"id":"LOC-0266","name":"Office wall","parentId":"LOC-0071","tier":4,"zone":"Z-03","zoneName":"Work / Professional","childIds":[]},{"id":"LOC-0267","name":"Office ceiling","parentId":"LOC-0071","tier":4,"zone":"Z-03","zoneName":"Work / Professional","childIds":[]},{"id":"LOC-0268","name":"Office floor","parentId":"LOC-0071","tier":4,"zone":"Z-03","zoneName":"Work / Professional","childIds":[]},{"id":"LOC-0269","name":"Office window","parentId":"LOC-0071","tier":4,"zone":"Z-03","zoneName":"Work / Professional","childIds":[]},{"id":"LOC-0270","name":"At the computer","parentId":"LOC-0071","tier":4,"zone":"Z-03","zoneName":"Work / Professional","childIds":[]},{"id":"LOC-0271","name":"In the filing cabinet","parentId":"LOC-0071","tier":4,"zone":"Z-03","zoneName":"Work / Professional","childIds":[]},{"id":"LOC-0074","name":"On a worksite","parentId":null,"tier":2,"zone":"Z-03","zoneName":"Work / Professional","childIds":[]},{"id":"LOC-0080","name":"At the shops (general)","parentId":null,"tier":2,"zone":"Z-04","zoneName":"Commercial / Services","childIds":["LOC-0081","LOC-0087","LOC-0088","LOC-0089"]},{"id":"LOC-0081","name":"At the supermarket","parentId":"LOC-0080","tier":3,"zone":"Z-04","zoneName":"Commercial / Services","childIds":["LOC-0082","LOC-0083","LOC-0084","LOC-0085","LOC-0086"]},{"id":"LOC-0082","name":"At the checkout","parentId":"LOC-0081","tier":4,"zone":"Z-04","zoneName":"Commercial / Services","childIds":[]},{"id":"LOC-0083","name":"In the produce section","parentId":"LOC-0081","tier":4,"zone":"Z-04","zoneName":"Commercial / Services","childIds":[]},{"id":"LOC-0084","name":"At the deli counter","parentId":"LOC-0081","tier":4,"zone":"Z-04","zoneName":"Commercial / Services","childIds":[]},{"id":"LOC-0085","name":"In the frozen foods section","parentId":"LOC-0081","tier":4,"zone":"Z-04","zoneName":"Commercial / Services","childIds":[]},{"id":"LOC-0086","name":"At the bakery section","parentId":"LOC-0081","tier":4,"zone":"Z-04","zoneName":"Commercial / Services","childIds":[]},{"id":"LOC-0087","name":"In a shop (general)","parentId":"LOC-0080","tier":3,"zone":"Z-04","zoneName":"Commercial / Services","childIds":[]},{"id":"LOC-0088","name":"At the bank","parentId":"LOC-0080","tier":3,"zone":"Z-04","zoneName":"Commercial / Services","childIds":[]},{"id":"LOC-0089","name":"At the video shop","parentId":"LOC-0080","tier":3,"zone":"Z-04","zoneName":"Commercial / Services","childIds":[]},{"id":"LOC-0090","name":"At a café","parentId":null,"tier":2,"zone":"Z-04","zoneName":"Commercial / Services","childIds":[]},{"id":"LOC-0091","name":"At a restaurant","parentId":null,"tier":2,"zone":"Z-04","zoneName":"Commercial / Services","childIds":[]},{"id":"LOC-0092","name":"At the pharmacy","parentId":null,"tier":2,"zone":"Z-04","zoneName":"Commercial / Services","childIds":[]},{"id":"LOC-0093","name":"At the post office","parentId":null,"tier":2,"zone":"Z-04","zoneName":"Commercial / Services","childIds":[]},{"id":"LOC-0094","name":"At the doctor / clinic","parentId":null,"tier":2,"zone":"Z-04","zoneName":"Commercial / Services","childIds":[]},{"id":"LOC-0095","name":"At the hospital","parentId":null,"tier":2,"zone":"Z-04","zoneName":"Commercial / Services","childIds":[]},{"id":"LOC-0100","name":"Out on the road","parentId":null,"tier":2,"zone":"Z-05","zoneName":"Transport / Travel (journey infrastructure)","childIds":["LOC-0101","LOC-0104","LOC-0105","LOC-0106","LOC-0107","LOC-0108","LOC-0109","LOC-0110","LOC-0111","LOC-0112","LOC-0114","LOC-0115","LOC-0116","LOC-0117","LOC-0118"]},{"id":"LOC-0101","name":"On foot","parentId":"LOC-0100","tier":2,"zone":"Z-05","zoneName":"Transport / Travel (journey infrastructure)","childIds":["LOC-0102"]},{"id":"LOC-0102","name":"In the street","parentId":"LOC-0101","tier":3,"zone":"Z-05","zoneName":"Transport / Travel (journey infrastructure)","childIds":["LOC-0103"]},{"id":"LOC-0103","name":"At the pedestrian crossing","parentId":"LOC-0102","tier":4,"zone":"Z-05","zoneName":"Transport / Travel (journey infrastructure)","childIds":[]},{"id":"LOC-0104","name":"On my bicycle","parentId":"LOC-0100","tier":2,"zone":"Z-05","zoneName":"Transport / Travel (journey infrastructure)","childIds":[]},{"id":"LOC-0105","name":"On my scooter","parentId":"LOC-0100","tier":2,"zone":"Z-05","zoneName":"Transport / Travel (journey infrastructure)","childIds":[]},{"id":"LOC-0106","name":"In the car","parentId":"LOC-0100","tier":2,"zone":"Z-05","zoneName":"Transport / Travel (journey infrastructure)","childIds":[]},{"id":"LOC-0107","name":"At the petrol station","parentId":"LOC-0100","tier":2,"zone":"Z-05","zoneName":"Transport / Travel (journey infrastructure)","childIds":[]},{"id":"LOC-0108","name":"At the bus stop","parentId":"LOC-0100","tier":2,"zone":"Z-05","zoneName":"Transport / Travel (journey infrastructure)","childIds":[]},{"id":"LOC-0109","name":"On the bus","parentId":"LOC-0100","tier":2,"zone":"Z-05","zoneName":"Transport / Travel (journey infrastructure)","childIds":[]},{"id":"LOC-0110","name":"On the school bus","parentId":"LOC-0100","tier":2,"zone":"Z-05","zoneName":"Transport / Travel (journey infrastructure)","childIds":[]},{"id":"LOC-0111","name":"At the train station","parentId":"LOC-0100","tier":2,"zone":"Z-05","zoneName":"Transport / Travel (journey infrastructure)","childIds":["LOC-0113"]},{"id":"LOC-0112","name":"On the train","parentId":"LOC-0100","tier":2,"zone":"Z-05","zoneName":"Transport / Travel (journey infrastructure)","childIds":[]},{"id":"LOC-0113","name":"On the platform","parentId":"LOC-0111","tier":3,"zone":"Z-05","zoneName":"Transport / Travel (journey infrastructure)","childIds":[]},{"id":"LOC-0114","name":"At the ferry terminal","parentId":"LOC-0100","tier":2,"zone":"Z-05","zoneName":"Transport / Travel (journey infrastructure)","childIds":[]},{"id":"LOC-0115","name":"On the ferry","parentId":"LOC-0100","tier":2,"zone":"Z-05","zoneName":"Transport / Travel (journey infrastructure)","childIds":[]},{"id":"LOC-0116","name":"At the airport","parentId":"LOC-0100","tier":2,"zone":"Z-05","zoneName":"Transport / Travel (journey infrastructure)","childIds":[]},{"id":"LOC-0117","name":"On the plane","parentId":"LOC-0100","tier":2,"zone":"Z-05","zoneName":"Transport / Travel (journey infrastructure)","childIds":[]},{"id":"LOC-0118","name":"In the taxi","parentId":"LOC-0100","tier":2,"zone":"Z-05","zoneName":"Transport / Travel (journey infrastructure)","childIds":[]},{"id":"LOC-0130","name":"Natural environment","parentId":null,"tier":2,"zone":"Z-06","zoneName":"Natural / Outdoor","childIds":["LOC-0131","LOC-0134","LOC-0135","LOC-0136","LOC-0137","LOC-0138","LOC-0139"]},{"id":"LOC-0131","name":"At the beach","parentId":"LOC-0130","tier":2,"zone":"Z-06","zoneName":"Natural / Outdoor","childIds":["LOC-0132","LOC-0133"]},{"id":"LOC-0132","name":"In the water (beach)","parentId":"LOC-0131","tier":3,"zone":"Z-06","zoneName":"Natural / Outdoor","childIds":[]},{"id":"LOC-0133","name":"On the sand","parentId":"LOC-0131","tier":3,"zone":"Z-06","zoneName":"Natural / Outdoor","childIds":[]},{"id":"LOC-0134","name":"In the park","parentId":"LOC-0130","tier":2,"zone":"Z-06","zoneName":"Natural / Outdoor","childIds":[]},{"id":"LOC-0135","name":"In the bush / countryside","parentId":"LOC-0130","tier":2,"zone":"Z-06","zoneName":"Natural / Outdoor","childIds":[]},{"id":"LOC-0136","name":"In the forest","parentId":"LOC-0130","tier":2,"zone":"Z-06","zoneName":"Natural / Outdoor","childIds":[]},{"id":"LOC-0137","name":"On the water (river / lake)","parentId":"LOC-0130","tier":2,"zone":"Z-06","zoneName":"Natural / Outdoor","childIds":[]},{"id":"LOC-0138","name":"In the mountains","parentId":"LOC-0130","tier":2,"zone":"Z-06","zoneName":"Natural / Outdoor","childIds":[]},{"id":"LOC-0139","name":"On a farm","parentId":"LOC-0130","tier":2,"zone":"Z-06","zoneName":"Natural / Outdoor","childIds":[]},{"id":"LOC-0150","name":"At the pub","parentId":null,"tier":2,"zone":"Z-07","zoneName":"Social / Recreation","childIds":[]},{"id":"LOC-0151","name":"At a party","parentId":null,"tier":2,"zone":"Z-07","zoneName":"Social / Recreation","childIds":[]},{"id":"LOC-0152","name":"At the sports ground","parentId":null,"tier":2,"zone":"Z-07","zoneName":"Social / Recreation","childIds":[]},{"id":"LOC-0153","name":"At the gym","parentId":null,"tier":2,"zone":"Z-07","zoneName":"Social / Recreation","childIds":[]},{"id":"LOC-0154","name":"At the cinema","parentId":null,"tier":2,"zone":"Z-07","zoneName":"Social / Recreation","childIds":[]},{"id":"LOC-0170","name":"Travelling (general)","parentId":null,"tier":2,"zone":"Z-08","zoneName":"Travel / Distant","childIds":["LOC-0171","LOC-0172","LOC-0173","LOC-0174"]},{"id":"LOC-0171","name":"In a hotel","parentId":"LOC-0170","tier":3,"zone":"Z-08","zoneName":"Travel / Distant","childIds":[]},{"id":"LOC-0172","name":"In another city","parentId":"LOC-0170","tier":3,"zone":"Z-08","zoneName":"Travel / Distant","childIds":[]},{"id":"LOC-0173","name":"In another country","parentId":"LOC-0170","tier":3,"zone":"Z-08","zoneName":"Travel / Distant","childIds":[]},{"id":"LOC-0174","name":"Abroad (general)","parentId":"LOC-0170","tier":3,"zone":"Z-08","zoneName":"Travel / Distant","childIds":[]}];
+const LOCATIONS_BY_ID = Object.fromEntries(LOCATIONS.map(l => [l.id, l]));
+
+/* First-seen-order unique zone list, derived from the data itself rather
+   than hand-duplicated. */
+const ZONES = (() => {
+  const seen = new Map();
+  LOCATIONS.forEach(l => { if (!seen.has(l.zone)) seen.set(l.zone, l.zoneName); });
+  return [...seen.entries()].map(([id, name]) => ({ id, name }));
+})();
+
+function locChildren(id) {
+  const l = LOCATIONS_BY_ID[id];
+  return l ? l.childIds.map(cid => LOCATIONS_BY_ID[cid]) : [];
+}
+function zoneRoots(zoneId) {
+  return LOCATIONS.filter(l => l.zone === zoneId && !l.parentId);
+}
+
+/* Bridges the existing hand-drawn SVG's flat zone strings into the real
+   hierarchy without touching the SVG itself -- the visual redesign of
+   the map is a separate, later task. Several old zid values map to a
+   zone-level view rather than one node, since one SVG region
+   historically covered several real locations at once. */
+const LEGACY_ZONE_MAP = {
+  kitchen:   { type: 'loc',  id: 'LOC-0002' },
+  home:      { type: 'loc',  id: 'LOC-0001' },
+  outdoor:   { type: 'loc',  id: 'LOC-0038' },
+  school:    { type: 'loc',  id: 'LOC-0050' },
+  work:      { type: 'loc',  id: 'LOC-0070' },
+  social:    { type: 'zone', id: 'Z-07' },
+  universal: { type: 'zone', id: 'Z-04' },
+  beach:     { type: 'loc',  id: 'LOC-0131' },
+  transport: { type: 'zone', id: 'Z-05' },
+};
+
+/* ── Registry loading ───────────────────────────────────────────────────── */
+async function loadRegistry() {
+  try {
+    if ('showDirectoryPicker' in window) {
+      // Chrome / Edge — full File System Access API
+      DIR_HANDLE = await window.showDirectoryPicker({ mode: 'read' });
+      const regHandle = await DIR_HANDLE.getFileHandle('registry/conceptionary-registry.json');
+      const regFile   = await regHandle.getFile();
+      REGISTRY = JSON.parse(await regFile.text());
+
+      // Pre-load all concept cards
+      window._cptCardData = [];
+      try {
+        const cardsDir = await DIR_HANDLE.getDirectoryHandle('concept_cards');
+        for await (const [name, handle] of cardsDir.entries()) {
+          if (!name.endsWith('.json') || name === 'cc-index.json') continue;
+          const file = await handle.getFile();
+          try {
+            const card = JSON.parse(await file.text());
+            if (card.id && card.concept) window._cptCardData.push(card);
+          } catch(e) { console.error('Card load error:', name, e); }
+        }
+      } catch(e) { console.error('concept_cards folder error:', e); }
+
+      const cardIndex = await loadCardIndex();
+      CONCEPTS = buildConceptsFromRegistry(REGISTRY, cardIndex);
+      showToast(`✓ Loaded — ${CONCEPTS.length} concepts (${window._cptCardData.length} cards)`);
+      buildBrowse(); buildFeatured();
+    } else {
+      // Firefox / Safari — folder picker via <input webkitdirectory>
+      useFolderInputFallback();
+    }
+  } catch(e) {
+    if (e.name !== 'AbortError') {
+      showToast('Could not load folder — ' + e.message);
+    }
+    CONCEPTS = CONCEPTS_FALLBACK;
+  }
+}
+
+function useFolderInputFallback() {
+  // Build a file map from the selected folder
+  let inp = document.getElementById('_folderPicker');
+  if (!inp) {
+    inp = document.createElement('input');
+    inp.type = 'file';
+    inp.id = '_folderPicker';
+    inp.setAttribute('webkitdirectory', '');
+    inp.setAttribute('multiple', '');
+    inp.style.display = 'none';
+    document.body.appendChild(inp);
+
+    inp.addEventListener('change', async () => {
+      const files = Array.from(inp.files);
+      if (!files.length) return;
+
+      // Build a path→File map (case-normalised keys for cross-platform compatibility)
+      window._cptFiles = {};
+      for (const f of files) {
+        const rel = f.webkitRelativePath;
+        const key = rel.split('/').slice(1).join('/').toLowerCase();
+        window._cptFiles[key] = f;
+      }
+
+      // Mark as using file map for subsequent lookups
+      window._cptUsingFileMap = true;
+
+      // Load registry
+      const regFile = window._cptFiles['registry/conceptionary-registry.json'];
+      if (!regFile) {
+        showToast('registry/conceptionary-registry.json not found in selected folder');
+        CONCEPTS = CONCEPTS_FALLBACK;
+        return;
+      }
+      REGISTRY = JSON.parse(await regFile.text());
+
+      // Pre-load all concept cards
+      window._cptCardData = [];
+      for (const [path, file] of Object.entries(window._cptFiles)) {
+        if (!path.startsWith('concept_cards/') || !path.endsWith('.json') || path.includes('cc-index')) continue;
+        try {
+          const card = JSON.parse(await file.text());
+          if (card.id && card.concept) window._cptCardData.push(card);
+        } catch(e) { console.error('Card load error:', path, e); }
+      }
+
+      // Load card index
+      const idxFile = window._cptFiles['concept_cards/cc-index.json'];
+      const cardIndex = idxFile ? JSON.parse(await idxFile.text()) : { next_cc_id: 1 };
+
+      CONCEPTS = buildConceptsFromRegistry(REGISTRY, cardIndex);
+      showToast(`✓ Loaded — ${CONCEPTS.length} concepts (${window._cptCardData.length} cards)`);
+      buildBrowse(); buildFeatured();
+
+      window._cptUsingFileMap = true;
+    });
+  }
+  inp.click();
+}
+
+async function loadCardIndex() {
+  try {
+    if (window._cptUsingFileMap && window._cptFiles) {
+      const f = window._cptFiles['concept_cards/cc-index.json'];
+      return f ? JSON.parse(await f.text()) : { next_cc_id: 1 };
+    }
+    const idxHandle = await DIR_HANDLE.getFileHandle('concept_cards/cc-index.json');
+    const idxFile   = await idxHandle.getFile();
+    return JSON.parse(await idxFile.text());
+  } catch { return { next_cc_id: 1 }; }
+}
+
+function buildConceptsFromRegistry(registry, cardIndex) {
+  const seen   = new Set();
+  const result = [];
+
+  // Step 1: Concept cards first — exact name, exact language pair
+  if (window._cptCardData) {
+    for (const card of window._cptCardData) {
+      const id = card.concept.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+      if (seen.has(id)) continue;
+      seen.add(id);
+      const avail = {};
+      for (const [lpKey, lp] of Object.entries(card.language_pairs || {})) {
+        avail[lpKey] = { fromCard: true, cardName: card.concept.name,
+                         track: lp.track, templateId: card.concept.template_id };
+      }
+      result.push({
+        id, n: card.concept.name,
+        t: card.concept.template_id || '',
+        c: topicCategory(card.concept.name),
+        z: topicZone(card.concept.name),
+        l: avail, fromCard: true
+      });
+    }
+  }
+
+  // Step 2: Fallback list entries not covered by a card
+  for (const fc of CONCEPTS_FALLBACK) {
+    if (!seen.has(fc.id)) { seen.add(fc.id); result.push(fc); }
+  }
+
+  return result;
+}
+
+function lpCode(sl, tl) {
+  const codes = { 'English':'EN','German':'DE','Bahasa Indonesia':'ID',
+                  'Japanese':'JA','Te Reo Māori':'MI','Mandarin Chinese':'ZH',
+                  'French':'FR','Spanish':'ES','Italian':'IT' };
+  const s = codes[sl], t = codes[tl];
+  return (s && t) ? `${s}-${t}` : null;
+}
+
+function topicCategory(topic) {
+  const t = topic.toLowerCase();
+  if (/time|day|week|month|season|cycle|lunar|tidal|clock/.test(t)) return 'When';
+  if (/direction|compass|location|place|where/.test(t)) return 'Where';
+  if (/hunger|fatigue|illness|anger|trust|emotion|sleep|pain/.test(t)) return 'Who';
+  if (/difficulty|speed|quantity|amount/.test(t)) return 'How';
+  return 'What';
+}
+
+function topicZone(topic) {
+  const t = topic.toLowerCase();
+  if (/tidal|lunar|beach|marine|wind/.test(t)) return 'outdoor';
+  if (/kitchen|food|hunger|cook/.test(t)) return 'kitchen';
+  if (/school|learn|study|difficulty/.test(t)) return 'school';
+  if (/compass|direction|navigation|driv/.test(t)) return 'transport';
+  return 'universal';
+}
+
+/* ── Concept card lookup and runtime injection ──────────────────────────── */
+async function loadConceptCard(conceptName, langPair) {
+  // First: check pre-loaded card cache (fast, works for both Firefox and Chrome)
+  if (window._cptCardData) {
+    const card = window._cptCardData.find(c =>
+      c.concept?.name?.toLowerCase() === conceptName.toLowerCase() &&
+      c.language_pairs?.[langPair]
+    );
+    if (card) return card;
+  }
+  // Fallback: scan files directly
+  if (window._cptUsingFileMap && window._cptFiles) {
+    for (const [path, file] of Object.entries(window._cptFiles)) {
+      if (!path.startsWith('concept_cards/') || !path.endsWith('.json') || path.endsWith('cc-index.json')) continue;
+      try {
+        const card = JSON.parse(await file.text());
+        if (card.concept?.name?.toLowerCase() === conceptName.toLowerCase() &&
+            card.language_pairs?.[langPair]) return card;
+      } catch {}
+    }
+    return null;
+  }
+  // Directory handle path (Chrome/Edge)
+  if (!DIR_HANDLE) return null;
+  try {
+    const cardsDir = await DIR_HANDLE.getDirectoryHandle('concept_cards');
+    for await (const [name, handle] of cardsDir.entries()) {
+      if (!name.endsWith('.json') || name === 'cc-index.json') continue;
+      const file = await handle.getFile();
+      const card = JSON.parse(await file.text());
+      if (card.concept?.name?.toLowerCase() === conceptName.toLowerCase() &&
+          card.language_pairs?.[langPair]) return card;
+    }
+  } catch(e) { console.warn('Card lookup failed:', e); }
+  return null;
+}
+
+async function openConceptWithInjection(concept, langPair) {
+  // 1. Try to find a local concept card
+  const hasLocal = DIR_HANDLE || window._cptUsingFileMap;
+  const card = hasLocal ? await loadConceptCard(concept.n, langPair) : null;
+
+  if (card) {
+    // 2. Card found — pick template based on TARGET LANGUAGE writing system
+    const lp = card.language_pairs[langPair];
+    const logographicTGTs = ['JA','ZH','KO','AR','TH'];
+    const needsLogographic = logographicTGTs.some(code => langPair.endsWith('-' + code));
+    const templatePath = needsLogographic
+      ? card.template.logographic.file
+      : card.template.phonographic.file;
+    await injectAndOpen(templatePath, lp.lang_config, card);
+  } else if (concept.l[langPair]?.card) {
+    // 3. Registry points to a specific populated file
+    try {
+      const fh = await DIR_HANDLE.getFileHandle(concept.l[langPair].card);
+      const file = await fh.getFile();
+      window.open(URL.createObjectURL(file), '_blank');
+    } catch { showToast('Could not open template file'); }
+  } else {
+    // 4. No local file — show "not yet available" message
+    return false;
+  }
+  return true;
+}
+
+async function injectAndOpen(templatePath, langConfig, card) {
+  try {
+    let html;
+
+    if (window._cptUsingFileMap && window._cptFiles) {
+      // Firefox/Safari — read from file map
+      const file = window._cptFiles[templatePath.toLowerCase()];
+      if (!file) throw new Error(`Template not found in loaded folder: ${templatePath}`);
+      html = await file.text();
+    } else if (DIR_HANDLE) {
+      // Chrome/Edge — read via directory handle
+      const parts = templatePath.split('/');
+      let handle = DIR_HANDLE;
+      for (const part of parts.slice(0, -1)) {
+        handle = await handle.getDirectoryHandle(part);
+      }
+      const fileHandle = await handle.getFileHandle(parts[parts.length - 1]);
+      const file = await fileHandle.getFile();
+      html = await file.text();
+    } else {
+      throw new Error('No folder loaded. Click 📂 Load first.');
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // COLUMN REMAP — concept card schema vs template native format
+    //
+    // Concept cards always store: [TL, SL, Quiz, Position, (TLR for LOG)]
+    //
+    // ROM-GTCV family native:  [SL, TL, Quiz, Position]
+    //   Remap: [r[1], r[0], r[2], r[3]]
+    //
+    // LOG-GTCV family native:  [SL, TL, TLR, Quiz, Position]
+    //   Remap: [r[1], r[0], r[4], r[2], r[3]]
+    //   (TLR moves from column 4 in the card to column 2 in the template)
+    //
+    // All other templates: no remap needed (inject as-is)
+    // ═══════════════════════════════════════════════════════════
+    const isRomGTCV = /GTCV|GTCVI|GPCVP|GPCVN/i.test(templatePath) &&
+                      !/^templates\/logographic\//i.test(templatePath);
+    const isLogGTCV = /GTCV|GTCVI|GPCVP|GPCVN/i.test(templatePath) &&
+                      /^templates\/logographic\//i.test(templatePath);
+    const isCRDOW   = /CR-DOW/i.test(templatePath);
+    const isCRMOY   = /CR-MOY/i.test(templatePath);
+    const isCRSW    = /CR-SW/i.test(templatePath);
+    const isHLBI    = /HL-BI/i.test(templatePath);
+    const isCVBI    = /CV-BI/i.test(templatePath);
+    const isLogTemplate = /^templates\/logographic\//i.test(templatePath);
+
+    // ── HL-BI and CV-BI: replace the entire LANG config object ──────────
+    if ((isHLBI || isCVBI) && langConfig.conceptData) {
+      const ui = langConfig.ui || {};
+      const titles = langConfig.titles?.states || ['','',''];
+      const lang = {
+        titles: [titles[0], titles[1], titles[2]],
+        neg_pole_label:   ui.neg_pole_label   || '',
+        pos_pole_label:   ui.pos_pole_label   || '',
+        drag_instruction: ui.drag_instruction || 'Drag to explore',
+        states_mode_label:ui.states_mode_label|| 'Switch to Transitions',
+        trans_mode_label: ui.trans_mode_label || 'Switch to States',
+        quiz_placeholder: ui.quiz_placeholder || 'Type in target language…',
+        quiz_button:      ui.quiz_button      || 'Check',
+        quiz_correct:     ui.quiz_correct     || 'Correct! ✓',
+        quiz_wrong:       ui.quiz_wrong       || 'Try again',
+        frame_colour_neg:     ui.frame_colour_neg     || '#808080',
+        frame_colour_neutral: ui.frame_colour_neutral || '#00bcd4',
+        frame_colour_pos:     ui.frame_colour_pos     || '#aaff00',
+        conceptData:     langConfig.conceptData,
+        transitionsData: langConfig.transitionsData || []
+      };
+      // CV-BI-specific fields
+      if (isCVBI) {
+        lang.normal_label     = ui.normal_label     || '';
+        lang.bottom_label     = ui.bottom_label     || '';
+        lang.frame_colour_top    = ui.frame_colour_top    || '#4CAF50';
+        lang.frame_colour_bottom = ui.frame_colour_bottom || '#c0392b';
+        delete lang.frame_colour_neg;
+        delete lang.frame_colour_neutral;
+        delete lang.frame_colour_pos;
+      }
+      // LOG templates: pass through diacritic map
+      if (isLogTemplate && langConfig.diacritic_map) {
+        lang.diacritic_map = langConfig.diacritic_map;
+        lang.collapse_double_vowels = langConfig.collapse_double_vowels || false;
+      }
+      html = html.replace(
+        /const LANG\s*=\s*\{[\s\S]*?\};\s*\/\/\s*={10,}[\s\S]*?END OF LANGUAGE CONFIGURATION BLOCK[\s\S]*?={10,}/,
+        `const LANG = ${JSON.stringify(lang, null, 4)};\n// =====================================================================\n// END OF LANGUAGE CONFIGURATION BLOCK\n// =====================================================================`
+      );
+    }
+
+    // ── CR-SW (Steering Wheel): replace the entire LANG config object ───
+    // Unique architecture among circular templates — vocabulary is an array
+    // of OBJECTS (not arrays), keyed by angle {a, tl, sl, (tlr), py, posA,
+    // dy}, where py/posA/dy are template-tuned label-placement offsets that
+    // must come from the card's own V array (concept cards for this family
+    // are expected to carry these forward from the generic template, not
+    // regenerate them). The card's lang_config already matches this
+    // template's native LANG shape directly, so little remapping is needed
+    // — unlike CR-DOW/CR-MOY, this template pulls every UI string from
+    // LANG.* at runtime rather than static HTML placeholders, so the
+    // generic per-field UI-string regexes below don't apply here either;
+    // the whole object must be replaced at once, same strategy as HL-BI/
+    // CV-BI. Uses a block-comment (/* ... */) end-of-config marker, not
+    // HL-BI/CV-BI's line-comment (// ...) style — a different regex is
+    // required or the replace silently no-ops.
+    if (isCRSW && langConfig.V) {
+      const lang = {
+        title_tl: langConfig.title_tl || '',
+        title_sl: langConfig.title_sl || '',
+        instr_disappear_tl: langConfig.instr_disappear_tl || '',
+        instr_disappear_sl: langConfig.instr_disappear_sl || '',
+        instr_body_tl: langConfig.instr_body_tl || '',
+        instr_body_sl: langConfig.instr_body_sl || '',
+        display_cycle: langConfig.display_cycle || [],
+        quiz_placeholder: langConfig.quiz_placeholder || 'What was that word?',
+        quiz_correct: langConfig.quiz_correct || 'Correct! ✓',
+        quiz_wrong: langConfig.quiz_wrong || 'Try again!',
+        V: langConfig.V
+      };
+      if (isLogTemplate) {
+        lang.title_tlr = langConfig.title_tlr || '';
+        lang.instr_disappear_tlr = langConfig.instr_disappear_tlr || '';
+        lang.instr_body_tlr = langConfig.instr_body_tlr || '';
+        lang.diacritic_instructions = langConfig.diacritic_instructions || '';
+        lang.diacritic_map = langConfig.diacritic_map || [];
+        lang.collapse_double_vowels = langConfig.collapse_double_vowels || false;
+      }
+      html = html.replace(
+        /const LANG\s*=\s*\{[\s\S]*?\};\s*\/\*\s*={10,}[\s\S]*?END OF LANGUAGE CONFIGURATION BLOCK[\s\S]*?={10,}\s*\*\//,
+        `const LANG = ${JSON.stringify(lang, null, 2)};\n/* =====================================================================\n   END OF LANGUAGE CONFIGURATION BLOCK\n   No language-specific content appears below this line.\n   ===================================================================== */`
+      );
+    }
+
+    function remapRow(r) {
+      if (isRomGTCV || isCRDOW || isCRMOY) return [r[1], r[0], r[2], r[3], ...(r.slice(4))];
+      if (isLogGTCV) return [r[1], r[0], r[4], r[2], r[3]];
+      return r;
+    }
+
+    // Inject conceptData (skip for HL-BI/CV-BI — handled above via LANG object)
+    if (langConfig.conceptData && !isHLBI && !isCVBI) {
+      const data = langConfig.conceptData.map(remapRow);
+      // Try const declaration format first
+      let newHtml = html.replace(
+        /const conceptData\s*=\s*\[[\s\S]*?\];/,
+        `const conceptData = ${JSON.stringify(data, null, 12)};`
+      );
+      // Fallback: object-property format
+      if (newHtml === html) {
+        newHtml = html.replace(
+          /\bconceptData\s*:\s*\[[\s\S]*?\](\s*,)/,
+          `conceptData: ${JSON.stringify(data, null, 8)}$1`
+        );
+      }
+      html = newHtml;
+      // Circular templates use template-specific variable names
+      if (isCRDOW) html = html.replace(
+        /const daysOfWeekData\s*=\s*\[[\s\S]*?\];/,
+        `const daysOfWeekData = ${JSON.stringify(data, null, 12)};`
+      );
+      if (isCRMOY) {
+        let newHtml = html.replace(
+          /const monthsData\s*=\s*\[[\s\S]*?\];/,
+          `const monthsData = ${JSON.stringify(data, null, 12)};`
+        );
+        if (newHtml === html) {
+          // Fallback: monthsData declared as a LANG object property
+          // (`monthsData: [...]`), not a standalone const — this is the
+          // actual shape in ROM/LOG-CR-MOY-Generic.html. Anchor on the
+          // following Seasons-data comment to find the array's true end;
+          // a naive non-greedy `\[[\s\S]*?\]` would stop at the first
+          // inner row's closing bracket instead, since each row is
+          // itself a comma-followed array just like the outer one.
+          newHtml = html.replace(
+            /monthsData:\s*\[[\s\S]*?\](?=,\s*\n\s*\n\s*\/\/\s*---\s*Seasons)/,
+            `monthsData: ${JSON.stringify(data, null, 12)}`
+          );
+        }
+        html = newHtml;
+      }
+    }
+    // Inject transitionsData (skip for HL-BI/CV-BI — handled above via LANG object)
+    if (langConfig.transitionsData && !isHLBI && !isCVBI) {
+      let data;
+      if (isLogGTCV) {
+        // LOG-GTCV transitionsData is an array of OBJECTS, not flat arrays.
+        // Card format: [TL, SL, Quiz, Position, TLR]
+        // After remap:  [SL, TL, TLR, Quiz, Position]
+        //   [0]=SL, [1]=TL, [2]=TLR, [3]=Quiz, [4]=Position
+        // LOG-GTCV expects objects with these properties:
+        //   { process (SL), targetLanguage (TL), romanized (TLR),
+        //     sourceLanguage (SL), positionPercent (Position) }
+        data = langConfig.transitionsData.map(r => ({
+          process:          r[1],   // SL — used as the process label/concept indicator
+          targetLanguage:   r[0],   // TL (kanji/kana)
+          romanized:        r[4],   // TLR (romaji)
+          sourceLanguage:   r[1],   // SL (English)
+          positionPercent:  r[3]    // Position
+        }));
+      } else {
+        data = langConfig.transitionsData.map(remapRow);
+      }
+      html = html.replace(
+        /const transitionsData\s*=\s*\[[\s\S]*?\];/,
+        `const transitionsData = ${JSON.stringify(data, null, 12)};`
+      );
+    }
+    // Inject titleTexts
+    if (langConfig.titles) {
+      html = html.replace(
+        /const titleTexts\s*=\s*\{[\s\S]*?\};/,
+        `const titleTexts = ${JSON.stringify(langConfig.titles, null, 10)};`
+      );
+    }
+    // Inject UI strings
+    if (langConfig.ui) {
+      const ui = langConfig.ui;
+      if (ui.quiz_placeholder) html = html.replace(/placeholder="[^"]*Enter[^"]*"/, `placeholder="${ui.quiz_placeholder}"`);
+      if (ui.quiz_button)      html = html.replace(/>Check<\/button>/, `>${ui.quiz_button}</button>`);
+      if (ui.quiz_correct)     html = html.replace(/quizFeedback\.textContent = 'Correct!';/g, `quizFeedback.textContent = '${ui.quiz_correct}';`);
+      if (ui.quiz_wrong)       html = html.replace(/quizFeedback\.textContent = 'Try again';/g, `quizFeedback.textContent = '${ui.quiz_wrong}';`);
+      if (ui.mode_toggle)      html = html.replace(/>Toggle Mode</, `>${ui.mode_toggle}<`);
+    }
+
+    // Add metadata comment
+    html = html.replace('<script>', `<script>\n// Concept: ${card.id} — ${card.concept.name} | Generated by: ${card.language_pairs[Object.keys(card.language_pairs)[0]].generated_by}\n`);
+
+    const blob = new Blob([html], { type: 'text/html' });
+    window.open(URL.createObjectURL(blob), '_blank');
+    showToast(`✓ Opening ${card.concept.name}…`);
+  } catch(e) {
+    console.error('Injection failed:', e);
+    showToast('Could not open template: ' + e.message);
+  }
+}
+
+/* ── Language pair code from SRC/TGT selectors ─────────────────────────── */
+function currentLangPair() {
+  // Derive lang pair code — e.g. "EN" + "ID" → "EN-ID"
+  // TGT is the key used in CONCEPTS_FALLBACK (DE, ID, JA, MI, IT)
+  // For registry cards the key is full pair e.g. "EN-ID"
+  return TGT ? `${SRC}-${TGT}` : null;
+}
+
+const ok  = c => !!TGT && (!!c.l[currentLangPair()] || !!c.l[TGT]);
+const url = c => c.l[currentLangPair()] || c.l[TGT] || null;
+
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+let SRC = sessionStorage.getItem('cpt-src') || 'EN';
+let TGT = sessionStorage.getItem('cpt-tgt') || '';
+
+// Initialise CONCEPTS with fallback; registry replaces this when loaded
+CONCEPTS = CONCEPTS_FALLBACK;
+
+/* ── Concept opener — tries local injection first, falls back gracefully ── */
+async function handleOpenConcept(conceptId, langPair) {
+  const c = CONCEPTS.find(x => x.id === conceptId);
+  if (!c) return;
+  const opened = (DIR_HANDLE || window._cptUsingFileMap)
+    ? await openConceptWithInjection(c, langPair)
+    : false;
+  if (!opened) {
+    showToast('Load your Conceptionary folder first to open templates locally.');
+  }
+}
+
+/* ── Toast notification ─────────────────────────────────────────────────── */
+let _toastTimer;
+function showToast(msg, duration = 3000) {
+  let toast = document.getElementById('_cpt_toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = '_cpt_toast';
+    toast.style.cssText = 'position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;white-space:nowrap;';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(20px)';
+  }, duration);
+}
+
+/* ═══════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════ */
+function switchTab(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.hdr-nav-btn, .mob-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  document.querySelectorAll(`[data-tab="${tab}"]`).forEach(b => b.classList.add('active'));
+  if (tab === 'browse') buildBrowse();
+}
+
+document.querySelectorAll('[data-tab]').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+/* ═══════════════════════════════════════════════
+   LANGUAGE PAIR
+═══════════════════════════════════════════════ */
+function syncLangSelectors() {
+  ['hdr-src','home-src'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = SRC;
+  });
+  ['hdr-tgt','home-tgt'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = TGT;
+  });
+}
+
+function onLangChange(isSrc, val) {
+  if (isSrc) {
+    SRC = val;
+    sessionStorage.setItem('cpt-src', SRC);
+    ['hdr-src','home-src'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = SRC;
+    });
+  } else {
+    TGT = val;
+    sessionStorage.setItem('cpt-tgt', TGT);
+    ['hdr-tgt','home-tgt'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = TGT;
+    });
+    buildConceptDropdown();
+    buildFeatured();
+    renderSearch(document.getElementById('search-input').value);
+  }
+}
+
+['hdr-src','home-src'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', e => onLangChange(true, e.target.value));
+});
+
+['hdr-tgt','home-tgt'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', e => onLangChange(false, e.target.value));
+});
+
+
+/* ═══════════════════════════════════════════════
+   CONCEPT SEARCH (HOME)
+═══════════════════════════════════════════════ */
+function buildConceptDropdown() {
+  const inp  = document.getElementById('home-concept-input');
+  const val  = document.getElementById('home-concept');
+  const note = document.getElementById('home-avail-note');
+  const sug  = document.getElementById('concept-suggestions');
+
+  inp.value = ''; val.value = '';
+  if (sug) sug.style.display = 'none';
+
+  if (!TGT) {
+    inp.placeholder = 'Select a language pair first…';
+    inp.disabled = true;
+    note.textContent = ''; note.className = 'avail-note';
+    return;
+  }
+
+  inp.disabled = false;
+  inp.placeholder = 'Type to search concepts…';
+  const nAvail = CONCEPTS.filter(ok).length;
+  note.textContent = nAvail > 0
+    ? `${nAvail} concept${nAvail===1?'':'s'} available for this language pair`
+    : 'No content yet — you can request concepts below';
+  note.className = 'avail-note ' + (nAvail > 0 ? 'has' : 'none');
+}
+
+function filterConceptSuggestions(query) {
+  const sug = document.getElementById('concept-suggestions');
+  if (!TGT || !sug) return;
+  const q = query.toLowerCase().trim();
+  const pool = CONCEPTS.filter(c => !q || c.n.toLowerCase().includes(q)).slice(0, 25);
+  if (!pool.length) { sug.style.display = 'none'; return; }
+  sug.innerHTML = pool.map(c => {
+    const avail = ok(c);
+    return `<div style="display:flex;align-items:center;gap:8px;padding:9px 12px;
+                 cursor:pointer;font-size:14px;border-bottom:1px solid #eef2f7;
+                 color:${avail?'#1a1a2e':'#8A9AB0'};"
+                 onmousedown="selectConceptItem('${c.id}','${c.n.replace(/'/g,"\\'")}')"
+                 onmouseover="this.style.background='#EEF7FF'"
+                 onmouseout="this.style.background=''">
+      <span style="font-size:11px;">${avail?'✓':'○'}</span>
+      <span style="flex:1;font-weight:${avail?'500':'400'};">${c.n}</span>
+      <span style="font-size:10px;color:#8A9AB0;background:#f0f4f8;
+             padding:1px 5px;border-radius:3px;">${c.t||''}</span>
+    </div>`;
+  }).join('');
+  sug.style.display = 'block';
+}
+
+function selectConceptItem(id, name) {
+  document.getElementById('home-concept').value = id;
+  document.getElementById('home-concept-input').value = name;
+  const sug = document.getElementById('concept-suggestions');
+  if (sug) sug.style.display = 'none';
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#home-concept-input') && !e.target.closest('#concept-suggestions')) {
+    const s = document.getElementById('concept-suggestions');
+    if (s) s.style.display = 'none';
+  }
+});
+
+/* ═══════════════════════════════════════════════
+   FEATURED CONCEPTS (HOME)
+═══════════════════════════════════════════════ */
+function buildFeatured() {
+  const sec   = document.getElementById('featured-section');
+  const grid  = document.getElementById('featured-grid');
+  const prmpt = document.getElementById('home-prompt-section');
+
+  if (!TGT) {
+    sec.style.display   = 'none';
+    prmpt.style.display = 'block';
+    return;
+  }
+
+  prmpt.style.display = 'none';
+  const avail = CONCEPTS.filter(ok);
+
+  if (!avail.length) {
+    sec.style.display = 'none';
+    return;
+  }
+
+  sec.style.display = 'block';
+  grid.innerHTML = avail.map(c => `
+    <div class="feat-card" onclick="window.open('${url(c)}','_blank')">
+      <div class="feat-name">${c.n}</div>
+      <div class="feat-meta">
+        <span class="tmpl-tag">${c.t}</span>
+        <span class="avail-dot yes"></span>
+        <span style="font-size:11px;color:var(--green);font-weight:500">Available</span>
+      </div>
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════════════════════
+   START LEARNING (HOME)
+═══════════════════════════════════════════════ */
+function startLearning() {
+  const srcEl  = document.getElementById('home-src');
+  const tgtEl  = document.getElementById('home-tgt');
+  const conEl  = document.getElementById('home-concept');
+  const box    = document.getElementById('home-result');
+  const path   = document.getElementById('home-result-path');
+  const action = document.getElementById('home-result-action');
+
+  if (!srcEl.value || !tgtEl.value || !conEl.value) {
+    alert('Please complete all three selections to continue.');
+    return;
+  }
+  if (srcEl.value === tgtEl.value) {
+    alert('Source and target languages cannot be the same.');
+    return;
+  }
+
+  const c = CONCEPTS.find(x => x.id === conEl.value);
+  if (!c) return;
+
+  const sn = srcEl.options[srcEl.selectedIndex].text.replace(/^\S+\s/,'').trim();
+  const tn = tgtEl.options[tgtEl.selectedIndex].text.replace(/^\S+\s/,'').trim();
+  const lp = currentLangPair();
+  const a  = ok(c);
+
+  path.innerHTML = `
+    <strong>Learning path selected:</strong><br>
+    🗣️ <strong>${sn}</strong> &nbsp;→&nbsp; 📚 <strong>${tn}</strong><br>
+    🎯 ${c.n} &nbsp;
+    <span style="background:var(--sky-pale);color:var(--sky-deep);padding:1px 7px;border-radius:3px;font-size:11px;font-weight:700">${c.t}</span>`;
+
+  if (a) {
+    action.innerHTML = `<button class="open-btn" onclick="handleOpenConcept('${c.id}','${lp}')">🚀 Open this template →</button>`;
+    box.className = 'result-box ok';
+  } else {
+    action.innerHTML = `
+      <p class="na-msg">This concept is not yet available for this language pair.</p>
+      <button class="req-btn" onclick="doRequest('${c.id}')">✉️ Request this concept</button>`;
+    box.className = 'result-box no';
+  }
+
+  box.style.display = 'block';
+  box.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+/* ═══════════════════════════════════════════════
+   MAP INTERACTIONS
+═══════════════════════════════════════════════ */
+/* Legacy entry point — still called by the hand-drawn SVG's onclick
+   attributes. Translates a flat zid into a real starting point in the
+   hierarchy (see LEGACY_ZONE_MAP above), then hands off to the new
+   navigator. The SVG itself is untouched — Alan's own visual redesign
+   is a separate, later task; this only changes what happens once a
+   click lands. */
+function mapZoneClick(zid) {
+  document.querySelectorAll('.mz').forEach(el => el.classList.remove('sel'));
+  document.querySelectorAll(`.mz[data-z="${zid}"]`).forEach(el => el.classList.add('sel'));
+
+  const target = LEGACY_ZONE_MAP[zid] || { type: 'zone', id: 'Z-01' };
+  navState = target;
+  renderMapSideFromNav();
+}
+
+/* Real location-hierarchy navigator (added 2026-08-17) — walks
+   LOCATIONS via LOC-ID/parentId exactly as specified in
+   Conceptionary_Location_Index.md: no automatic rollup, sub-locations
+   shown first, breadcrumb always reflects the true ancestor chain. */
+let navState = { type: 'zone', id: 'Z-01' };
+
+function navigateLocById(id) {
+  navState = { type: 'loc', id };
+  renderMapSideFromNav();
+}
+function navigateZone(id) {
+  navState = { type: 'zone', id };
+  renderMapSideFromNav();
+}
+
+function locBreadcrumbTrail(state) {
+  if (state.type === 'zone') {
+    const z = ZONES.find(z => z.id === state.id);
+    return [{ type: 'zone', id: state.id, label: z ? z.name : state.id }];
+  }
+  const trail = [];
+  let cur = LOCATIONS_BY_ID[state.id];
+  while (cur) {
+    trail.unshift({ type: 'loc', id: cur.id, label: cur.name });
+    cur = cur.parentId ? LOCATIONS_BY_ID[cur.parentId] : null;
+  }
+  const rootZone = LOCATIONS_BY_ID[state.id] ? LOCATIONS_BY_ID[state.id].zone : null;
+  const zEntry = ZONES.find(z => z.id === rootZone);
+  if (zEntry) trail.unshift({ type: 'zone', id: zEntry.id, label: zEntry.name });
+  return trail;
+}
+
+function renderMapSideFromNav() {
+  const ttl  = document.getElementById('map-side-ttl');
+  const body = document.getElementById('map-side-body');
+  const trail = locBreadcrumbTrail(navState);
+  const here = trail[trail.length - 1];
+
+  const crumbHtml = trail.map((c, i) => {
+    const last = i === trail.length - 1;
+    const nav  = c.type === 'zone' ? `navigateZone('${c.id}')` : `navigateLocById('${c.id}')`;
+    return (i > 0 ? '<span class="loc-sep">/</span>' : '') +
+      `<button class="loc-crumb ${last ? 'current' : ''}" ${last ? '' : `onclick="${nav}"`}>${c.label}</button>`;
+  }).join('');
+
+  ttl.innerHTML = `<span>${here.label}</span>`;
+
+  const children = navState.type === 'zone' ? zoneRoots(navState.id) : locChildren(navState.id);
+
+  let bodyHtml;
+  if (children.length) {
+    bodyHtml = `<div class="loc-tiles">${children.map(c => `
+      <button class="loc-tile" onclick="navigateLocById('${c.id}')">
+        <span>${c.name}</span><span class="loc-tile-arrow">›</span>
+      </button>`).join('')}</div>`;
+  } else {
+    const list = navState.type === 'loc'
+      ? CONCEPTS.filter(c => c.loc && (c.loc.primary || []).includes(navState.id))
+      : [];
+    if (list.length) {
+      const sorted = [...list].sort((a, b) => (ok(a) ? 0 : 1) - (ok(b) ? 0 : 1));
+      bodyHtml = `<div class="map-concepts">${sorted.map(c => {
+        const a = ok(c); const u = url(c);
+        const clk = a ? `onclick="window.open('${u}','_blank')"` : `onclick="doRequest('${c.id}')"`;
+        return `
+          <div class="map-ccard" ${clk}>
+            <span class="mc-name">${c.n}</span>
+            <span class="tmpl-tag">${c.t}</span>
+            <span class="mc-avail ${a ? 'y' : 'n'}">${a ? '● Open' : '○ Soon'}</span>
+          </div>`;
+      }).join('')}</div>`;
+    } else {
+      bodyHtml = `<div class="loc-empty">No concept cards linked here yet.</div>
+        <button class="loc-placeholder-btn" onclick="openPlaceholderTemplate('${navState.type === 'loc' ? navState.id : ''}')">Preview a placeholder template ↗</button>`;
+    }
+  }
+
+  body.innerHTML = `<div class="loc-crumbs">${crumbHtml}</div>${bodyHtml}`;
+}
+
+/* Proves the template-loading pathway end-to-end using a generic
+   template as a stand-in, per the 2026-08-17 decision to build the
+   full pipeline before individual locations have real content.
+   Defaults to the Temporary-family default (GTCV) per the standing
+   template-selection principle in the Decision Log. */
+function openPlaceholderTemplate(locId) {
+  window.open('ROM-GTCV-Generic.html', '_blank');
+}
+
+
+/* ═══════════════════════════════════════════════
+   BROWSE
+═══════════════════════════════════════════════ */
+let browseBuilt = false;
+
+function buildBrowse() {
+  if (browseBuilt) { refreshBrowse(); return; }
+  browseBuilt = true;
+  const layout = document.getElementById('browse-layout');
+
+  layout.innerHTML = CATS.map(cat => {
+    const concepts = CONCEPTS.filter(c => c.c === cat.id);
+    return `
+      <div class="browse-cat">
+        <div class="browse-cat-hdr" onclick="toggleBrowseCat('${cat.id}')">
+          <span class="browse-cat-ico">${cat.ico}</span>
+          <div>
+            <div class="browse-cat-word">${cat.word}</div>
+            <div class="browse-cat-desc">${cat.desc}</div>
+          </div>
+          <span class="browse-cat-count" id="bcc-${cat.id}"></span>
+          <span class="browse-chevron">▼</span>
+        </div>
+        <div class="browse-cat-body" id="bcb-${cat.id}">
+          <div class="browse-concept-list" id="bcl-${cat.id}"></div>
+        </div>
+      </div>`;
+  }).join('');
+
+  refreshBrowse();
+}
+
+function toggleBrowseCat(catId) {
+  const hdr  = document.querySelector(`.browse-cat-hdr[onclick*="${catId}"]`);
+  const body = document.getElementById('bcb-' + catId);
+  if (!body) return;
+  hdr.classList.toggle('open');
+  body.classList.toggle('open');
+  if (body.classList.contains('open')) renderBrowseCat(catId);
+}
+
+function renderBrowseCat(catId) {
+  const list     = CONCEPTS.filter(c => c.c === catId);
+  const sorted   = [...list].sort((a,b)=>(ok(a)?0:1)-(ok(b)?0:1));
+  const container = document.getElementById('bcl-' + catId);
+  if (!container) return;
+  container.innerHTML = sorted.map(c => {
+    const a = ok(c); const u = url(c);
+    const clk = a
+      ? `onclick="window.open('${u}','_blank')"`
+      : `onclick="doRequest('${c.id}')"`;
+    return `
+      <div class="browse-ccard" ${clk}>
+        <span class="bc-name">${c.n}</span>
+        <span class="tmpl-tag">${c.t}</span>
+        <span class="bc-avail ${a?'y':'n'}">${a?'● Available':'○ Coming soon'}</span>
+      </div>`;
+  }).join('');
+}
+
+function refreshBrowse() {
+  CATS.forEach(cat => {
+    const cnt  = document.getElementById('bcc-' + cat.id);
+    const body = document.getElementById('bcb-' + cat.id);
+    if (!cnt) return;
+    const n = CONCEPTS.filter(c => c.c === cat.id && ok(c)).length;
+    const total = CONCEPTS.filter(c => c.c === cat.id).length;
+    cnt.textContent = TGT ? `${n}/${total}` : `${total}`;
+    if (body && body.classList.contains('open')) renderBrowseCat(cat.id);
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   SEARCH
+═══════════════════════════════════════════════ */
+function renderSearch(q) {
+  const out = document.getElementById('search-out');
+
+  if (!TGT && !q) {
+    out.innerHTML = `
+      <div class="prompt-box">
+        <div class="prompt-ico">🌐</div>
+        <div>
+          <div class="prompt-ttl">Select a language pair to see availability</div>
+          <div class="prompt-sub">Use the selectors in the header, then search for any concept.</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const s = q.toLowerCase();
+  const filtered = CONCEPTS.filter(c =>
+    !q ||
+    c.n.toLowerCase().includes(s) ||
+    c.c.toLowerCase().includes(s) ||
+    c.t.toLowerCase().includes(s)
+  );
+
+  if (!filtered.length) {
+    out.innerHTML = `
+      <div class="empty-state">
+        <div class="ei">🔍</div>
+        <div class="et">No concepts found for "${q}"</div>
+        <div class="es">Try different keywords, or request this as a new concept below.</div>
+      </div>
+      <div class="ai-request-box">
+        <p>Want <strong>"${q}"</strong> added to the library?</p>
+        <button class="ai-btn" onclick="doNewRequest('${q}')">Ask AI to create this concept →</button>
+      </div>`;
+    return;
+  }
+
+  const sorted = [...filtered].sort((a,b)=>(ok(a)?0:1)-(ok(b)?0:1));
+  const lbl = q
+    ? `${filtered.length} result${filtered.length!==1?'s':''} for "${q}"`
+    : (TGT ? `All concepts — ${sorted.filter(ok).length} available for this language pair` : `All concepts (${CONCEPTS.length})`);
+
+  out.innerHTML = `
+    <div class="search-results-hdr">${lbl}</div>
+    <div class="search-list">
+      ${sorted.map(c => {
+        const a = ok(c); const u = url(c);
+        const actionHtml = TGT
+          ? (a
+              ? `<a href="${u}" target="_blank" class="s-open-btn">Open →</a>`
+              : `<button class="s-req-btn" onclick="doRequest('${c.id}')">Request →</button>`)
+          : '';
+        return `
+          <div class="search-ccard ${!a && TGT ? 'unavail' : ''}">
+            <div class="sc-main">
+              <div class="sc-name">${c.n}</div>
+              <div class="sc-meta">
+                <span class="tmpl-tag">${c.t}</span>
+                <span>${c.c}</span>
+                ${TGT ? `<span class="search-avail ${a?'y':'n'}">${a?'● Available':'○ Coming soon'}</span>` : ''}
+              </div>
+            </div>
+            ${actionHtml}
+          </div>`;
+      }).join('')}
+    </div>`;
+
+  if (TGT && q && sorted.length && !sorted.some(ok)) {
+    out.innerHTML += `
+      <div class="ai-request-box" style="margin-top:12px">
+        <p>None of these are available in your language pair yet.</p>
+        <button class="ai-btn" onclick="doNewRequest('${q}')">Request these concepts →</button>
+      </div>`;
+  }
+}
+
+const si = document.getElementById('search-input');
+const sc = document.getElementById('search-clr');
+si.addEventListener('input', () => {
+  sc.style.display = si.value ? 'block' : 'none';
+  renderSearch(si.value);
+});
+sc.addEventListener('click', () => {
+  si.value = '';
+  sc.style.display = 'none';
+  renderSearch('');
+});
+
+/* ═══════════════════════════════════════════════
+   REQUESTS
+═══════════════════════════════════════════════ */
+function doRequest(cid) {
+  const c = CONCEPTS.find(x => x.id === cid);
+  alert(`Request recorded: "${c ? c.n : cid}"\n\nAI-assisted generation will be available in a future version.`);
+}
+function doNewRequest(q) {
+  alert(`New concept request: "${q}"\n\nThis will be available in a future version.`);
+}
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  // Restore session language pair
+  syncLangSelectors();
+  buildConceptDropdown();
+  buildFeatured();
+  renderSearch('');
+
+  // Mark selectors as chosen if already have value
+  ['home-src','home-tgt','hdr-src','hdr-tgt'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.value) el.classList.add('chosen');
+  });
+
+  document.querySelectorAll('.main-select, .hdr-select').forEach(sel => {
+    sel.addEventListener('change', function() {
+      this.classList.toggle('chosen', !!this.value);
+    });
+  });
+});
+</script>
+</body>
+</html>

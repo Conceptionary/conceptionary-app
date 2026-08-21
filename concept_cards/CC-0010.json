@@ -1,0 +1,308 @@
+{
+  "id": "CC-0010",
+  "version": "2.2",
+  "created": "2026-07-06",
+  "last_updated": "2026-07-12",
+  "status": "active",
+  "concept": {
+    "name": "Brightness",
+    "description": "The archilexeme spanning the full scale of light intensity from pitch black through normal ambient light to blinding brightness. Uses LOG-GTCV — peak (50%) = most intense (blinding light). Full bell curve, both sides populated symmetrically.",
+    "taxonomy_ref": "3.1",
+    "taxonomy_path": "Sensory → Visual → Brightness",
+    "shape": "gradual_temporary_curve",
+    "template_family": "HL-BI",
+    "template_id": "LOG-GTCV",
+    "modes_used": [
+      "states",
+      "transitions"
+    ],
+    "notes": "v2.0: Reassigned from LOG-HL-BI to LOG-GTCV. Brightness is a degree-of-intensity concept best shown on the bell curve. 4-level cycle: TLR→TL→SL→Quiz (tests TLR/romaji). v2.1: Corrected 4 instances of a systematic romaji error in transitionsData — the adjective 暗い (kurai) must shift to its adverbial stem 暗く (kuraku) before なる/なってきた, but the romaji field incorrectly kept the dictionary form 'kurai' in front of naru-based verbs at positions 5, 15, 56, and 67. Kanji/kana text was already correct in all cases; only the romaji transliteration was wrong. v2.2 (2026-07-12): titles restructured from a broken 3-element [combined, TL, SL] shape to a proper [TLR, TL, SL] cycle, matching a template-level fix to LOG-GTCV-Generic.html (its title box previously showed hardcoded generic mode-labels on load and only ever received real content on click, with a hardcoded %4 modulo that would have hit 'undefined' past 3 supplied elements — this card's title was likely never displaying correctly at all before now). Also fixed while reconstructing: the old transitions[1]/[2] entries were the literal strings \"日本語\"/\"English\" (language names) rather than actual TL-only/SL-only renderings of the transitions title — an authoring error from when this field was first written, caught by this fix."
+  },
+  "template": {
+    "phonographic": {
+      "id": "ROM-GTCV",
+      "file": "templates/phonographic/ROM-GTCV-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-GTCV",
+      "file": "templates/logographic/LOG-GTCV-Generic.html",
+      "track": "logographic"
+    }
+  },
+  "language_pairs": {
+    "EN-JA": {
+      "source_language": "English",
+      "target_language": "Japanese",
+      "track": "logographic",
+      "generated_by": "claude-sonnet-4-6",
+      "generated_date": "2026-07-06",
+      "last_revised": "2026-07-09",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "lang_config": {
+        "titles": {
+          "states": [
+            "Akarusa",
+            "明るさ",
+            "Brightness"
+          ],
+          "transitions": [
+            "Akarusa no henka",
+            "明るさの変化",
+            "Change in Brightness"
+          ]
+        },
+        "ui": {
+          "neg_pole_label": "← 暗い",
+          "pos_pole_label": "明るい →",
+          "quiz_placeholder": "ローマ字で入力してください…",
+          "quiz_button": "確認",
+          "quiz_correct": "正解！ ✓",
+          "quiz_wrong": "もう一度",
+          "frame_colour_neg": "#1a1a2e",
+          "frame_colour_neutral": "#87CEEB",
+          "frame_colour_pos": "#FFFACD"
+        },
+        "diacritic_map": [
+          [
+            "ā",
+            "a"
+          ],
+          [
+            "ī",
+            "i"
+          ],
+          [
+            "ū",
+            "u"
+          ],
+          [
+            "ē",
+            "e"
+          ],
+          [
+            "ō",
+            "o"
+          ]
+        ],
+        "collapse_double_vowels": true,
+        "conceptData": [
+          [
+            "真っ暗",
+            "Pitch black",
+            "How do you say 'pitch black' in Japanese? (romaji)",
+            0,
+            "Makkura"
+          ],
+          [
+            "とても暗い",
+            "Very dark",
+            "How do you say 'very dark' in Japanese? (romaji)",
+            5.56,
+            "Totemo kurai"
+          ],
+          [
+            "暗い",
+            "Dark",
+            "How do you say 'dark' in Japanese? (romaji)",
+            11.11,
+            "Kurai"
+          ],
+          [
+            "薄暗い",
+            "Dim",
+            "How do you say 'dim' in Japanese? (romaji)",
+            16.67,
+            "Usugurai"
+          ],
+          [
+            "少し暗い",
+            "Slightly dark",
+            "How do you say 'slightly dark' in Japanese? (romaji)",
+            22.22,
+            "Sukoshi kurai"
+          ],
+          [
+            "普通の明るさ",
+            "Normal light",
+            "How do you say 'normal light' in Japanese? (romaji)",
+            27.78,
+            "Futsū no akarusa"
+          ],
+          [
+            "明るい",
+            "Bright",
+            "How do you say 'bright' in Japanese? (romaji)",
+            33.33,
+            "Akarui"
+          ],
+          [
+            "とても明るい",
+            "Very bright",
+            "How do you say 'very bright' in Japanese? (romaji)",
+            38.89,
+            "Totemo akarui"
+          ],
+          [
+            "まぶしい",
+            "Dazzling",
+            "How do you say 'dazzling' in Japanese? (romaji)",
+            44.44,
+            "Mabushii"
+          ],
+          [
+            "まぶしすぎる",
+            "Blinding",
+            "How do you say 'blinding' in Japanese? (romaji)",
+            50,
+            "Mabushisugiru"
+          ],
+          [
+            "まぶしい",
+            "Dazzling",
+            "How do you say 'dazzling' in Japanese? (romaji)",
+            55.56,
+            "Mabushii"
+          ],
+          [
+            "とても明るい",
+            "Very bright",
+            "How do you say 'very bright' in Japanese? (romaji)",
+            61.11,
+            "Totemo akarui"
+          ],
+          [
+            "明るい",
+            "Bright",
+            "How do you say 'bright' in Japanese? (romaji)",
+            66.67,
+            "Akarui"
+          ],
+          [
+            "普通の明るさ",
+            "Normal light",
+            "How do you say 'normal light' in Japanese? (romaji)",
+            72.22,
+            "Futsū no akarusa"
+          ],
+          [
+            "少し暗い",
+            "Slightly dark",
+            "How do you say 'slightly dark' in Japanese? (romaji)",
+            77.78,
+            "Sukoshi kurai"
+          ],
+          [
+            "薄暗い",
+            "Dim",
+            "How do you say 'dim' in Japanese? (romaji)",
+            83.33,
+            "Usugurai"
+          ],
+          [
+            "暗い",
+            "Dark",
+            "How do you say 'dark' in Japanese? (romaji)",
+            88.89,
+            "Kurai"
+          ],
+          [
+            "とても暗い",
+            "Very dark",
+            "How do you say 'very dark' in Japanese? (romaji)",
+            94.44,
+            "Totemo kurai"
+          ],
+          [
+            "真っ暗",
+            "Pitch black",
+            "How do you say 'pitch black' in Japanese? (romaji)",
+            100,
+            "Makkura"
+          ]
+        ],
+        "transitionsData": [
+          [
+            "暗くなる",
+            "Getting darker",
+            "How do you say 'getting darker'? (romaji)",
+            5,
+            "Kuraku naru"
+          ],
+          [
+            "どんどん暗くなる",
+            "Getting much darker",
+            "How do you say 'getting much darker'? (romaji)",
+            15,
+            "Dondon kuraku naru"
+          ],
+          [
+            "真っ暗になる",
+            "Going pitch black",
+            "How do you say 'going pitch black'? (romaji)",
+            25,
+            "Makkura ni naru"
+          ],
+          [
+            "少し明るくなる",
+            "Getting slightly brighter",
+            "How do you say 'getting slightly brighter'? (romaji)",
+            35,
+            "Sukoshi akaruku naru"
+          ],
+          [
+            "明るくなってきた",
+            "Brightening up",
+            "How do you say 'brightening up'? (romaji)",
+            44,
+            "Akaruku natte kita"
+          ],
+          [
+            "まぶしくなる",
+            "Becoming blinding",
+            "How do you say 'becoming blinding'? (romaji)",
+            50,
+            "Mabushiku naru"
+          ],
+          [
+            "少し暗くなる",
+            "Getting slightly darker",
+            "How do you say 'getting slightly darker'? (romaji)",
+            56,
+            "Sukoshi kuraku naru"
+          ],
+          [
+            "暗くなってきた",
+            "Darkening",
+            "How do you say 'darkening'? (romaji)",
+            67,
+            "Kuraku natte kita"
+          ],
+          [
+            "どんどん暗い",
+            "Getting very dark",
+            "How do you say 'getting very dark'? (romaji)",
+            78,
+            "Dondon kurai"
+          ],
+          [
+            "真っ暗になる",
+            "Going pitch black",
+            "How do you say 'going pitch black'? (romaji)",
+            89,
+            "Makkura ni naru"
+          ],
+          [
+            "真っ暗",
+            "Pitch black",
+            "How do you say 'pitch black'? (romaji)",
+            100,
+            "Makkura"
+          ]
+        ]
+      }
+    }
+  }
+}

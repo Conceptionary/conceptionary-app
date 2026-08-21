@@ -1,0 +1,254 @@
+{
+  "id": "CC-0008",
+  "version": "2.0",
+  "created": "2026-07-06",
+  "last_updated": "2026-07-07",
+  "status": "active",
+  "concept": {
+    "name": "Wealth",
+    "description": "The archilexeme spanning the full scale of financial status from extreme poverty through neutrality to extreme wealth. Uses GTCV — the bell curve peak (50%) represents maximum wealth (billionaire), the left baseline (0%) represents the starting/neutral state, and the descending right side mirrors the ascending left in reverse.",
+    "taxonomy_ref": "15.1",
+    "taxonomy_path": "Economic / Financial → Wealth and poverty → Wealth",
+    "shape": "gradual_temporary_curve",
+    "template_family": "HL-BI",
+    "template_id": "ROM-GTCV",
+    "modes_used": [
+      "states",
+      "transitions"
+    ],
+    "notes": "v2.0: Reassigned from ROM-HL-BI to ROM-GTCV. Wealth is better depicted as a degree-of-intensity concept with the peak at maximum wealth, rather than a bidirectional deviation from a neutral centre. Full bell curve: both sides populated symmetrically."
+  },
+  "template": {
+    "phonographic": {
+      "id": "ROM-GTCV",
+      "file": "templates/phonographic/ROM-GTCV-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-HL-BI",
+      "file": "templates/logographic/LOG-HL-BI-Generic.html",
+      "track": "logographic"
+    }
+  },
+  "language_pairs": {
+    "EN-DE": {
+      "source_language": "English",
+      "target_language": "German",
+      "track": "phonographic",
+      "generated_by": "claude-sonnet-4-6",
+      "generated_date": "2026-07-06",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "lang_config": {
+        "titles": {
+          "states": [
+            "Wealth / Wohlstand",
+            "Wohlstand",
+            "Wealth"
+          ],
+          "transitions": [
+            "Finanzielle Veränderung / Financial Change",
+            "Deutsch",
+            "English"
+          ]
+        },
+        "ui": {
+          "neg_pole_label": "← Mittellos",
+          "pos_pole_label": "Wohlhabend →",
+          "quiz_placeholder": "Type in German…",
+          "quiz_button": "Check",
+          "quiz_correct": "Correct! ✓",
+          "quiz_wrong": "Try again",
+          "frame_colour_neg": "#8B4513",
+          "frame_colour_neutral": "#808080",
+          "frame_colour_pos": "#FFD700"
+        },
+        "conceptData": [
+          [
+            "Mittellos",
+            "Destitute",
+            "Wie sagt man 'destitute' auf Deutsch?",
+            0
+          ],
+          [
+            "Sehr arm",
+            "Very poor",
+            "Wie sagt man 'very poor' auf Deutsch?",
+            5.56
+          ],
+          [
+            "Arm",
+            "Poor",
+            "Wie sagt man 'poor' auf Deutsch?",
+            11.11
+          ],
+          [
+            "Finanziell kämpfend",
+            "Struggling",
+            "Wie sagt man 'struggling financially' auf Deutsch?",
+            16.67
+          ],
+          [
+            "Über die Runden kommen",
+            "Getting by",
+            "Wie sagt man 'getting by' auf Deutsch?",
+            22.22
+          ],
+          [
+            "Ausreichend",
+            "Adequate",
+            "Wie sagt man 'adequate' auf Deutsch?",
+            27.78
+          ],
+          [
+            "Gut situiert",
+            "Well-off",
+            "Wie sagt man 'well-off' auf Deutsch?",
+            33.33
+          ],
+          [
+            "Wohlhabend",
+            "Wealthy",
+            "Wie sagt man 'wealthy' auf Deutsch?",
+            38.89
+          ],
+          [
+            "Sehr wohlhabend",
+            "Very wealthy",
+            "Wie sagt man 'very wealthy' auf Deutsch?",
+            44.44
+          ],
+          [
+            "Milliardär",
+            "Billionaire",
+            "Wie sagt man 'billionaire' auf Deutsch?",
+            50
+          ],
+          [
+            "Sehr wohlhabend",
+            "Very wealthy",
+            "Wie sagt man 'very wealthy' auf Deutsch?",
+            55.56
+          ],
+          [
+            "Wohlhabend",
+            "Wealthy",
+            "Wie sagt man 'wealthy' auf Deutsch?",
+            61.11
+          ],
+          [
+            "Gut situiert",
+            "Well-off",
+            "Wie sagt man 'well-off' auf Deutsch?",
+            66.67
+          ],
+          [
+            "Ausreichend",
+            "Adequate",
+            "Wie sagt man 'adequate' auf Deutsch?",
+            72.22
+          ],
+          [
+            "Über die Runden kommen",
+            "Getting by",
+            "Wie sagt man 'getting by' auf Deutsch?",
+            77.78
+          ],
+          [
+            "Finanziell kämpfend",
+            "Struggling",
+            "Wie sagt man 'struggling financially' auf Deutsch?",
+            83.33
+          ],
+          [
+            "Arm",
+            "Poor",
+            "Wie sagt man 'poor' auf Deutsch?",
+            88.89
+          ],
+          [
+            "Sehr arm",
+            "Very poor",
+            "Wie sagt man 'very poor' auf Deutsch?",
+            94.44
+          ],
+          [
+            "Mittellos",
+            "Destitute",
+            "Wie sagt man 'destitute' auf Deutsch?",
+            100
+          ]
+        ],
+        "transitionsData": [
+          [
+            "Reich werden",
+            "Becoming wealthy",
+            "Wie sagt man 'becoming wealthy' auf Deutsch?",
+            5
+          ],
+          [
+            "Ersparnisse aufbauen",
+            "Building savings",
+            "Wie sagt man 'building savings' auf Deutsch?",
+            15
+          ],
+          [
+            "Wohlstand steigt",
+            "Wealth growing",
+            "Wie sagt man 'wealth growing' auf Deutsch?",
+            25
+          ],
+          [
+            "Immer reicher",
+            "Getting richer",
+            "Wie sagt man 'getting richer' auf Deutsch?",
+            35
+          ],
+          [
+            "Fast Milliardär",
+            "Nearly a billionaire",
+            "Wie sagt man 'nearly a billionaire' auf Deutsch?",
+            45
+          ],
+          [
+            "Milliardär!",
+            "Billionaire!",
+            "Wie sagt man 'billionaire' auf Deutsch?",
+            50
+          ],
+          [
+            "Vermögen schrumpft",
+            "Wealth shrinking",
+            "Wie sagt man 'wealth shrinking' auf Deutsch?",
+            56
+          ],
+          [
+            "In Schulden geraten",
+            "Falling into debt",
+            "Wie sagt man 'falling into debt' auf Deutsch?",
+            67
+          ],
+          [
+            "Finanziell kämpfen",
+            "Struggling financially",
+            "Wie sagt man 'struggling financially' auf Deutsch?",
+            78
+          ],
+          [
+            "Alles verlieren",
+            "Losing everything",
+            "Wie sagt man 'losing everything' auf Deutsch?",
+            89
+          ],
+          [
+            "Mittellos",
+            "Destitute",
+            "Wie sagt man 'destitute' auf Deutsch?",
+            100
+          ]
+        ]
+      }
+    }
+  }
+}

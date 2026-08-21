@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seasons of the Year — Temperate (Southern Hemisphere) — Phonographic — Generic</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; background-color: #f9f9f9; overflow: hidden;
+        }
+        .a4-page {
+            width: 90vw; height: 70vh;
+            border: 5px solid black; background-color: white;
+            box-sizing: border-box; position: relative;
+            touch-action: none; z-index: 1; overflow: hidden;
+        }
+        .watermark {
+            position: absolute; bottom: 5px; width: 100%;
+            text-align: center; font-size: 12px;
+            color: rgba(0,0,0,0.3); font-weight: bold;
+            pointer-events: none; user-select: none; z-index: 0;
+        }
+        svg {
+            width: 100%; height: 100%; overflow: visible;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+        }
+        .circle-path { stroke: #333; stroke-width: 0.5; fill: none; }
+        .season-segment { stroke: #ddd; stroke-width: 0.3; transition: fill 0.3s ease; }
+        .segment-highlighted { stroke: #ffd700; stroke-width: 1px; filter: brightness(1.1); }
+        .segment-label {
+            font-size: 2.5px; font-weight: bold; fill: #333;
+            text-anchor: middle; dominant-baseline: central;
+            pointer-events: none; font-family: Arial, sans-serif;
+        }
+        /* Quadrant fills — Q1: Dec-Feb (top), Q2: Mar-May (right), Q3: Jun-Aug (bottom), Q4: Sep-Nov (left) */
+        .q1-segment { fill: rgba(255,215,0,0.4); }
+        .q2-segment { fill: rgba(255,140,0,0.4); }
+        .q3-segment { fill: rgba(176,224,230,0.4); }
+        .q4-segment { fill: rgba(144,238,144,0.4); }
+
+        .textBox {
+            cursor: pointer; font-size: 0.8em; fill: black;
+            opacity: 0; display: none;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transform: scale(0.5); text-anchor: middle; font-family: "Noto Sans", Arial, sans-serif;
+        }
+        .textBox.active  { opacity: 1; display: block; transform: scale(1) translateY(0); }
+        .textBox.learned { opacity: 0.5; display: block; transform: scale(1) translateY(0); fill: green; }
+        .textBox.learned.active { opacity: 1; }
+        .textBox.hidden  { opacity: 0; display: none; }
+
+        #draggableFrame {
+            cursor: grab; fill: url(#sunGradient);
+            pointer-events: all; opacity: 1; transition: opacity 0.15s ease; z-index: 1000;
+        }
+        #draggableFrame.dragging  { cursor: grabbing; opacity: 0.2; }
+
+        .title-box {
+            position: absolute; top: 10px; left: 25%; transform: translateX(-50%);
+            font-size: 1em; font-weight: bold; text-align: center;
+            cursor: pointer; border: 1px solid black; padding: 10px;
+            background-color: white; z-index: 100;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            font-family: "Noto Sans", Arial, sans-serif;
+        }
+        .title-box.hidden { opacity: 0; transform: translateX(-50%) scale(0.9); }
+
+        .vocab-filter {
+            position: absolute; top: 98%; left: 0%; transform: translateY(-100%);
+            display: flex; gap: 10px; z-index: 100;
+            background-color: rgba(255,255,255,0.98);
+            padding: 10px 15px; border: 2px solid #3366cc; border-radius: 6px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15); margin-left: 10px;
+        }
+        .vocab-filter-significant {
+            position: absolute; top: 98%; left: 75%; transform: translate(-50%, -100%);
+            display: flex; z-index: 100;
+            background-color: rgba(255,255,255,0.98);
+            padding: 10px 15px; border: 2px solid #3366cc; border-radius: 6px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+        }
+        .filter-button {
+            font-size: 0.85em; padding: 8px 16px;
+            background-color: #e8f4fd; border: 2px solid #3366cc; border-radius: 5px;
+            cursor: pointer; transition: all 0.3s ease; font-weight: 600; color: #2c5aa0;
+        }
+        .filter-button:hover {
+            background-color: #d0e8f7; transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(51,102,204,0.4);
+        }
+        .filter-button.active {
+            background-color: #3366cc; color: white; font-weight: bold;
+            box-shadow: 0 3px 8px rgba(51,102,204,0.5);
+        }
+        .display-mode-toggle {
+            position: absolute; top: 95%; right: 10px; transform: translateY(-50%);
+            font-size: 0.7em; padding: 5px 10px;
+            background-color: #e8f4fd; border: 1px solid #3366cc; border-radius: 4px;
+            cursor: pointer; z-index: 50;
+        }
+        .drag-instruction {
+            position: absolute; top: 110px; right: 10px;
+            font-size: 0.85em; padding: 6px 12px;
+            background-color: rgba(255,255,255,0.98); border: 1px solid #ccc; border-radius: 4px;
+            z-index: 50; opacity: 1; transition: opacity 3s ease; max-width: 200px;
+        }
+        .drag-instruction.fade { opacity: 0; }
+
+        .quiz-container {
+            position: fixed; top: 40%; left: 75%; transform: translate(-50%,-50%);
+            background-color: white; border: 3px solid #3366cc; border-radius: 4px;
+            padding: 12px; z-index: 9999; display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); max-width: 360px; width: 360px;
+            pointer-events: auto; visibility: visible; opacity: 1;
+            cursor: grab;
+        }
+        .quiz-container.dragging { cursor: grabbing; }
+        .quiz-container input {
+            width: 100%; padding: 8px; font-size: 14px;
+            border: 1px solid #ccc; border-radius: 4px;
+            margin-bottom: 10px; font-family: "Noto Sans", Arial, sans-serif;
+        }
+        .quiz-container button {
+            width: 100%; padding: 8px; background-color: #3366cc;
+            color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;
+        }
+        .quiz-container button:hover { background-color: #254e9c; }
+        #quizFeedback { text-align: center; font-weight: bold; margin-top: 8px; min-height: 20px; }
+
+        .left-vocabulary, .right-vocabulary {
+            position: absolute; top: 0%; width: 15.4%; max-height: 95vh;
+            overflow-y: auto; background-color: rgba(255,255,255,0.95);
+            border: 1px solid #ccc; border-radius: 4px; padding: 5px; z-index: 40; display: block;
+        }
+        .left-vocabulary  { left: 5px; }
+        .right-vocabulary { right: 5%; }
+
+        .array-title {
+            font-size: 0.9em; text-align: center; font-weight: bold;
+            margin-bottom: 5px; padding: 3px; background-color: #f0f0f0; border-bottom: 1px solid #ccc;
+        }
+        .vocab-section { margin-bottom: 10px; border-bottom: 2px solid #ddd; padding-bottom: 5px; }
+        .vocab-section:last-child { border-bottom: none; }
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            background-color: #e8f4fd; padding: 5px; margin-bottom: 5px;
+            border-radius: 3px; cursor: pointer; user-select: none;
+        }
+        .section-header:hover { background-color: #d0e8f7; }
+        .section-title { font-size: 0.85em; font-weight: bold; color: #2c5aa0; }
+        .section-toggle { font-size: 0.7em; color: #666; }
+        .section-content {
+            display: block; max-height: 1000px; overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease; opacity: 1;
+        }
+        .section-content.collapsed { max-height: 0; opacity: 0; }
+
+        .vocabulary-item {
+            display: flex; flex-direction: column; font-size: 0.75em;
+            margin: 3px 0; padding: 5px; border: 1px solid #ddd;
+            border-radius: 3px; background-color: #f9f9f9; transition: background-color 0.3s ease;
+        }
+        .vocabulary-item:hover { background-color: #eaf2ff; }
+        .vocabulary-item .tl-word {
+            font-weight: bold; color: green; cursor: pointer;
+            padding: 2px 5px; border-radius: 3px; font-family: "Noto Sans", Arial, sans-serif;
+        }
+        .vocabulary-item .sl-word { color: #555; cursor: pointer; padding: 2px 5px; border-radius: 3px; }
+        .vocabulary-item .tl-word.hidden,
+        .vocabulary-item .sl-word.hidden {
+            color: transparent; user-select: none; background-color: #f0f0f0;
+        }
+        .toggle-visibility {
+            position: absolute; top: 5px; right: 5px; font-size: 0.7em;
+            padding: 2px 5px; background-color: #eee; border: 1px solid #ccc;
+            border-radius: 3px; cursor: pointer; z-index: 5;
+        }
+        .seasonal-icon { opacity: 0.15; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div class="a4-page">
+        <div id="title-box" class="title-box">TITLE_PLACEHOLDER</div>
+
+        <div class="vocab-filter">
+            <button class="filter-button active" id="filter-all">FILTER_ALL_LABEL</button>
+            <button class="filter-button" id="filter-seasons">FILTER_SEASONS_LABEL</button>
+        </div>
+
+        <div class="vocab-filter-significant">
+            <button class="filter-button" id="filter-significant">FILTER_SIGNIFICANT_LABEL</button>
+        </div>
+
+        <div id="display-mode-toggle" class="display-mode-toggle">SHOW_TL_LABEL</div>
+        <div id="drag-instruction" class="drag-instruction">DRAG_INSTRUCTION_PLACEHOLDER</div>
+
+        <div id="left-vocabulary" class="left-vocabulary">
+            <div class="array-title">ARRAY_TITLE_PLACEHOLDER</div>
+            <button class="toggle-visibility" id="toggle-left">HIDE_ALL_LABEL</button>
+            <div class="vocab-section" id="seasons-section">
+                <div class="section-header" data-section="seasons">
+                    <span class="section-title" id="seasons-section-title">SEASONS_SECTION_TITLE</span>
+                    <span class="section-toggle">▼</span>
+                </div>
+                <div class="section-content" id="seasons-items"></div>
+            </div>
+        </div>
+
+        <div id="right-vocabulary" class="right-vocabulary">
+            <div class="array-title">ARRAY_TITLE_PLACEHOLDER</div>
+            <button class="toggle-visibility" id="toggle-right">HIDE_ALL_LABEL</button>
+            <div class="vocab-section" id="significant-section">
+                <div class="section-header" data-section="significant">
+                    <span class="section-title" id="significant-section-title">SIGNIFICANT_SECTION_TITLE</span>
+                    <span class="section-toggle">▼</span>
+                </div>
+                <div class="section-content" id="significant-items"></div>
+            </div>
+        </div>
+
+        <svg id="svgCanvas" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+            <defs>
+                <radialGradient id="sunGradient" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%"   style="stop-color:#fdf3d3;stop-opacity:1"/>
+                    <stop offset="45%"  style="stop-color:#f9c96b;stop-opacity:1"/>
+                    <stop offset="75%"  style="stop-color:#f2953a;stop-opacity:1"/>
+                    <stop offset="100%" style="stop-color:#e0611a;stop-opacity:1"/>
+                </radialGradient>
+            </defs>
+
+            <circle id="circlePath" cx="50" cy="50" r="30" class="circle-path"/>
+
+            <!-- Four quadrants — Southern Hemisphere month alignment -->
+            <path id="q1-segment" class="season-segment q1-segment"/>  <!-- Dec-Feb: Summer -->
+            <path id="q2-segment" class="season-segment q2-segment"/>  <!-- Mar-May: Autumn -->
+            <path id="q3-segment" class="season-segment q3-segment"/>  <!-- Jun-Aug: Winter -->
+            <path id="q4-segment" class="season-segment q4-segment"/>  <!-- Sep-Nov: Spring -->
+
+            <g id="seasonal-decorations" class="seasonal-icon">
+                <circle id="q1-sun" cx="50" cy="50" r="3" fill="#FFD700" opacity="0"/>
+                <path id="q1-rays" d="M 50 44 L 50 42 M 50 56 L 50 58 M 44 50 L 42 50 M 56 50 L 58 50 M 45 45 L 43.5 43.5 M 55 55 L 56.5 56.5 M 55 45 L 56.5 43.5 M 45 55 L 43.5 56.5" stroke="#FFD700" stroke-width="0.5" opacity="0"/>
+                <path id="q2-leaf" d="M 50 48 Q 48 50 50 52 Q 52 50 50 48" fill="#FF8C00" opacity="0"/>
+                <path id="q3-snowflake" d="M 50 45 L 50 55 M 45 50 L 55 50 M 47 47 L 53 53 M 47 53 L 53 47" stroke="#87CEEB" stroke-width="0.5" fill="none" opacity="0"/>
+                <path id="q4-koru" d="M 50 48 Q 52 48 52 50 Q 52 52 50 52 Q 48 52 48 50" stroke="#90EE90" stroke-width="0.5" fill="none" opacity="0"/>
+            </g>
+
+            <!-- Quadrant month-range labels — fixed, defines Southern Hemisphere alignment -->
+            <text class="segment-label" x="50" y="20">DEC-FEB</text>
+            <text class="segment-label" x="72" y="50">MAR-MAY</text>
+            <text class="segment-label" x="50" y="80">JUN-AUG</text>
+            <text class="segment-label" x="28" y="50">SEP-NOV</text>
+
+            <circle id="draggableFrame" cx="50" cy="20" r="4"/>
+        </svg>
+
+        <div class="watermark">&copy; 2026 Alan William Preston</div>
+    </div>
+
+    <div id="quizContainer" class="quiz-container">
+        <input type="text" id="quizInput" placeholder="QUIZ_PLACEHOLDER">
+        <button id="quizCheck">QUIZ_BUTTON_LABEL</button>
+        <div id="quizFeedback"></div>
+    </div>
+
+    <script>
+
+    // =====================================================================
+    // LANGUAGE CONFIGURATION BLOCK
+    // To create a new language pair, replace ALL values in this section.
+    // SL = Source Language  |  TL = Target Language (language being learned)
+    //
+    // STRUCTURE: This template uses 4 fixed quadrants aligned to the
+    // SOUTHERN HEMISPHERE calendar: Q1 = Dec-Feb (Summer), Q2 = Mar-May
+    // (Autumn), Q3 = Jun-Aug (Winter), Q4 = Sep-Nov (Spring). These
+    // month-range labels are fixed in the SVG and are NOT part of this
+    // config block, since they define what makes this the "Southern
+    // Hemisphere" variant. A Northern Hemisphere variant would use the
+    // same engine with DEC-FEB→Winter etc. and a separate file.
+    //
+    // Do NOT change anything outside this block.
+    // =====================================================================
+    const LANG = {
+
+        // --- Title cycle (click title box to cycle) ----------------------
+        titles: [
+            "SL_TITLE",          // e.g. "Seasons of the Year"
+            "TL_TITLE",          // e.g. "Ngā Raumati"
+            "SL_TITLE / TL_TITLE"
+        ],
+
+        // --- UI strings --------------------------------------------------
+        show_tl_label:    "SHOW_TL_LABEL",     // e.g. "Show: Target Language"
+        show_sl_label:    "SHOW_SL_LABEL",     // e.g. "Show: Source Language"
+        drag_instruction: "DRAG_INSTRUCTION",  // e.g. "Drag the sun around to explore the seasons!"
+        array_title:      "ARRAY_TITLE",       // e.g. "Learned Vocabulary"
+        hide_all_label:   "HIDE_ALL_LABEL",    // e.g. "Hide All"
+        show_all_label:   "SHOW_ALL_LABEL",    // e.g. "Show All"
+        quiz_placeholder: "QUIZ_PLACEHOLDER",  // e.g. "Enter the [TL] word"
+        quiz_button:      "QUIZ_BUTTON_LABEL", // e.g. "Check"
+        quiz_correct:     "QUIZ_CORRECT",      // e.g. "Correct!"
+        quiz_wrong:       "QUIZ_WRONG",        // e.g. "Try again"
+
+        // --- Filter buttons ------------------------------------------------
+        filter_all_label:         "FILTER_ALL_LABEL",          // e.g. "All"
+        filter_seasons_label:      "FILTER_SEASONS_LABEL",       // e.g. "4 Seasons"
+        filter_significant_label:  "FILTER_SIGNIFICANT_LABEL",   // e.g. "Significant Times"
+
+        // --- Side panel section titles --------------------------------------
+        seasons_section_title:     "SEASONS_SECTION_TITLE",      // e.g. "Ngā Raumati (Seasons)"
+        significant_section_title: "SIGNIFICANT_SECTION_TITLE",  // e.g. "Ngā Wā Nui (Significant Times)"
+
+        // --- Answer checking -------------------------------------------------
+        // diacritic_map: pairs of [accented character, plain equivalent]
+        // used to normalise quiz answers (e.g. ā → a). Leave empty [] if
+        // the TL uses no diacritics, or add entries for the TL's script.
+        diacritic_map: [
+            // ["ā","a"], ["ē","e"], ["ī","i"], ["ō","o"], ["ū","u"]
+        ],
+        // collapse_double_vowels: if true, "aa" -> "a" etc. (useful for
+        // languages where doubled vowels are an alternative macron notation,
+        // e.g. Te Reo Māori "aa" = "ā"). Set false if not applicable.
+        collapse_double_vowels: false,
+
+        // --- Vocabulary data (any number of items) ---------------------------
+        // Format: [ SL phrase, TL phrase, Quiz question, Angle (0-360°), Category ]
+        // Category: "season" (one of the 4 main quadrant seasons — shown in
+        //           the left panel) or "event"/"cultural" (significant
+        //           dates/times — shown in the right panel).
+        // Angle 0° = top of circle (start of Q1/Dec); increases clockwise.
+        //   Q1 (Dec-Feb):  330°-360°, 0°-60°
+        //   Q2 (Mar-May):  60°-150°
+        //   Q3 (Jun-Aug):  150°-240°
+        //   Q4 (Sep-Nov):  240°-330°
+        seasonsData: [
+            // --- The 4 main seasons (one per quadrant; category 'season') ---
+            // Southern Hemisphere: seasons offset ~6 months from the
+            // Northern Hemisphere equivalent.
+            ["Summer", "TL-Season1", "QUIZ-Season1", 0,   "season"],   // Q1
+            ["Autumn/Fall", "TL-Season2", "QUIZ-Season2", 90,  "season"],   // Q2
+            ["Winter", "TL-Season3", "QUIZ-Season3", 180, "season"],   // Q3
+            ["Spring", "TL-Season4", "QUIZ-Season4", 270, "season"],   // Q4
+
+            // --- Solstices / equinoxes (category 'event') -------------------
+            // Renumbered to match clockwise angular order. Angle values
+            // identical to TEMP-N — same calendar dates, Southern
+            // Hemisphere names.
+            ["Autumnal Equinox", "TL-Event1", "QUIZ-Event1", 80,  "event"],  // just before Autumn
+            ["Winter Solstice", "TL-Event2", "QUIZ-Event2", 175, "event"],   // just before Winter
+            ["Spring Equinox", "TL-Event3", "QUIZ-Event3", 265, "event"],    // just before Spring
+            ["Summer Solstice", "TL-Event4", "QUIZ-Event4", 355, "event"],   // just before Summer
+
+            // --- Cultural / seasonal activities (category 'cultural') -------
+            // Renumbered to match clockwise angular order. Left as generic
+            // placeholders — differ by target language/culture.
+            ["SL-Cultural1", "TL-Cultural1", "QUIZ-Cultural1", 45,  "cultural"],  // was Cultural4
+            ["SL-Cultural2", "TL-Cultural2", "QUIZ-Cultural2", 120, "cultural"],  // unchanged
+            ["SL-Cultural3", "TL-Cultural3", "QUIZ-Cultural3", 135, "cultural"],  // was Cultural5
+            ["SL-Cultural4", "TL-Cultural4", "QUIZ-Cultural4", 190, "cultural"],  // was Cultural1
+            ["SL-Cultural5", "TL-Cultural5", "QUIZ-Cultural5", 280, "cultural"]   // was Cultural3
+            // Add or remove cultural/event entries freely.
+        ]
+    };
+    // =====================================================================
+    // END OF LANGUAGE CONFIGURATION BLOCK
+    // No language-specific content appears below this line.
+    // =====================================================================
+
+
+    // --- Generic answer normalisation --------------------------------------
+    const AnswerUtils = {
+        normalize: function(text) {
+            let t = text.toLowerCase();
+            LANG.diacritic_map.forEach(([accented, plain]) => {
+                t = t.split(accented).join(plain);
+            });
+            if (LANG.collapse_double_vowels) {
+                t = t.replace(/aa/g,'a').replace(/ee/g,'e').replace(/ii/g,'i')
+                     .replace(/oo/g,'o').replace(/uu/g,'u');
+            }
+            return t.replace(/[\s\-]/g,'').trim();
+        },
+        stripHTML: function(html) {
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+            return temp.textContent || temp.innerText || '';
+        },
+        checkAnswer: function(userInput, correctTL) {
+            const cleanCorrect = this.stripHTML(correctTL);
+            return this.normalize(userInput) === this.normalize(cleanCorrect);
+        }
+    };
+
+    // --- Apply UI strings from config ------------------------------------
+    document.getElementById('title-box').textContent             = LANG.titles[0];
+    document.getElementById('display-mode-toggle').textContent   = LANG.show_tl_label;
+    document.getElementById('drag-instruction').textContent      = LANG.drag_instruction;
+    document.getElementById('toggle-left').textContent           = LANG.hide_all_label;
+    document.getElementById('toggle-right').textContent          = LANG.hide_all_label;
+    document.getElementById('quizInput').placeholder             = LANG.quiz_placeholder;
+    document.getElementById('quizCheck').textContent             = LANG.quiz_button;
+    document.getElementById('filter-all').textContent            = LANG.filter_all_label;
+    document.getElementById('filter-seasons').textContent        = LANG.filter_seasons_label;
+    document.getElementById('filter-significant').textContent    = LANG.filter_significant_label;
+    document.getElementById('seasons-section-title').textContent     = LANG.seasons_section_title;
+    document.getElementById('significant-section-title').textContent = LANG.significant_section_title;
+    document.querySelectorAll('.array-title').forEach(el => el.textContent = LANG.array_title);
+
+    // --- Runtime state -----------------------------------------------------
+    const seasonsData = LANG.seasonsData;
+    let currentQuizIndex = -1;
+    let learnedItems     = new Array(seasonsData.length).fill(false);
+
+    // Per-item position overrides, applied after the general angle-based
+    // formula wherever a textbox's x/y is computed. Keyed by index into
+    // seasonsData. Same geometry as LOG-CR-SEA-TEMP-S-Generic.html — the
+    // angles are identical, so the same crowding issues and the same
+    // overrides apply here.
+    const positionOverrides = {
+        2: { y: 90 },    // angle=180 ("Season3") — lowered to y=90
+        4: { x: 90.3, y: 33 }, // angle=80 (now "Event1") — moved down
+                         // and left after overlapping neighbors even
+                         // with the larger event radius
+        6: { y: 70 },    // angle=265 ("Event3") — raised to y=70
+        11: { y: 80 }    // angle=190 (now "Cultural4") — raised to y=80
+    };
+
+    // Font size by category, relative to Season's own size (kept as the
+    // 100% baseline, unchanged): Event at 75%, Cultural at 50%. Applied
+    // consistently to both the "normal" (TL) and "small" (SL-toggled)
+    // display sizes.
+    function fontSizeForCategory(category, isSmall) {
+        const seasonBase = isSmall ? 5 : 7;
+        let size = seasonBase;
+        if (category === 'event') size = seasonBase * 0.75;
+        else if (category === 'cultural') size = seasonBase * 0.5;
+        return size + 'px';
+    }
+    let textBoxElements  = [];
+    let displayMode      = 0; // 0: TL, 1: SL
+    let currentSeason    = 0;
+    let isDragging       = false;
+    let currentFilter    = 'all';
+    let currentTextIndex = 0;
+
+    function cycleDisplayMode() {
+        displayMode = (displayMode + 1) % 2;
+        document.getElementById('display-mode-toggle').textContent =
+            displayMode === 0 ? LANG.show_tl_label : LANG.show_sl_label;
+        updateAllTextBoxes();
+    }
+
+    function updateAllTextBoxes() {
+        textBoxElements.forEach((tb, i) => {
+            if (!tb) return;
+            const div = tb.querySelector('div');
+            if (div) div.innerHTML = displayMode === 0 ? seasonsData[i][1] : seasonsData[i][0];
+        });
+    }
+
+    function toggleArrayVisibility(side) {
+        const container = document.getElementById(side === 'left' ? 'seasons-items' : 'significant-items');
+        const button     = document.getElementById(side === 'left' ? 'toggle-left' : 'toggle-right');
+        if (!container || !button) return;
+        const spans = container.querySelectorAll('.vocabulary-item .tl-word, .vocabulary-item .sl-word');
+        let visibleCount = 0;
+        spans.forEach(s => { if (!s.classList.contains('hidden')) visibleCount++; });
+        const mostlyVisible = visibleCount > spans.length / 2;
+        spans.forEach(s => s.classList.toggle('hidden', mostlyVisible));
+        button.textContent = mostlyVisible ? LANG.show_all_label : LANG.hide_all_label;
+    }
+
+    function filterVocabulary(type) {
+        const leftVocab  = document.getElementById('left-vocabulary');
+        const rightVocab = document.getElementById('right-vocabulary');
+        currentFilter = type;
+
+        document.querySelectorAll('.filter-button').forEach(b => b.classList.remove('active'));
+
+        if (type === 'all') {
+            leftVocab.style.display = 'block'; rightVocab.style.display = 'block';
+            document.getElementById('filter-all').classList.add('active');
+        } else if (type === 'seasons') {
+            leftVocab.style.display = 'block'; rightVocab.style.display = 'none';
+            document.getElementById('filter-seasons').classList.add('active');
+        } else if (type === 'significant') {
+            leftVocab.style.display = 'none'; rightVocab.style.display = 'block';
+            document.getElementById('filter-significant').classList.add('active');
+        }
+
+        textBoxElements.forEach((tb, i) => {
+            if (!tb) return;
+            const category = seasonsData[i][4];
+            const isLearned = learnedItems[i];
+            const isActive  = i === currentSeason;
+
+            let shouldShow = (type === 'all') ||
+                (type === 'seasons' && category === 'season') ||
+                (type === 'significant' && (category === 'event' || category === 'cultural'));
+
+            if (shouldShow) {
+                if (isActive) {
+                    tb.classList.add('active'); tb.classList.remove('hidden');
+                    tb.style.opacity = '1'; tb.style.display = 'block';
+                } else if (isLearned) {
+                    tb.classList.remove('active'); tb.classList.remove('hidden');
+                    tb.style.opacity = '0.5'; tb.style.display = 'block';
+                } else {
+                    tb.classList.remove('active'); tb.classList.add('hidden');
+                    tb.style.opacity = '0'; tb.style.display = 'none';
+                }
+            } else {
+                tb.classList.remove('active'); tb.classList.add('hidden');
+                tb.style.opacity = '0'; tb.style.display = 'none';
+            }
+        });
+
+        updateVisibleTextBoxesWithFilter(type);
+    }
+
+    function updateVisibleTextBoxesWithFilter(filterType) {
+        let closestVisibleIndex = -1, minDistance = Infinity;
+        textBoxElements.forEach((tb, i) => {
+            if (!tb) return;
+            const category = seasonsData[i][4];
+            const isVisible = (filterType === 'all') ||
+                (filterType === 'seasons' && category === 'season') ||
+                (filterType === 'significant' && (category === 'event' || category === 'cultural'));
+            if (isVisible) {
+                const distance = Math.abs(seasonsData[i][3] - seasonsData[currentSeason][3]);
+                if (distance < minDistance) { minDistance = distance; closestVisibleIndex = i; }
+            }
+        });
+        if (closestVisibleIndex !== -1) {
+            currentSeason = closestVisibleIndex;
+            positionFrameOnSeason(closestVisibleIndex);
+        }
+    }
+
+    function toggleSection(sectionName) {
+        const contentParent = document.getElementById(`${sectionName}-items`);
+        if (!contentParent) return;
+        const content = contentParent.parentElement;
+        if (!content) return;
+        const header = content.previousElementSibling;
+        if (!header) return;
+        const toggle = header.querySelector('.section-toggle');
+        if (!toggle) return;
+        if (content.classList.contains('collapsed')) {
+            content.classList.remove('collapsed'); toggle.textContent = '▼';
+        } else {
+            content.classList.add('collapsed'); toggle.textContent = '▶';
+        }
+    }
+
+    function addToVocabularyArray(index) {
+        const sl = seasonsData[index][0];
+        const tl = seasonsData[index][1];
+        const category = seasonsData[index][4];
+        const target = document.getElementById(category === 'season' ? 'seasons-items' : 'significant-items');
+        if (!target) return;
+
+        const item = document.createElement('div');
+        item.className = 'vocabulary-item';
+        const tlSpan = document.createElement('span');
+        tlSpan.className = 'tl-word';
+        tlSpan.innerHTML = tl;
+        const slSpan = document.createElement('span');
+        slSpan.className = 'sl-word';
+        slSpan.textContent = sl;
+        [tlSpan, slSpan].forEach(s => {
+            s.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('hidden');
+            });
+        });
+        item.appendChild(tlSpan);
+        item.appendChild(slSpan);
+        target.appendChild(item);
+    }
+
+    // --- Quadrant geometry ---------------------------------------------------
+    function createSegments() {
+        const c = { x: 50, y: 50 }, r = 30;
+        const quadrants = [
+            { id: 'q1', start: 330, span: 90 },
+            { id: 'q2', start: 60,  span: 90 },
+            { id: 'q3', start: 150, span: 90 },
+            { id: 'q4', start: 240, span: 90 }
+        ];
+        quadrants.forEach(q => {
+            const a1 = (q.start - 90) * Math.PI / 180;
+            const a2 = (q.start + q.span - 90) * Math.PI / 180;
+            const x1 = c.x + r * Math.cos(a1), y1 = c.y + r * Math.sin(a1);
+            const x2 = c.x + r * Math.cos(a2), y2 = c.y + r * Math.sin(a2);
+            const large = q.span > 180 ? 1 : 0;
+            const path = `M ${c.x} ${c.y} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`;
+            const seg = document.getElementById(`${q.id}-segment`);
+            if (seg) seg.setAttribute('d', path);
+        });
+    }
+
+    function updateSegmentHighlight(angle) {
+        const norm = ((angle % 360) + 360) % 360;
+        let active = '';
+        if      (norm >= 330 || norm < 60) active = 'q1';
+        else if (norm >= 60  && norm < 150) active = 'q2';
+        else if (norm >= 150 && norm < 240) active = 'q3';
+        else if (norm >= 240 && norm < 330) active = 'q4';
+
+        ['q1','q2','q3','q4'].forEach(q => {
+            const seg = document.getElementById(`${q}-segment`);
+            if (seg) seg.classList.toggle('segment-highlighted', q === active);
+        });
+        updateSeasonalDecoration(active);
+    }
+
+    function updateSeasonalDecoration(quadrant) {
+        const all = ['q1-sun','q1-rays','q2-leaf','q3-snowflake','q4-koru'];
+        all.forEach(id => { const el = document.getElementById(id); if (el) el.setAttribute('opacity','0'); });
+        if (quadrant === 'q1') {
+            document.getElementById('q1-sun').setAttribute('opacity','1');
+            document.getElementById('q1-rays').setAttribute('opacity','1');
+        } else if (quadrant === 'q2') {
+            document.getElementById('q2-leaf').setAttribute('opacity','1');
+        } else if (quadrant === 'q3') {
+            document.getElementById('q3-snowflake').setAttribute('opacity','1');
+        } else if (quadrant === 'q4') {
+            document.getElementById('q4-koru').setAttribute('opacity','1');
+        }
+    }
+
+    // --- Text boxes -------------------------------------------------------
+    function createTextBoxes() {
+        const svg = document.getElementById('svgCanvas');
+        document.querySelectorAll('.textBox').forEach(b => b.parentNode && b.parentNode.removeChild(b));
+        textBoxElements = [];
+
+        const c = { x: 50, y: 50 }, activeRadius = 36, eventRadius = 46;
+
+        seasonsData.forEach((item, index) => {
+            const angle = (item[3] - 90) * Math.PI / 180;
+            const r = item[4] === 'event' ? eventRadius : activeRadius;
+            let x = c.x + r * Math.cos(angle);
+            let y = c.y + r * Math.sin(angle);
+            if (positionOverrides[index]) {
+                if (positionOverrides[index].x !== undefined) x = positionOverrides[index].x;
+                if (positionOverrides[index].y !== undefined) y = positionOverrides[index].y;
+            }
+
+            const fo = document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+            fo.setAttribute('x', x - 25);
+            fo.setAttribute('y', y - 10);
+            fo.setAttribute('width',  '50');
+            fo.setAttribute('height', '20');
+            fo.setAttribute('class', 'textBox');
+            fo.setAttribute('data-index', index);
+
+            const div = document.createElement('div');
+            // Vertical centering: previously only text-align:center
+            // (horizontal) was set. A plain div flows from the TOP of
+            // its container, so text rendered near the box's top edge
+            // rather than its true center — the same root-cause bug
+            // found and fixed on LOG-CR-TDL via a debug-marker test.
+            // Fixed the same way here with flexbox, filling the full
+            // box. Fixed 2026-07-21 as part of the systematic re-fix
+            // across the Circular family.
+            div.style.display        = 'flex';
+            div.style.alignItems     = 'center';
+            div.style.justifyContent = 'center';
+            div.style.width          = '100%';
+            div.style.height         = '100%';
+            div.style.boxSizing      = 'border-box';
+            div.style.textAlign  = 'center';
+            div.style.fontSize   = fontSizeForCategory(item[4], false);
+            div.style.fontFamily = 'Noto Sans, Arial, sans-serif';
+            div.style.color      = 'black';
+            div.style.cursor     = 'pointer';
+            div.style.lineHeight = '1.1';
+            div.style.fontWeight = 'bold';
+            div.style.textShadow = '1px 1px 2px rgba(255,255,255,0.8)';
+            div.innerHTML = item[1]; // start with TL
+            fo.appendChild(div);
+
+            if (learnedItems[index]) fo.classList.add('learned');
+
+            fo.addEventListener('click', function() {
+                const idx = parseInt(this.getAttribute('data-index'));
+                const div = this.querySelector('div');
+                const data = seasonsData;
+                const qc = document.getElementById('quizContainer');
+                if (qc.style.display !== 'none' && currentQuizIndex === idx) return;
+
+                const tlText = data[idx][1], slText = data[idx][0];
+                const smallSize = fontSizeForCategory(data[idx][4], true);
+                const normalSize = fontSizeForCategory(data[idx][4], false);
+
+                if (learnedItems[idx]) {
+                    if (div.innerHTML === tlText) { div.innerHTML = slText; div.style.fontSize = smallSize; }
+                    else                          { div.innerHTML = tlText; div.style.fontSize = normalSize; }
+                } else {
+                    const current = div.innerHTML;
+                    if (current === tlText)      { div.innerHTML = slText; div.style.fontSize = smallSize; }
+                    else if (current === slText) { showQuiz(idx); }
+                    else                          { div.innerHTML = tlText; div.style.fontSize = normalSize; }
+                }
+            });
+
+            const draggableFrame = document.getElementById('draggableFrame');
+            if (draggableFrame && draggableFrame.parentNode) {
+                draggableFrame.parentNode.insertBefore(fo, draggableFrame);
+            } else {
+                svg.appendChild(fo);
+            }
+            textBoxElements.push(fo);
+        });
+
+        const frame = document.getElementById('draggableFrame');
+        if (frame && frame.parentNode) frame.parentNode.appendChild(frame);
+    }
+
+    function findClosestSeason(angle) {
+        const norm = ((angle % 360) + 360) % 360;
+        let closest = 0, minDiff = 360;
+        seasonsData.forEach((item, i) => {
+            let diff = Math.abs(norm - item[3]);
+            if (diff > 180) diff = 360 - diff;
+            if (diff < minDiff) { minDiff = diff; closest = i; }
+        });
+        return closest;
+    }
+
+    function updateVisibleTextBoxes(seasonIndex) {
+        textBoxElements.forEach((tb, i) => {
+            if (!tb) return;
+            const category = seasonsData[i][4];
+            const shouldShowInFilter = (currentFilter === 'all') ||
+                (currentFilter === 'seasons' && category === 'season') ||
+                (currentFilter === 'significant' && (category === 'event' || category === 'cultural'));
+
+            if (!shouldShowInFilter) {
+                tb.classList.remove('active'); tb.classList.add('hidden');
+                tb.style.opacity = '0'; tb.style.display = 'none';
+            } else if (i === seasonIndex) {
+                tb.classList.add('active'); tb.classList.remove('hidden');
+                tb.style.opacity = '1'; tb.style.display = 'block';
+            } else if (learnedItems[i]) {
+                tb.classList.remove('active'); tb.classList.remove('hidden');
+                tb.style.opacity = '0.5'; tb.style.display = 'block';
+            } else {
+                tb.classList.remove('active'); tb.classList.add('hidden');
+                tb.style.opacity = '0'; tb.style.display = 'none';
+            }
+        });
+    }
+
+    function positionFrameOnSeason(seasonIndex) {
+        const c = { x: 50, y: 50 }, r = 30;
+        const angle = (seasonsData[seasonIndex][3] - 90) * Math.PI / 180;
+        const frame = document.getElementById('draggableFrame');
+        frame.setAttribute('cx', c.x + r * Math.cos(angle));
+        frame.setAttribute('cy', c.y + r * Math.sin(angle));
+        currentSeason = seasonIndex;
+        updateVisibleTextBoxes(seasonIndex);
+        updateSegmentHighlight(seasonsData[seasonIndex][3]);
+    }
+
+    // --- Quiz ---------------------------------------------------------------
+    function showQuiz(index) {
+        currentQuizIndex = index;
+        const qc = document.getElementById('quizContainer');
+        document.getElementById('quizInput').placeholder = seasonsData[index][2];
+        document.getElementById('quizInput').value = '';
+        document.getElementById('quizFeedback').textContent = '';
+        qc.style.display = 'block';
+        setTimeout(() => { try { document.getElementById('quizInput').focus(); } catch(e){} }, 100);
+    }
+
+    let closedIdx = -1;
+    function checkQuizAnswer() {
+        if (currentQuizIndex < 0) return;
+        const input   = document.getElementById('quizInput').value.trim();
+        const correct = seasonsData[currentQuizIndex][1];
+        const fb      = document.getElementById('quizFeedback');
+
+        if (AnswerUtils.checkAnswer(input, correct)) {
+            fb.textContent = LANG.quiz_correct;
+            fb.style.color = 'green';
+            learnedItems[currentQuizIndex] = true;
+
+            const tb = textBoxElements[currentQuizIndex];
+            if (tb) {
+                tb.classList.add('learned');
+                const div = tb.querySelector('div');
+                if (div) {
+                    div.innerHTML = correct;
+                    div.style.fontSize = fontSizeForCategory(seasonsData[currentQuizIndex][4], false);
+                }
+                const c = { x: 50, y: 50 };
+                const angle = (seasonsData[currentQuizIndex][3] - 90) * Math.PI / 180;
+                const learnedRadius = seasonsData[currentQuizIndex][4] === 'event' ? 46 : 36;
+                let learnedX = c.x + learnedRadius * Math.cos(angle) - 25;
+                let learnedY = c.y + learnedRadius * Math.sin(angle) - 10;
+                if (positionOverrides[currentQuizIndex]) {
+                    if (positionOverrides[currentQuizIndex].x !== undefined) {
+                        learnedX = positionOverrides[currentQuizIndex].x - 25;
+                    }
+                    if (positionOverrides[currentQuizIndex].y !== undefined) {
+                        learnedY = positionOverrides[currentQuizIndex].y - 10;
+                    }
+                }
+                tb.setAttribute('x', learnedX);
+                tb.setAttribute('y', learnedY);
+            }
+            addToVocabularyArray(currentQuizIndex);
+            closedIdx = currentQuizIndex;
+            setTimeout(() => {
+                if (currentQuizIndex === closedIdx) {
+                    document.getElementById('quizContainer').style.display = 'none';
+                    currentQuizIndex = -1;
+                }
+            }, 1500);
+        } else {
+            fb.textContent = LANG.quiz_wrong;
+            fb.style.color = 'red';
+        }
+    }
+
+    // --- Init -----------------------------------------------------------
+    function initializeApp() {
+        const svg       = document.getElementById('svgCanvas');
+        const frame     = document.getElementById('draggableFrame');
+        const titleBox  = document.getElementById('title-box');
+        const qc        = document.getElementById('quizContainer');
+        const quizInput = document.getElementById('quizInput');
+
+        if (!svg || !frame || !titleBox) return;
+
+        createSegments();
+        createTextBoxes();
+
+        document.querySelectorAll('.section-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const name = this.getAttribute('data-section');
+                if (name) toggleSection(name);
+            });
+        });
+
+        positionFrameOnSeason(0);
+
+        frame.style.pointerEvents = 'all';
+        frame.style.cursor = 'grab';
+
+        frame.addEventListener('mousedown',  e => { isDragging = true; frame.classList.add('dragging'); e.preventDefault(); e.stopPropagation(); });
+        frame.addEventListener('touchstart', e => { isDragging = true; frame.classList.add('dragging'); e.preventDefault(); e.stopPropagation(); }, { passive: false });
+
+        function onMove(e) {
+            if (!isDragging) return;
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            try {
+                const rect = svg.getBoundingClientRect();
+
+                // The SVG's viewBox is a square with preserveAspectRatio=
+                // "xMidYMid meet", but the .a4-page container is NOT
+                // square (90vw × 70vh) — letterboxed rather than
+                // stretched. Dividing directly by rect.width/height
+                // (which includes that padding) miscalculates the angle
+                // whenever the cursor drifts into the padding while
+                // dragging.
+                const renderedSize = Math.min(rect.width, rect.height);
+                const offsetX = rect.left + (rect.width  - renderedSize) / 2;
+                const offsetY = rect.top  + (rect.height - renderedSize) / 2;
+
+                const svgX = ((clientX - offsetX) / renderedSize) * 100;
+                const svgY = ((clientY - offsetY) / renderedSize) * 100;
+                const angle = Math.atan2(svgY - 50, svgX - 50);
+                const r = 30;
+                frame.setAttribute('cx', 50 + r * Math.cos(angle));
+                frame.setAttribute('cy', 50 + r * Math.sin(angle));
+                const deg = (angle * 180 / Math.PI + 90 + 360) % 360;
+                const idx = findClosestSeason(deg);
+                currentSeason = idx;
+                updateVisibleTextBoxes(idx);
+                updateSegmentHighlight(deg);
+            } catch (err) { console.error('drag error:', err); }
+            e.preventDefault(); e.stopPropagation();
+        }
+
+        function onEnd(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            frame.classList.remove('dragging');
+            frame.style.cursor = 'grab';
+            // Snap-to-nearest-marker on release removed per Alan's
+            // standing preference across Circular templates.
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+        }
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('mouseup',   onEnd);
+        document.addEventListener('touchend',  onEnd);
+        document.addEventListener('mouseleave',onEnd);
+
+        titleBox.addEventListener('click', function() {
+            this.classList.add('hidden');
+            setTimeout(() => {
+                currentTextIndex = (currentTextIndex + 1) % LANG.titles.length;
+                this.innerHTML = LANG.titles[currentTextIndex];
+                this.classList.remove('hidden');
+            }, 500);
+        });
+
+        document.getElementById('display-mode-toggle').addEventListener('click', cycleDisplayMode);
+        document.getElementById('quizCheck').addEventListener('click', checkQuizAnswer);
+        quizInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkQuizAnswer(); });
+
+        // --- Quiz container drag-and-drop ---------------------------------
+        (function setupQuizDrag() {
+            const quizContainer = document.getElementById('quizContainer');
+            let quizDragging = false;
+            let dragOffsetX = 0, dragOffsetY = 0;
+
+            function getClientXY(e) {
+                if (e.touches && e.touches.length) {
+                    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }
+                return { x: e.clientX, y: e.clientY };
+            }
+
+            function quizStartDrag(e) {
+                if (e.target !== quizContainer) return;
+                quizDragging = true;
+                quizContainer.classList.add('dragging');
+                const rect = quizContainer.getBoundingClientRect();
+                const pt = getClientXY(e);
+                dragOffsetX = pt.x - rect.left;
+                dragOffsetY = pt.y - rect.top;
+                e.preventDefault();
+            }
+
+            function quizDragMove(e) {
+                if (!quizDragging) return;
+                const pt = getClientXY(e);
+                quizContainer.style.transform = 'none';
+                quizContainer.style.left = (pt.x - dragOffsetX) + 'px';
+                quizContainer.style.top  = (pt.y - dragOffsetY) + 'px';
+                if (e.cancelable) e.preventDefault();
+            }
+
+            function quizEndDrag() {
+                quizDragging = false;
+                quizContainer.classList.remove('dragging');
+            }
+
+            quizContainer.addEventListener('mousedown', quizStartDrag);
+            quizContainer.addEventListener('touchstart', quizStartDrag, { passive: false });
+            document.addEventListener('mousemove', quizDragMove);
+            document.addEventListener('touchmove', quizDragMove, { passive: false });
+            document.addEventListener('mouseup', quizEndDrag);
+            document.addEventListener('touchend', quizEndDrag);
+        })();
+
+        document.getElementById('toggle-left').addEventListener('click',  () => toggleArrayVisibility('left'));
+        document.getElementById('toggle-right').addEventListener('click', () => toggleArrayVisibility('right'));
+
+        document.getElementById('filter-all').addEventListener('click',         () => filterVocabulary('all'));
+        document.getElementById('filter-seasons').addEventListener('click',     () => filterVocabulary('seasons'));
+        document.getElementById('filter-significant').addEventListener('click', () => filterVocabulary('significant'));
+
+        document.addEventListener('click', function(e) {
+            if (qc.style.display === 'none') return;
+            if (qc.contains(e.target)) return;
+            if (textBoxElements.some(b => b && b.contains(e.target))) return;
+            if (currentQuizIndex >= 0 && !learnedItems[currentQuizIndex]) {
+                const tb = textBoxElements[currentQuizIndex];
+                if (tb) {
+                    const div = tb.querySelector('div');
+                    if (div) {
+                        div.innerHTML = seasonsData[currentQuizIndex][1];
+                        div.style.fontSize = fontSizeForCategory(seasonsData[currentQuizIndex][4], false);
+                    }
+                }
+            }
+            qc.style.display = 'none';
+            currentQuizIndex = -1;
+        });
+
+        qc.style.display = 'none';
+
+        setTimeout(() => {
+            const di = document.getElementById('drag-instruction');
+            if (di) {
+                di.classList.add('fade');
+                setTimeout(() => { di.style.display = 'none'; }, 3000);
+            }
+        }, 15000);
+    }
+
+    document.addEventListener('DOMContentLoaded', initializeApp);
+
+    </script>
+</body>
+</html>

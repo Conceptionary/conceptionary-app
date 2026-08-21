@@ -1,0 +1,123 @@
+{
+  "id": "CC-0009",
+  "version": "1.1",
+  "created": "2026-07-06",
+  "last_updated": "2026-07-06",
+  "status": "active",
+  "concept": {
+    "name": "Illness",
+    "description": "The gradual permanent negative change from a healthy baseline to a chronically ill state with no natural return to full health. Distinct from GTCVI (temporary illness that resolves) — this represents conditions that permanently alter the baseline, e.g. developing a chronic condition.",
+    "taxonomy_ref": "11.1",
+    "taxonomy_path": "Health / Medical → Wellness spectrum → Illness",
+    "shape": "gradual_permanent_negative",
+    "template_family": "GPCVN",
+    "template_id": "ROM-GPCVN",
+    "modes_used": [
+      "states",
+      "transitions"
+    ],
+    "notes": "ROM-GPCVN selected — chronic illness is a permanent negative change. The subject moves from healthy to a new permanently lower baseline. Contrast with temporary illness (GTCVI) which resolves. Example: developing diabetes, chronic pain, or long-term condition. Canonical parallel: Fresh→Rotten (food cannot return to freshness)."
+  },
+  "template": {
+    "phonographic": {
+      "id": "ROM-GPCVN",
+      "file": "templates/phonographic/ROM-GPCVN-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-GPCVN",
+      "file": "templates/logographic/LOG-GPCVN-Generic.html",
+      "track": "logographic"
+    }
+  },
+  "language_pairs": {
+    "EN-ID": {
+      "source_language": "English",
+      "target_language": "Bahasa Indonesia",
+      "track": "phonographic",
+      "generated_by": "claude-sonnet-4-6",
+      "generated_date": "2026-07-06",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "lang_config": {
+        "titles": {
+          "states": [
+            "Illness / Penyakit",
+            "Penyakit",
+            "Illness"
+          ],
+          "transitions": [
+            "Perkembangan Penyakit / Illness Progression",
+            "Bahasa Indonesia",
+            "English"
+          ]
+        },
+        "ui": {
+          "quiz_placeholder": "Type in Bahasa Indonesia…",
+          "quiz_button": "Check",
+          "quiz_correct": "Correct! ✓",
+          "quiz_wrong": "Try again"
+        },
+        "conceptData": [
+          [
+            "Sehat",
+            "Healthy",
+            "How do you say 'healthy' in Bahasa Indonesia?",
+            10
+          ],
+          [
+            "Mulai bergejala",
+            "Developing symptoms",
+            "How do you say 'developing symptoms' in Bahasa Indonesia?",
+            40
+          ],
+          [
+            "Sakit kronis",
+            "Chronically ill",
+            "How do you say 'chronically ill' in Bahasa Indonesia?",
+            60
+          ],
+          [
+            "Sakit parah",
+            "Seriously ill",
+            "How do you say 'seriously ill' in Bahasa Indonesia?",
+            70
+          ],
+          [
+            "Cacat permanen",
+            "Permanently impaired",
+            "How do you say 'permanently impaired' in Bahasa Indonesia?",
+            80
+          ]
+        ],
+        "transitionsData": [
+          [
+            "Jatuh sakit",
+            "Falling ill",
+            "How do you say 'falling ill' in Bahasa Indonesia?",
+            10
+          ],
+          [
+            "Semakin memburuk",
+            "Worsening",
+            "How do you say 'worsening' in Bahasa Indonesia?",
+            40
+          ],
+          [
+            "Menjadi kronis",
+            "Becoming chronic",
+            "How do you say 'becoming chronic' in Bahasa Indonesia?",
+            50
+          ],
+          [
+            "Berubah permanen",
+            "Permanently changed",
+            "How do you say 'permanently changed' in Bahasa Indonesia?",
+            80
+          ]
+        ]
+      }
+    }
+  }
+}

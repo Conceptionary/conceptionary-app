@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock + Arrays - Phonographic - Generic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .left-panel, .right-panel {
+            width: 25%;
+            background-color: white;
+            border: 2px solid #333;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .left-panel {
+            border-right: none;
+        }
+
+        .right-panel {
+            border-left: none;
+        }
+
+        .center-area {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #f9f9f9;
+            border: 2px solid #333;
+            border-left: none;
+            border-right: none;
+        }
+
+        .digital-display {
+            font-size: 2em;
+            font-weight: bold;
+            background-color: #000;
+            color: #00ff00;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .clock {
+            width: 300px;
+            height: 300px;
+            border: 8px solid #333;
+            border-radius: 50%;
+            position: relative;
+            background-color: white;
+        }
+
+        .clock-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            background-color: #333;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        .hand {
+            position: absolute;
+            background-color: #333;
+            transform-origin: bottom center;
+            border-radius: 2px;
+        }
+
+        .hour-hand {
+            width: 6px;
+            height: 80px;
+            top: 70px;
+            left: 147px;
+        }
+
+        .minute-hand {
+            width: 4px;
+            height: 110px;
+            top: 40px;
+            left: 148px;
+        }
+
+        .second-hand {
+            width: 2px;
+            height: 120px;
+            top: 30px;
+            left: 149px;
+            background-color: red;
+        }
+
+        .number {
+            position: absolute;
+            font-size: 18px;
+            font-weight: bold;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dynamic-text-box {
+            background-color: #f9f9f9;
+            border: 2px solid #4CAF50;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .dynamic-text-box:hover {
+            background-color: #e8f5e8;
+            transform: scale(1.02);
+        }
+
+        .greeting-box {
+            border-color: #FF9800;
+            background-color: #fff3e0;
+        }
+
+        .approximate-box {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .exact-box {
+            border-color: #4CAF50;
+            background-color: #e8f5e8;
+        }
+
+        .part-of-day-box {
+            border-color: #9C27B0;
+            background-color: #f3e5f5;
+        }
+
+        .empty-box {
+            border-color: #ccc;
+            background-color: #f5f5f5;
+            color: #999;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .controls button {
+            padding: 8px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .controls button:hover {
+            background-color: #45a049;
+        }
+
+        .question-text {
+            background-color: #2196F3;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .tooltip {
+            position: fixed;
+            background-color: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            z-index: 1000;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            pointer-events: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .tooltip.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .watermark {
+            position: absolute;
+            bottom: 5px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            color: rgba(40, 167, 69, 0.4);
+            font-weight: bold;
+            pointer-events: none;
+            user-select: none;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Left Panel - Source Language (SL) -->
+    <div class="left-panel">
+        <div class="question-text" id="sl-question">SL_QUESTION</div>
+        <div class="dynamic-text-box greeting-box"    id="greeting-sl"    data-tooltip="SL_TOOLTIP_GREETING"></div>
+        <div class="dynamic-text-box approximate-box" id="approximate-sl" data-tooltip="SL_TOOLTIP_APPROXIMATE"></div>
+        <div class="dynamic-text-box exact-box"        id="exact-sl"       data-tooltip="SL_TOOLTIP_EXACT"></div>
+        <div class="dynamic-text-box part-of-day-box" id="part-of-day-sl" data-tooltip="SL_TOOLTIP_PARTOFDAY"></div>
+    </div>
+
+    <!-- Center Area - Clock -->
+    <div class="center-area">
+        <div class="digital-display" id="digital-time">12:00:00</div>
+        <div class="clock" id="clock">
+            <div class="clock-center"></div>
+            <div class="hand hour-hand"   id="hour-hand"></div>
+            <div class="hand minute-hand" id="minute-hand"></div>
+            <div class="hand second-hand" id="second-hand"></div>
+        </div>
+        <div class="controls" style="margin-top: 20px;">
+            <button onclick="adjustHour(-1)">Hour −</button>
+            <button onclick="adjustHour(1)">Hour +</button>
+            <button onclick="adjustMinute(-1)">Min −</button>
+            <button onclick="adjustMinute(1)">Min +</button>
+            <button onclick="resetToCurrentTime()">Reset</button>
+        </div>
+    </div>
+
+    <!-- Right Panel - Target Language (TL) -->
+    <div class="right-panel">
+        <div class="question-text" id="tl-question">TL_QUESTION</div>
+        <div class="dynamic-text-box greeting-box"    id="greeting-tl"    data-tooltip="TL_TOOLTIP_GREETING"></div>
+        <div class="dynamic-text-box approximate-box" id="approximate-tl" data-tooltip="TL_TOOLTIP_APPROXIMATE"></div>
+        <div class="dynamic-text-box exact-box"        id="exact-tl"       data-tooltip="TL_TOOLTIP_EXACT"></div>
+        <div class="dynamic-text-box part-of-day-box" id="part-of-day-tl" data-tooltip="TL_TOOLTIP_PARTOFDAY"></div>
+    </div>
+
+    <!-- Tooltip element -->
+    <div class="tooltip" id="tooltip"></div>
+
+    <!-- Watermark -->
+    <div class="watermark">
+        &copy; 2026 Alan William Preston
+    </div>
+
+    <script>
+
+        // =====================================================================
+        // LANGUAGE CONFIGURATION BLOCK
+        // To create a new language pair, replace ALL values in this section.
+        // Do NOT change anything outside this block unless you know what
+        // you are doing — all language-specific content lives here.
+        // SL = Source Language (left panel, typically the learner's language)
+        // TL = Target Language (right panel, the language being learned)
+        // =====================================================================
+
+        const LANG = {
+
+            // --- Panel labels & tooltips ------------------------------------
+            sl: {
+                question:        "SL_QUESTION",          // e.g. "What time is it?"
+                tooltip_greeting:    "SL_TOOLTIP_GREETING",   // e.g. "How should I greet someone?"
+                tooltip_approximate: "SL_TOOLTIP_APPROXIMATE",// e.g. "About what time is it?"
+                tooltip_exact:       "SL_TOOLTIP_EXACT",      // e.g. "What is the exact time?"
+                tooltip_partofday:   "SL_TOOLTIP_PARTOFDAY",  // e.g. "What part of the day is it?"
+            },
+            tl: {
+                question:        "TL_QUESTION",
+                tooltip_greeting:    "TL_TOOLTIP_GREETING",
+                tooltip_approximate: "TL_TOOLTIP_APPROXIMATE",
+                tooltip_exact:       "TL_TOOLTIP_EXACT",
+                tooltip_partofday:   "TL_TOOLTIP_PARTOFDAY",
+            },
+
+            // --- Hour words (index 0 = twelve/midnight, 1 = one, ... 11 = eleven) ---
+            // Must have exactly 12 entries.
+            sl_hourWords: ["SL_H0","SL_H1","SL_H2","SL_H3","SL_H4","SL_H5",
+                           "SL_H6","SL_H7","SL_H8","SL_H9","SL_H10","SL_H11"],
+            tl_hourWords: ["TL_H0","TL_H1","TL_H2","TL_H3","TL_H4","TL_H5",
+                           "TL_H6","TL_H7","TL_H8","TL_H9","TL_H10","TL_H11"],
+
+            // --- Greetings (time-of-day based) --------------------------------
+            // Each entry: { start: hour (inclusive), end: hour (exclusive), text: "greeting" }
+            sl_greetings: [
+                { start:  5, end: 12, text: "SL_GREETING_MORNING" },
+                { start: 12, end: 18, text: "SL_GREETING_AFTERNOON" },
+                { start: 18, end: 22, text: "SL_GREETING_EVENING" }
+                // Add or remove entries as needed for the SL culture
+            ],
+            tl_greetings: [
+                { start:  5, end: 12, text: "TL_GREETING_MORNING" },
+                { start: 12, end: 18, text: "TL_GREETING_AFTERNOON" },
+                { start: 18, end: 22, text: "TL_GREETING_EVENING" }
+                // Add or remove entries as needed for the TL culture
+            ],
+
+            // --- Parts of day -------------------------------------------------
+            // Each entry: { start: hour (inclusive), end: hour (exclusive), text: "description" }
+            sl_partsOfDay: [
+                { start:  0, end:  1, text: "SL_POD_0" },
+                { start:  1, end:  3, text: "SL_POD_1" },
+                { start:  3, end:  5, text: "SL_POD_2" },
+                { start:  5, end:  6, text: "SL_POD_3" },
+                { start:  6, end:  7, text: "SL_POD_4" },
+                { start:  7, end: 10, text: "SL_POD_5" },
+                { start: 10, end: 11, text: "SL_POD_6" },
+                { start: 11, end: 12, text: "SL_POD_7" },
+                { start: 12, end: 13, text: "SL_POD_8" },
+                { start: 13, end: 14, text: "SL_POD_9" },
+                { start: 14, end: 15, text: "SL_POD_10" },
+                { start: 15, end: 17, text: "SL_POD_11" },
+                { start: 17, end: 18, text: "SL_POD_12" },
+                { start: 18, end: 19, text: "SL_POD_13" },
+                { start: 19, end: 23, text: "SL_POD_14" },
+                { start: 23, end: 24, text: "SL_POD_15" }
+                // Add, remove, or adjust time bands to suit the TL cultural norms
+            ],
+            tl_partsOfDay: [
+                { start:  0, end:  1, text: "TL_POD_0" },
+                { start:  1, end:  3, text: "TL_POD_1" },
+                { start:  3, end:  5, text: "TL_POD_2" },
+                { start:  5, end:  6, text: "TL_POD_3" },
+                { start:  6, end:  7, text: "TL_POD_4" },
+                { start:  7, end: 10, text: "TL_POD_5" },
+                { start: 10, end: 11, text: "TL_POD_6" },
+                { start: 11, end: 12, text: "TL_POD_7" },
+                { start: 12, end: 13, text: "TL_POD_8" },
+                { start: 13, end: 14, text: "TL_POD_9" },
+                { start: 14, end: 15, text: "TL_POD_10" },
+                { start: 15, end: 17, text: "TL_POD_11" },
+                { start: 17, end: 18, text: "TL_POD_12" },
+                { start: 18, end: 19, text: "TL_POD_13" },
+                { start: 19, end: 23, text: "TL_POD_14" },
+                { start: 23, end: 24, text: "TL_POD_15" }
+            ],
+
+            // --- Exact time grammar ------------------------------------------
+            // These functions generate the exact time string for a given hour/minute.
+            // Rewrite both functions entirely to match SL/TL grammar rules.
+            // Parameters: hours (0–23), minutes (0–59), hourWords array (12 entries)
+            // Returns: string
+
+            sl_exactTime: function(hours, minutes, hourWords) {
+                const nextHour = (hours + 1) % 24;
+                // --- REPLACE THIS ENTIRE FUNCTION BODY WITH SL GRAMMAR ---
+                // Example structure (English):
+                if (minutes === 0) {
+                    if (hours === 0)  return "SL_MIDNIGHT";
+                    if (hours === 12) return "SL_NOON";
+                    return `SL_OCLOCK_PREFIX ${hourWords[hours % 12]} SL_OCLOCK_SUFFIX`;
+                } else if (minutes === 15) {
+                    return `SL_QUARTER_PAST_PREFIX ${hourWords[hours % 12]} SL_QUARTER_PAST_SUFFIX`;
+                } else if (minutes === 30) {
+                    return `SL_HALF_PAST_PREFIX ${hourWords[hours % 12]} SL_HALF_PAST_SUFFIX`;
+                } else if (minutes === 45) {
+                    return `SL_QUARTER_TO_PREFIX ${hourWords[nextHour % 12]} SL_QUARTER_TO_SUFFIX`;
+                } else if (minutes < 30) {
+                    return `SL_MINS_PAST_PREFIX ${minutes} SL_MINS_PAST_MID ${hourWords[hours % 12]} SL_MINS_PAST_SUFFIX`;
+                } else {
+                    const minsTo = 60 - minutes;
+                    return `SL_MINS_TO_PREFIX ${minsTo} SL_MINS_TO_MID ${hourWords[nextHour % 12]} SL_MINS_TO_SUFFIX`;
+                }
+                // --- END SL GRAMMAR ---
+            },
+
+            tl_exactTime: function(hours, minutes, hourWords) {
+                const nextHour = (hours + 1) % 24;
+                // --- REPLACE THIS ENTIRE FUNCTION BODY WITH TL GRAMMAR ---
+                if (minutes === 0) {
+                    if (hours === 0)  return "TL_MIDNIGHT";
+                    if (hours === 12) return "TL_NOON";
+                    return `TL_OCLOCK_PREFIX ${hourWords[hours % 12]} TL_OCLOCK_SUFFIX`;
+                } else if (minutes === 15) {
+                    return `TL_QUARTER_PAST_PREFIX ${hourWords[hours % 12]} TL_QUARTER_PAST_SUFFIX`;
+                } else if (minutes === 30) {
+                    return `TL_HALF_PAST_PREFIX ${hourWords[hours % 12]} TL_HALF_PAST_SUFFIX`;
+                } else if (minutes === 45) {
+                    return `TL_QUARTER_TO_PREFIX ${hourWords[nextHour % 12]} TL_QUARTER_TO_SUFFIX`;
+                } else if (minutes < 30) {
+                    return `TL_MINS_PAST_PREFIX ${minutes} TL_MINS_PAST_MID ${hourWords[hours % 12]} TL_MINS_PAST_SUFFIX`;
+                } else {
+                    const minsTo = 60 - minutes;
+                    return `TL_MINS_TO_PREFIX ${minsTo} TL_MINS_TO_MID ${hourWords[nextHour % 12]} TL_MINS_TO_SUFFIX`;
+                }
+                // --- END TL GRAMMAR ---
+            },
+
+            // --- Approximate time grammar ------------------------------------
+            // Returns a string for near-hour expressions, or null if not applicable.
+            // Called when: minutes within ~5 of the hour, or within ~7 past, or ~7 before.
+
+            sl_approximateTime: function(hours, minutes, hourWords) {
+                const nextHour = (hours + 1) % 24;
+                const current = hourWords[hours % 12];
+                const next    = hourWords[nextHour % 12];
+                if (minutes >= 58 || minutes <= 2) {
+                    const h = minutes >= 58 ? next : current;
+                    return `SL_APPROX_ALMOST ${h} SL_APPROX_OCLOCK`;
+                } else if (minutes >= 3 && minutes <= 7) {
+                    return `SL_APPROX_JUST_GONE ${current} SL_APPROX_OCLOCK`;
+                } else if (minutes >= 53 && minutes <= 57) {
+                    return `SL_APPROX_COMING_UP ${next} SL_APPROX_OCLOCK`;
+                }
+                return null;
+                // Return null outside the approximate window — the exact time shows instead.
+            },
+
+            tl_approximateTime: function(hours, minutes, hourWords) {
+                const nextHour = (hours + 1) % 24;
+                const current = hourWords[hours % 12];
+                const next    = hourWords[nextHour % 12];
+                if (minutes >= 58 || minutes <= 2) {
+                    const h = minutes >= 58 ? next : current;
+                    return `TL_APPROX_ALMOST ${h} TL_APPROX_OCLOCK`;
+                } else if (minutes >= 3 && minutes <= 7) {
+                    return `TL_APPROX_JUST_GONE ${current} TL_APPROX_OCLOCK`;
+                } else if (minutes >= 53 && minutes <= 57) {
+                    return `TL_APPROX_COMING_UP ${next} TL_APPROX_OCLOCK`;
+                }
+                return null;
+            }
+
+        }; // end LANG configuration block
+        // =====================================================================
+        // END OF LANGUAGE CONFIGURATION BLOCK
+        // The code below drives the clock and text boxes.
+        // No language-specific content appears below this line.
+        // =====================================================================
+
+
+        // --- Apply panel labels on load -------------------------------------
+        document.getElementById('sl-question').textContent        = LANG.sl.question;
+        document.getElementById('tl-question').textContent        = LANG.tl.question;
+        document.querySelector('#greeting-sl').setAttribute('data-tooltip',    LANG.sl.tooltip_greeting);
+        document.querySelector('#approximate-sl').setAttribute('data-tooltip', LANG.sl.tooltip_approximate);
+        document.querySelector('#exact-sl').setAttribute('data-tooltip',       LANG.sl.tooltip_exact);
+        document.querySelector('#part-of-day-sl').setAttribute('data-tooltip', LANG.sl.tooltip_partofday);
+        document.querySelector('#greeting-tl').setAttribute('data-tooltip',    LANG.tl.tooltip_greeting);
+        document.querySelector('#approximate-tl').setAttribute('data-tooltip', LANG.tl.tooltip_approximate);
+        document.querySelector('#exact-tl').setAttribute('data-tooltip',       LANG.tl.tooltip_exact);
+        document.querySelector('#part-of-day-tl').setAttribute('data-tooltip', LANG.tl.tooltip_partofday);
+
+        // --- Clock state ----------------------------------------------------
+        let manualMode    = false;
+        let manualHours   = 0;
+        let manualMinutes = 0;
+
+        // --- Helper: lookup in time-banded arrays ---------------------------
+        function lookupByHour(dataArray, hours) {
+            for (let entry of dataArray) {
+                if (hours >= entry.start && hours < entry.end) return entry.text;
+            }
+            return null;
+        }
+
+        // --- Update text boxes ----------------------------------------------
+        function updateDynamicTextBoxes(hours, minutes) {
+            const panels = [
+                {
+                    greeting:    lookupByHour(LANG.sl_greetings, hours),
+                    approximate: LANG.sl_approximateTime(hours, minutes, LANG.sl_hourWords),
+                    exact:       LANG.sl_exactTime(hours, minutes, LANG.sl_hourWords),
+                    partOfDay:   lookupByHour(LANG.sl_partsOfDay, hours),
+                    ids: ['greeting-sl','approximate-sl','exact-sl','part-of-day-sl']
+                },
+                {
+                    greeting:    lookupByHour(LANG.tl_greetings, hours),
+                    approximate: LANG.tl_approximateTime(hours, minutes, LANG.tl_hourWords),
+                    exact:       LANG.tl_exactTime(hours, minutes, LANG.tl_hourWords),
+                    partOfDay:   lookupByHour(LANG.tl_partsOfDay, hours),
+                    ids: ['greeting-tl','approximate-tl','exact-tl','part-of-day-tl']
+                }
+            ];
+
+            panels.forEach(panel => {
+                const content = [panel.greeting, panel.approximate, panel.exact, panel.partOfDay];
+                panel.ids.forEach((id, i) => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    if (content[i]) {
+                        el.textContent = content[i];
+                        el.classList.remove('empty-box');
+                    } else {
+                        el.textContent = '';
+                        el.classList.add('empty-box');
+                    }
+                });
+            });
+        }
+
+        // --- Clock display --------------------------------------------------
+        function updateClockDisplay() {
+            const hours   = manualMode ? manualHours   : new Date().getHours();
+            const minutes = manualMode ? manualMinutes : new Date().getMinutes();
+            const seconds = manualMode ? 0             : new Date().getSeconds();
+
+            document.getElementById('digital-time').textContent =
+                String(hours).padStart(2,'0') + ':' +
+                String(minutes).padStart(2,'0') + ':' +
+                String(seconds).padStart(2,'0');
+
+            const hourAngle   = (hours % 12) * 30 + minutes * 0.5;
+            const minuteAngle = minutes * 6;
+            const secondAngle = seconds * 6;
+
+            document.getElementById('hour-hand').style.transform   = `rotate(${hourAngle}deg)`;
+            document.getElementById('minute-hand').style.transform = `rotate(${minuteAngle}deg)`;
+            document.getElementById('second-hand').style.transform = `rotate(${secondAngle}deg)`;
+
+            updateDynamicTextBoxes(hours, minutes);
+        }
+
+        function updateClock() {
+            if (!manualMode) updateClockDisplay();
+        }
+
+        // --- Manual controls ------------------------------------------------
+        function adjustHour(delta) {
+            manualMode = true;
+            manualHours   = ((manualHours || new Date().getHours()) + delta + 24) % 24;
+            manualMinutes = manualMinutes || new Date().getMinutes();
+            updateClockDisplay();
+        }
+
+        function adjustMinute(delta) {
+            manualMode = true;
+            manualHours   = manualHours   || new Date().getHours();
+            manualMinutes = (manualMinutes || new Date().getMinutes()) + delta;
+            if (manualMinutes < 0)  { manualMinutes = 59; adjustHour(-1); return; }
+            if (manualMinutes > 59) { manualMinutes = 0;  adjustHour(1);  return; }
+            updateClockDisplay();
+        }
+
+        function resetToCurrentTime() {
+            manualMode = false;
+            updateClock();
+        }
+
+        // --- Clock face initialisation --------------------------------------
+        function initializeClock() {
+            const clock = document.getElementById('clock');
+            for (let i = 1; i <= 12; i++) {
+                const number = document.createElement('div');
+                number.className = 'number';
+                number.textContent = i;
+                const angle  = (i * 30 - 90) * (Math.PI / 180);
+                const radius = 120;
+                number.style.left = (Math.cos(angle) * radius + 135) + 'px';
+                number.style.top  = (Math.sin(angle) * radius + 135) + 'px';
+                clock.appendChild(number);
+            }
+        }
+
+        // --- Tooltips -------------------------------------------------------
+        function initializeTooltips() {
+            const tooltip = document.getElementById('tooltip');
+            document.querySelectorAll('.dynamic-text-box[data-tooltip]').forEach(box => {
+                box.addEventListener('mouseenter', function(e) {
+                    tooltip.textContent = this.getAttribute('data-tooltip');
+                    positionTooltip(tooltip, e);
+                    tooltip.classList.add('show');
+                });
+                box.addEventListener('mouseleave',  () => tooltip.classList.remove('show'));
+                box.addEventListener('mousemove',   e  => positionTooltip(tooltip, e));
+                box.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    tooltip.textContent = this.getAttribute('data-tooltip');
+                    positionTooltip(tooltip, e.touches[0]);
+                    tooltip.classList.add('show');
+                    setTimeout(() => tooltip.classList.remove('show'), 2000);
+                });
+            });
+        }
+
+        function positionTooltip(tooltip, event) {
+            tooltip.style.left = (event.clientX || event.pageX) + 10 + 'px';
+            tooltip.style.top  = (event.clientY || event.pageY) - 35 + 'px';
+        }
+
+        // --- Boot -----------------------------------------------------------
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeClock();
+            updateClock();
+            setInterval(updateClock, 1000);
+            initializeTooltips();
+        });
+
+    </script>
+</body>
+</html>

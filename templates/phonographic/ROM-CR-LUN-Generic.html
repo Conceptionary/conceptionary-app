@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<!-- Last updated: 2026-08-04 @ 7:56 p.m. (Mangawhai, NZ) -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunar Cycle — Phonographic — Generic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0; padding: 0;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; background-color: #1a1a2e; overflow: hidden;
+        }
+        .a4-page {
+            width: 90vw; height: 70vh;
+            border: 5px solid #333;
+            background: linear-gradient(to bottom, #0f3460 0%, #1a1a2e 100%);
+            box-sizing: border-box; position: relative;
+            touch-action: none; z-index: 1; overflow: hidden;
+        }
+        .watermark {
+            position: absolute; bottom: 5px; width: 100%;
+            text-align: center; font-size: 12px;
+            color: rgba(255,255,255,0.3); font-weight: bold;
+            pointer-events: none; user-select: none; z-index: 0;
+        }
+        svg { width: 100%; height: 100%; overflow: visible; }
+        .circle-path { stroke: #555; stroke-width: 0.4; fill: none; }
+        .day-marker  { stroke: #444; stroke-width: 0.15; }
+
+        .textBox {
+            cursor: pointer; font-size: 0.8em; fill: white;
+            opacity: 0; display: none;
+            transition: opacity 0.5s ease-in-out;
+            text-anchor: middle; font-family: Arial, sans-serif;
+        }
+        .textBox.active  { opacity: 1; display: block; }
+        .textBox.learned { opacity: 0.6; display: block; fill: #4ade80; }
+        .textBox.learned.active { opacity: 1; }
+        .textBox.hidden  { opacity: 0; display: none; }
+
+        .moon-phase-icon { transition: opacity 0.3s ease; }
+        .moon-phase-icon.highlighted {
+            filter: drop-shadow(0 0 3px rgba(255,255,255,0.9));
+        }
+
+        #draggableFrame {
+            cursor: grab; pointer-events: all; z-index: 1000;
+            filter: drop-shadow(0 0 8px rgba(255,255,255,0.6));
+        }
+        #draggableFrame:hover    { cursor: grab; filter: drop-shadow(0 0 12px rgba(255,255,255,0.8)); }
+        #draggableFrame.dragging { cursor: grabbing; filter: drop-shadow(0 0 15px rgba(255,255,255,1)); }
+
+        .title-box {
+            position: absolute; top: 10px; left: 10px;
+            font-size: 1em; font-weight: bold; text-align: center;
+            cursor: pointer; border: 1px solid #555; padding: 10px;
+            background-color: rgba(26,26,46,0.9); color: white;
+            z-index: 2; transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .title-box.hidden { opacity: 0; transform: scale(0.9); }
+
+        .day-indicator {
+            position: absolute; bottom: 10px; left: 10px;
+            font-size: 1em; padding: 5px 10px;
+            background-color: rgba(26,26,46,0.9); color: white;
+            border: 1px solid #555; border-radius: 4px; z-index: 3;
+        }
+        .drag-instruction {
+            position: absolute; top: 60px; right: 10px;
+            font-size: 0.9em; padding: 5px 10px;
+            background-color: rgba(26,26,46,0.9); color: white;
+            border: 1px solid #555; border-radius: 4px; z-index: 3;
+            opacity: 1; transition: opacity 3s ease; max-width: 200px;
+        }
+        .drag-instruction.fade { opacity: 0; }
+
+        .quiz-container {
+            position: fixed; top: 40%; left: 75%; transform: translate(-50%,-50%);
+            background-color: rgba(26,26,46,0.95); color: white;
+            border: 3px solid #555; border-radius: 4px; padding: 12px;
+            z-index: 9999; display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            max-width: 360px; width: 360px; cursor: grab;
+        }
+        .quiz-container.dragging { cursor: grabbing; }
+        .quiz-container input { cursor: text; }
+        .quiz-container input {
+            width: 100%; padding: 8px; font-size: 14px;
+            border: 1px solid #555; border-radius: 4px;
+            margin-bottom: 10px; background-color: #0f3460; color: white;
+            font-family: Arial, sans-serif;
+        }
+        .quiz-container button {
+            width: 100%; padding: 8px; background-color: #4361ee;
+            color: white; border: none; border-radius: 4px;
+            cursor: pointer; font-weight: bold;
+        }
+        .quiz-container button:hover { background-color: #3a0ca3; }
+        #quizFeedback { text-align: center; font-weight: bold; margin-top: 8px; min-height: 20px; }
+
+        .learned-vocabulary {
+            position: absolute; top: 10px; right: 10px;
+            width: 18.75%; max-height: 40vh; overflow-y: auto;
+            background-color: rgba(26,26,46,0.9);
+            border: 1px solid #555; border-radius: 4px; padding: 5px; z-index: 4;
+        }
+        .array-title {
+            font-size: 0.9em; text-align: center; font-weight: bold;
+            margin-bottom: 5px; padding: 3px; color: white;
+            background-color: rgba(67,97,238,0.3); border-bottom: 1px solid #555;
+        }
+        .vocabulary-item {
+            display: flex; flex-direction: column; font-size: 0.75em;
+            margin: 3px 0; padding: 5px; border: 1px solid #444;
+            border-radius: 3px; background-color: rgba(255,255,255,0.05);
+            transition: background-color 0.3s ease;
+        }
+        .vocabulary-item:hover { background-color: rgba(67,97,238,0.2); }
+        .vocabulary-item .tl-word {
+            font-weight: bold; color: #4ade80; cursor: pointer;
+            padding: 2px 5px; border-radius: 3px;
+        }
+        .vocabulary-item .sl-word {
+            color: #aaa; cursor: pointer; padding: 2px 5px; border-radius: 3px;
+        }
+        .vocabulary-item .tl-word.hidden,
+        .vocabulary-item .sl-word.hidden {
+            color: transparent; user-select: none; background-color: rgba(255,255,255,0.05);
+        }
+        .toggle-visibility {
+            position: absolute; top: 5px; right: 5px; font-size: 0.7em;
+            padding: 2px 5px; background-color: rgba(67,97,238,0.3); color: white;
+            border: 1px solid #555; border-radius: 3px; cursor: pointer; z-index: 5;
+        }
+        .display-all-btn {
+            position: absolute; bottom: 10px; right: 10px;
+            font-size: 0.9em; padding: 8px 12px;
+            background-color: rgba(67,97,238,0.9); color: white;
+            border: 1px solid #555; border-radius: 4px;
+            cursor: pointer; z-index: 3; font-weight: bold;
+        }
+        .display-all-btn:hover { background-color: rgba(58,12,163,1); }
+    </style>
+</head>
+<body>
+    <div class="a4-page">
+        <div id="title-box" class="title-box">TITLE_PLACEHOLDER</div>
+        <div id="day-indicator" class="day-indicator">DAY_INDICATOR_PLACEHOLDER</div>
+        <div id="drag-instruction" class="drag-instruction">DRAG_INSTRUCTION_PLACEHOLDER</div>
+
+        <div id="learned-vocabulary" class="learned-vocabulary">
+            <div class="array-title">ARRAY_TITLE_PLACEHOLDER</div>
+            <button class="toggle-visibility" id="toggle-learned">HIDE_ALL_LABEL</button>
+            <div id="learned-items"></div>
+        </div>
+
+        <svg id="svgCanvas" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+            <circle id="circlePath" cx="50" cy="50" r="30" class="circle-path"/>
+            <g id="day-markers"></g>
+            <g id="moon-phases"></g>
+
+            <g id="draggableFrame">
+                <circle cx="50" cy="20" r="3.5" fill="#f5f5f5" stroke="#ccc" stroke-width="0.2"/>
+                <circle cx="49" cy="19" r="0.8" fill="#ddd" opacity="0.6"/>
+                <circle cx="51.5" cy="21" r="1.2" fill="#ddd" opacity="0.4"/>
+            </g>
+        </svg>
+
+        <div class="watermark">&copy; 2026 Alan William Preston</div>
+
+        <button id="display-all-btn" class="display-all-btn">DISPLAY_ALL_LABEL</button>
+    </div>
+
+    <div id="quizContainer" class="quiz-container">
+        <input type="text" id="quizInput" placeholder="QUIZ_PLACEHOLDER">
+        <button id="quizCheck">QUIZ_BUTTON_LABEL</button>
+        <div id="quizFeedback"></div>
+    </div>
+
+    <script>
+
+    // =====================================================================
+    // LANGUAGE CONFIGURATION BLOCK
+    // To create a new language pair, replace ALL values in this section.
+    // SL = Source Language  |  TL = Target Language (language being learned)
+    //
+    // STRUCTURE: This template maps the 28-day lunar (moon phase) cycle
+    // onto a circular dial, with a visual moon-phase icon (waxing/waning
+    // crescent, quarter, gibbous, full, new) drawn at each of the 28 day
+    // positions around the ring. Each vocabulary item has a Day number
+    // (1-28) and an Angle (0-360°) for its text box position.
+    // Do NOT change anything outside this block.
+    // =====================================================================
+    const LANG = {
+
+        // --- Title cycle (click title box to cycle) ----------------------
+        titles: [
+            "SL_TITLE",          // e.g. "28-Day Lunar Cycle"
+            "TL_TITLE",          // e.g. "28-Tage-Mondzyklus"
+            "SL_TITLE / TL_TITLE"
+        ],
+
+        // --- UI strings --------------------------------------------------
+        drag_instruction:      "DRAG_INSTRUCTION",       // e.g. "Drag the moon around to explore the lunar cycle!"
+        array_title:           "ARRAY_TITLE",            // e.g. "Learned Vocabulary"
+        hide_all_label:        "HIDE_ALL_LABEL",         // e.g. "Hide All"
+        show_all_label:        "SHOW_ALL_LABEL",         // e.g. "Show All"
+        display_all_label:     "DISPLAY_ALL_LABEL",      // e.g. "Display All"
+        display_one_label:     "DISPLAY_ONE_LABEL",      // e.g. "Show One"
+        display_all_indicator: "DISPLAY_ALL_INDICATOR",  // e.g. "Displaying All Phases"
+        day_label_prefix:       "DAY_LABEL_PREFIX",       // e.g. "Day"
+        quiz_placeholder:       "QUIZ_PLACEHOLDER",       // e.g. "Enter the [TL] phrase"
+        quiz_button:            "QUIZ_BUTTON_LABEL",      // e.g. "Check"
+        quiz_correct:           "QUIZ_CORRECT",           // e.g. "Correct!"
+        quiz_wrong:             "QUIZ_WRONG",             // e.g. "Try again"
+
+        // --- Vocabulary data (8 lunar phases) -------------------------------
+        // Format: [ SL phrase, TL phrase, Quiz question, Day (1-28), Angle (0-360°) ]
+        // Angle 0° = top of circle, increases clockwise.
+        // Day determines the moon-phase icon shown at that position on the
+        // ring (1=new moon, 14-15=full moon, etc. — standard 28-day cycle).
+        lunarData: [
+            ["SL-NewMoon",        "TL-NewMoon",        "QUIZ-NewMoon",        1,  180  ],
+            ["SL-WaxingCrescent", "TL-WaxingCrescent", "QUIZ-WaxingCrescent", 3,  205.7],
+            ["SL-FirstQuarter",   "TL-FirstQuarter",   "QUIZ-FirstQuarter",   7,  257.1],
+            ["SL-WaxingGibbous",  "TL-WaxingGibbous",  "QUIZ-WaxingGibbous",  10, 295.7],
+            ["SL-FullMoon",       "TL-FullMoon",       "QUIZ-FullMoon",       15, 0    ],
+            ["SL-WaningGibbous",  "TL-WaningGibbous",  "QUIZ-WaningGibbous",  19, 51.4 ],
+            ["SL-ThirdQuarter",   "TL-ThirdQuarter",   "QUIZ-ThirdQuarter",   22, 90   ],
+            ["SL-WaningCrescent", "TL-WaningCrescent", "QUIZ-WaningCrescent", 26, 154.3]
+        ],
+        // Index of the item to display on first load (0-based).
+        // Full Moon (index 4) is a sensible default starting point.
+        initialIndex: 4
+    };
+    // =====================================================================
+    // END OF LANGUAGE CONFIGURATION BLOCK
+    // No language-specific content appears below this line.
+    // =====================================================================
+
+
+    // --- Apply UI strings from config ------------------------------------
+    document.getElementById('title-box').textContent        = LANG.titles[0];
+    document.getElementById('drag-instruction').textContent = LANG.drag_instruction;
+    document.querySelector('.array-title').textContent      = LANG.array_title;
+    document.getElementById('toggle-learned').textContent   = LANG.hide_all_label;
+    document.getElementById('quizInput').placeholder        = LANG.quiz_placeholder;
+    document.getElementById('quizCheck').textContent        = LANG.quiz_button;
+    document.getElementById('display-all-btn').textContent  = LANG.display_all_label;
+    document.getElementById('day-indicator').textContent    =
+        `${LANG.day_label_prefix} ${LANG.lunarData[LANG.initialIndex][3]} - ${LANG.lunarData[LANG.initialIndex][1]}`;
+
+    // --- Runtime state -----------------------------------------------------
+    const lunarData = LANG.lunarData;
+    let currentQuizIndex = -1;
+    let learnedItems    = new Array(lunarData.length).fill(false);
+    let textBoxElements = [];
+    let currentDay      = LANG.initialIndex;
+    let isDragging       = false;
+    let displayAllMode   = false;
+    let currentTextIndex = 0;
+
+    // --- Day markers (28 tick marks) ---------------------------------------
+    function createDayMarkers() {
+        const group = document.getElementById('day-markers');
+        const c = { x: 50, y: 50 }, r = 30;
+        for (let day = 0; day < 28; day++) {
+            const angle = ((day * (360/28)) + 180 - 90) * Math.PI / 180;
+            const x1 = c.x + r * Math.cos(angle),       y1 = c.y + r * Math.sin(angle);
+            const x2 = c.x + (r + 1) * Math.cos(angle), y2 = c.y + (r + 1) * Math.sin(angle);
+            const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+            line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+            line.setAttribute('class', 'day-marker');
+            group.appendChild(line);
+        }
+    }
+
+    // --- Moon phase icons (28 around the ring) ------------------------------
+    function createMoonPhaseIcon(day, cx, cy) {
+        const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+        g.setAttribute('class', 'moon-phase-icon');
+        const radius = 2.5;
+
+        const dark = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        dark.setAttribute('cx', cx); dark.setAttribute('cy', cy);
+        dark.setAttribute('r', radius); dark.setAttribute('fill', '#1a1a2e');
+        g.appendChild(dark);
+
+        if (day === 0 || day === 28) {
+            // new moon — fully dark, nothing more to draw
+        } else if (day === 14 || day === 15) {
+            const full = document.createElementNS('http://www.w3.org/2000/svg','circle');
+            full.setAttribute('cx', cx); full.setAttribute('cy', cy);
+            full.setAttribute('r', radius); full.setAttribute('fill', '#ffffff');
+            g.appendChild(full);
+        } else if (day < 14) {
+            // waxing — illuminated portion grows from right
+            const clipId = `clip-wax-day${day}`;
+            const clip = document.createElementNS('http://www.w3.org/2000/svg','clipPath');
+            clip.setAttribute('id', clipId);
+            const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+            rect.setAttribute('x', cx - radius); rect.setAttribute('y', cy - radius);
+            rect.setAttribute('width',  radius * 2 * (day / 14));
+            rect.setAttribute('height', radius * 2);
+            clip.appendChild(rect);
+            g.appendChild(clip);
+
+            const lit = document.createElementNS('http://www.w3.org/2000/svg','circle');
+            lit.setAttribute('cx', cx); lit.setAttribute('cy', cy);
+            lit.setAttribute('r', radius); lit.setAttribute('fill', '#ffffff');
+            lit.setAttribute('clip-path', `url(#${clipId})`);
+            g.appendChild(lit);
+        } else {
+            // waning — illuminated portion shrinks from left
+            const daysAfterFull = day - 14;
+            const clipId = `clip-wane-day${day}`;
+            const clip = document.createElementNS('http://www.w3.org/2000/svg','clipPath');
+            clip.setAttribute('id', clipId);
+            const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+            rect.setAttribute('x', cx - radius + (radius * 2 * (daysAfterFull / 14)));
+            rect.setAttribute('y', cy - radius);
+            rect.setAttribute('width',  radius * 2 * (1 - daysAfterFull / 14));
+            rect.setAttribute('height', radius * 2);
+            clip.appendChild(rect);
+            g.appendChild(clip);
+
+            const lit = document.createElementNS('http://www.w3.org/2000/svg','circle');
+            lit.setAttribute('cx', cx); lit.setAttribute('cy', cy);
+            lit.setAttribute('r', radius); lit.setAttribute('fill', '#ffffff');
+            lit.setAttribute('clip-path', `url(#${clipId})`);
+            g.appendChild(lit);
+        }
+        return g;
+    }
+
+    function createMoonPhases() {
+        const group = document.getElementById('moon-phases');
+        const c = { x: 50, y: 50 }, r = 36;
+        for (let day = 1; day <= 28; day++) {
+            const angle = (((day - 1) * (360/28)) + 180 - 90) * Math.PI / 180;
+            const x = c.x + r * Math.cos(angle), y = c.y + r * Math.sin(angle);
+            const icon = createMoonPhaseIcon(day, x, y);
+            icon.setAttribute('data-day', day);
+            icon.setAttribute('data-x', x);
+            icon.setAttribute('data-y', y);
+            group.appendChild(icon);
+        }
+    }
+
+    function highlightClosestMoonIcon(frameX, frameY) {
+        const icons = document.querySelectorAll('.moon-phase-icon');
+        let closest = null, minDist = Infinity;
+        icons.forEach(icon => {
+            const ix = parseFloat(icon.getAttribute('data-x'));
+            const iy = parseFloat(icon.getAttribute('data-y'));
+            const d = Math.sqrt((frameX - ix) ** 2 + (frameY - iy) ** 2);
+            if (d < minDist) { minDist = d; closest = icon; }
+        });
+        icons.forEach(icon => icon.classList.remove('highlighted'));
+        if (closest) closest.classList.add('highlighted');
+    }
+
+    // --- Vocabulary array panel ---------------------------------------------
+    function toggleArrayVisibility() {
+        const container = document.getElementById('learned-items');
+        const button     = document.getElementById('toggle-learned');
+        if (!container || !button) return;
+        const spans = container.querySelectorAll('.vocabulary-item .tl-word, .vocabulary-item .sl-word');
+        let visibleCount = 0;
+        spans.forEach(s => { if (!s.classList.contains('hidden')) visibleCount++; });
+        const mostlyVisible = visibleCount > spans.length / 2;
+        spans.forEach(s => s.classList.toggle('hidden', mostlyVisible));
+        button.textContent = mostlyVisible ? LANG.show_all_label : LANG.hide_all_label;
+    }
+
+    function addToVocabularyArray(index) {
+        const sl = lunarData[index][0];
+        const tl = lunarData[index][1];
+        const item = document.createElement('div');
+        item.className = 'vocabulary-item';
+        const tlSpan = document.createElement('span');
+        tlSpan.className = 'tl-word';
+        tlSpan.textContent = tl;
+        const slSpan = document.createElement('span');
+        slSpan.className = 'sl-word';
+        slSpan.textContent = sl;
+        [tlSpan, slSpan].forEach(s => {
+            s.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('hidden');
+            });
+        });
+        item.appendChild(tlSpan);
+        item.appendChild(slSpan);
+        document.getElementById('learned-items').appendChild(item);
+    }
+
+    // --- Text boxes -----------------------------------------------------
+    // Per-item manual position overrides, keyed by lunarData index. The
+    // reusable "Show positions" coordinate-display tool (preserved in the
+    // Session Starter from the LOG-CR-TDL work) can be temporarily added
+    // back in to read off x/y for any item that overlaps another — it was
+    // removed from this finished template per Alan's request 2026-07-23,
+    // the same call Alan made on LOG-CR-TDL. xOffset/yOffset nudge
+    // relative to the item's own computed default position; either can be
+    // omitted.
+    //
+    // Index 0 (New Moon, day 1) sits at the ring's most extreme bottom
+    // point (y≈97, the mirror opposite of Full Moon's y≈3) — the general
+    // -6 default offset pushed its box past the viewBox's bottom edge
+    // (91 to 115, when the visible area only goes to 100), where the
+    // container's overflow:hidden clipped it entirely. Given its own
+    // inward offset here, the same way Full Moon already had one. (Found
+    // and fixed on LOG-CR-LUN first; same geometry, so applies here too.)
+    // Per Alan's coordinate-tool readings (2026-07-23): absolute x,y
+    // target for each item's box CENTER, replacing the ring-computed
+    // default position entirely for these 8 (all of them). {xOffset,
+    // yOffset} remain supported below as a relative-nudge alternative for
+    // any future item that doesn't need a full absolute reposition.
+    const positionOverrides = {
+        0: { x: 50,  y: 70   },  // New Moon
+        1: { x: 8.0, y: 80   },  // Waxing Crescent
+        2: { x: 0.1, y: 66.0 },  // First Quarter
+        3: { x: 0.1, y: 36.00 }, // Waxing Gibbous
+        4: { x: 50,  y: 5    },  // Full Moon
+        5: { x: 100, y: 26   },  // Waning Gibbous
+        6: { x: 100, y: 55   },  // Third Quarter
+        7: { x: 90,  y: 80   }   // Waning Crescent
+    };
+
+    function createTextBoxes() {
+        const svg = document.getElementById('svgCanvas');
+        document.querySelectorAll('.textBox').forEach(b => b.parentNode && b.parentNode.removeChild(b));
+        textBoxElements = [];
+
+        const c = { x: 50, y: 50 }, baseRadius = 47;
+
+        lunarData.forEach((item, index) => {
+            const dayAngle = (((item[3] - 1) * (360/28)) + 180 - 90) * Math.PI / 180;
+            const ringX = c.x + baseRadius * Math.cos(dayAngle);
+            const ringY = c.y + baseRadius * Math.sin(dayAngle);
+
+            const override = positionOverrides[index];
+            let foX, foY;
+            if (override && override.x !== undefined && override.y !== undefined) {
+                // Absolute override — treat as the box's exact center point.
+                foX = override.x - 30;
+                foY = override.y - 12;
+            } else {
+                // Ring-computed default, with the small downward nudge used
+                // for un-overridden items.
+                const yOffset = (override && override.yOffset !== undefined) ? override.yOffset : -6;
+                const xOffset = (override && override.xOffset !== undefined) ? override.xOffset : 0;
+                foX = ringX - 30 + xOffset;
+                foY = ringY + yOffset;
+            }
+
+            const fo = document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+            fo.setAttribute('x', foX);
+            fo.setAttribute('y', foY);
+            fo.setAttribute('width',  '60');
+            fo.setAttribute('height', '24');
+            fo.setAttribute('class', 'textBox');
+            fo.setAttribute('data-index', index);
+
+            const div = document.createElement('div');
+            // Vertical centering: previously only text-align:center
+            // (horizontal) was set. A plain div flows from the TOP of
+            // its container, so text rendered near the box's top edge
+            // rather than its true center — the same root-cause bug
+            // found and fixed on LOG-CR-TDL via a debug-marker test.
+            // Fixed the same way here with flexbox, filling the full
+            // box. Fixed 2026-07-21 as part of the systematic re-fix
+            // across the Circular family.
+            div.style.display        = 'flex';
+            div.style.alignItems     = 'center';
+            div.style.justifyContent = 'center';
+            div.style.width          = '100%';
+            div.style.height         = '100%';
+            div.style.boxSizing      = 'border-box';
+            div.style.textAlign  = 'center';
+            div.style.fontSize   = '3.5px';
+            div.style.fontFamily = 'Arial, sans-serif';
+            div.style.color      = 'white';
+            div.style.cursor     = 'pointer';
+            div.style.lineHeight = '1.1';
+            div.style.fontWeight = 'normal';
+            div.textContent = item[1]; // start with TL
+            fo.appendChild(div);
+
+            if (learnedItems[index]) fo.classList.add('learned');
+
+            fo.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.getAttribute('data-index'));
+                const div = this.querySelector('div');
+                const qc = document.getElementById('quizContainer');
+
+                if (qc.style.display !== 'none' && currentQuizIndex !== idx) {
+                    qc.style.display = 'none';
+                    currentQuizIndex = -1;
+                }
+                if (qc.style.display !== 'none' && currentQuizIndex === idx) return;
+
+                const tlText = lunarData[idx][1], slText = lunarData[idx][0];
+
+                if (learnedItems[idx]) {
+                    div.textContent = (div.textContent.trim() === tlText) ? slText : tlText;
+                    div.style.fontSize = (div.textContent === slText) ? '3.2px' : '3.5px';
+                } else {
+                    const current = div.textContent.trim();
+                    if (current === tlText)      { div.textContent = slText; div.style.fontSize = '3.2px'; }
+                    else if (current === slText) { showQuiz(idx); }
+                }
+            });
+
+            const draggableFrame = document.getElementById('draggableFrame');
+            if (draggableFrame && draggableFrame.parentNode) {
+                draggableFrame.parentNode.insertBefore(fo, draggableFrame);
+            } else {
+                svg.appendChild(fo);
+            }
+            textBoxElements.push(fo);
+        });
+
+        const frame = document.getElementById('draggableFrame');
+        if (frame && frame.parentNode) frame.parentNode.appendChild(frame);
+    }
+
+    function findClosestPhase(angle) {
+        const norm = ((angle % 360) + 360) % 360;
+        let closest = 0, minDiff = 360;
+        lunarData.forEach((item, i) => {
+            let diff = Math.abs(norm - item[4]);
+            if (diff > 180) diff = 360 - diff;
+            if (diff < minDiff) { minDiff = diff; closest = i; }
+        });
+        return closest;
+    }
+
+    // --- Visibility & display-all -------------------------------------------
+    function updateVisibleTextBoxes(phaseIndex) {
+        const frame = document.getElementById('draggableFrame');
+
+        textBoxElements.forEach((tb, index) => {
+            if (!tb) return;
+
+            if (displayAllMode) {
+                tb.classList.add('active'); tb.classList.remove('hidden');
+                tb.style.opacity = '1'; tb.style.display = 'block';
+                const div = tb.querySelector('div');
+                if (div) {
+                    div.innerHTML =
+                        `<div style="font-size:3.2px;font-weight:bold;">${lunarData[index][1]}</div>` +
+                        `<div style="font-size:3.5px;margin-top:1px;">${lunarData[index][0]}</div>`;
+                }
+            } else if (index === phaseIndex) {
+                tb.classList.add('active'); tb.classList.remove('hidden');
+                tb.style.opacity = '1'; tb.style.display = 'block';
+                const div = tb.querySelector('div');
+                if (div && div.innerHTML.includes('<div')) {
+                    div.innerHTML = lunarData[index][1];
+                    div.style.fontSize = '3.2px';
+                }
+                if (tb.parentNode && frame) tb.parentNode.insertBefore(tb, frame);
+            } else if (learnedItems[index]) {
+                tb.classList.remove('active'); tb.classList.remove('hidden');
+                tb.style.opacity = '0.6'; tb.style.display = 'block';
+                const div = tb.querySelector('div');
+                if (div && div.innerHTML.includes('<div')) {
+                    div.innerHTML = lunarData[index][1];
+                    div.style.fontSize = '3.2px';
+                }
+            } else {
+                tb.classList.remove('active'); tb.classList.add('hidden');
+                tb.style.opacity = '0'; tb.style.display = 'none';
+            }
+        });
+
+        if (!displayAllMode) {
+            const item = lunarData[phaseIndex];
+            document.getElementById('day-indicator').textContent =
+                `${LANG.day_label_prefix} ${item[3]} - ${item[1]}`;
+        }
+    }
+
+    // --- Quiz -----------------------------------------------------------
+    function showQuiz(index) {
+        currentQuizIndex = index;
+        const qc = document.getElementById('quizContainer');
+        document.getElementById('quizInput').placeholder = lunarData[index][2];
+        document.getElementById('quizInput').value = '';
+        document.getElementById('quizFeedback').textContent = '';
+        qc.style.display = 'block';
+        setTimeout(() => { try { document.getElementById('quizInput').focus(); } catch(e){} }, 100);
+    }
+
+    function checkQuizAnswer() {
+        if (currentQuizIndex < 0) return;
+        const input   = document.getElementById('quizInput').value.trim();
+        const correct = lunarData[currentQuizIndex][1];
+        const fb      = document.getElementById('quizFeedback');
+
+        if (input.toLowerCase() === correct.toLowerCase()) {
+            fb.textContent = LANG.quiz_correct;
+            fb.style.color = '#4ade80';
+            learnedItems[currentQuizIndex] = true;
+            const tb = textBoxElements[currentQuizIndex];
+            if (tb) {
+                tb.classList.add('learned');
+                const div = tb.querySelector('div');
+                if (div) div.textContent = correct;
+            }
+            addToVocabularyArray(currentQuizIndex);
+            setTimeout(() => {
+                document.getElementById('quizContainer').style.display = 'none';
+                currentQuizIndex = -1;
+            }, 1500);
+        } else {
+            fb.textContent = LANG.quiz_wrong;
+            fb.style.color = '#f87171';
+            const tb = textBoxElements[currentQuizIndex];
+            if (tb) {
+                const div = tb.querySelector('div');
+                if (div) { div.textContent = correct; div.style.fontSize = '3.2px'; }
+            }
+        }
+    }
+
+    function positionFrameOnPhase(phaseIndex) {
+        const c = { x: 50, y: 50 }, r = 30;
+        const angle = (lunarData[phaseIndex][4] - 90) * Math.PI / 180;
+        const x = c.x + r * Math.cos(angle), y = c.y + r * Math.sin(angle);
+        const frame = document.getElementById('draggableFrame');
+        frame.setAttribute('transform', `translate(${x - 50}, ${y - 20})`);
+        currentDay = phaseIndex;
+        updateVisibleTextBoxes(phaseIndex);
+    }
+
+    // --- Quiz container drag-anywhere ------------------------------------
+    function makeQuizDraggable() {
+        const qc = document.getElementById('quizContainer');
+        let qDragging = false, offsetX = 0, offsetY = 0;
+
+        function qStart(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+            e.stopPropagation();
+            const rect = qc.getBoundingClientRect();
+            qc.style.transform = 'none';
+            qc.style.left = rect.left + 'px';
+            qc.style.top  = rect.top + 'px';
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            offsetX = clientX - rect.left;
+            offsetY = clientY - rect.top;
+            qDragging = true;
+            qc.classList.add('dragging');
+            e.preventDefault();
+        }
+        function qMove(e) {
+            if (!qDragging) return;
+            e.stopPropagation();
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            qc.style.left = (clientX - offsetX) + 'px';
+            qc.style.top  = (clientY - offsetY) + 'px';
+            e.preventDefault();
+        }
+        function qEnd(e) {
+            if (!qDragging) return;
+            qDragging = false;
+            qc.classList.remove('dragging');
+            // A drag-release (mouseup) synthesizes a click event immediately
+            // afterward, targeted at whatever's under the cursor at that exact
+            // pixel — which, on a fast or slightly imprecise drag, can easily
+            // land just outside the container's own bounds even though the
+            // user was clearly still interacting with it. Without this guard,
+            // that synthetic click gets misread by the outside-click handler
+            // below as "user clicked away," dismissing the quiz immediately
+            // after every drag. Swallow exactly one click event here;
+            // quizJustDragged is consumed and reset by the outside-click
+            // handler itself. (Same fix as Rice-Growing, 2026-08-03.)
+            quizJustDragged = true;
+            if (e) e.stopPropagation();
+        }
+
+        qc.addEventListener('mousedown', qStart);
+        qc.addEventListener('touchstart', qStart, { passive: false });
+        document.addEventListener('mousemove', qMove);
+        document.addEventListener('touchmove', qMove, { passive: false });
+        document.addEventListener('mouseup', qEnd);
+        document.addEventListener('touchend', qEnd);
+    }
+    let quizJustDragged = false;
+
+    // --- Init -----------------------------------------------------------
+    function initializeApp() {
+        const svg             = document.getElementById('svgCanvas');
+        const frame           = document.getElementById('draggableFrame');
+        const titleBox        = document.getElementById('title-box');
+        const quizContainer   = document.getElementById('quizContainer');
+        const quizInput       = document.getElementById('quizInput');
+        const quizCheck       = document.getElementById('quizCheck');
+        const toggleLearnedBtn= document.getElementById('toggle-learned');
+        const displayAllBtn   = document.getElementById('display-all-btn');
+
+        if (!svg || !frame || !titleBox || !displayAllBtn) return;
+
+        createDayMarkers();
+        createMoonPhases();
+        createTextBoxes();
+        positionFrameOnPhase(LANG.initialIndex);
+        makeQuizDraggable();
+
+        frame.style.pointerEvents = 'all';
+        frame.style.cursor = 'grab';
+        frame.style.zIndex = '1000';
+
+        displayAllBtn.addEventListener('click', function() {
+            displayAllMode = !displayAllMode;
+            if (displayAllMode) {
+                displayAllBtn.textContent = LANG.display_one_label;
+                document.getElementById('day-indicator').textContent = LANG.display_all_indicator;
+                frame.style.display = 'none';
+                createTextBoxes();
+                updateVisibleTextBoxes(currentDay);
+            } else {
+                displayAllBtn.textContent = LANG.display_all_label;
+                frame.style.display = 'block';
+                createTextBoxes();
+                updateVisibleTextBoxes(currentDay);
+            }
+        });
+
+        function startDrag(e) {
+            isDragging = true;
+            frame.classList.add('dragging');
+            frame.style.cursor = 'grabbing';
+            e.preventDefault(); e.stopPropagation();
+        }
+
+        function dragMove(e) {
+            if (!isDragging) return;
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            try {
+                const rect = svg.getBoundingClientRect();
+
+                // The SVG's viewBox is a square with preserveAspectRatio=
+                // "xMidYMid meet", but the .a4-page container is NOT
+                // square (90vw × 70vh) — letterboxed rather than
+                // stretched. Fixed 2026-07-21 as part of the systematic
+                // re-fix — LOG-CR-LUN already had this fix, ROM-CR-LUN
+                // never received it.
+                const renderedSize = Math.min(rect.width, rect.height);
+                const offsetX = rect.left + (rect.width  - renderedSize) / 2;
+                const offsetY = rect.top  + (rect.height - renderedSize) / 2;
+
+                const svgX = ((clientX - offsetX) / renderedSize) * 100;
+                const svgY = ((clientY - offsetY) / renderedSize) * 100;
+                const angle = Math.atan2(svgY - 50, svgX - 50);
+                const r = 30;
+                const frameX = 50 + r * Math.cos(angle);
+                const frameY = 50 + r * Math.sin(angle);
+                frame.setAttribute('transform', `translate(${frameX - 50}, ${frameY - 20})`);
+                highlightClosestMoonIcon(frameX, frameY);
+                const deg = (angle * 180 / Math.PI + 90 + 360) % 360;
+                const idx = findClosestPhase(deg);
+                currentDay = idx;
+                updateVisibleTextBoxes(idx);
+            } catch (err) { console.error('drag error:', err); }
+            e.preventDefault(); e.stopPropagation();
+        }
+
+        function endDrag(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            frame.classList.remove('dragging');
+            frame.style.cursor = 'grab';
+            // Snap-to-nearest-marker on release removed per Alan's
+            // standing preference across Circular templates. Matching
+            // LOG-CR-LUN, which already had this fix.
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+        }
+
+        frame.addEventListener('mousedown',  startDrag);
+        frame.addEventListener('touchstart', startDrag, { passive: false });
+        document.addEventListener('mousemove', dragMove);
+        document.addEventListener('touchmove', dragMove, { passive: false });
+        document.addEventListener('mouseup',   endDrag);
+        document.addEventListener('touchend',  endDrag);
+        document.addEventListener('mouseleave',endDrag);
+
+        titleBox.addEventListener('click', function() {
+            this.classList.add('hidden');
+            setTimeout(() => {
+                currentTextIndex = (currentTextIndex + 1) % LANG.titles.length;
+                this.textContent = LANG.titles[currentTextIndex];
+                this.classList.remove('hidden');
+            }, 500);
+        });
+
+        quizCheck.addEventListener('click', checkQuizAnswer);
+        quizInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkQuizAnswer(); });
+        toggleLearnedBtn.addEventListener('click', toggleArrayVisibility);
+
+        document.addEventListener('click', function(e) {
+            if (quizJustDragged) { quizJustDragged = false; return; }
+            if (quizContainer.style.display === 'none') return;
+            if (quizContainer.contains(e.target)) return;
+            if (textBoxElements.some(b => b && b.contains(e.target))) return;
+            if (currentQuizIndex >= 0 && !learnedItems[currentQuizIndex]) {
+                const tb = textBoxElements[currentQuizIndex];
+                if (tb) {
+                    const div = tb.querySelector('div');
+                    if (div) { div.textContent = lunarData[currentQuizIndex][1]; div.style.fontSize = '3.5px'; }
+                }
+            }
+            quizContainer.style.display = 'none';
+            currentQuizIndex = -1;
+        });
+
+        quizContainer.style.display = 'none';
+
+        setTimeout(() => {
+            const di = document.getElementById('drag-instruction');
+            if (di) {
+                di.classList.add('fade');
+                setTimeout(() => { di.style.display = 'none'; }, 3000);
+            }
+        }, 15000);
+    }
+
+    document.addEventListener('DOMContentLoaded', initializeApp);
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<!-- Last updated: 2026-08-04 @ 7:56 p.m. (Mangawhai, NZ) -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOG-CR-MEN Generic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0; padding: 0;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; background-color: #2a1a2e; overflow: hidden;
+        }
+        .a4-page {
+            width: 90vw; height: 70vh;
+            border: 5px solid #4a2a4e;
+            background: linear-gradient(135deg, #ffc3e1 0%, #d4a5d4 25%, #a675c6 50%, #d4a5d4 75%, #ffc3e1 100%);
+            box-sizing: border-box; position: relative;
+            touch-action: none; z-index: 1; overflow: hidden;
+        }
+        .watermark {
+            position: absolute; bottom: 5px; width: 100%;
+            text-align: center; font-size: 12px;
+            color: rgba(0,0,0,0.3); font-weight: bold;
+            pointer-events: none; user-select: none; z-index: 0;
+        }
+        svg { width: 100%; height: 100%; overflow: visible; }
+        .circle-path { stroke: #6a4a6e; stroke-width: 0.4; fill: none; }
+        .day-marker  { stroke: #8a6a8e; stroke-width: 0.15; }
+
+        .textBox {
+            cursor: pointer; font-size: 0.8em; fill: #2a1a2e;
+            opacity: 0; display: none;
+            transition: opacity 0.5s ease-in-out;
+            text-anchor: middle; font-family: Arial, sans-serif;
+        }
+        .textBox.active  { opacity: 1; display: block; }
+        .textBox.learned { opacity: 0.6; display: block; fill: #7b2d8e; }
+        .textBox.learned.active { opacity: 1; }
+        .textBox.hidden  { opacity: 0; display: none; }
+
+        #draggableFrame {
+            cursor: grab; pointer-events: all; z-index: 1000;
+            filter: drop-shadow(0 0 8px rgba(138,106,142,0.9));
+        }
+        #draggableFrame:hover    { cursor: grab; filter: drop-shadow(0 0 12px rgba(138,106,142,1)); }
+        #draggableFrame.dragging { cursor: grabbing; filter: drop-shadow(0 0 15px rgba(200,100,180,1)); }
+
+        .cycle-marker { transition: opacity 0.3s ease, r 0.3s ease; }
+        .cycle-marker.highlighted { opacity: 1; filter: drop-shadow(0 0 3px rgba(200,100,180,1)); }
+
+        .title-box {
+            position: absolute; top: 10px; left: 10px;
+            font-size: 1em; font-weight: bold; text-align: center;
+            cursor: pointer; border: 1px solid #8a6a8e; padding: 10px;
+            background-color: rgba(255,255,255,0.9); color: #2a1a2e;
+            z-index: 2; transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .title-box.hidden { opacity: 0; transform: scale(0.9); }
+
+        .day-indicator {
+            position: absolute; bottom: 10px; left: 10px;
+            font-size: 1em; padding: 5px 10px;
+            background-color: rgba(255,255,255,0.9); color: #2a1a2e;
+            border: 1px solid #8a6a8e; border-radius: 4px; z-index: 3;
+        }
+        .drag-instruction {
+            position: absolute; top: 60px; right: 10px;
+            font-size: 0.9em; padding: 5px 10px;
+            background-color: rgba(255,255,255,0.9); color: #2a1a2e;
+            border: 1px solid #8a6a8e; border-radius: 4px; z-index: 3;
+            opacity: 1; transition: opacity 3s ease; max-width: 200px;
+        }
+        .drag-instruction.fade { opacity: 0; }
+
+        .quiz-container {
+            position: fixed; top: 40%; left: 75%; transform: translate(-50%,-50%);
+            background-color: rgba(255,255,255,0.95); color: #2a1a2e;
+            border: 3px solid #8a6a8e; border-radius: 4px; padding: 12px;
+            z-index: 9999; display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            max-width: 360px; width: 360px; cursor: grab;
+        }
+        .quiz-container.dragging { cursor: grabbing; }
+        .quiz-container input { cursor: text; }
+        .quiz-container input {
+            width: 100%; padding: 8px; font-size: 14px;
+            border: 1px solid #8a6a8e; border-radius: 4px;
+            margin-bottom: 10px; background-color: white; color: #2a1a2e;
+            font-family: Arial, sans-serif;
+        }
+        .quiz-container button {
+            width: 100%; padding: 8px; background-color: #a675c6;
+            color: white; border: none; border-radius: 4px;
+            cursor: pointer; font-weight: bold;
+        }
+        .quiz-container button:hover { background-color: #7b2d8e; }
+        #quizFeedback { text-align: center; font-weight: bold; margin-top: 8px; min-height: 20px; }
+
+        .learned-vocabulary {
+            position: absolute; top: 10px; right: 10px;
+            width: 25%; max-height: 40vh; overflow-y: auto;
+            background-color: rgba(255,255,255,0.9);
+            border: 1px solid #8a6a8e; border-radius: 4px; padding: 5px; z-index: 4;
+        }
+        .array-title {
+            font-size: 0.9em; text-align: center; font-weight: bold;
+            margin-bottom: 5px; padding: 3px;
+            background-color: rgba(166,117,198,0.3); color: #2a1a2e;
+            border-bottom: 1px solid #8a6a8e;
+        }
+        .vocabulary-item {
+            display: flex; flex-direction: column; font-size: 0.75em;
+            margin: 3px 0; padding: 5px; border: 1px solid #c4a4c8;
+            border-radius: 3px; background-color: rgba(255,255,255,0.5);
+            transition: background-color 0.3s ease;
+        }
+        .vocabulary-item:hover { background-color: rgba(212,165,212,0.4); }
+        .vocabulary-item .tl-word {
+            font-weight: bold; color: #7b2d8e; cursor: pointer;
+            padding: 2px 5px; border-radius: 3px;
+        }
+        .vocabulary-item .sl-word {
+            color: #555; cursor: pointer; padding: 2px 5px; border-radius: 3px;
+        }
+        .vocabulary-item .tl-word.hidden,
+        .vocabulary-item .sl-word.hidden {
+            color: transparent; user-select: none; background-color: rgba(212,165,212,0.3);
+        }
+        .toggle-visibility {
+            position: absolute; top: 5px; right: 5px; font-size: 0.7em;
+            padding: 2px 5px; background-color: rgba(166,117,198,0.3); color: #2a1a2e;
+            border: 1px solid #8a6a8e; border-radius: 3px; cursor: pointer; z-index: 5;
+        }
+        .display-all-btn {
+            position: absolute; bottom: 10px; right: 10px;
+            font-size: 0.9em; padding: 8px 12px;
+            background-color: rgba(166,117,198,0.9); color: white;
+            border: 1px solid #8a6a8e; border-radius: 4px;
+            cursor: pointer; z-index: 3; font-weight: bold;
+        }
+        .display-all-btn:hover { background-color: rgba(123,45,142,1); }
+
+        /* Coordinate-display dev tool (Alan's position-customization aid) */
+        .coord-toggle-btn {
+            position: absolute; bottom: 30px; left: 25%; transform: translateX(-50%);
+            font-size: 0.8em; padding: 8px 16px;
+            background-color: #f0f0f0; border: 1px solid #ccc;
+            border-radius: 4px; cursor: pointer; z-index: 3;
+        }
+        .coord-readout {
+            position: fixed; z-index: 10000; pointer-events: none;
+            background-color: rgba(0,0,0,0.75); color: #fff;
+            font-family: monospace; font-size: 12px;
+            padding: 3px 6px; border-radius: 3px;
+            display: none; transform: translate(12px, 12px);
+        }
+    </style>
+</head>
+<body>
+    <div class="a4-page">
+        <div id="title-box" class="title-box">TITLE_PLACEHOLDER</div>
+        <div id="day-indicator" class="day-indicator">DAY_INDICATOR_PLACEHOLDER</div>
+        <div id="drag-instruction" class="drag-instruction">DRAG_INSTRUCTION_PLACEHOLDER</div>
+
+        <div id="learned-vocabulary" class="learned-vocabulary">
+            <div class="array-title">ARRAY_TITLE_PLACEHOLDER</div>
+            <button class="toggle-visibility" id="toggle-learned">HIDE_ALL_LABEL</button>
+            <div id="learned-items"></div>
+        </div>
+
+        <svg id="svgCanvas" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+            <circle id="circlePath" cx="50" cy="50" r="30" class="circle-path"/>
+            <g id="day-markers"></g>
+            <g id="cycle-markers"></g>
+
+            <g id="draggableFrame">
+                <circle cx="50" cy="20" r="3.5" fill="#d4a5d4" stroke="#8a6a8e" stroke-width="0.3"/>
+                <circle cx="50" cy="20" r="2" fill="#ffc3e1" opacity="0.7"/>
+            </g>
+        </svg>
+
+        <div class="watermark">&copy; 2026 Alan William Preston</div>
+
+        <button id="display-all-btn" class="display-all-btn">DISPLAY_ALL_LABEL</button>
+        <button id="coordToggleBtn" class="coord-toggle-btn">Show positions</button>
+    </div>
+    <div id="coordReadout" class="coord-readout">x: 0.0, y: 0.0</div>
+
+    <div id="quizContainer" class="quiz-container">
+        <input type="text" id="quizInput" placeholder="QUIZ_PLACEHOLDER">
+        <button id="quizCheck">QUIZ_BUTTON_LABEL</button>
+        <div id="quizFeedback"></div>
+    <div id="quizDiacriticNote" style="font-size:10px;color:#888;text-align:center;margin-top:6px;padding-top:6px;border-top:1px solid #eee;"></div>
+    </div>
+
+    <script>
+
+    // =====================================================================
+    // =====================================================================
+// LOGOGRAPHIC VARIANT — 4-level cycle: TLR (default) → TL → SL → Quiz
+// Quiz tests TLR (romanized) reproduction with diacritic normalization.
+// =====================================================================
+// LANGUAGE CONFIGURATION BLOCK
+    // To create a new language pair, replace ALL values in this section.
+    // SL = Source Language  |  TL = Target Language (language being learned)
+    //
+    // STRUCTURE: This template maps any 28-position cyclical concept onto
+    // a circular dial — originally designed for the menstrual cycle, but
+    // suitable for any 28-day (or 28-stage) recurring cycle. Each phase
+    // has a Day number (1-28) and an Angle (0-360°) for its position on
+    // the dial; the two are usually related but kept separate so phases
+    // landing on the same day (e.g. day 14 events) can be placed at
+    // different angles for readability.
+    // Do NOT change anything outside this block.
+    // =====================================================================
+    const LANG = {
+
+        // --- Title cycle (click title box to cycle) ----------------------
+        // Title cycle: TLR (default) → TL → SL → TLR. See "Logographic
+        // UI Conventions" in Conceptionary_Template_Definitions.md.
+        // Previously this array's first element was the literal string
+        // "LOG-CR-MEN Generic" (a disconnected placeholder shown by
+        // default on load) sitting before three otherwise-correctly-
+        // ordered TLR/TL/SL elements — removed, so TLR now correctly
+        // becomes the default.
+        titles: [
+        "TLR_TITLE",
+        "TL_TITLE",
+        "SL_TITLE"
+    ],
+
+        // --- UI strings --------------------------------------------------
+        drag_instruction:    "DRAG_INSTRUCTION",     // e.g. "Drag around the circle!"
+        array_title:         "ARRAY_TITLE",          // e.g. "Learned Vocabulary"
+        hide_all_label:      "HIDE_ALL_LABEL",       // e.g. "Hide All"
+        show_all_label:      "SHOW_ALL_LABEL",       // e.g. "Show All"
+        display_all_label:   "DISPLAY_ALL_LABEL",    // e.g. "Display All"
+        display_one_label:   "DISPLAY_ONE_LABEL",    // e.g. "Show One"
+        display_all_indicator: "DISPLAY_ALL_INDICATOR", // e.g. "Displaying All Phases"
+        day_label_prefix:    "DAY_LABEL_PREFIX",     // e.g. "Day"
+        quiz_placeholder:    "QUIZ_PLACEHOLDER",     // e.g. "Enter the [TL] phrase"
+        quiz_button:         "QUIZ_BUTTON_LABEL",    // e.g. "Check"
+        quiz_correct:        "QUIZ_CORRECT",         // e.g. "Correct!"
+        quiz_wrong:          "QUIZ_WRONG",           // e.g. "Try again"
+    // --- Diacritic / romanization normalization --------------------------
+    // Shown near the quiz input so learners know they can type plain vowels.
+    diacritic_instructions: "DIACRITIC_INSTRUCTIONS",
+    // e.g. "Tip: macrons (ā→a, ō→o) may be typed as plain vowels."
+    diacritic_map: [
+        // ["ā","a"], ["ī","i"], ["ū","u"], ["ē","e"], ["ō","o"]
+    ],
+    collapse_double_vowels: false,
+
+        // --- Cycle marker colour bands (optional visual aid) -------------
+        // Each entry: { dayStart, dayEnd (inclusive), color, intensity, radius }
+        // Used to shade the outer ring of 28 day-markers — e.g. to show
+        // phases of a cycle at a glance. Leave as a single uniform band
+        // if not relevant to your TL concept.
+        markerBands: [
+            { dayStart: 1,  dayEnd: 5,  color: "#e94f8f", intensity: 0.8, radius: 2   },
+            { dayStart: 6,  dayEnd: 13, color: "#d4a5d4", intensity: 0.5, radius: 1.5 },
+            { dayStart: 14, dayEnd: 14, color: "#a675c6", intensity: 1,   radius: 2.5 },
+            { dayStart: 15, dayEnd: 28, color: "#c49ed4", intensity: 0.6, radius: 1.5 }
+        ],
+        markerDefault: { color: "#ffc3e1", intensity: 0.3, radius: 1.5 },
+
+        // --- Vocabulary data (any number of items, typically 6-10) ---------
+        // Format: [ SL phrase, TL phrase, TLR phrase, Quiz question, Day (1-28), Angle (0-360°) ]
+        // Angle 0° = top of circle, increases clockwise.
+        // textRadius: optional per-item override for label distance from
+        // centre (some labels near the top of the circle need to sit
+        // closer in to avoid overlapping the title box).
+        cycleData: [
+            ["SL-1", "TL-1", "TLR-1", "QUIZ-1", 1,  180  ],
+            ["SL-2", "TL-2", "TLR-2", "QUIZ-2", 5,  231.4],
+            ["SL-3", "TL-3", "TLR-3", "QUIZ-3", 9,  282.9],
+            ["SL-4", "TL-4", "TLR-4", "QUIZ-4", 14, 347.1],
+            ["SL-5", "TL-5", "TLR-5", "QUIZ-5", 14, 0    ],
+            ["SL-6", "TL-6", "TLR-6", "QUIZ-6", 18, 51.4 ],
+            ["SL-7", "TL-7", "TLR-7", "QUIZ-7", 21, 90   ],
+            ["SL-8", "TL-8", "TLR-8", "QUIZ-8", 25, 141.4]
+        ],
+        // Per-index radius overrides (index into cycleData above).
+        // Items near the top of the circle (angle close to 0°) often need
+        // a smaller radius to fit within the frame. Index 0 (Day 1, angle
+        // 180° -> the ring's extreme BOTTOM point) needed the same fix as
+        // New Moon on LOG-CR-LUN: at the default radius its box extended
+        // past the viewBox's bottom edge and was clipped entirely by the
+        // container's overflow:hidden. Pulled inward here instead.
+        textRadiusOverrides: {
+            0: 30,
+            3: 42,
+            4: 40
+        },
+        defaultTextRadius: 47
+    };
+    // =====================================================================
+    // END OF LANGUAGE CONFIGURATION BLOCK
+
+// --- Answer normalization (diacritic-tolerant for TLR quiz answers) ---
+const AnswerUtils = {
+    normalize: function(text) {
+        let t = text.toLowerCase();
+        LANG.diacritic_map.forEach(([accented, plain]) => {
+            t = t.split(accented).join(plain);
+        });
+        if (LANG.collapse_double_vowels) {
+            t = t.replace(/aa/g,'a').replace(/ee/g,'e').replace(/ii/g,'i')
+                 .replace(/oo/g,'o').replace(/uu/g,'u');
+        }
+        return t.replace(/\s+/g,' ').trim().toLowerCase();
+    },
+    checkAnswer: function(userInput, correct) {
+        return this.normalize(userInput) === this.normalize(correct);
+    }
+};
+
+    // No language-specific content appears below this line.
+    // =====================================================================
+
+
+    // --- Apply UI strings from config ------------------------------------
+    document.getElementById('title-box').textContent        = LANG.titles[0];
+    document.getElementById('drag-instruction').textContent = LANG.drag_instruction;
+    document.querySelector('.array-title').textContent      = LANG.array_title;
+    document.getElementById('toggle-learned').textContent   = LANG.hide_all_label;
+    document.getElementById('quizInput').placeholder        = LANG.quiz_placeholder;
+    document.getElementById('quizCheck').textContent        = LANG.quiz_button;
+    const _dNote = document.getElementById('quizDiacriticNote');
+    if (_dNote) _dNote.textContent = LANG.diacritic_instructions;
+    document.getElementById('display-all-btn').textContent  = LANG.display_all_label;
+    document.getElementById('day-indicator').textContent    =
+        `${LANG.day_label_prefix} ${LANG.cycleData[0][4]} - ${LANG.cycleData[0][1]}`;
+
+    // --- Runtime state -----------------------------------------------------
+    const cycleData = LANG.cycleData;
+    let currentQuizIndex = -1;
+    let learnedItems    = new Array(cycleData.length).fill(false);
+    let textBoxElements = [];
+    let currentDay      = 0;
+    let isDragging       = false;
+    let displayAllMode   = false;
+    let currentTextIndex = 0;
+
+    // --- Day markers (28 tick marks) ---------------------------------------
+    function createDayMarkers() {
+        const group = document.getElementById('day-markers');
+        const c = { x: 50, y: 50 }, r = 30;
+        for (let day = 0; day < 28; day++) {
+            const angle = ((day * (360/28)) + 180 - 90) * Math.PI / 180;
+            const x1 = c.x + r * Math.cos(angle),       y1 = c.y + r * Math.sin(angle);
+            const x2 = c.x + (r + 1) * Math.cos(angle), y2 = c.y + (r + 1) * Math.sin(angle);
+            const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+            line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+            line.setAttribute('class', 'day-marker');
+            group.appendChild(line);
+        }
+    }
+
+    // --- Cycle marker ring (colour-banded) ----------------------------------
+    function getMarkerStyle(day) {
+        for (const band of LANG.markerBands) {
+            if (day >= band.dayStart && day <= band.dayEnd) {
+                return { color: band.color, intensity: band.intensity, radius: band.radius };
+            }
+        }
+        return LANG.markerDefault;
+    }
+
+    function createCycleMarkers() {
+        const group = document.getElementById('cycle-markers');
+        const c = { x: 50, y: 50 }, r = 36;
+        for (let day = 1; day <= 28; day++) {
+            const angle = (((day - 1) * (360/28)) + 180 - 90) * Math.PI / 180;
+            const x = c.x + r * Math.cos(angle), y = c.y + r * Math.sin(angle);
+            const style = getMarkerStyle(day);
+            const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+            circle.setAttribute('cx', x); circle.setAttribute('cy', y);
+            circle.setAttribute('r', style.radius);
+            circle.setAttribute('fill', style.color);
+            circle.setAttribute('opacity', style.intensity);
+            circle.setAttribute('class', 'cycle-marker');
+            circle.setAttribute('data-day', day);
+            circle.setAttribute('data-x', x);
+            circle.setAttribute('data-y', y);
+            group.appendChild(circle);
+        }
+    }
+
+    function highlightClosestMarker(frameX, frameY) {
+        const markers = document.querySelectorAll('.cycle-marker');
+        let closest = null, minDist = Infinity;
+        markers.forEach(m => {
+            const mx = parseFloat(m.getAttribute('data-x'));
+            const my = parseFloat(m.getAttribute('data-y'));
+            const d = Math.sqrt((frameX - mx) ** 2 + (frameY - my) ** 2);
+            if (d < minDist) { minDist = d; closest = m; }
+        });
+        markers.forEach(m => m.classList.remove('highlighted'));
+        if (closest) closest.classList.add('highlighted');
+    }
+
+    // --- Vocabulary array panel ---------------------------------------------
+    function toggleArrayVisibility() {
+        const container = document.getElementById('learned-items');
+        const button     = document.getElementById('toggle-learned');
+        if (!container || !button) return;
+        const spans = container.querySelectorAll('.vocabulary-item .tl-word, .vocabulary-item .sl-word');
+        let visibleCount = 0;
+        spans.forEach(s => { if (!s.classList.contains('hidden')) visibleCount++; });
+        const mostlyVisible = visibleCount > spans.length / 2;
+        spans.forEach(s => s.classList.toggle('hidden', mostlyVisible));
+        button.textContent = mostlyVisible ? LANG.show_all_label : LANG.hide_all_label;
+    }
+
+    function addToVocabularyArray(index) {
+        const sl = cycleData[index][0];
+        const tl = cycleData[index][1];
+        const item = document.createElement('div');
+        item.className = 'vocabulary-item';
+        const tlSpan = document.createElement('span');
+        tlSpan.className = 'tl-word';
+        tlSpan.textContent = tl;
+        const slSpan = document.createElement('span');
+        slSpan.className = 'sl-word';
+        slSpan.textContent = sl;
+        [tlSpan, slSpan].forEach(s => {
+            s.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('hidden');
+            });
+        });
+        item.appendChild(tlSpan);
+        item.appendChild(slSpan);
+        document.getElementById('learned-items').appendChild(item);
+    }
+
+    // --- Text boxes -----------------------------------------------------
+    function createTextBoxes() {
+        const svg = document.getElementById('svgCanvas');
+        document.querySelectorAll('.textBox').forEach(b => b.parentNode && b.parentNode.removeChild(b));
+        textBoxElements = [];
+
+        const c = { x: 50, y: 50 };
+
+        // Absolute x,y position overrides (index into cycleData), per
+        // Alan's coordinate-tool readings 2026-07-23. Take priority over
+        // the angle/radius-computed default for any index present here —
+        // treated as the box's exact center point. Index 5 deliberately
+        // has no entry ("leave as is" per Alan), so it still falls
+        // through to the angle/radius path below, unchanged.
+        const positionOverrides = {
+            0: { x: 50, y: 90 },
+            1: { x: 22, y: 85 },
+            2: { x: 4,  y: 46 },
+            3: { x: 40, y: 6  },
+            4: { x: 50, y: 5  },
+            6: { x: 90, y: 55 },
+            7: { x: 70, y: 80 }
+        };
+
+        cycleData.forEach((item, index) => {
+            const override = positionOverrides[index];
+            let foX, foY;
+            if (override) {
+                // Absolute override — treat as the box's exact center point.
+                foX = override.x - 30;
+                foY = override.y - 12;
+            } else {
+                // Position from the item's own ANGLE column (item[5])
+                // directly, not recomputed from Day — the LANG block
+                // explains Angle exists precisely so same-day items
+                // (e.g. index 3 and 4, both Day=14) can sit at different,
+                // deliberately-chosen angles. Recomputing from Day
+                // silently discarded that and collapsed both onto the
+                // identical position. (Also fixes the off-by-one: this
+                // previously read item[3], the QUIZ string, not even Day
+                // itself.)
+                const dayAngle = (item[5] - 90) * Math.PI / 180;
+                const radius = LANG.textRadiusOverrides[index] !== undefined
+                    ? LANG.textRadiusOverrides[index] : LANG.defaultTextRadius;
+                const x = c.x + radius * Math.cos(dayAngle);
+                const y = c.y + radius * Math.sin(dayAngle);
+                foX = x - 30;
+                foY = y - 6;
+            }
+
+            const fo = document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+            fo.setAttribute('x', foX);
+            fo.setAttribute('y', foY);
+            fo.setAttribute('width',  '60');
+            fo.setAttribute('height', '24');
+            fo.setAttribute('class', 'textBox');
+            fo.setAttribute('data-index', index);
+
+            const div = document.createElement('div');
+            // Vertical centering: previously only text-align:center
+            // (horizontal) was set. A plain div flows from the TOP of
+            // its container, so text rendered near the box's top edge
+            // rather than its true center — the same root-cause bug
+            // found and fixed on LOG-CR-TDL via a debug-marker test.
+            // Fixed the same way here with flexbox, filling the full
+            // box. Fixed 2026-07-21 as part of the systematic re-fix
+            // across the Circular family.
+            div.style.display        = 'flex';
+            div.style.alignItems     = 'center';
+            div.style.justifyContent = 'center';
+            div.style.width          = '100%';
+            div.style.height         = '100%';
+            div.style.boxSizing      = 'border-box';
+            div.style.textAlign  = 'center';
+            div.style.fontSize   = '3.5px';
+            div.style.fontFamily = 'Arial, sans-serif';
+            div.style.color      = '#2a1a2e';
+            div.style.cursor     = 'pointer';
+            div.style.lineHeight = '1.1';
+            div.style.fontWeight = 'normal';
+            div.textContent = item[2]; // start with TLR
+            fo.appendChild(div);
+
+            if (learnedItems[index]) fo.classList.add('learned');
+
+            fo.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.getAttribute('data-index'));
+                const div = this.querySelector('div');
+                const qc = document.getElementById('quizContainer');
+
+                if (qc.style.display !== 'none' && currentQuizIndex !== idx) {
+                    qc.style.display = 'none';
+                    currentQuizIndex = -1;
+                }
+                if (qc.style.display !== 'none' && currentQuizIndex === idx) return;
+
+                const tlText = cycleData[idx][1], slText = cycleData[idx][0];
+
+                if (learnedItems[idx]) {
+                    if (div.textContent.trim() === tlText) { div.textContent = slText; div.style.fontSize = '3.2px'; }
+                    else                                    { div.textContent = tlText; div.style.fontSize = '3.5px'; }
+                } else {
+                    const current = div.textContent.trim();
+                    if (current === tlText)      { div.textContent = slText; div.style.fontSize = '3.2px'; }
+                    else if (current === slText) { showQuiz(idx); }
+                    else                          { div.textContent = tlText; div.style.fontSize = '3.5px'; } // TLR → TL
+                }
+            });
+
+            const draggableFrame = document.getElementById('draggableFrame');
+            if (draggableFrame && draggableFrame.parentNode) {
+                draggableFrame.parentNode.insertBefore(fo, draggableFrame);
+            } else {
+                svg.appendChild(fo);
+            }
+            textBoxElements.push(fo);
+        });
+
+        const frame = document.getElementById('draggableFrame');
+        if (frame && frame.parentNode) frame.parentNode.appendChild(frame);
+    }
+
+    function findClosestPhase(angle) {
+        const norm = ((angle % 360) + 360) % 360;
+        let closest = 0, minDiff = 360;
+        cycleData.forEach((item, i) => {
+            let diff = Math.abs(norm - item[5]);
+            if (diff > 180) diff = 360 - diff;
+            if (diff < minDiff) { minDiff = diff; closest = i; }
+        });
+        return closest;
+    }
+
+    // --- Visibility & display-all -------------------------------------------
+    function updateVisibleTextBoxes(phaseIndex) {
+        const frame = document.getElementById('draggableFrame');
+
+        textBoxElements.forEach((tb, index) => {
+            if (!tb) return;
+
+            if (displayAllMode) {
+                tb.classList.add('active'); tb.classList.remove('hidden');
+                tb.style.opacity = '1'; tb.style.display = 'block';
+                const div = tb.querySelector('div');
+                if (div) {
+                    div.innerHTML =
+                        `<div style="font-size:3.5px;font-weight:bold;">${cycleData[index][1]}</div>` +
+                        `<div style="font-size:3.2px;margin-top:1px;">${cycleData[index][0]}</div>`;
+                }
+            } else if (index === phaseIndex) {
+                tb.classList.add('active'); tb.classList.remove('hidden');
+                tb.style.opacity = '1'; tb.style.display = 'block';
+                const div = tb.querySelector('div');
+                if (div && div.innerHTML.includes('<div')) {
+                    div.textContent = cycleData[index][1];
+                    div.style.fontSize = '3.5px';
+                }
+                if (tb.parentNode && frame) tb.parentNode.insertBefore(tb, frame);
+            } else if (learnedItems[index]) {
+                tb.classList.remove('active'); tb.classList.remove('hidden');
+                tb.style.opacity = '0.6'; tb.style.display = 'block';
+                const div = tb.querySelector('div');
+                if (div && div.innerHTML.includes('<div')) {
+                    div.textContent = cycleData[index][1];
+                    div.style.fontSize = '3.5px';
+                }
+            } else {
+                tb.classList.remove('active'); tb.classList.add('hidden');
+                tb.style.opacity = '0'; tb.style.display = 'none';
+            }
+        });
+
+        if (!displayAllMode) {
+            const item = cycleData[phaseIndex];
+            document.getElementById('day-indicator').textContent =
+                `${LANG.day_label_prefix} ${item[4]} - ${item[1]}`;
+        }
+    }
+
+    // --- Quiz -----------------------------------------------------------
+    function showQuiz(index) {
+        currentQuizIndex = index;
+        const qc = document.getElementById('quizContainer');
+        document.getElementById('quizInput').placeholder = cycleData[index][3];
+        document.getElementById('quizInput').value = '';
+        document.getElementById('quizFeedback').textContent = '';
+        qc.style.display = 'block';
+        setTimeout(() => { try { document.getElementById('quizInput').focus(); } catch(e){} }, 100);
+    }
+
+    function checkQuizAnswer() {
+        if (currentQuizIndex < 0) return;
+        const input   = document.getElementById('quizInput').value.trim();
+        const correct = cycleData[currentQuizIndex][2] // TLR;
+        const fb      = document.getElementById('quizFeedback');
+
+        if (AnswerUtils.checkAnswer(input, correct)) {
+            fb.textContent = LANG.quiz_correct;
+            fb.style.color = '#7b2d8e';
+            learnedItems[currentQuizIndex] = true;
+            const tb = textBoxElements[currentQuizIndex];
+            if (tb) {
+                tb.classList.add('learned');
+                const div = tb.querySelector('div');
+                if (div) div.textContent = correct;
+            }
+            addToVocabularyArray(currentQuizIndex);
+            setTimeout(() => {
+                document.getElementById('quizContainer').style.display = 'none';
+                currentQuizIndex = -1;
+            }, 1500);
+        } else {
+            fb.textContent = LANG.quiz_wrong;
+            fb.style.color = '#e94f8f';
+            const tb = textBoxElements[currentQuizIndex];
+            if (tb) {
+                const div = tb.querySelector('div');
+                if (div) { div.textContent = correct; div.style.fontSize = '3.5px'; }
+            }
+        }
+    }
+
+    // --- Coordinate-display dev tool -------------------------------------
+    // Reusable snippet preserved in the Session Starter from the LOG-CR-TDL
+    // work — a "Show positions"/"Hide positions" toggle plus a live
+    // cursor-following x,y readout in the same 0–100 SVG-internal
+    // coordinate space used everywhere else in this project (e.g.
+    // textRadiusOverrides above), so values read here can be used
+    // directly to work out radius/angle adjustments.
+    function setupCoordDisplay() {
+        const btn     = document.getElementById('coordToggleBtn');
+        const readout = document.getElementById('coordReadout');
+        const svgEl   = document.getElementById('svgCanvas');
+        let active = false;
+
+        function onMove(e) {
+            const rect = svgEl.getBoundingClientRect();
+            const renderedSize = Math.min(rect.width, rect.height);
+            const offsetX = rect.left + (rect.width  - renderedSize) / 2;
+            const offsetY = rect.top  + (rect.height - renderedSize) / 2;
+            const svgX = ((e.clientX - offsetX) / renderedSize) * 100;
+            const svgY = ((e.clientY - offsetY) / renderedSize) * 100;
+            readout.textContent = 'x: ' + svgX.toFixed(1) + ', y: ' + svgY.toFixed(1);
+            readout.style.left = e.clientX + 'px';
+            readout.style.top  = e.clientY + 'px';
+        }
+
+        btn.addEventListener('click', () => {
+            active = !active;
+            btn.textContent = active ? 'Hide positions' : 'Show positions';
+            readout.style.display = active ? 'block' : 'none';
+            if (active) document.addEventListener('mousemove', onMove);
+            else document.removeEventListener('mousemove', onMove);
+        });
+    }
+
+    function positionFrameOnPhase(phaseIndex) {
+        const c = { x: 50, y: 50 }, r = 30;
+        const angle = (cycleData[phaseIndex][5] - 90) * Math.PI / 180;
+        const x = c.x + r * Math.cos(angle), y = c.y + r * Math.sin(angle);
+        const frame = document.getElementById('draggableFrame');
+        frame.setAttribute('transform', `translate(${x - 50}, ${y - 20})`);
+        currentDay = phaseIndex;
+        updateVisibleTextBoxes(phaseIndex);
+    }
+
+    // --- Quiz container drag-anywhere ------------------------------------
+    function makeQuizDraggable() {
+        const qc = document.getElementById('quizContainer');
+        let qDragging = false, offsetX = 0, offsetY = 0;
+
+        function qStart(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+            e.stopPropagation();
+            const rect = qc.getBoundingClientRect();
+            qc.style.transform = 'none';
+            qc.style.left = rect.left + 'px';
+            qc.style.top  = rect.top + 'px';
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            offsetX = clientX - rect.left;
+            offsetY = clientY - rect.top;
+            qDragging = true;
+            qc.classList.add('dragging');
+            e.preventDefault();
+        }
+        function qMove(e) {
+            if (!qDragging) return;
+            e.stopPropagation();
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            qc.style.left = (clientX - offsetX) + 'px';
+            qc.style.top  = (clientY - offsetY) + 'px';
+            e.preventDefault();
+        }
+        function qEnd(e) {
+            if (!qDragging) return;
+            qDragging = false;
+            qc.classList.remove('dragging');
+            // A drag-release (mouseup) synthesizes a click event immediately
+            // afterward, targeted at whatever's under the cursor at that exact
+            // pixel — which, on a fast or slightly imprecise drag, can easily
+            // land just outside the container's own bounds even though the
+            // user was clearly still interacting with it. Without this guard,
+            // that synthetic click gets misread by the outside-click handler
+            // below as "user clicked away," dismissing the quiz immediately
+            // after every drag. Swallow exactly one click event here;
+            // quizJustDragged is consumed and reset by the outside-click
+            // handler itself. (Same fix as Rice-Growing/LUN, 2026-08-03/04.)
+            quizJustDragged = true;
+            if (e) e.stopPropagation();
+        }
+
+        qc.addEventListener('mousedown', qStart);
+        qc.addEventListener('touchstart', qStart, { passive: false });
+        document.addEventListener('mousemove', qMove);
+        document.addEventListener('touchmove', qMove, { passive: false });
+        document.addEventListener('mouseup', qEnd);
+        document.addEventListener('touchend', qEnd);
+    }
+    let quizJustDragged = false;
+
+    // --- Init -----------------------------------------------------------
+    function initializeApp() {
+        const svg             = document.getElementById('svgCanvas');
+        const frame           = document.getElementById('draggableFrame');
+        const titleBox        = document.getElementById('title-box');
+        const quizContainer   = document.getElementById('quizContainer');
+        const quizInput       = document.getElementById('quizInput');
+        const quizCheck       = document.getElementById('quizCheck');
+        const toggleLearnedBtn= document.getElementById('toggle-learned');
+        const displayAllBtn   = document.getElementById('display-all-btn');
+
+        if (!svg || !frame || !titleBox || !displayAllBtn) return;
+
+        createDayMarkers();
+        createCycleMarkers();
+        createTextBoxes();
+        positionFrameOnPhase(0);
+        setupCoordDisplay();
+
+        frame.style.pointerEvents = 'all';
+        frame.style.cursor = 'grab';
+        frame.style.zIndex = '1000';
+
+        displayAllBtn.addEventListener('click', function() {
+            displayAllMode = !displayAllMode;
+            if (displayAllMode) {
+                displayAllBtn.textContent = LANG.display_one_label;
+                document.getElementById('day-indicator').textContent = LANG.display_all_indicator;
+                frame.style.display = 'none';
+                createTextBoxes();
+                updateVisibleTextBoxes(currentDay);
+            } else {
+                displayAllBtn.textContent = LANG.display_all_label;
+                frame.style.display = 'block';
+                createTextBoxes();
+                updateVisibleTextBoxes(currentDay);
+            }
+        });
+
+        function startDrag(e) {
+            isDragging = true;
+            frame.classList.add('dragging');
+            frame.style.cursor = 'grabbing';
+            e.preventDefault(); e.stopPropagation();
+        }
+
+        function dragMove(e) {
+            if (!isDragging) return;
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            try {
+                const rect = svg.getBoundingClientRect();
+
+                // The SVG's viewBox is a square (0 0 100 100) with
+                // preserveAspectRatio="xMidYMid meet", but the .a4-page
+                // container is NOT square (90vw × 70vh) — so the square
+                // content is letterboxed (centered, with blank padding
+                // added to the wider dimension) rather than stretched.
+                // Dividing directly by rect.width/height (which includes
+                // that letterbox padding) miscalculates the angle
+                // whenever the cursor drifts into the padding while
+                // dragging — same root cause and fix as
+                // LOG-CR-LUN-Generic.html / LOG-CR-TTT-Generic.html /
+                // LOG-CR-DOW-Generic.html.
+                const renderedSize = Math.min(rect.width, rect.height);
+                const offsetX = rect.left + (rect.width  - renderedSize) / 2;
+                const offsetY = rect.top  + (rect.height - renderedSize) / 2;
+
+                const svgX = ((clientX - offsetX) / renderedSize) * 100;
+                const svgY = ((clientY - offsetY) / renderedSize) * 100;
+                const angle = Math.atan2(svgY - 50, svgX - 50);
+                const r = 30;
+                const frameX = 50 + r * Math.cos(angle);
+                const frameY = 50 + r * Math.sin(angle);
+                frame.setAttribute('transform', `translate(${frameX - 50}, ${frameY - 20})`);
+                highlightClosestMarker(frameX, frameY);
+                const deg = (angle * 180 / Math.PI + 90 + 360) % 360;
+                const idx = findClosestPhase(deg);
+                currentDay = idx;
+                updateVisibleTextBoxes(idx);
+            } catch (err) { console.error('drag error:', err); }
+            e.preventDefault(); e.stopPropagation();
+        }
+
+        function endDrag(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            frame.classList.remove('dragging');
+            frame.style.cursor = 'grab';
+            // Snap-to-nearest-marker on release removed per Alan's
+            // explicit request — the frame now simply stays wherever the
+            // cursor released it, rather than jumping to the exact
+            // position of the closest marker. currentDay/the vocabulary
+            // display were already kept correctly up to date continuously
+            // during the drag itself (in dragMove), so nothing functional
+            // is lost by removing this — only the frame's own snap-back.
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+        }
+
+        frame.addEventListener('mousedown',  startDrag);
+        frame.addEventListener('touchstart', startDrag, { passive: false });
+        document.addEventListener('mousemove', dragMove);
+        document.addEventListener('touchmove', dragMove, { passive: false });
+        document.addEventListener('mouseup',   endDrag);
+        document.addEventListener('touchend',  endDrag);
+        document.addEventListener('mouseleave',endDrag);
+
+        titleBox.addEventListener('click', function() {
+            this.classList.add('hidden');
+            setTimeout(() => {
+                currentTextIndex = (currentTextIndex + 1) % LANG.titles.length;
+                this.textContent = LANG.titles[currentTextIndex];
+                this.classList.remove('hidden');
+            }, 500);
+        });
+
+        quizCheck.addEventListener('click', checkQuizAnswer);
+        quizInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkQuizAnswer(); });
+        toggleLearnedBtn.addEventListener('click', toggleArrayVisibility);
+        makeQuizDraggable();
+
+        document.addEventListener('click', function(e) {
+            if (quizJustDragged) { quizJustDragged = false; return; }
+            if (quizContainer.style.display === 'none') return;
+            if (quizContainer.contains(e.target)) return;
+            if (textBoxElements.some(b => b && b.contains(e.target))) return;
+            if (currentQuizIndex >= 0 && !learnedItems[currentQuizIndex]) {
+                const tb = textBoxElements[currentQuizIndex];
+                if (tb) {
+                    const div = tb.querySelector('div');
+                    if (div) { div.textContent = cycleData[currentQuizIndex][1]; div.style.fontSize = '3.5px'; }
+                }
+            }
+            quizContainer.style.display = 'none';
+            currentQuizIndex = -1;
+        });
+
+        quizContainer.style.display = 'none';
+
+        setTimeout(() => {
+            const di = document.getElementById('drag-instruction');
+            if (di) {
+                di.classList.add('fade');
+                setTimeout(() => { di.style.display = 'none'; }, 3000);
+            }
+        }, 15000);
+    }
+
+    document.addEventListener('DOMContentLoaded', initializeApp);
+
+    </script>
+</body>
+</html>

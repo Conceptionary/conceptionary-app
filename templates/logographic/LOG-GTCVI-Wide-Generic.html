@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOG-GTCVI-Wide Generic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f8ff;
+            overflow: hidden;
+        }
+
+        .a4-page {
+            width: 90vw;
+            height: 70vh;
+            border: 5px solid #007bff;
+            background-color: white;
+            box-sizing: border-box;
+            position: relative;
+            touch-action: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .watermark {
+            position: absolute;
+            bottom: 5px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            color: rgba(0, 123, 255, 0.4);
+            font-weight: bold;
+            pointer-events: none;
+            user-select: none;
+            z-index: 0;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .bell-curve {
+            stroke: #007bff;
+            stroke-width: 0.25;
+            fill: none;
+        }
+
+        /* Enhanced font support for logographic scripts */
+        .logographic-text {
+            font-family: "Noto Sans CJK", "Hiragino Sans", "Yu Gothic", "SimSun", "KaiTi", "Noto Sans Arabic", "Noto Sans Devanagari", "Noto Serif", "Meiryo", sans-serif;
+            font-feature-settings: "palt" 0;
+            text-rendering: geometricPrecision;
+            font-variant-east-asian: proportional-width;
+        }
+
+        /* States Mode Elements */
+        .textBox {
+            cursor: pointer;
+            font-size: 0.2em;
+            fill: black;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transform: scale(0.5);
+            text-anchor: middle;
+            font-family: "Noto Sans CJK", "Hiragino Sans", "Yu Gothic", "SimSun", "KaiTi", "Noto Sans Arabic", "Noto Sans Devanagari", "Noto Serif", "Meiryo", sans-serif;
+            font-feature-settings: "palt" 0;
+            text-rendering: geometricPrecision;
+            font-variant-east-asian: proportional-width;
+        }
+
+        .textBox.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .textBox.learned {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            fill: green;
+        }
+
+        .textBox.hidden {
+            opacity: 0;
+            display: none;
+        }
+
+        /* Enhanced draggable frame */
+        #draggableFrame {
+            cursor: grab;
+            fill: rgba(100, 150, 255, 0.2);
+            stroke: black;
+            stroke-width: 0.1px;
+            pointer-events: all;
+            opacity: 0.8;
+        }
+
+        #draggableFrame.dragging {
+            cursor: grabbing;
+        }
+
+        /* Background gradient */
+        #conceptBackground {
+            fill: url(#conceptGradient);
+            opacity: 0.2;
+        }
+
+        /* Transitions Mode Elements */
+        .sliding-text {
+            font-size: 3.5px;
+            font-weight: bold;
+            fill: blue;
+            cursor: pointer;
+            dominant-baseline: auto;
+            pointer-events: all;
+            font-family: "Noto Sans CJK", "Hiragino Sans", "Yu Gothic", "SimSun", "KaiTi", "Noto Sans Arabic", "Noto Sans Devanagari", "Noto Serif", "Meiryo", sans-serif;
+        }
+        
+        .sliding-text.learned {
+            fill: green;
+        }
+
+        /* Level indicators with distinct colors */
+        .sliding-text.level-1 {
+            fill: #007bff; /* Target Language - Blue */
+        }
+        
+        .sliding-text.level-2 {
+            fill: #28a745; /* Target Language Romanized - Green */
+        }
+        
+        .sliding-text.level-3 {
+            fill: #fd7e14; /* Source Language - Orange */
+        }
+        
+        .sliding-text.level-4 {
+            fill: #dc3545; /* Quiz Mode - Red */
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Common Title Box Styling */
+        .title-box {
+            position: absolute;
+            top: 2%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1em;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid #007bff;
+            padding: 10px;
+            background-color: white;
+            z-index: 2;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            font-family: "Noto Sans CJK", "Hiragino Sans", "Yu Gothic", "SimSun", "KaiTi", "Noto Sans Arabic", "Noto Sans Devanagari", "Noto Serif", "Meiryo", sans-serif;
+            color: #007bff;
+        }
+        
+        .title-box.hidden {
+            opacity: 0;
+            transform: translateX(-50%) scale(0.9);
+        }
+        
+        /* Mode Toggle Button */
+        .mode-toggle {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            padding: 8px 16px;
+            background-color: #e3f2fd;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 1000;
+            color: #007bff;
+        }
+        
+        /* Concept Indicator */
+        .concept-indicator {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1em;
+            padding: 5px 10px;
+            background-color: white;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            z-index: 3;
+            color: #007bff;
+        }
+
+        /* Level indicator for transitions mode */
+        .level-indicator {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            padding: 5px 10px;
+            background-color: white;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            z-index: 3;
+            color: #007bff;
+        }
+
+        /* Display mode toggle for states */
+        .display-mode-toggle {
+            position: absolute;
+            top: 60px;
+            right: 10px;
+            font-size: 0.7em;
+            padding: 5px 10px;
+            background-color: #e3f2fd;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 3;
+            color: #007bff;
+        }
+
+        /* Audio button for pronunciation */
+        .audio-button {
+            position: absolute;
+            top: 10px;
+            right: 70px;
+            font-size: 0.7em;
+            padding: 5px 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 3;
+            transition: background-color 0.3s ease;
+        }
+        
+        .audio-button:hover {
+            background-color: #218838;
+        }
+
+        .audio-button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        /* Instructions */
+        .instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8em;
+            padding: 6px 10px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 2px solid #007bff;
+            border-radius: 6px;
+            z-index: 3;
+            color: #007bff;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 200px;
+            opacity: 1;
+            transition: opacity 2s ease;
+        }
+        
+        .instructions.fade {
+            opacity: 0;
+        }
+
+        /* Quiz container styles */
+        .quiz-container {
+            position: fixed;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 3px solid #007bff;
+            border-radius: 4px;
+            padding: 12px;
+            z-index: 9999;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+            max-width: 360px;
+            width: 360px;
+            pointer-events: auto;
+            visibility: visible;
+            opacity: 1;
+            cursor: move;
+            transition: opacity 0.2s ease;
+        }
+        
+        .quiz-container.dragging {
+            cursor: grabbing;
+        }
+        
+        .quiz-container:hover {
+            box-shadow: 0 6px 12px rgba(0, 123, 255, 0.4);
+        }
+        
+        .quiz-container input {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-family: "Noto Sans CJK", "Hiragino Sans", "Yu Gothic", "SimSun", "KaiTi", "Noto Sans Arabic", "Noto Sans Devanagari", "Noto Serif", "Meiryo", sans-serif;
+        }
+        
+        .quiz-container button {
+            width: 100%;
+            padding: 8px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .quiz-container button:hover {
+            background-color: #0056b3;
+        }
+        
+        #quizFeedback {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 8px;
+            min-height: 20px;
+        }
+
+        /* Vocabulary Arrays Styles */
+        .vocabulary-array {
+            position: absolute;
+            width: 25%;
+            max-height: 40vh;
+            overflow-y: auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px;
+            z-index: 4;
+            display: none;
+        }
+
+        #increasing-array {
+            left: 5px;
+            top: 5px;
+        }
+
+        #decreasing-array {
+            right: 5px;
+            top: 35px;
+        }
+
+        .array-title {
+            font-size: 0.9em;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 5px;
+            padding: 3px;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .vocabulary-item {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.8em;
+            margin: 3px 0;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background-color: #f9f9f9;
+            transition: background-color 0.3s ease;
+        }
+
+        .vocabulary-item:hover {
+            background-color: #eaf2ff;
+        }
+
+        .learned-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .target-language-learned {
+            flex: 1;
+            font-weight: bold;
+            color: #007bff;
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: "Noto Sans CJK", "Hiragino Sans", "Yu Gothic", "SimSun", "KaiTi", "Noto Sans Arabic", "Noto Sans Devanagari", "Noto Serif", "Meiryo", sans-serif;
+        }
+
+        .romanized-learned {
+            flex: 1;
+            font-weight: bold;
+            color: green;
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+            text-align: center;
+        }
+
+        .source-language-learned {
+            flex: 1;
+            color: #555;
+            text-align: right;
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        
+        .target-language-learned.hidden,
+        .romanized-learned.hidden,
+        .source-language-learned.hidden {
+            color: transparent;
+            user-select: none;
+            background-color: #f0f0f0;
+        }
+        
+        .vocabulary-item.hidden .target-language-learned,
+        .vocabulary-item.hidden .romanized-learned,
+        .vocabulary-item.hidden .source-language-learned {
+            color: transparent;
+            user-select: none;
+        }
+        
+        .vocabulary-item.hidden {
+            background-color: #f0f0f0;
+        }
+
+        .concept-ref {
+            font-size: 0.7em;
+            color: #666;
+            text-align: center;
+            margin-bottom: 6px;
+        }
+        
+        /* Toggle visibility button */
+        .toggle-visibility {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 0.7em;
+            padding: 2px 5px;
+            background-color: #eee;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        /* Tools Menu */
+        .tools-menu {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 5;
+        }
+
+        .tools-button {
+            background-color: #e3f2fd;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            cursor: pointer;
+            color: #007bff;
+        }
+
+        .tools-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 30px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            width: 150px;
+            padding: 5px 0;
+            z-index: 10;
+        }
+
+        .tools-dropdown.active {
+            display: block;
+        }
+
+        .tool-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            pointer-events: auto;
+            user-select: none;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .tool-item:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="a4-page">
+        <div id="title-box" class="title-box"></div>
+        <div id="concept-indicator" class="concept-indicator">Concept Position</div>
+        <div id="level-indicator" class="level-indicator">Target Language</div>
+        <div id="display-mode-toggle" class="display-mode-toggle">Show: TL</div>
+        <div id="audio-button" class="audio-button">🔊 Audio</div>
+        <div id="instructions" class="instructions">🎯 Drag the blue frame to explore positions!</div>
+        
+        <!-- Tools Menu -->
+        <div class="tools-menu">
+            <div class="tools-button">Tools</div>
+            <div class="tools-dropdown">
+                <div class="tool-item" id="loadConcept">Load Concept</div>
+                <div class="tool-item" id="startQuiz">Quick Quiz</div>
+                <div class="tool-item" id="toggleArrays">Toggle Arrays</div>
+            </div>
+        </div>
+        
+        
+        <!-- Vocabulary Arrays -->
+        <div id="increasing-array" class="vocabulary-array">
+            <div class="array-title">Increasing Progression</div>
+            <button class="toggle-visibility" id="toggle-increasing">Hide All</button>
+            <div id="increasing-items"></div>
+        </div>
+        
+        <div id="decreasing-array" class="vocabulary-array">
+            <div class="array-title">Decreasing Progression</div>
+            <button class="toggle-visibility" id="toggle-decreasing">Hide All</button>
+            <div id="decreasing-items"></div>
+        </div>
+        
+        <svg id="svgCanvas" viewBox="-30 0 160 50" preserveAspectRatio="xMidYMid meet">
+            <defs>
+                <linearGradient id="conceptGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+                    <stop offset="0%" style="stop-color:#28a745;stop-opacity:1" />
+                    <stop offset="25%" style="stop-color:#007bff;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#6f42c1;stop-opacity:1" />
+                    <stop offset="75%" style="stop-color:#fd7e14;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#dc3545;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            
+            <path id="bellCurve" class="bell-curve"></path>
+            <path id="conceptBackground"></path>
+            
+            <!-- Transitions Mode Elements -->
+            <text id="interactiveText" class="sliding-text level-1">
+                <textPath id="slidingText" href="#bellCurve" startOffset="10%" dy="-5">
+                    Click me to learn!
+                </textPath>
+            </text>
+            
+            <!-- States Mode Elements -->
+            <rect id="draggableFrame" x="40" y="20" width="10" height="5" rx="1"/>
+        </svg>
+        
+        <button id="modeToggle" class="mode-toggle">Toggle Mode</button>
+        <div class="watermark">
+            &copy; 2026 Alan William Preston
+        </div>
+    </div>
+
+    <!-- Quiz Container -->
+    <div id="quizContainer" class="quiz-container" title="Click and drag to move - Double-click outside or press Escape to close">
+        <input type="text" id="quizInput" placeholder="Enter the target language">
+        <button id="quizCheck">Check</button>
+        <div id="quizFeedback"></div>
+        <div style="font-size: 0.7em; color: #666; text-align: center; margin-top: 5px;">
+            💡 Double-click outside or press Escape to close
+        </div>
+    </div>
+
+    <script>
+        // Generic placeholder data - 19 positions total (10 ascending + peak + 8 descending)
+        // Format: [Source Language, Target Language, Target Language Romanized, Quiz Question, Position %]
+        const conceptData = [
+            // Descending phase (toward the wide dip) - positions 5% to 45%
+            ["SL1", "TL1", "TLR1", "What's the target language for 'SL1'?", 5],
+            ["SL2", "TL2", "TLR2", "What's the target language for 'SL2'?", 9.44],
+            ["SL3", "TL3", "TLR3", "What's the target language for 'SL3'?", 13.89],
+            ["SL4", "TL4", "TLR4", "What's the target language for 'SL4'?", 18.33],
+            ["SL5", "TL5", "TLR5", "What's the target language for 'SL5'?", 22.78],
+            ["SL6", "TL6", "TLR6", "What's the target language for 'SL6'?", 27.22],
+            ["SL7", "TL7", "TLR7", "What's the target language for 'SL7'?", 31.67],
+            ["SL8", "TL8", "TLR8", "What's the target language for 'SL8'?", 36.11],
+            ["SL9", "TL9", "TLR9", "What's the target language for 'SL9'?", 40.56],
+            ["SL10", "TL10", "TLR10", "What's the target language for 'SL10'?", 45],
+            
+            // Wide dip — lowest point, sustained negative state (50%)
+            ["SL-Dip", "TL-Dip", "TLR-Dip", "What's the target language for the dip concept?", 50],
+            
+            // Ascending phase (recovering from the wide dip) - positions 55% to 95%
+            ["SL-9", "TL-9", "TLR-9", "What's the target language for 'SL-9'?", 55],
+            ["SL-8", "TL-8", "TLR-8", "What's the target language for 'SL-8'?", 60],
+            ["SL-7", "TL-7", "TLR-7", "What's the target language for 'SL-7'?", 65],
+            ["SL-6", "TL-6", "TLR-6", "What's the target language for 'SL-6'?", 70],
+            ["SL-5", "TL-5", "TLR-5", "What's the target language for 'SL-5'?", 75],
+            ["SL-4", "TL-4", "TLR-4", "What's the target language for 'SL-4'?", 80],
+            ["SL-3", "TL-3", "TLR-3", "What's the target language for 'SL-3'?", 85],
+            ["SL-2", "TL-2", "TLR-2", "What's the target language for 'SL-2'?", 90],
+            ["SL-1", "TL-1", "TLR-1", "What's the target language for 'SL-1'?", 95]
+        ];
+
+        // Transitions data for dynamic changes between states
+        const transitionsData = [
+            // Improving transitions (1% to 45%)
+            {
+                process: "Starting to increase",
+                targetLanguage: "T-Starting to increase",
+                romanized: "T-Starting-rom",
+                sourceLanguage: "Starting to increase",
+                question: "What's the target language for 'Starting to increase'?",
+                positionPercent: 1
+            },
+            {
+                process: "Getting stronger", 
+                targetLanguage: "T-Getting stronger",
+                romanized: "T-Getting-rom",
+                sourceLanguage: "Getting stronger",
+                question: "What's the target language for 'Getting stronger'?",
+                positionPercent: 15
+            },
+            {
+                process: "Continuing to grow",
+                targetLanguage: "T-Continuing to grow", 
+                romanized: "T-Continuing-rom",
+                sourceLanguage: "Continuing to grow",
+                question: "What's the target language for 'Continuing to grow'?",
+                positionPercent: 25
+            },
+            {
+                process: "Approaching maximum",
+                targetLanguage: "T-Approaching maximum",
+                romanized: "T-Approaching-rom", 
+                sourceLanguage: "Approaching maximum",
+                question: "What's the target language for 'Approaching maximum'?",
+                positionPercent: 35
+            },
+            {
+                process: "Nearly at peak",
+                targetLanguage: "T-Nearly at peak",
+                romanized: "T-Nearly-rom",
+                sourceLanguage: "Nearly at peak", 
+                question: "What's the target language for 'Nearly at peak'?",
+                positionPercent: 45
+            },
+            
+            // Peak transition (50%)
+            {
+                process: "Reaching peak",
+                targetLanguage: "T-Reaching peak",
+                romanized: "T-Reaching-rom",
+                sourceLanguage: "Reaching peak",
+                question: "What's the target language for 'Reaching peak'?",
+                positionPercent: 50
+            },
+            
+            // Declining transitions (55% to 82%)
+            {
+                process: "Starting to decline",
+                targetLanguage: "T-Starting to decline", 
+                romanized: "T-Starting-decline-rom",
+                sourceLanguage: "Starting to decline",
+                question: "What's the target language for 'Starting to decline'?",
+                positionPercent: 55
+            },
+            {
+                process: "Getting weaker",
+                targetLanguage: "T-Getting weaker",
+                romanized: "T-Getting-weaker-rom",
+                sourceLanguage: "Getting weaker",
+                question: "What's the target language for 'Getting weaker'?",
+                positionPercent: 65
+            },
+            {
+                process: "Continuing to decrease",
+                targetLanguage: "T-Continuing to decrease",
+                romanized: "T-Continuing-decrease-rom", 
+                sourceLanguage: "Continuing to decrease",
+                question: "What's the target language for 'Continuing to decrease'?",
+                positionPercent: 75
+            },
+            {
+                process: "Reaching minimum",
+                targetLanguage: "T-Reaching minimum",
+                romanized: "T-Reaching-minimum-rom",
+                sourceLanguage: "Reaching minimum",
+                question: "What's the target language for 'Reaching minimum'?",
+                positionPercent: 82
+            }
+        ];
+
+        // Define global variables
+        let isStatesMode = true;
+        let pathLength = 0;
+        let currentQuizIndex = -1;
+        let currentLevel = 1; // For transitions mode (1-4 levels)
+        let currentDataIndex = 0; // For transitions mode
+        let displayLevel = 0; // For states mode (0-3 levels)
+        let learnedItems = new Set();
+        let textBoxElements = [];
+        let addedIncreasingItems = [];
+        let addedDecreasingItems = [];
+        
+        // Title text options
+        // Title cycle: TLR (default) → TL → SL → TLR, per mode. See
+        // "Logographic UI Conventions" in Conceptionary_Template_Definitions.md.
+        const titleTexts = {
+            states: ["TLR_TITLE_STATES", "TL_TITLE_STATES", "SL_TITLE_STATES"],
+            transitions: ["TLR_TITLE_TRANSITIONS", "TL_TITLE_TRANSITIONS", "SL_TITLE_TRANSITIONS"]
+        };
+        let currentTextIndex = 0;
+        
+        // Activation distance for text boxes
+        const activationDistance = 8;
+
+        // Audio functionality placeholder
+        function playAudio(text, language = 'auto') {
+            // Placeholder for audio API integration
+            alert(`Audio API would pronounce: "${text}"\n(Feature ready for API integration)`);
+        }
+
+        // Helper functions
+        function adjustTextPositioning(textElement, curvePosition) {
+            const positionPercent = (curvePosition / pathLength) * 100;
+            
+            if (positionPercent < 15) {
+                textElement.setAttribute("text-anchor", "start");
+            } else if (positionPercent > 85) {
+                textElement.setAttribute("text-anchor", "end");
+            } else if (positionPercent < 35) {
+                textElement.setAttribute("text-anchor", "start");
+            } else if (positionPercent > 65) {
+                textElement.setAttribute("text-anchor", "end");
+            } else {
+                textElement.setAttribute("text-anchor", "middle");
+            }
+        }
+
+        function getPositionFromPercent(positionPercent) {
+            return (positionPercent / 100) * pathLength;
+        }
+
+        function getDataIndexAtPosition(positionPercent) {
+            let closestIndex = 0;
+            let minDistance = Infinity;
+            
+            for (let i = 0; i < transitionsData.length; i++) {
+                const distance = Math.abs(transitionsData[i].positionPercent - positionPercent);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestIndex = i;
+                }
+            }
+            
+            return closestIndex;
+        }
+
+        // Global function to toggle vocabulary array visibility
+        function toggleArrayVisibility(arrayType) {
+            try {
+                const container = document.getElementById(arrayType + "-items");
+                const button = document.getElementById("toggle-" + arrayType);
+                if (!container || !button) return;
+                
+                const spans = container.querySelectorAll('.vocabulary-item .target-language-learned, .vocabulary-item .romanized-learned, .vocabulary-item .source-language-learned');
+                
+                let visibleCount = 0;
+                spans.forEach(span => {
+                    if (!span.classList.contains('hidden')) {
+                        visibleCount++;
+                    }
+                });
+                
+                const mostlyVisible = visibleCount > spans.length / 2;
+                
+                spans.forEach(span => {
+                    if (mostlyVisible) {
+                        span.classList.add('hidden');
+                    } else {
+                        span.classList.remove('hidden');
+                    }
+                });
+                
+                button.textContent = mostlyVisible ? 'Show All' : 'Hide All';
+            } catch (error) {
+                console.error("Error in toggleArrayVisibility:", error);
+            }
+        }
+
+        // Function to cycle through display levels for States mode
+        function cycleDisplayLevel() {
+            displayLevel = (displayLevel + 1) % 4;
+            const button = document.getElementById("display-mode-toggle");
+            
+            switch(displayLevel) {
+                case 0: button.textContent = "Show: TL"; break;      // Target Language
+                case 1: button.textContent = "Show: TLR"; break;     // Target Language Romanized
+                case 2: button.textContent = "Show: SL"; break;      // Source Language
+                case 3: button.textContent = "Show: TLQ"; break;     // Target Language Quiz
+            }
+            
+            if (isStatesMode) {
+                updateAllTextBoxes();
+            }
+        }
+
+        // Function to update all text boxes based on current display level
+        function updateAllTextBoxes() {
+            textBoxElements.forEach((textBox, index) => {
+                if (textBox && conceptData[index] && !textBox.classList.contains('active')) {
+                    switch(displayLevel) {
+                        case 0: // Target Language
+                            textBox.textContent = conceptData[index][1];
+                            break;
+                        case 1: // Target Language Romanized
+                            textBox.textContent = conceptData[index][2];
+                            break;
+                        case 2: // Source Language  
+                            textBox.textContent = conceptData[index][0];
+                            break;
+                        case 3: // Target Language Quiz mode
+                            textBox.textContent = "TLQ" + (index < 10 ? (index + 1) : 
+                                                  index === 10 ? "-Dip" : 
+                                                  "-" + (20 - index));
+                            break;
+                    }
+                }
+            });
+        }
+
+        // TRANSITIONS MODE FUNCTIONS
+        function setLevel(newLevel) {
+            currentLevel = newLevel;
+            const currentData = transitionsData[currentDataIndex];
+            const slidingText = document.getElementById('slidingText');
+            const interactiveText = document.getElementById('interactiveText');
+            const conceptIndicator = document.getElementById('concept-indicator');
+            const levelIndicator = document.getElementById('level-indicator');
+
+            conceptIndicator.textContent = currentData.process;
+            interactiveText.className = 'sliding-text';
+
+            // LOG convention: TLR default (1) → TL script (2) → SL (3) → Quiz (4)
+            switch(newLevel) {
+                case 1: // Target Language Romanized — ALWAYS the logographic default
+                    slidingText.textContent = currentData.romanized;
+                    interactiveText.classList.add('level-1');
+                    levelIndicator.textContent = 'Romanized (TLR)';
+                    break;
+                case 2: // Target Language script
+                    slidingText.textContent = currentData.targetLanguage;
+                    interactiveText.classList.add('level-2');
+                    levelIndicator.textContent = 'Target Language';
+                    break;
+                case 3: // Source Language
+                    slidingText.textContent = currentData.sourceLanguage;
+                    interactiveText.classList.add('level-3');
+                    levelIndicator.textContent = 'Source Language';
+                    break;
+                case 4: // Quiz Mode — tests TLR spelling
+                    slidingText.textContent = "QUIZ READY - Click to start!";
+                    interactiveText.classList.add('level-4');
+                    levelIndicator.textContent = 'Quiz Mode';
+                    break;
+            }
+
+            slidingText.setAttribute('href', '#bellCurve');
+            slidingText.setAttribute('dy', '-5');
+        }
+
+        function progressLevel() {
+            const isLearned = learnedItems.has(currentDataIndex);
+
+            if (isLearned) {
+                // Cycle through levels 1-3 for learned items
+                const nextLevel = (currentLevel % 3) + 1;
+                setLevel(nextLevel);
+            } else {
+                // Progress through all 4 levels for unlearned items
+                if (currentLevel < 4) {
+                    setLevel(currentLevel + 1);
+                } else {
+                    setLevel(1);
+                }
+            }
+
+            if (currentLevel === 4 && !isLearned) {
+                setTimeout(() => showQuiz(), 200);
+            }
+        }
+
+        function addLearnedToArray(index, isIncreasing) {
+            const currentData = transitionsData[index];
+            const itemElement = document.createElement('div');
+            itemElement.className = 'vocabulary-item';
+            
+            const processDiv = document.createElement('div');
+            processDiv.className = 'concept-ref';
+            processDiv.textContent = currentData.process;
+            
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'learned-row';
+            
+            // Target Language
+            const targetDiv = document.createElement('div');
+            targetDiv.className = 'target-language-learned';
+            targetDiv.textContent = currentData.targetLanguage;
+            
+            // Target Language Romanized
+            const romanizedDiv = document.createElement('div');
+            romanizedDiv.className = 'romanized-learned';
+            romanizedDiv.textContent = currentData.romanized;
+            
+            // Source Language
+            const sourceDiv = document.createElement('div');
+            sourceDiv.className = 'source-language-learned';
+            sourceDiv.textContent = currentData.sourceLanguage;
+            
+            // Add click handlers to individual spans
+            targetDiv.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('hidden');
+            });
+            
+            romanizedDiv.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('hidden');
+            });
+            
+            sourceDiv.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('hidden');
+            });
+            
+            rowDiv.appendChild(targetDiv);
+            rowDiv.appendChild(romanizedDiv);
+            rowDiv.appendChild(sourceDiv);
+            itemElement.appendChild(processDiv);
+            itemElement.appendChild(rowDiv);
+            
+            if (isIncreasing) {
+                const increasingItems = document.getElementById("increasing-items");
+                increasingItems.appendChild(itemElement);
+                addedIncreasingItems[currentDataIndex] = true;
+                
+                const container = document.getElementById("increasing-array");
+                const title = container.querySelector('.array-title');
+                const count = increasingItems.children.length;
+                title.textContent = `Increasing Progression (${count} learned)`;
+            } else {
+                const decreasingItems = document.getElementById("decreasing-items");
+                decreasingItems.appendChild(itemElement);
+                addedDecreasingItems[currentDataIndex] = true;
+                
+                const container = document.getElementById("decreasing-array");
+                const title = container.querySelector('.array-title');
+                const count = decreasingItems.children.length;
+                title.textContent = `Decreasing Progression (${count} learned)`;
+            }
+        }
+
+        // STATES MODE FUNCTIONS
+        function createTextBoxes() {
+            if (!isStatesMode) return;
+            
+            const svg = document.getElementById("svgCanvas");
+            const bellCurve = document.getElementById("bellCurve");
+            
+            // Clear existing text boxes
+            document.querySelectorAll('.textBox').forEach(box => {
+                if (box && box.parentNode) box.parentNode.removeChild(box);
+            });
+            textBoxElements = [];
+            
+            // Create new text boxes
+            for (let i = 0; i < conceptData.length; i++) {
+                const positionPercent = conceptData[i][4];
+                const position = getPositionFromPercent(positionPercent);
+                const point = bellCurve.getPointAtLength(position);
+                
+                const textBox = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                textBox.setAttribute("class", "textBox");
+                textBox.setAttribute("data-index", i);
+                
+                // Enhanced positioning for edge cases
+                if (positionPercent <= 5) {
+                    const leftEdgePoint = bellCurve.getPointAtLength(0);
+                    textBox.setAttribute("x", leftEdgePoint.x + 8);
+                    textBox.setAttribute("y", leftEdgePoint.y - 2);
+                    textBox.setAttribute("text-anchor", "start");
+                } else if (positionPercent >= 95) {
+                    textBox.setAttribute("x", point.x - 2);
+                    textBox.setAttribute("y", point.y - 2);
+                    textBox.setAttribute("text-anchor", "end");
+                } else {
+                    textBox.setAttribute("x", point.x);
+                    textBox.setAttribute("y", point.y - 2);
+                    adjustTextPositioning(textBox, position);
+                }
+                
+                // Set initial text based on display level
+                switch(displayLevel) {
+                    case 0: // Target Language
+                        textBox.textContent = conceptData[i][1];
+                        break;
+                    case 1: // Target Language Romanized
+                        textBox.textContent = conceptData[i][2];
+                        break;
+                    case 2: // Source Language
+                        textBox.textContent = conceptData[i][0];
+                        break;
+                    case 3: // Target Language Quiz
+                        textBox.textContent = "TLQ" + (i < 10 ? (i + 1) : 
+                                                      i === 10 ? "-Dip" : 
+                                                      "-" + (20 - i));
+                        break;
+                }
+                // LOGOGRAPHIC CONVENTION: individual textboxes always start
+                // showing TLR (Target Language Romanized), regardless of the
+                // global "Show All" display level, to support pronunciation
+                // guidance / future text-to-speech integration.
+                textBox.textContent = conceptData[i][2];
+                
+                if (learnedItems.has(`state_${i}`)) textBox.classList.add('learned');
+                
+                textBox.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    
+                    if (learnedItems.has(`state_${index}`)) {
+                        // For learned items, cycle through all display modes on THIS textbox only
+                        if (this.textContent === conceptData[index][2]) { // Currently showing TLR
+                            this.textContent = conceptData[index][1]; // Show TL
+                        } else if (this.textContent === conceptData[index][1]) { // Currently showing TL
+                            this.textContent = conceptData[index][0]; // Show SL
+                        } else if (this.textContent === conceptData[index][0]) { // Currently showing SL
+                            this.textContent = "TLQ" + (index < 10 ? (index + 1) :
+                                                      index === 10 ? "-Dip" :
+                                                      "-" + (20 - index)); // Show TLQ
+                        } else { // Currently showing TLQ - back to TLR
+                            this.textContent = conceptData[index][2];
+                        }
+                    } else {
+                        // For unlearned items, progress through learning sequence on THIS textbox only
+                        if (this.textContent === conceptData[index][2]) { // Currently showing TLR
+                            this.textContent = conceptData[index][1]; // Show TL
+                        } else if (this.textContent === conceptData[index][1]) { // Currently showing TL
+                            this.textContent = conceptData[index][0]; // Show SL
+                        } else if (this.textContent === conceptData[index][0]) { // Currently showing SL
+                            showQuizForStates(index, this); // SL -> Quiz
+                        } else { // Currently showing TLQ - reset to TLR
+                            this.textContent = conceptData[index][2];
+                        }
+                    }
+                });
+                
+                svg.appendChild(textBox);
+                textBoxElements.push(textBox);
+            }
+            
+        }
+
+        function updateVisibleTextBoxes(point) {
+            if (!isStatesMode) return;
+            
+            let closestIndex = -1;
+            let minDistance = Infinity;
+            
+            // Find closest text box
+            textBoxElements.forEach((textBox, index) => {
+                if (!textBox) return;
+                
+                const x = parseFloat(textBox.getAttribute('x'));
+                const y = parseFloat(textBox.getAttribute('y'));
+                
+                const distance = Math.sqrt(Math.pow(point.x - x, 2) + Math.pow(point.y - y, 2));
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestIndex = index;
+                }
+            });
+            
+            // Update visibility - only one active at a time
+            textBoxElements.forEach((textBox, index) => {
+                if (!textBox) return;
+                
+                const isLearned = learnedItems.has(`state_${index}`);
+                const isClosest = (index === closestIndex && minDistance < activationDistance);
+                
+                if (isClosest) {
+                    textBox.classList.add('active');
+                    textBox.classList.remove('hidden');
+                    if (isLearned) {
+                        textBox.classList.add('learned');
+                    }
+                    const positionPercent = conceptData[index][4];
+                    const position = getPositionFromPercent(positionPercent);
+                    adjustTextPositioning(textBox, position);
+                } else if (isLearned) {
+                    textBox.classList.remove('active', 'hidden');
+                    textBox.classList.add('learned');
+                    const positionPercent = conceptData[index][4];
+                    const position = getPositionFromPercent(positionPercent);
+                    adjustTextPositioning(textBox, position);
+                } else {
+                    textBox.classList.remove('active', 'learned');
+                    textBox.classList.add('hidden');
+                }
+            });
+            
+            if (closestIndex !== -1 && minDistance < activationDistance && conceptData[closestIndex]) {
+                document.getElementById('concept-indicator').textContent = conceptData[closestIndex][0];
+            }
+        }
+
+        // QUIZ FUNCTIONS
+        function showQuiz() {
+            const currentData = transitionsData[currentDataIndex];
+            const quizInput = document.getElementById("quizInput");
+            const quizFeedback = document.getElementById("quizFeedback");
+            const quizContainer = document.getElementById("quizContainer");
+
+            currentQuizIndex = currentDataIndex;
+            
+            quizInput.placeholder = currentData.question;
+            quizInput.value = '';
+            quizFeedback.textContent = '';
+            
+            quizContainer.style.left = '50%';
+            quizContainer.style.top = '60%';
+            quizContainer.style.transform = 'translate(-50%, -50%)';
+            quizContainer.style.display = 'block';
+            quizContainer.style.opacity = '1';
+            
+            setTimeout(() => quizInput.focus(), 100);
+        }
+
+        function showQuizForStates(index, element) {
+            currentQuizIndex = index;
+            
+            const questionText = conceptData[index][3];
+            const quizInput = document.getElementById("quizInput");
+            const quizFeedback = document.getElementById("quizFeedback");
+            const quizContainer = document.getElementById("quizContainer");
+            
+            quizInput.placeholder = questionText;
+            quizInput.value = '';
+            quizFeedback.textContent = '';
+            
+            quizContainer.style.left = '50%';
+            quizContainer.style.top = '60%';
+            quizContainer.style.transform = 'translate(-50%, -50%)';
+            quizContainer.style.display = 'block';
+            quizContainer.style.opacity = '1';
+            
+            setTimeout(() => quizInput.focus(), 100);
+        }
+
+        function hideQuiz() {
+            const quizContainer = document.getElementById('quizContainer');
+            const quizInput = document.getElementById('quizInput');
+            const quizFeedback = document.getElementById('quizFeedback');
+            
+            quizContainer.style.display = 'none';
+            quizContainer.style.left = '50%';
+            quizContainer.style.top = '60%';
+            quizContainer.style.transform = 'translate(-50%, -50%)';
+            
+            if (quizInput) quizInput.value = '';
+            if (quizFeedback) quizFeedback.textContent = '';
+            
+            currentQuizIndex = -1;
+        }
+
+        function checkQuizAnswer() {
+            if (currentQuizIndex < 0) return;
+            
+            const quizInput = document.getElementById("quizInput");
+            const quizFeedback = document.getElementById("quizFeedback");
+            const quizContainer = document.getElementById("quizContainer");
+            
+            const userAnswer = quizInput.value.trim().toLowerCase();
+            let correctAnswer;
+            
+            if (isStatesMode) {
+                correctAnswer = conceptData[currentQuizIndex][2].toLowerCase(); // Target Language Romanized
+            } else {
+                const currentData = transitionsData[currentQuizIndex];
+                correctAnswer = currentData.romanized.toLowerCase();
+            }
+
+            if (userAnswer === correctAnswer) {
+                quizFeedback.innerHTML = 'Correct! ✓<br><small>Concept mastered!</small>';
+                quizFeedback.style.color = 'green';
+                
+                if (isStatesMode) {
+                    const stateKey = `state_${currentQuizIndex}`;
+                    learnedItems.add(stateKey);
+                    
+                    const textBox = textBoxElements[currentQuizIndex];
+                    if (textBox) {
+                        textBox.classList.add('learned');
+                        textBox.textContent = conceptData[currentQuizIndex][2]; // Show TLR
+                    }
+                    
+                    setTimeout(() => { quizContainer.style.display = 'none'; }, 1500);
+                } else {
+                    learnedItems.add(currentQuizIndex);
+                    
+                    const positionPercent = transitionsData[currentQuizIndex].positionPercent;
+                    const isIncreasing = positionPercent < 50;
+                    
+                    if (isIncreasing && !addedIncreasingItems[currentQuizIndex]) {
+                        addLearnedToArray(currentQuizIndex, true);
+                    } else if (!isIncreasing && !addedDecreasingItems[currentQuizIndex]) {
+                        addLearnedToArray(currentQuizIndex, false);
+                    }
+                    
+                    const slidingText = document.getElementById('slidingText');
+                    const interactiveText = document.getElementById('interactiveText');
+                    slidingText.textContent = "✓ Learned! Added to progression list";
+                    interactiveText.classList.add('learned');
+                    
+                    setTimeout(() => {
+                        quizContainer.style.display = 'none';
+                        
+                        // Find next unlearned item
+                        let nextIndex = currentDataIndex;
+                        let attempts = 0;
+                        do {
+                            nextIndex = (nextIndex + 1) % transitionsData.length;
+                            attempts++;
+                        } while (learnedItems.has(nextIndex) && attempts < transitionsData.length);
+                        
+                        if (attempts < transitionsData.length) {
+                            currentDataIndex = nextIndex;
+                            const newPositionPercent = transitionsData[nextIndex].positionPercent;
+                            const newPosition = getPositionFromPercent(newPositionPercent);
+                            let newOffset = Math.max(5, Math.min(95, (newPosition / pathLength) * 100));
+                            slidingText.setAttribute('startOffset', `${newOffset}%`);
+                            interactiveText.classList.remove('learned');
+                            setLevel(1);
+                        } else {
+                            slidingText.textContent = "🎉 Concept spectrum complete! All transitions mastered!";
+                            interactiveText.classList.remove('learned');
+                        }
+                    }, 2000);
+                }
+            } else {
+                quizFeedback.textContent = 'Try again';
+                quizFeedback.style.color = 'red';
+            }
+        }
+
+        // EVENT HANDLERS
+        function handleSlidingTextClick(e) {
+            if (isStatesMode || hasMoved) return;
+            e.preventDefault();
+            e.stopPropagation();
+            progressLevel();
+        }
+
+        // Frame dragging for States mode
+        let isDragging = false;
+        
+        function startDrag(e) {
+            if (!isStatesMode) return;
+            
+            isDragging = true;
+            const frame = document.getElementById('draggableFrame');
+            frame.classList.add('dragging');
+            
+            e.preventDefault();
+        }
+        
+        function dragMove(e) {
+            if (!isDragging || !isStatesMode) return;
+            
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const svg = document.getElementById('svgCanvas');
+            const bellCurve = document.getElementById('bellCurve');
+            
+            // Robust SVG coordinate conversion via getScreenCTM
+            const svgPoint = svg.createSVGPoint();
+            svgPoint.x = clientX;
+            svgPoint.y = 0;
+            const transformedPoint = svgPoint.matrixTransform(svg.getScreenCTM().inverse());
+            const svgX = transformedPoint.x;
+            
+            // Find closest point on curve
+            let bestPosition = 0;
+            let minDistance = Infinity;
+            
+            for (let i = 0; i <= 100; i++) {
+                const testLength = (i / 100) * pathLength;
+                const testPoint = bellCurve.getPointAtLength(testLength);
+                const distance = Math.abs(testPoint.x - svgX);
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    bestPosition = i / 100;
+                }
+            }
+            
+            // Get the actual point on the curve
+            const curvePoint = bellCurve.getPointAtLength(bestPosition * pathLength);
+            
+            // Position the frame
+            const frame = document.getElementById('draggableFrame');
+            const frameWidth = parseFloat(frame.getAttribute('width'));
+            const frameHeight = parseFloat(frame.getAttribute('height'));
+            
+            let frameX = curvePoint.x - frameWidth/2;
+            let frameY = curvePoint.y - frameHeight/2;
+            
+            // Apply boundary constraints
+            const leftEdgePoint = bellCurve.getPointAtLength(0);
+            const rightEdgePoint = bellCurve.getPointAtLength(pathLength);
+            
+            if (frameX < leftEdgePoint.x) {
+                frameX = leftEdgePoint.x;
+            }
+            if (frameX > rightEdgePoint.x - frameWidth) {
+                frameX = rightEdgePoint.x - frameWidth;
+            }
+            
+            frame.setAttribute('x', frameX);
+            frame.setAttribute('y', frameY);
+            
+            // Update visible text boxes
+            const frameCenter = {
+                x: frameX + frameWidth/2,
+                y: frameY + frameHeight/2
+            };
+            
+            updateVisibleTextBoxes(frameCenter);
+            
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        function endDrag(e) {
+            if (isDragging) {
+                isDragging = false;
+                const frame = document.getElementById('draggableFrame');
+                frame.classList.remove('dragging');
+                
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+        }
+
+        // Text dragging for Transitions mode
+        let isTextDragging = false;
+        let hasMoved = false;
+        
+        function startTextDrag(e) {
+            if (isStatesMode) return;
+            isTextDragging = true;
+            hasMoved = false;
+            e.preventDefault();
+        }
+        
+        function textDragMove(e) {
+            if (!isTextDragging || isStatesMode) return;
+            
+            hasMoved = true;
+            
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const svg = document.getElementById('svgCanvas');
+            const bellCurve = document.getElementById('bellCurve');
+            
+            const svgPoint = svg.createSVGPoint();
+            svgPoint.x = clientX;
+            svgPoint.y = 0;
+            const transformedPoint = svgPoint.matrixTransform(svg.getScreenCTM().inverse());
+            const cursorX = transformedPoint.x;
+            
+            let bestPosition = 0;
+            let minDistance = Infinity;
+            
+            for (let i = 0; i <= 1000; i++) {
+                const testPosition = i / 10;
+                const testLength = (testPosition / 100) * pathLength;
+                const testPoint = bellCurve.getPointAtLength(testLength);
+                const distance = Math.abs(testPoint.x - cursorX);
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    bestPosition = testPosition;
+                }
+            }
+            
+            // Apply boundary constraints for transitions mode
+            let visualOffset = bestPosition;
+            
+            if (visualOffset < 1) {        
+                visualOffset = 1;
+            } else if (visualOffset > 82) { 
+                visualOffset = 82;
+            }
+            
+            const slidingText = document.getElementById('slidingText');
+            slidingText.setAttribute('startOffset', `${visualOffset}%`);
+            
+            const newDataIndex = getDataIndexAtPosition(visualOffset);
+            if (newDataIndex !== currentDataIndex) {
+                currentDataIndex = newDataIndex;
+                currentLevel = 1;
+                setLevel(1);
+            }
+            
+            e.preventDefault();
+        }
+        
+        function endTextDrag() {
+            isTextDragging = false;
+            setTimeout(() => { hasMoved = false; }, 100);
+        }
+
+        // Toggle between modes
+        function toggleMode() {
+            isStatesMode = !isStatesMode;
+
+            // Reset title to the new mode's TLR default — otherwise a
+            // learner who had cycled to SL in the old mode would land on
+            // an oddly-indexed (possibly nonexistent) state in the new one.
+            currentTextIndex = 0;
+            document.getElementById('title-box').textContent =
+                titleTexts[isStatesMode ? 'states' : 'transitions'][0];
+            
+            if (isStatesMode) {
+                // Switch to States mode
+                document.getElementById('draggableFrame').style.display = 'block';
+                document.getElementById('interactiveText').style.display = 'none';
+                document.getElementById('display-mode-toggle').style.display = 'block';
+                document.getElementById('level-indicator').style.display = 'none';
+                document.getElementById('increasing-array').style.display = 'none';
+                document.getElementById('decreasing-array').style.display = 'none';
+                document.getElementById('instructions').textContent = '🎯 Drag the blue frame to explore positions!';
+                
+                createTextBoxes();
+                
+                // Initialize frame position
+                const bellCurve = document.getElementById('bellCurve');
+                const frame = document.getElementById('draggableFrame');
+                const startPercent = 5; // Start at first position
+                const startPosition = getPositionFromPercent(startPercent);
+                const startPoint = bellCurve.getPointAtLength(startPosition);
+                
+                frame.setAttribute('x', startPoint.x);
+                frame.setAttribute('y', startPoint.y - parseFloat(frame.getAttribute('height'))/2);
+                
+                setTimeout(() => {
+                    const frameCenter = {
+                        x: startPoint.x + parseFloat(frame.getAttribute('width'))/2,
+                        y: startPoint.y
+                    };
+                    updateVisibleTextBoxes(frameCenter);
+                    document.getElementById('concept-indicator').textContent = conceptData[0][0];
+                }, 100);
+            } else {
+                // Switch to Transitions mode
+                document.getElementById('draggableFrame').style.display = 'none';
+                document.getElementById('interactiveText').style.display = 'block';
+                document.getElementById('display-mode-toggle').style.display = 'none';
+                document.getElementById('level-indicator').style.display = 'block';
+                document.getElementById('increasing-array').style.display = 'block';
+                document.getElementById('decreasing-array').style.display = 'block';
+                document.getElementById('instructions').textContent = '🎯 Click or drag the text to learn concepts!';
+                
+                // Remove text boxes
+                document.querySelectorAll('.textBox').forEach(box => {
+                    if (box && box.parentNode) box.parentNode.removeChild(box);
+                });
+                textBoxElements = [];
+                
+                // Initialize at first transition
+                const slidingText = document.getElementById('slidingText');
+                const startPercent = transitionsData[0].positionPercent;
+                const startPosition = getPositionFromPercent(startPercent);
+                let startOffset = Math.max(1, Math.min(82, (startPosition / pathLength) * 100));
+                
+                slidingText.setAttribute('startOffset', `${startOffset}%`);
+                currentDataIndex = 0;
+                currentLevel = 1;
+                setLevel(1);
+                
+                // Re-attach events after mode switch
+                setTimeout(() => {
+                    const interactiveText = document.getElementById('interactiveText');
+                    const slidingText = document.getElementById('slidingText');
+                    
+                    interactiveText.removeEventListener('mousedown', startTextDrag);
+                    interactiveText.removeEventListener('touchstart', startTextDrag);
+                    slidingText.removeEventListener('mousedown', startTextDrag);
+                    slidingText.removeEventListener('touchstart', startTextDrag);
+                    
+                    interactiveText.addEventListener('mousedown', startTextDrag);
+                    interactiveText.addEventListener('touchstart', startTextDrag, { passive: false });
+                    slidingText.addEventListener('mousedown', startTextDrag);
+                    slidingText.addEventListener('touchstart', startTextDrag, { passive: false });
+                }, 50);
+            }
+        }
+
+        // Toggle arrays visibility
+        function toggleArrays() {
+            const visibility = document.getElementById('increasing-array').style.display === 'none' || 
+                             document.getElementById('increasing-array').style.display === '';
+            document.getElementById('increasing-array').style.display = visibility ? 'block' : 'none';
+            document.getElementById('decreasing-array').style.display = visibility ? 'block' : 'none';
+        }
+
+        // Load concept function (placeholder for future API integration)
+        function loadConcept() {
+            alert("Load Concept feature will integrate with API to fetch vocabulary for any conceptual spectrum in logographic languages.");
+        }
+
+        // Switch title text
+        function switchTitleText() {
+            const titleBox = document.getElementById('title-box');
+            titleBox.classList.add('hidden');
+            setTimeout(() => {
+                const modeKey = isStatesMode ? 'states' : 'transitions';
+                currentTextIndex = (currentTextIndex + 1) % titleTexts[modeKey].length;
+                titleBox.textContent = titleTexts[modeKey][currentTextIndex];
+                titleBox.classList.remove('hidden');
+            }, 500);
+        }
+
+        // INITIALIZATION
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            try {
+                // Get DOM elements
+                const svg = document.getElementById("svgCanvas");
+                const bellCurve = document.getElementById("bellCurve");
+                const conceptBackground = document.getElementById("conceptBackground");
+                const frame = document.getElementById("draggableFrame");
+                const interactiveText = document.getElementById("interactiveText");
+                const slidingText = document.getElementById("slidingText");
+                const quizCheck = document.getElementById("quizCheck");
+                const quizInput = document.getElementById("quizInput");
+                
+                // Tool menu items
+                const loadConceptBtn = document.getElementById("loadConcept");
+                const startQuizBtn = document.getElementById("startQuiz");
+                const toggleArraysBtn = document.getElementById("toggleArrays");
+                
+                // Initialize arrays
+                learnedItems = new Set();
+                addedIncreasingItems = new Array(transitionsData.length).fill(false);
+                addedDecreasingItems = new Array(transitionsData.length).fill(false);
+
+                // Title box: TLR by default (matches the vocabulary-item
+                // convention — see Conceptionary_Template_Definitions.md).
+                // Was previously left showing a static HTML placeholder
+                // until the title was clicked; now genuinely defaults to
+                // real content from the moment the page loads.
+                document.getElementById('title-box').textContent = titleTexts.states[0];
+                currentTextIndex = 0;
+                
+                // Generate inverted bell curve with new parameters
+                const a = 25, b = 50, c = 40;
+                const curvePoints = [];
+                
+                for (let x = -30; x <= 130; x += 1) {
+                    const y = 25 + a * Math.exp(-Math.pow(x - b, 2) / (2 * Math.pow(c, 2)));
+                    curvePoints.push(`${x},${y}`);
+                }
+                
+                const bellCurvePath = `M ${curvePoints.join(' L ')}`;
+                bellCurve.setAttribute('d', bellCurvePath);
+                conceptBackground.setAttribute('d', `${bellCurvePath} L 130,25 L -30,25 Z`);
+                pathLength = bellCurve.getTotalLength();
+
+                // Position frame at start of curve (left baseline = position 0)
+                function initializeFramePosition() {
+                    const startPoint = bellCurve.getPointAtLength(0);
+                    const frameW = parseFloat(frame.getAttribute('width'));
+                    const frameH = parseFloat(frame.getAttribute('height'));
+                    frame.setAttribute('x', startPoint.x - frameW / 2);
+                    frame.setAttribute('y', startPoint.y - frameH / 2);
+                    updateVisibleTextBoxes(startPoint);
+                }
+                initializeFramePosition();
+
+                // Event listeners for frame dragging
+                frame.addEventListener('mousedown', startDrag);
+                frame.addEventListener('touchstart', startDrag, { passive: false });
+                document.addEventListener('mousemove', dragMove);
+                document.addEventListener('touchmove', dragMove, { passive: false });
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchend', endDrag);
+                
+                // Text dragging (Transitions mode)
+                interactiveText.addEventListener('mousedown', startTextDrag);
+                interactiveText.addEventListener('touchstart', startTextDrag, { passive: false });
+                document.addEventListener('mousemove', textDragMove);
+                document.addEventListener('touchmove', textDragMove, { passive: false });
+                document.addEventListener('mouseup', endTextDrag);
+                document.addEventListener('touchend', endTextDrag);
+                
+                // Text clicking (Transitions mode)
+                interactiveText.addEventListener('click', handleSlidingTextClick);
+                slidingText.addEventListener('click', handleSlidingTextClick);
+                
+                // Double-click outside quiz box to hide it
+                document.addEventListener('dblclick', function(e) {
+                    const quizContainer = document.getElementById('quizContainer');
+                    
+                    if (quizContainer.style.display !== 'none') {
+                        if (!quizContainer.contains(e.target)) {
+                            hideQuiz();
+                            
+                            if (!isStatesMode && currentLevel === 4) {
+                                currentLevel = 1;
+                                setLevel(1);
+                            }
+                            
+                            e.preventDefault();
+                            e.stopPropagation();
+                        }
+                    }
+                });
+                
+                // Other controls
+                document.getElementById('title-box').addEventListener('click', switchTitleText);
+                document.getElementById('modeToggle').addEventListener('click', toggleMode);
+                document.getElementById('display-mode-toggle').addEventListener('click', cycleDisplayLevel);
+                
+                // Audio button
+                document.getElementById('audio-button').addEventListener('click', function() {
+                    if (isStatesMode) {
+                        // Find active text box and play its audio
+                        const activeTextBox = textBoxElements.find(tb => tb && tb.classList.contains('active'));
+                        if (activeTextBox) {
+                            const index = parseInt(activeTextBox.getAttribute('data-index'));
+                            playAudio(conceptData[index][1], 'target-language');
+                        } else {
+                            alert('Move the frame to a position to hear pronunciation');
+                        }
+                    } else {
+                        // Play audio for current transition
+                        const currentData = transitionsData[currentDataIndex];
+                        playAudio(currentData.targetLanguage, 'target-language');
+                    }
+                });
+                
+                quizCheck.addEventListener('click', checkQuizAnswer);
+                
+                quizInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        checkQuizAnswer();
+                    } else if (e.key === 'Escape') {
+                        hideQuiz();
+                    }
+                });
+                
+                document.getElementById('toggle-increasing').addEventListener('click', function() {
+                    toggleArrayVisibility('increasing');
+                });
+                
+                document.getElementById('toggle-decreasing').addEventListener('click', function() {
+                    toggleArrayVisibility('decreasing');
+                });
+
+                // Tools menu interaction
+                const toolsButton = document.querySelector('.tools-button');
+                const toolsDropdown = document.querySelector('.tools-dropdown');
+                
+                let dropdownOpen = false;
+                
+                if (toolsButton) {
+                    toolsButton.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        dropdownOpen = !dropdownOpen;
+                        
+                        if (dropdownOpen) {
+                            toolsDropdown.classList.add('active');
+                        } else {
+                            toolsDropdown.classList.remove('active');
+                        }
+                    });
+                }
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (toolsButton && toolsDropdown && 
+                        !toolsButton.contains(e.target) && !toolsDropdown.contains(e.target)) {
+                        dropdownOpen = false;
+                        toolsDropdown.classList.remove('active');
+                    }
+                });
+                
+                // Tool menu item handlers
+                if (loadConceptBtn) {
+                    loadConceptBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        dropdownOpen = false;
+                        if (toolsDropdown) toolsDropdown.classList.remove('active');
+                        loadConcept();
+                    });
+                }
+                
+                if (startQuizBtn) {
+                    startQuizBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        dropdownOpen = false;
+                        if (toolsDropdown) toolsDropdown.classList.remove('active');
+                        
+                        // Start quick quiz
+                        const currentData = isStatesMode ? conceptData : transitionsData;
+                        const randomIndex = Math.floor(Math.random() * currentData.length);
+                        
+                        if (isStatesMode) {
+                            currentQuizIndex = randomIndex;
+                            const quizInput = document.getElementById("quizInput");
+                            const quizFeedback = document.getElementById("quizFeedback");
+                            const quizContainer = document.getElementById("quizContainer");
+                            
+                            quizInput.placeholder = currentData[randomIndex][3];
+                            quizInput.value = '';
+                            quizFeedback.textContent = '';
+                            
+                            quizContainer.style.display = 'block';
+                            quizContainer.style.visibility = 'visible';
+                            quizContainer.style.opacity = '1';
+                            quizContainer.style.zIndex = '9999';
+                            
+                            setTimeout(() => {
+                                quizInput.focus();
+                            }, 100);
+                        } else {
+                            currentQuizIndex = randomIndex;
+                            showQuiz();
+                        }
+                    });
+                }
+                
+                if (toggleArraysBtn) {
+                    toggleArraysBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        dropdownOpen = false;
+                        if (toolsDropdown) toolsDropdown.classList.remove('active');
+                        toggleArrays();
+                    });
+                }
+
+                // Initialize in States mode
+                createTextBoxes();
+                
+                // Position frame at the start with inverted curve
+                const startPercent = 5;
+                const startPosition = getPositionFromPercent(startPercent);
+                const startPoint = bellCurve.getPointAtLength(startPosition);
+                
+                frame.setAttribute('x', startPoint.x - parseFloat(frame.getAttribute('width'))/2);
+                frame.setAttribute('y', startPoint.y - parseFloat(frame.getAttribute('height'))/2);
+                
+                // Initialize first text box visibility
+                setTimeout(() => {
+                    const frameCenter = {
+                        x: startPoint.x,
+                        y: startPoint.y
+                    };
+                    updateVisibleTextBoxes(frameCenter);
+                    document.getElementById('concept-indicator').textContent = conceptData[0][0];
+                }, 100);
+                
+                // Hide transitions mode elements initially
+                interactiveText.style.display = 'none';
+                document.getElementById('level-indicator').style.display = 'none';
+                document.getElementById('quizContainer').style.display = 'none';
+                document.getElementById('increasing-array').style.display = 'none';
+                document.getElementById('decreasing-array').style.display = 'none';
+                
+                // Hide instruction message after 7 seconds
+                setTimeout(() => {
+                    const instructions = document.getElementById('instructions');
+                    if (instructions) {
+                        instructions.classList.add('fade');
+                        setTimeout(() => {
+                            instructions.style.display = 'none';
+                        }, 2000);
+                    }
+                }, 7000);
+                
+                
+            } catch (error) {
+                console.error("Error initializing logographic template:", error);
+            }
+        });
+    </script>
+</body>
+</html>

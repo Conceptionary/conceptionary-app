@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock — Time Expressions — Logographic — Generic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0; padding: 0;
+            background-color: #f0f0f0;
+            display: flex; height: 100vh; overflow: hidden; position: relative;
+        }
+        .left-panel, .right-panel {
+            width: 25%; background-color: white; border: 2px solid #333;
+            padding: 20px; box-sizing: border-box;
+            display: flex; flex-direction: column; justify-content: center; gap: 20px;
+        }
+        .left-panel  { border-right: none; }
+        .right-panel { border-left: none; }
+        .center-area {
+            width: 50%; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            background-color: #f9f9f9; border: 2px solid #333; border-left: none; border-right: none;
+        }
+        .digital-display {
+            font-size: 2em; font-weight: bold; background-color: #000; color: #00ff00;
+            padding: 10px 20px; border-radius: 5px; margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+        }
+        .clock {
+            width: 300px; height: 300px; border: 8px solid #333; border-radius: 50%;
+            position: relative; background-color: white;
+        }
+        .clock-center {
+            position: absolute; top: 50%; left: 50%; width: 12px; height: 12px;
+            background-color: #333; border-radius: 50%; transform: translate(-50%, -50%); z-index: 10;
+        }
+        .hand { position: absolute; background-color: #333; transform-origin: bottom center; border-radius: 2px; }
+        .hour-hand   { width: 6px; height: 80px;  top: 70px; left: 147px; }
+        .minute-hand { width: 4px; height: 110px; top: 40px; left: 148px; }
+        .second-hand { width: 2px; height: 120px; top: 30px; left: 149px; background-color: red; }
+        .number {
+            position: absolute; font-size: 18px; font-weight: bold;
+            width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+        }
+        .dynamic-text-box {
+            background-color: #f9f9f9; border: 2px solid #4CAF50; padding: 15px;
+            border-radius: 8px; font-size: 16px; text-align: center; min-height: 50px;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s ease; cursor: pointer; position: relative;
+        }
+        .dynamic-text-box:hover { background-color: #e8f5e8; transform: scale(1.02); }
+        .greeting-box     { border-color: #FF9800; background-color: #fff3e0; }
+        .approximate-box  { border-color: #2196F3; background-color: #e3f2fd; }
+        .exact-box        { border-color: #4CAF50; background-color: #e8f5e8; }
+        .part-of-day-box  { border-color: #9C27B0; background-color: #f3e5f5; }
+        .empty-box        { border-color: #ccc; background-color: #f5f5f5; color: #999; }
+        .controls { display: flex; gap: 10px; justify-content: center; }
+        .controls button {
+            padding: 8px 12px; background-color: #4CAF50; color: white;
+            border: none; border-radius: 4px; cursor: pointer; font-size: 14px;
+        }
+        .controls button:hover { background-color: #45a049; }
+        .question-text {
+            background-color: #2196F3; color: white; padding: 12px; border-radius: 8px;
+            font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 15px;
+        }
+        .tooltip {
+            position: fixed; background-color: #333; color: white; padding: 8px 12px;
+            border-radius: 6px; font-size: 14px; z-index: 1000; white-space: nowrap;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
+            pointer-events: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .tooltip.show { opacity: 1; visibility: visible; }
+        .watermark {
+            position: absolute; bottom: 5px; width: 100%; text-align: center;
+            font-size: 12px; color: rgba(40, 167, 69, 0.4); font-weight: bold;
+            pointer-events: none; user-select: none; z-index: 0;
+        }
+        .tl-text { font-family: Arial, sans-serif; }
+        .click-indicator { position: absolute; top: 5px; right: 5px; font-size: 10px; color: #666; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <!-- Left Panel - Source Language -->
+    <div class="left-panel">
+        <div class="question-text" id="question-sl">SL_QUESTION</div>
+        <div class="dynamic-text-box greeting-box"    id="greeting-sl"    data-tooltip="SL_TOOLTIP_GREETING"></div>
+        <div class="dynamic-text-box approximate-box" id="approximate-sl" data-tooltip="SL_TOOLTIP_APPROX"></div>
+        <div class="dynamic-text-box exact-box"       id="exact-sl"       data-tooltip="SL_TOOLTIP_EXACT"></div>
+        <div class="dynamic-text-box part-of-day-box" id="part-of-day-sl" data-tooltip="SL_TOOLTIP_PARTOFDAY"></div>
+    </div>
+
+    <!-- Center Area - Clock -->
+    <div class="center-area">
+        <div class="digital-display" id="digital-time">12:00:00</div>
+        <div class="clock" id="clock">
+            <div class="clock-center"></div>
+            <div class="hand hour-hand"   id="hour-hand"></div>
+            <div class="hand minute-hand" id="minute-hand"></div>
+            <div class="hand second-hand" id="second-hand"></div>
+        </div>
+        <div class="controls" style="margin-top: 20px;">
+            <button onclick="adjustHour(-1)">Hour -</button>
+            <button onclick="adjustHour(1)">Hour +</button>
+            <button onclick="adjustMinute(-1)">Min -</button>
+            <button onclick="adjustMinute(1)">Min +</button>
+            <button onclick="resetToCurrentTime()">Reset</button>
+        </div>
+    </div>
+
+    <!-- Right Panel - Target Language (click a box to toggle TL / TLR) -->
+    <div class="right-panel">
+        <div class="question-text tl-text" id="question-tl">TL_QUESTION</div>
+        <div class="dynamic-text-box greeting-box tl-text"    id="greeting-tl"    data-tooltip="TLR_TOOLTIP_GREETING"><span class="click-indicator">👆</span></div>
+        <div class="dynamic-text-box approximate-box tl-text" id="approximate-tl" data-tooltip="TLR_TOOLTIP_APPROX"><span class="click-indicator">👆</span></div>
+        <div class="dynamic-text-box exact-box tl-text"       id="exact-tl"       data-tooltip="TLR_TOOLTIP_EXACT"><span class="click-indicator">👆</span></div>
+        <div class="dynamic-text-box part-of-day-box tl-text" id="part-of-day-tl" data-tooltip="TLR_TOOLTIP_PARTOFDAY"><span class="click-indicator">👆</span></div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+    <div class="watermark">&copy; 2026 Alan William Preston</div>
+
+    <script>
+
+    /* =====================================================================
+       LANGUAGE CONFIGURATION BLOCK
+       =====================================================================
+       This template is a CLOCK + TIME-EXPRESSION GENERATOR, not a fixed
+       vocabulary array. Unlike most GPCV templates, the actual sentences
+       ("It's half past three", "もうすぐ4時です" etc.) are GENERATED on the
+       fly from the current (or manually-set) time, using the grammar rules
+       below.
+
+       To populate this template for a new language pair, you must supply,
+       for BOTH the Source Language (sl) and Target Language (tl):
+         - hourWords: 12 words/phrases for the hours 12,1,2...11
+           (index = hour % 12; index 0 = "twelve")
+         - greetings / partsOfDay: simple time-range vocabulary (these ARE
+           plain data, like other GPCV templates)
+         - formatExact(hour, minute)  -> the "What's the exact time?" sentence
+         - formatApprox(hour, minute) -> the "About what time is it?" sentence,
+           or null if the current time doesn't fall in an "approximate" window
+           (e.g. only near the hour)
+
+       formatExact/formatApprox for TL must return {text, romaji}.
+       formatExact/formatApprox for SL must return a plain string.
+
+       WORKED EXAMPLES PROVIDED BELOW:
+       - SL.formatExact/formatApprox follow an English-style pattern
+         ("It's quarter past three", "It's almost four o'clock"). If your
+         SL is English, these likely need no changes beyond hourWords.
+         If your SL has different time-grammar (e.g. German "halb vier" =
+         3:30, referencing the COMING hour), rewrite these functions.
+       - TL.formatExact/formatApprox follow a Japanese-style pattern
+         (時/分/半/前/過ぎ particles). This is a WORKED EXAMPLE to show the
+         shape of the function — if your TL's time-grammar differs
+         significantly (many languages don't have "quarter/half past"
+         concepts at all, or build time differently), rewrite these
+         functions for your TL's actual grammar. The hourWord placeholders
+         (TL-Hour-0 etc.) and the surrounding particles/words are both
+         things you'll need to adapt.
+       ===================================================================== */
+
+    const LANG = {
+
+        titles: {
+            sl: "SL_QUESTION",   // e.g. "What time is it (in English)?"
+            tl: "TL_QUESTION"    // e.g. "今は日本語で何時ですか？"
+        },
+
+        tooltips: {
+            sl: {
+                greeting:   "SL_TOOLTIP_GREETING",   // e.g. "How should I greet someone?"
+                approx:     "SL_TOOLTIP_APPROX",     // e.g. "About what time is it?"
+                exact:      "SL_TOOLTIP_EXACT",      // e.g. "What's the exact time now?"
+                partOfDay:  "SL_TOOLTIP_PARTOFDAY"   // e.g. "What part of the day is it?"
+            },
+            // TL tooltips should be written in TLR (romanised), so the
+            // learner can read the question even before learning the script.
+            tl: {
+                greeting:   "TLR_TOOLTIP_GREETING",
+                approx:     "TLR_TOOLTIP_APPROX",
+                exact:      "TLR_TOOLTIP_EXACT",
+                partOfDay:  "TLR_TOOLTIP_PARTOFDAY"
+            }
+        },
+
+        // =================================================================
+        // SOURCE LANGUAGE
+        // =================================================================
+        sl: {
+            // 12 hour-words, index = hour % 12 (index 0 = "twelve")
+            hourWords: ["SL-Hour-0","SL-Hour-1","SL-Hour-2","SL-Hour-3","SL-Hour-4","SL-Hour-5",
+                        "SL-Hour-6","SL-Hour-7","SL-Hour-8","SL-Hour-9","SL-Hour-10","SL-Hour-11"],
+
+            // Greetings by hour-range. start/end are hours 0-24 (end exclusive).
+            greetings: [
+                { start: 5,  end: 12, text: "SL-Greeting-Morning" },
+                { start: 12, end: 16, text: "SL-Greeting-Afternoon" },
+                { start: 16, end: 19, text: "SL-Greeting-Evening" }
+            ],
+
+            // Parts of the day by hour-range (should cover 0-24 with no gaps).
+            partsOfDay: [
+                { start: 0,  end: 5,  text: "SL-PartOfDay-LateNight" },
+                { start: 5,  end: 7,  text: "SL-PartOfDay-EarlyMorning" },
+                { start: 7,  end: 10, text: "SL-PartOfDay-Morning" },
+                { start: 10, end: 12, text: "SL-PartOfDay-LateMorning" },
+                { start: 12, end: 13, text: "SL-PartOfDay-Noon" },
+                { start: 13, end: 14, text: "SL-PartOfDay-EarlyAfternoon" },
+                { start: 14, end: 15, text: "SL-PartOfDay-MidAfternoon" },
+                { start: 15, end: 17, text: "SL-PartOfDay-LateAfternoon" },
+                { start: 17, end: 18, text: "SL-PartOfDay-EarlyEvening" },
+                { start: 18, end: 19, text: "SL-PartOfDay-Sunset" },
+                { start: 19, end: 23, text: "SL-PartOfDay-Night" },
+                { start: 23, end: 24, text: "SL-PartOfDay-LateNight" }
+            ],
+
+            // ---- "What's the exact time?" -----------------------------------
+            // EXAMPLE: English-style pattern. hour is 0-23, minute is 0-59.
+            formatExact(hour, minute) {
+                const h = this.hourWords;
+                const next = (hour + 1) % 24;
+                if (minute === 0) {
+                    if (hour === 0)  return "SL-ItsMidnight";
+                    if (hour === 12) return "SL-ItsNoon";
+                    return `SL-Its ${h[hour % 12]} SL-OClock`;
+                } else if (minute === 15) {
+                    return `SL-ItsQuarterPast ${h[hour % 12]}`;
+                } else if (minute === 30) {
+                    return `SL-ItsHalfPast ${h[hour % 12]}`;
+                } else if (minute === 45) {
+                    return `SL-ItsQuarterTo ${h[next % 12]}`;
+                } else if (minute < 30) {
+                    return `SL-Its ${minute} SL-MinutesPast ${h[hour % 12]}`;
+                } else {
+                    return `SL-Its ${60 - minute} SL-MinutesTo ${h[next % 12]}`;
+                }
+            },
+
+            // ---- "About what time is it?" -----------------------------------
+            // Only returns a value near the top of the hour; otherwise null
+            // (the framework will show an empty box).
+            formatApprox(hour, minute) {
+                const h = this.hourWords;
+                const next = (hour + 1) % 24;
+                if (minute >= 58 || minute <= 2) {
+                    const ref = minute >= 58 ? h[next % 12] : h[hour % 12];
+                    return `SL-ItsAlmost ${ref} SL-OClock`;
+                } else if (minute >= 3 && minute <= 7) {
+                    return `SL-ItsJustGone ${h[hour % 12]} SL-OClock`;
+                } else if (minute >= 53 && minute <= 57) {
+                    return `SL-ItsComingUpTo ${h[next % 12]} SL-OClock`;
+                }
+                return null;
+            }
+        },
+
+        // =================================================================
+        // TARGET LANGUAGE
+        // =================================================================
+        tl: {
+            // 12 hour-words in TL script, index = hour % 12 (index 0 = "twelve")
+            hourWords:       ["TL-Hour-0","TL-Hour-1","TL-Hour-2","TL-Hour-3","TL-Hour-4","TL-Hour-5",
+                               "TL-Hour-6","TL-Hour-7","TL-Hour-8","TL-Hour-9","TL-Hour-10","TL-Hour-11"],
+            // Same 12 hour-words, romanised (TLR)
+            hourWordsRomaji: ["TLR-Hour-0","TLR-Hour-1","TLR-Hour-2","TLR-Hour-3","TLR-Hour-4","TLR-Hour-5",
+                               "TLR-Hour-6","TLR-Hour-7","TLR-Hour-8","TLR-Hour-9","TLR-Hour-10","TLR-Hour-11"],
+
+            greetings: [
+                { start: 5,  end: 12, text: "TL-Greeting-Morning",   romaji: "TLR-Greeting-Morning" },
+                { start: 12, end: 16, text: "TL-Greeting-Afternoon", romaji: "TLR-Greeting-Afternoon" },
+                { start: 16, end: 19, text: "TL-Greeting-Evening",   romaji: "TLR-Greeting-Evening" }
+            ],
+
+            partsOfDay: [
+                { start: 0,  end: 5,  text: "TL-PartOfDay-LateNight",     romaji: "TLR-PartOfDay-LateNight" },
+                { start: 5,  end: 7,  text: "TL-PartOfDay-EarlyMorning",  romaji: "TLR-PartOfDay-EarlyMorning" },
+                { start: 7,  end: 10, text: "TL-PartOfDay-Morning",       romaji: "TLR-PartOfDay-Morning" },
+                { start: 10, end: 12, text: "TL-PartOfDay-LateMorning",   romaji: "TLR-PartOfDay-LateMorning" },
+                { start: 12, end: 13, text: "TL-PartOfDay-Noon",          romaji: "TLR-PartOfDay-Noon" },
+                { start: 13, end: 14, text: "TL-PartOfDay-EarlyAfternoon",romaji: "TLR-PartOfDay-EarlyAfternoon" },
+                { start: 14, end: 15, text: "TL-PartOfDay-MidAfternoon",  romaji: "TLR-PartOfDay-MidAfternoon" },
+                { start: 15, end: 17, text: "TL-PartOfDay-LateAfternoon", romaji: "TLR-PartOfDay-LateAfternoon" },
+                { start: 17, end: 18, text: "TL-PartOfDay-EarlyEvening",  romaji: "TLR-PartOfDay-EarlyEvening" },
+                { start: 18, end: 19, text: "TL-PartOfDay-Sunset",        romaji: "TLR-PartOfDay-Sunset" },
+                { start: 19, end: 23, text: "TL-PartOfDay-Night",         romaji: "TLR-PartOfDay-Night" },
+                { start: 23, end: 24, text: "TL-PartOfDay-LateNight",     romaji: "TLR-PartOfDay-LateNight" }
+            ],
+
+            // ---- "What's the exact time?" -----------------------------------
+            // EXAMPLE: Japanese-style pattern (hour + 時/分/半 particles,
+            // "前" for "to"). Returns {text, romaji}. Replace this function's
+            // body entirely if your TL builds time expressions differently.
+            formatExact(hour, minute) {
+                const tl = this.hourWords, tlr = this.hourWordsRomaji;
+                const next = (hour + 1) % 24;
+                if (minute === 0) {
+                    if (hour === 0)  return { text: "TL-ItsMidnight",  romaji: "TLR-ItsMidnight" };
+                    if (hour === 12) return { text: "TL-ItsNoon",      romaji: "TLR-ItsNoon" };
+                    return {
+                        text:   `${tl[hour % 12]}TL-OClockSuffix`,
+                        romaji: `${tlr[hour % 12]}TLR-OClockSuffix`
+                    };
+                } else if (minute === 15) {
+                    return {
+                        text:   `${tl[hour % 12]}TL-QuarterPastSuffix`,
+                        romaji: `${tlr[hour % 12]}TLR-QuarterPastSuffix`
+                    };
+                } else if (minute === 30) {
+                    return {
+                        text:   `${tl[hour % 12]}TL-HalfPastSuffix`,
+                        romaji: `${tlr[hour % 12]}TLR-HalfPastSuffix`
+                    };
+                } else if (minute === 45) {
+                    return {
+                        text:   `${tl[next % 12]}TL-QuarterToSuffix`,
+                        romaji: `${tlr[next % 12]}TLR-QuarterToSuffix`
+                    };
+                } else {
+                    return {
+                        text:   `${tl[hour % 12]}TL-MinutesPastPrefix${minute}TL-MinutesPastSuffix`,
+                        romaji: `${tlr[hour % 12]}TLR-MinutesPastPrefix${minute}TLR-MinutesPastSuffix`
+                    };
+                }
+            },
+
+            // ---- "About what time is it?" -----------------------------------
+            formatApprox(hour, minute) {
+                const tl = this.hourWords, tlr = this.hourWordsRomaji;
+                const next = (hour + 1) % 24;
+                if (minute >= 58 || minute <= 2) {
+                    const ref  = minute >= 58 ? tl[next % 12]  : tl[hour % 12];
+                    const refR = minute >= 58 ? tlr[next % 12] : tlr[hour % 12];
+                    return { text: `TL-AlmostPrefix${ref}TL-AlmostSuffix`, romaji: `TLR-AlmostPrefix${refR}TLR-AlmostSuffix` };
+                } else if (minute >= 3 && minute <= 7) {
+                    return { text: `${tl[hour % 12]}TL-JustGoneSuffix`, romaji: `${tlr[hour % 12]}TLR-JustGoneSuffix` };
+                } else if (minute >= 53 && minute <= 57) {
+                    return { text: `${tl[next % 12]}TL-ComingUpToSuffix`, romaji: `${tlr[next % 12]}TLR-ComingUpToSuffix` };
+                }
+                return null;
+            }
+        }
+    };
+    /* =====================================================================
+       END OF LANGUAGE CONFIGURATION BLOCK
+       No language-specific content appears below this line.
+       ===================================================================== */
+
+
+    // --- Apply titles and tooltips from config ----------------------------
+    document.getElementById('question-sl').textContent = LANG.titles.sl;
+    document.getElementById('question-tl').textContent = LANG.titles.tl;
+    document.getElementById('greeting-sl').setAttribute('data-tooltip', LANG.tooltips.sl.greeting);
+    document.getElementById('approximate-sl').setAttribute('data-tooltip', LANG.tooltips.sl.approx);
+    document.getElementById('exact-sl').setAttribute('data-tooltip', LANG.tooltips.sl.exact);
+    document.getElementById('part-of-day-sl').setAttribute('data-tooltip', LANG.tooltips.sl.partOfDay);
+    document.getElementById('greeting-tl').setAttribute('data-tooltip', LANG.tooltips.tl.greeting);
+    document.getElementById('approximate-tl').setAttribute('data-tooltip', LANG.tooltips.tl.approx);
+    document.getElementById('exact-tl').setAttribute('data-tooltip', LANG.tooltips.tl.exact);
+    document.getElementById('part-of-day-tl').setAttribute('data-tooltip', LANG.tooltips.tl.partOfDay);
+
+    // --- Runtime state -------------------------------------------------------
+    let manualMode = false, manualHours = null, manualMinutes = null;
+    // TL boxes: 0 = showing TL (script), 1 = showing TLR (romanised)
+    const displayStates = { 'greeting-tl': 0, 'approximate-tl': 0, 'exact-tl': 0, 'part-of-day-tl': 0 };
+
+    function initializeClock() {
+        const clock = document.getElementById('clock');
+        for (let i = 1; i <= 12; i++) {
+            const number = document.createElement('div');
+            number.className = 'number';
+            number.textContent = i;
+            const angle = (i * 30 - 90) * (Math.PI / 180);
+            const radius = 120;
+            number.style.left = (Math.cos(angle) * radius + 135) + 'px';
+            number.style.top  = (Math.sin(angle) * radius + 135) + 'px';
+            clock.appendChild(number);
+        }
+    }
+
+    // --- Generic lookups (language-agnostic) ---------------------------------
+    function lookupRange(data, hour) {
+        for (const item of data) {
+            if (hour >= item.start && hour < item.end) return item;
+        }
+        return null;
+    }
+
+    function getGreeting(hour, lang) {
+        const item = lookupRange(LANG[lang].greetings, hour);
+        if (!item) return null;
+        return lang === 'sl' ? item.text : { text: item.text, romaji: item.romaji };
+    }
+
+    function getPartOfDay(hour, lang) {
+        const item = lookupRange(LANG[lang].partsOfDay, hour);
+        if (!item) return null;
+        return lang === 'sl' ? item.text : { text: item.text, romaji: item.romaji };
+    }
+
+    // --- Update display --------------------------------------------------------
+    function updateDynamicTextBoxes(hour, minute) {
+        // Source Language panel
+        const slContent = [
+            getGreeting(hour, 'sl') || "",
+            LANG.sl.formatApprox(hour, minute) || "",
+            LANG.sl.formatExact(hour, minute) || "",
+            getPartOfDay(hour, 'sl') || ""
+        ];
+        const slBoxIds = ['greeting-sl', 'approximate-sl', 'exact-sl', 'part-of-day-sl'];
+        slBoxIds.forEach((id, i) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (slContent[i]) { el.textContent = slContent[i]; el.classList.remove('empty-box'); }
+            else              { el.textContent = '';          el.classList.add('empty-box'); }
+        });
+
+        // Target Language panel
+        const tlContent = [
+            getGreeting(hour, 'tl'),
+            LANG.tl.formatApprox(hour, minute),
+            LANG.tl.formatExact(hour, minute),
+            getPartOfDay(hour, 'tl')
+        ];
+        const tlBoxIds = ['greeting-tl', 'approximate-tl', 'exact-tl', 'part-of-day-tl'];
+        tlBoxIds.forEach((id, i) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const data = tlContent[i];
+            if (data) {
+                const showRomaji = displayStates[id] === 1;
+                const textContent = showRomaji ? data.romaji : data.text;
+                const nodes = Array.from(el.childNodes).filter(n =>
+                    n.nodeType === Node.TEXT_NODE ||
+                    (n.nodeType === Node.ELEMENT_NODE && !n.classList.contains('click-indicator'))
+                );
+                nodes.forEach(n => n.remove());
+                el.insertBefore(document.createTextNode(textContent), el.querySelector('.click-indicator'));
+                el.classList.remove('empty-box');
+            } else {
+                const indicator = el.querySelector('.click-indicator');
+                el.textContent = '';
+                if (indicator) el.appendChild(indicator);
+                el.classList.add('empty-box');
+            }
+        });
+    }
+
+    function initializeTargetLanguageClickHandlers() {
+        Object.keys(displayStates).forEach(boxId => {
+            const el = document.getElementById(boxId);
+            if (!el) return;
+            el.addEventListener('click', function(e) {
+                e.stopPropagation();
+                displayStates[boxId] = (displayStates[boxId] + 1) % 2;
+                const hour = manualMode ? manualHours : new Date().getHours();
+                const minute = manualMode ? manualMinutes : new Date().getMinutes();
+                updateDynamicTextBoxes(hour, minute);
+            });
+        });
+    }
+
+    // --- Manual time controls ----------------------------------------------------
+    function adjustHour(delta) {
+        manualMode = true;
+        const now = new Date();
+        manualHours = (manualHours ?? now.getHours()) + delta;
+        if (manualHours < 0) manualHours = 23;
+        if (manualHours > 23) manualHours = 0;
+        manualMinutes = manualMinutes ?? now.getMinutes();
+        updateClockDisplay();
+    }
+
+    function adjustMinute(delta) {
+        manualMode = true;
+        const now = new Date();
+        manualHours = manualHours ?? now.getHours();
+        manualMinutes = (manualMinutes ?? now.getMinutes()) + delta;
+        if (manualMinutes < 0) { manualMinutes = 59; adjustHour(-1); return; }
+        if (manualMinutes > 59) { manualMinutes = 0; adjustHour(1); return; }
+        updateClockDisplay();
+    }
+
+    function resetToCurrentTime() {
+        manualMode = false;
+        updateClock();
+    }
+
+    function updateClockDisplay() {
+        const hours   = manualMode ? manualHours   : new Date().getHours();
+        const minutes = manualMode ? manualMinutes : new Date().getMinutes();
+        const seconds = manualMode ? 0             : new Date().getSeconds();
+
+        document.getElementById('digital-time').textContent =
+            String(hours).padStart(2, '0') + ':' +
+            String(minutes).padStart(2, '0') + ':' +
+            String(seconds).padStart(2, '0');
+
+        const hourAngle   = (hours % 12) * 30 + minutes * 0.5;
+        const minuteAngle = minutes * 6;
+        const secondAngle = seconds * 6;
+        document.getElementById('hour-hand').style.transform   = `rotate(${hourAngle}deg)`;
+        document.getElementById('minute-hand').style.transform = `rotate(${minuteAngle}deg)`;
+        document.getElementById('second-hand').style.transform = `rotate(${secondAngle}deg)`;
+
+        updateDynamicTextBoxes(hours, minutes);
+    }
+
+    function updateClock() {
+        if (!manualMode) updateClockDisplay();
+    }
+
+    // --- Tooltips -----------------------------------------------------------------
+    function initializeTooltips() {
+        const tooltip = document.getElementById('tooltip');
+        document.querySelectorAll('.dynamic-text-box[data-tooltip]').forEach(box => {
+            box.addEventListener('mouseenter', e => showTooltip(tooltip, box.getAttribute('data-tooltip'), e));
+            box.addEventListener('mouseleave', () => hideTooltip(tooltip));
+            box.addEventListener('mousemove', e => positionTooltip(tooltip, e));
+            box.addEventListener('touchstart', e => {
+                showTooltip(tooltip, box.getAttribute('data-tooltip'), e.touches[0]);
+                setTimeout(() => hideTooltip(tooltip), 2000);
+            });
+        });
+    }
+    function showTooltip(tooltip, text, event) {
+        tooltip.textContent = text;
+        positionTooltip(tooltip, event);
+        tooltip.classList.add('show');
+    }
+    function hideTooltip(tooltip) { tooltip.classList.remove('show'); }
+    function positionTooltip(tooltip, event) {
+        const x = event.clientX || event.pageX, y = event.clientY || event.pageY;
+        tooltip.style.left = (x + 10) + 'px';
+        tooltip.style.top  = (y - 35) + 'px';
+    }
+
+    // --- Init ------------------------------------------------------------------------
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeClock();
+        initializeTargetLanguageClickHandlers();
+        updateClock();
+        setInterval(updateClock, 1000);
+        initializeTooltips();
+    });
+
+    </script>
+</body>
+</html>

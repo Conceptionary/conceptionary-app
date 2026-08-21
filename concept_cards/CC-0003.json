@@ -1,0 +1,252 @@
+{
+  "id": "CC-0003",
+  "version": "1.2",
+  "created": "2026-06-27",
+  "last_updated": "2026-06-29",
+  "status": "active",
+  "concept": {
+    "name": "Speed",
+    "description": "Bell-curve structure: ascending from stationary to peak (fastest), then descending back to stopped. Peak at 50% = superlative maximum speed.",
+    "taxonomy_ref": "4.1",
+    "taxonomy_path": "Action → Pace and urgency → Speed",
+    "shape": "gradual_temporary_curve",
+    "template_family": "GTCV",
+    "template_id": "ROM-GTCV",
+    "modes_used": [
+      "states",
+      "transitions"
+    ],
+    "notes": "v1.1: Vocabulary restructured for bell-curve. Ascending (5–45%): stationary→fastest. Peak (50%): maximum speed. Descending (55–95%): not as fast→stopped. Transitions follow the same arc: starting off → accelerating → peaking → decelerating → full stop. v1.2: CRITICAL FIX — conceptData and transitionsData columns were in [SL,TL] order (reversed from the suite-wide [TL,SL,Quiz,Position] convention). Corrected so column[0]=TL (Diam etc), column[1]=SL (Stationary etc)."
+  },
+  "template": {
+    "phonographic": {
+      "id": "ROM-GTCV",
+      "file": "templates/phonographic/ROM-GTCV-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-GTCV",
+      "file": "templates/logographic/LOG-GTCV-Generic.html",
+      "track": "logographic"
+    }
+  },
+  "language_pairs": {
+    "EN-ID": {
+      "source_language": "English",
+      "target_language": "Bahasa Indonesia",
+      "track": "phonographic",
+      "generated_by": "claude-sonnet-4-6",
+      "generated_date": "2026-06-27",
+      "last_revised": "2026-06-29",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "lang_config": {
+        "titles": {
+          "states": [
+            "Speed / Kecepatan",
+            "Kecepatan",
+            "Speed"
+          ],
+          "transitions": [
+            "Perubahan Kecepatan / Changing Speed",
+            "Bahasa Indonesia",
+            "English"
+          ]
+        },
+        "ui": {
+          "states_mode_label": "Switch to Transitions",
+          "trans_mode_label": "Switch to States",
+          "quiz_placeholder": "Type in Bahasa Indonesia…",
+          "quiz_button": "Check",
+          "quiz_correct": "Correct! ✓",
+          "quiz_wrong": "Try again"
+        },
+        "conceptData": [
+          [
+            "Diam",
+            "Stationary",
+            "How do you say 'stationary' in Bahasa Indonesia?",
+            5
+          ],
+          [
+            "Paling lambat",
+            "Slowest",
+            "How do you say 'slowest' in Bahasa Indonesia?",
+            9.44
+          ],
+          [
+            "Lambat",
+            "Slow",
+            "How do you say 'slow' in Bahasa Indonesia?",
+            13.89
+          ],
+          [
+            "Tidak terlalu lambat",
+            "Not as slow",
+            "How do you say 'not as slow' in Bahasa Indonesia?",
+            18.33
+          ],
+          [
+            "Cepat",
+            "Fast",
+            "How do you say 'fast' in Bahasa Indonesia?",
+            22.78
+          ],
+          [
+            "Lebih cepat",
+            "Faster",
+            "How do you say 'faster' in Bahasa Indonesia?",
+            27.22
+          ],
+          [
+            "Tercepat",
+            "Fastest",
+            "How do you say 'fastest' in Bahasa Indonesia?",
+            31.67
+          ],
+          [
+            "Semakin cepat",
+            "Even faster",
+            "How do you say 'even faster' in Bahasa Indonesia?",
+            36.11
+          ],
+          [
+            "Sangat cepat",
+            "Very fast",
+            "How do you say 'very fast' in Bahasa Indonesia?",
+            40.56
+          ],
+          [
+            "Amat sangat cepat",
+            "Extremely fast",
+            "How do you say 'extremely fast' in Bahasa Indonesia?",
+            45
+          ],
+          [
+            "Kecepatan maksimum",
+            "Maximum speed",
+            "How do you say 'maximum speed' in Bahasa Indonesia?",
+            50
+          ],
+          [
+            "Tidak secepat itu",
+            "Not as fast",
+            "How do you say 'not as fast' in Bahasa Indonesia?",
+            55
+          ],
+          [
+            "Melambat",
+            "Slowing",
+            "How do you say 'slowing' in Bahasa Indonesia?",
+            60
+          ],
+          [
+            "Lebih lambat",
+            "Slower",
+            "How do you say 'slower' in Bahasa Indonesia?",
+            65
+          ],
+          [
+            "Jauh lebih lambat",
+            "Much slower",
+            "How do you say 'much slower' in Bahasa Indonesia?",
+            70
+          ],
+          [
+            "Sangat lambat",
+            "Very slow",
+            "How do you say 'very slow' in Bahasa Indonesia?",
+            75
+          ],
+          [
+            "Hampir berhenti",
+            "Barely moving",
+            "How do you say 'barely moving' in Bahasa Indonesia?",
+            80
+          ],
+          [
+            "Hampir diam",
+            "Almost stopped",
+            "How do you say 'almost stopped' in Bahasa Indonesia?",
+            85
+          ],
+          [
+            "Selambat mungkin",
+            "As slow as possible",
+            "How do you say 'as slow as possible' in Bahasa Indonesia?",
+            90
+          ],
+          [
+            "Berhenti",
+            "Stopped",
+            "How do you say 'stopped' in Bahasa Indonesia?",
+            95
+          ]
+        ],
+        "transitionsData": [
+          [
+            "Mulai bergerak",
+            "Starting off",
+            "How do you say 'starting off' in Bahasa Indonesia?",
+            5
+          ],
+          [
+            "Bergerak",
+            "Moving",
+            "How do you say 'moving' in Bahasa Indonesia?",
+            16
+          ],
+          [
+            "Mulai lebih cepat",
+            "Picking up speed",
+            "How do you say 'picking up speed' in Bahasa Indonesia?",
+            28
+          ],
+          [
+            "Mempercepat",
+            "Accelerating",
+            "How do you say 'accelerating' in Bahasa Indonesia?",
+            38
+          ],
+          [
+            "Mencapai puncak",
+            "Peaking",
+            "How do you say 'peaking' in Bahasa Indonesia?",
+            50
+          ],
+          [
+            "Memperlambat",
+            "Decelerating",
+            "How do you say 'decelerating' in Bahasa Indonesia?",
+            62
+          ],
+          [
+            "Melambat",
+            "Slowing down",
+            "How do you say 'slowing down' in Bahasa Indonesia?",
+            72
+          ],
+          [
+            "Mengurangi kecepatan",
+            "Pulling up",
+            "How do you say 'pulling up' in Bahasa Indonesia?",
+            82
+          ],
+          [
+            "Berhenti",
+            "Stopping",
+            "How do you say 'stopping' in Bahasa Indonesia?",
+            90
+          ],
+          [
+            "Berhenti total",
+            "Coming to a full stop",
+            "How do you say 'coming to a full stop' in Bahasa Indonesia?",
+            96
+          ]
+        ]
+      }
+    }
+  }
+}

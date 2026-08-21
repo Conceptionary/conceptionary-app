@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bidirectional Valley Curve — Logographic — Generic</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0; padding: 0;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; background-color: #f5f5f5; overflow: hidden;
+        }
+        .a4-page {
+            width: 90vw; height: 80vh;
+            border: 4px solid #333; background-color: white;
+            position: relative; touch-action: none; overflow: hidden;
+        }
+        .watermark {
+            position: absolute; bottom: 4px; width: 100%;
+            text-align: center; font-size: 11px;
+            color: rgba(0,0,0,0.25); pointer-events: none;
+            user-select: none; z-index: 0;
+        }
+        svg { width: 100%; height: 100%; overflow: visible; }
+
+        /* ── Title ── */
+        .title-box {
+            position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+            font-size: 1em; font-weight: bold; text-align: center;
+            cursor: pointer; border: 1px solid #333; padding: 6px 14px;
+            background-color: white; z-index: 2; white-space: nowrap;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .title-box.hidden { opacity: 0; transform: translateX(-50%) scale(0.9); }
+
+        /* ── Mode toggle ── */
+        .mode-toggle {
+            position: absolute; bottom: 24px; right: 12px;
+            font-size: 0.8em; padding: 6px 14px;
+            background-color: #f0f0f0; border: 1px solid #bbb;
+            border-radius: 4px; cursor: pointer; z-index: 3;
+            white-space: nowrap;
+        }
+
+        /* ── Instruction panel ── */
+        .drag-instruction {
+            position: absolute; top: 25%; left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.82em; padding: 7px 16px;
+            background-color: rgba(255,255,255,0.95);
+            border: 1px solid #bbb; border-radius: 6px;
+            z-index: 10; white-space: nowrap; text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            transition: opacity 3s ease;
+        }
+        .drag-instruction.fade { opacity: 0; }
+
+        /* ── Quiz ── */
+        .quiz-container {
+            position: fixed; top: 35%; left: 50%;
+            transform: translate(-50%,-50%);
+            background-color: white; border: 3px solid #3366cc;
+            border-radius: 6px; padding: 0; z-index: 9999;
+            display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            width: 320px; user-select: none;
+        }
+        .quiz-drag-handle {
+            background: #3366cc; color: white;
+            padding: 6px 10px; font-size: 12px; cursor: grab;
+            border-radius: 4px 4px 0 0;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .quiz-drag-handle:active { cursor: grabbing; }
+        .quiz-drag-handle .close-btn {
+            font-size: 16px; cursor: pointer; opacity: 0.8; background: none;
+            border: none; color: white; padding: 0 4px;
+        }
+        .quiz-drag-handle .close-btn:hover { opacity: 1; }
+        .quiz-inner { padding: 12px; }
+        .quiz-inner input {
+            width: 100%; padding: 8px; font-size: 14px;
+            border: 1px solid #ccc; border-radius: 4px;
+            margin-bottom: 8px; font-family: Arial, sans-serif;
+            box-sizing: border-box;
+        }
+        .quiz-inner button {
+            width: 100%; padding: 8px; background-color: #3366cc;
+            color: white; border: none; border-radius: 4px;
+            cursor: pointer; font-weight: bold; font-size: 14px;
+        }
+        .quiz-inner button:hover { background-color: #254e9c; }
+        #quizFeedback {
+            text-align: center; font-weight: bold;
+            margin-top: 8px; min-height: 20px; font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+<div class="a4-page">
+    <div id="title-box" class="title-box">SL_TITLE / TL_TITLE</div>
+    <button id="modeToggle" class="mode-toggle">STATES_MODE_LABEL</button>
+    <div id="drag-instruction" class="drag-instruction">DRAG_INSTRUCTION</div>
+
+    <svg id="svgCanvas" viewBox="0 0 160 90" preserveAspectRatio="xMidYMid meet">
+        <defs>
+            <!-- Valley curve gradient: intense at bottom, fading toward normal line -->
+            <linearGradient id="curveGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%"   style="stop-color:#b0c4de;stop-opacity:0.3"/>
+                <stop offset="60%"  style="stop-color:#4a7bbf;stop-opacity:0.5"/>
+                <stop offset="100%" style="stop-color:#1a3a6b;stop-opacity:0.7"/>
+            </linearGradient>
+            <!-- Frame circle gradient -->
+        </defs>
+
+        <!-- Normal state horizontal line (full width, at y=45 = 50% of viewBox) -->
+        <line id="normalLine" x1="0" y1="45" x2="160" y2="45"
+              stroke="#2c7a2c" stroke-width="0.5" stroke-dasharray="3,2"
+              style="pointer-events:none;"/>
+        <text x="2" y="43.5" font-size="2.8" fill="#2c7a2c" font-family="Arial,sans-serif"
+              style="pointer-events:none;" id="normalLabel">NORMAL_LABEL</text>
+
+        <!-- Valley curve path — inverted bell-curve shape with flat shoulders -->
+        <path id="valleyPath"
+              d="M10,18 C45,18 58,72 80,72 C102,72 115,18 150,18"
+              fill="none" stroke="#3366cc" stroke-width="1.2"
+              stroke-linecap="round" style="pointer-events:none;"/>
+
+        <!-- Filled valley area (visual depth cue) -->
+        <path d="M10,18 C45,18 58,72 80,72 C102,72 115,18 150,18 L150,45 L10,45 Z"
+              fill="url(#curveGrad)" style="pointer-events:none;" opacity="0.4"/>
+
+        <!-- Entry/exit pole markers -->
+        <circle cx="10"  cy="18" r="1.2" fill="#8b0000" opacity="0.7"
+                style="pointer-events:none;"/>
+        <circle cx="150" cy="18" r="1.2" fill="#8b0000" opacity="0.7"
+                style="pointer-events:none;"/>
+        <!-- Bottom (most intense) marker -->
+        <circle cx="80"  cy="72" r="1.5" fill="#1a3a6b" opacity="0.8"
+                style="pointer-events:none;"/>
+
+        <!-- Pole labels -->
+        <text id="negPoleLabel" x="10" y="15" text-anchor="start"
+              font-size="2.8" font-family="Arial,sans-serif" fill="#666"
+              font-style="italic" style="pointer-events:none;">NEG_POLE_LABEL</text>
+        <text id="posPoleLabel" x="150" y="15" text-anchor="end"
+              font-size="2.8" font-family="Arial,sans-serif" fill="#666"
+              font-style="italic" style="pointer-events:none;">POS_POLE_LABEL</text>
+        <text id="bottomLabel"  x="80"  y="83.5" text-anchor="middle"
+              font-size="2.8" font-family="Arial,sans-serif" fill="#1a3a6b"
+              font-style="italic" style="pointer-events:none;">BOTTOM_LABEL</text>
+
+        <!-- Draggable circle -->
+        <circle id="draggableFrame" cx="80" cy="72" r="3.5"
+                fill="#3366cc" stroke="#1a1a1a" stroke-width="0.8"
+                style="cursor:grab; pointer-events:fill;
+                       filter:drop-shadow(0 0 1px rgba(0,0,0,0.3));"/>
+
+        <!-- Sliding text for transitions mode (follows valleyPath).
+             Click and drag directly on this text — no separate hit area. -->
+        <text id="interactiveText" class="sliding-text"
+              font-size="3.4" fill="#333" font-family="Arial,sans-serif"
+              style="display:none; cursor:grab;">
+            <textPath id="slidingText" href="#valleyPath" startOffset="0%">
+                TL-T1
+            </textPath>
+        </text>
+    </svg>
+
+    <div class="watermark">&copy; 2026 Alan William Preston</div>
+</div>
+
+<!-- Quiz -->
+<div id="quizContainer" class="quiz-container">
+    <div class="quiz-drag-handle" id="quizHandle">
+        <span>Quiz</span>
+        <button class="close-btn" id="quizClose">✕</button>
+    </div>
+    <div class="quiz-inner">
+        <div id="quizQuestion" style="font-size:13px;margin-bottom:8px;color:#333;"></div>
+        <input type="text" id="quizInput" placeholder="QUIZ_PLACEHOLDER">
+        <button id="quizCheck">QUIZ_BUTTON</button>
+        <div id="quizFeedback"></div>
+        <div id="diacNote" style="font-size:10px;color:#888;text-align:center;
+             border-top:1px solid #ddd;padding-top:5px;margin-top:6px;"></div>
+    </div>
+</div>
+
+<script>
+// =====================================================================
+// LANGUAGE CONFIGURATION BLOCK
+// LOG-CV-BI: Bidirectional Valley Curve — Logographic
+//
+// STRUCTURE: A smooth valley curve descends from the top-left,
+// passes through the NORMAL STATE LINE (y=45 = 50% of page, marked in green),
+// reaches its lowest point at the BOTTOM CENTRE (most intense state),
+// then mirrors back up through the normal line to the top-right.
+//
+// The curve represents concepts where the BOTTOM = most intense/negative
+// (e.g. deepest hunger, highest fever, most extreme state).
+// States ABOVE the normal line = mild / returning to normal.
+// States BELOW the normal line = intensifying.
+//
+// States layout (9 textboxes):
+//   NEG4 (top-left entry)
+//   NEG3
+//   NEG2
+//   NEG1 (near normal line, left)
+//   BOTTOM (most intense — bottom centre)
+//   POS1 (near normal line, right)
+//   POS2
+//   POS3
+//   POS4 (top-right exit)
+//
+// Transitions layout (8 sliding text items, evenly distributed along
+// the curve path from left to right).
+//
+// Do NOT change anything outside this block.
+// =====================================================================
+// CYCLE: 4 levels per item — TLR (default) → TL (script) → SL → Quiz.
+// Quiz tests TLR input (learners cannot type logographic characters).
+//
+// States layout (9 textboxes):
+//   NEG4 (top-left entry)
+//   NEG3
+//   NEG2
+//   NEG1 (near normal line, left)
+//   BOTTOM (most intense — bottom centre)
+//   POS1 (near normal line, right)
+//   POS2
+//   POS3
+//   POS4 (top-right exit)
+//
+// Transitions layout (8 sliding text items, evenly distributed along
+// the curve path from left to right).
+//
+// Do NOT change anything outside this block.
+// =====================================================================
+const LANG = {
+
+    // --- Title cycle (click title box to cycle) ----------------------
+    // TLR → TL → SL → TLR. Deliberately no combined bilingual state, and
+    // deliberately TLR-first: a learner is confronted with the target
+    // language item in a form they can read and phoneticize immediately,
+    // rather than being able to avoid it. Clicking through to TL shows the
+    // "deeper reality" they'll eventually need to read natively; clicking
+    // again to SL provides relief by confirming meaning. This ordering is
+    // intentional pedagogy, not just a data-completeness fix — see
+    // "Logographic UI Conventions" in Conceptionary_Template_Definitions.md.
+    titles: [
+        "TLR_TITLE",
+        "TL_TITLE",
+        "SL_TITLE"
+    ],
+
+    // --- Labels ------------------------------------------------------
+    normal_label:   "NORMAL_LABEL",    // e.g. "Normal state"
+    neg_pole_label: "NEG_POLE_LABEL",  // e.g. "← Onset"
+    pos_pole_label: "POS_POLE_LABEL",  // e.g. "Recovery →"
+    bottom_label:   "BOTTOM_LABEL",    // e.g. "Most intense"
+
+    // --- UI strings --------------------------------------------------
+    drag_instruction:   "DRAG_INSTRUCTION",
+    states_mode_label:  "STATES_MODE_LABEL",
+    trans_mode_label:   "TRANS_MODE_LABEL",
+    quiz_placeholder:   "QUIZ_PLACEHOLDER",
+    quiz_button:        "QUIZ_BUTTON",
+    quiz_correct:       "QUIZ_CORRECT",
+    quiz_wrong:         "QUIZ_WRONG",
+
+    // --- Diacritic / romanization normalization ----------------------
+    diacritic_instructions: "DIACRITIC_INSTRUCTIONS",
+    // e.g. "Tip: macrons (ā→a, ō→o) may be typed as plain vowels."
+    diacritic_map: [
+        // ["ā","a"], ["ī","i"], ["ū","u"], ["ē","e"], ["ō","o"]
+    ],
+    collapse_double_vowels: false,
+
+    // --- Frame colour spectrum (along the curve, top→bottom→top) ----
+    // top_colour   = at entry/exit points (mild / near-normal)
+    // bottom_colour = at the curve nadir (most intense)
+    frame_colour_top:    "#6aab6a",   // gentle green (near-normal)
+    frame_colour_bottom: "#1a3a6b",   // deep navy (most intense)
+
+    // --- States data (9 items) ----------------------------------------
+    // Format: [TL, SL, Quiz question, curveT, side, TLR]
+    // curveT = parameter t along the bezier (0=left entry, 1=right exit)
+    //   Left side:   t = 0.08, 0.28, 0.52, 0.78
+    //   Bottom:      t = 0.50 (of full path)
+    //   Right side:  t = 0.72, 0.48, 0.28, 0.08 (mirrored)
+    // side: 'L' = left of curve, 'R' = right, 'B' = bottom
+    // TLR = romanized reading (quiz target)
+    conceptData: [
+        ["TL-NEG4", "SL-NEG4", "QUIZ-NEG4", 0.08, "L", "TLR-NEG4"],  // top-left entry
+        ["TL-NEG3", "SL-NEG3", "QUIZ-NEG3", 0.28, "L", "TLR-NEG3"],
+        ["TL-NEG2", "SL-NEG2", "QUIZ-NEG2", 0.52, "L", "TLR-NEG2"],
+        ["TL-NEG1", "SL-NEG1", "QUIZ-NEG1", 0.78, "L", "TLR-NEG1"],
+        ["TL-BOTTOM","SL-BOTTOM","QUIZ-BOTTOM",1.00,"B","TLR-BOTTOM"], // ← most intense
+        ["TL-POS1", "SL-POS1", "QUIZ-POS1", 0.78, "R", "TLR-POS1"],
+        ["TL-POS2", "SL-POS2", "QUIZ-POS2", 0.52, "R", "TLR-POS2"],
+        ["TL-POS3", "SL-POS3", "QUIZ-POS3", 0.28, "R", "TLR-POS3"],
+        ["TL-POS4", "SL-POS4", "QUIZ-POS4", 0.08, "R", "TLR-POS4"]   // top-right exit
+    ],
+
+    // --- Transitions data (8 items along the curve) ------------------
+    // Format: [TL, SL, Quiz question, startOffset% (0–100 along path), TLR]
+    // Path is symmetric: bottom (most intense) = exactly 50%.
+    // Values shifted leftward of natural even-spacing per author request.
+    transitionsData: [
+        ["TL-T1", "SL-T1", "QUIZ-T1",  3,  "TLR-T1"],
+        ["TL-T2", "SL-T2", "QUIZ-T2",  15, "TLR-T2"],
+        ["TL-T3", "SL-T3", "QUIZ-T3",  27, "TLR-T3"],
+        ["TL-T4", "SL-T4", "QUIZ-T4",  39, "TLR-T4"],
+        ["TL-T5", "SL-T5", "QUIZ-T5",  50, "TLR-T5"],   // ← exact bottom of curve
+        ["TL-T6", "SL-T6", "QUIZ-T6",  61, "TLR-T6"],
+        ["TL-T7", "SL-T7", "QUIZ-T7",  73, "TLR-T7"],
+        ["TL-T8", "SL-T8", "QUIZ-T8",  85, "TLR-T8"]
+    ]
+};
+// =====================================================================
+// END OF LANGUAGE CONFIGURATION BLOCK
+// =====================================================================
+
+// --- AnswerUtils: diacritic-tolerant TLR matching ---------------------
+const AnswerUtils = {
+    normalize: function(text) {
+        let t = text.toLowerCase();
+        LANG.diacritic_map.forEach(([accented, plain]) => {
+            t = t.split(accented).join(plain);
+        });
+        if (LANG.collapse_double_vowels) {
+            t = t.replace(/aa/g,'a').replace(/ee/g,'e').replace(/ii/g,'i')
+                 .replace(/oo/g,'o').replace(/uu/g,'u');
+        }
+        return t.trim().replace(/[!?.,]/g,'');
+    },
+    check: function(input, correct) {
+        return this.normalize(input) === this.normalize(correct);
+    }
+};
+
+// --- Apply UI strings ------------------------------------------------
+document.getElementById('title-box').textContent         = LANG.titles[0];
+document.getElementById('modeToggle').textContent        = LANG.states_mode_label;
+document.getElementById('drag-instruction').textContent  = LANG.drag_instruction;
+document.getElementById('quizInput').placeholder         = LANG.quiz_placeholder;
+document.getElementById('quizCheck').textContent         = LANG.quiz_button;
+document.getElementById('normalLabel').textContent       = LANG.normal_label;
+document.getElementById('negPoleLabel').textContent      = LANG.neg_pole_label;
+document.getElementById('posPoleLabel').textContent      = LANG.pos_pole_label;
+document.getElementById('bottomLabel').textContent       = LANG.bottom_label;
+document.getElementById('diacNote').textContent          = LANG.diacritic_instructions;
+
+// --- Bezier curve geometry -------------------------------------------
+// Left half:  M10,18 C45,18 58,72 80,72   (flat shoulder then drop)
+// Right half: C102,72 115,18 150,18       (mirrored rise then flat shoulder)
+const BEZIER = {
+    L: { p0:[10,18], p1:[45,18], p2:[58,72], p3:[80,72] },
+    R: { p0:[80,72], p1:[102,72], p2:[115,18], p3:[150,18] }
+};
+const NORMAL_Y   = 45;  // y-coordinate of normal state line (50% of viewBox)
+const BOTTOM_PT  = [80, 72]; // bottom centre point
+
+function cubicBezier(t, p0, p1, p2, p3) {
+    const u = 1 - t;
+    return [
+        u*u*u*p0[0] + 3*u*u*t*p1[0] + 3*u*t*t*p2[0] + t*t*t*p3[0],
+        u*u*u*p0[1] + 3*u*u*t*p1[1] + 3*u*t*t*p2[1] + t*t*t*p3[1]
+    ];
+}
+
+function getCurvePoint(d) {
+    // d.side: 'L' = left bezier, 'R' = right bezier, 'B' = bottom centre
+    if (d[4] === 'B') return BOTTOM_PT;
+    const b = BEZIER[d[4]];
+    return cubicBezier(d[3], b.p0, b.p1, b.p2, b.p3);
+}
+
+// --- Runtime state ---------------------------------------------------
+let isStatesMode  = true;
+let currentQuizIdx = -1;
+let learnedStates  = new Array(LANG.conceptData.length).fill(false);
+let learnedTrans   = new Array(LANG.transitionsData.length).fill(false);
+let textBoxEls     = [];
+let isDragging     = false;
+let currentT       = 1.0;   // t along full path (0=left top, 0.5=bottom, 1=right top)
+let titleIndex     = 0;
+let closedIdx      = -1;
+
+// Transitions
+let transDisplayLevel = new Array(LANG.transitionsData.length).fill(0);
+let lastTransIdx      = 0;
+
+// --- Colour interpolation --------------------------------------------
+function hexToRgb(h) {
+    return [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
+}
+function rgbToHex(r,g,b) {
+    return '#' + [r,g,b].map(v => Math.round(v).toString(16).padStart(2,'0')).join('');
+}
+function lerpColour(c1, c2, t) {
+    const [r1,g1,b1] = hexToRgb(c1);
+    const [r2,g2,b2] = hexToRgb(c2);
+    return rgbToHex(r1+(r2-r1)*t, g1+(g2-g1)*t, b1+(b2-b1)*t);
+}
+
+// t=0/1 (top) → top colour; t=0.5 (bottom) → bottom colour
+// Map full-path t (0→1) through a sine so extremes=0, middle=1
+function updateFrameColour(fullT) {
+    // sin maps 0→0, 0.5→1, 1→0 — intensity at centre of path
+    const intensity = Math.sin(fullT * Math.PI);
+    const col = lerpColour(LANG.frame_colour_top, LANG.frame_colour_bottom, intensity);
+    document.getElementById('draggableFrame').style.fill = col;
+}
+
+// --- Convert full-path t (0→1) to SVG point --------------------------
+// First half (t 0→0.5): maps to left bezier (t_L 0→1)
+// Second half (t 0.5→1): maps to right bezier (t_R 0→1)
+function fullTToPoint(fullT) {
+    if (fullT <= 0.5) {
+        const t = fullT * 2;
+        const b = BEZIER.L;
+        return cubicBezier(t, b.p0, b.p1, b.p2, b.p3);
+    } else {
+        const t = (fullT - 0.5) * 2;
+        const b = BEZIER.R;
+        return cubicBezier(t, b.p0, b.p1, b.p2, b.p3);
+    }
+}
+
+// --- Closest state index to current full-path t ----------------------
+function closestStateIndex(fullT) {
+    // Map each conceptData item to its equivalent full-path t
+    const tVals = LANG.conceptData.map((d, i) => {
+        if (d[4] === 'B') return 0.5;
+        if (d[4] === 'L') return d[3] * 0.5;          // left bezier t → full-path t
+        return 0.5 + (1 - d[3]) * 0.5;                // right bezier t (mirrored)
+    });
+    let best = 0, minD = Infinity;
+    tVals.forEach((t, i) => {
+        const dist = Math.abs(t - fullT);
+        if (dist < minD) { minD = dist; best = i; }
+    });
+    return best;
+}
+
+// --- Create textboxes ------------------------------------------------
+function createTextBoxes() {
+    const svg = document.getElementById('svgCanvas');
+    document.querySelectorAll('.textBox').forEach(el => el.remove());
+    textBoxEls = [];
+
+    LANG.conceptData.forEach((d, i) => {
+        const [cx, cy] = getCurvePoint(d);
+        const side = d[4]; // L, R, B
+
+        // Box dimensions — wider at extremes
+        const isExtreme = (d[3] <= 0.12 && side !== 'B');
+        const boxW = isExtreme ? 34 : 28;
+        const boxH = 12;
+
+        // Position: left-side boxes go LEFT of curve, right-side go RIGHT, bottom below
+        let boxX, boxY;
+        if (side === 'B') {
+            boxX = cx - boxW / 2;
+            boxY = cy + 3; // below bottom point
+        } else if (side === 'L') {
+            boxX = Math.max(1, cx - boxW - 2); // to the left
+            boxY = cy - boxH / 2;
+        } else {
+            boxX = Math.min(159 - boxW, cx + 2); // to the right
+            boxY = cy - boxH / 2;
+        }
+        // Clamp vertically
+        boxY = Math.max(1, Math.min(90 - boxH - 1, boxY));
+
+        const fo = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+        fo.setAttribute('x', boxX.toFixed(1));
+        fo.setAttribute('y', boxY.toFixed(1));
+        fo.setAttribute('width', boxW);
+        fo.setAttribute('height', boxH + 2);
+        fo.setAttribute('class', 'textBox');
+        fo.setAttribute('data-index', i);
+        fo.style.pointerEvents = 'auto';
+        fo.style.opacity = '0';
+        fo.style.display = 'none';
+
+        const div = document.createElement('div');
+        const isBottom = side === 'B';
+        div.style.textAlign  = 'center';
+        div.style.fontSize   = isExtreme ? '2.6px' : '3px';
+        div.style.fontWeight = isBottom ? 'bold' : 'normal';
+        div.style.color      = isBottom ? '#1a3a6b' : '#333';
+        div.style.fontFamily = 'Arial, sans-serif';
+        div.style.cursor     = 'pointer';
+        div.style.lineHeight = '1.3';
+        div.style.wordBreak  = 'break-word';
+        div.style.padding    = '1px 3px';
+        div.textContent = d[5]; // start with TLR (default display)
+        fo.appendChild(div);
+
+        fo.addEventListener('click', function() {
+            const idx = parseInt(this.getAttribute('data-index'));
+            const div = this.querySelector('div');
+            const qc  = document.getElementById('quizContainer');
+            if (qc.style.display !== 'none' && currentQuizIdx === idx) return;
+
+            const tlrText = LANG.conceptData[idx][5];
+            const tlText  = LANG.conceptData[idx][0];
+            const slText  = LANG.conceptData[idx][1];
+
+            if (learnedStates[idx]) {
+                // Learned items cycle TLR → TL → SL → TLR for review
+                if (div.textContent === tlrText) div.textContent = tlText;
+                else if (div.textContent === tlText) div.textContent = slText;
+                else div.textContent = tlrText;
+            } else {
+                if (div.textContent === tlrText) {
+                    div.textContent = tlText;
+                } else if (div.textContent === tlText) {
+                    div.textContent = slText;
+                } else if (div.textContent === slText) {
+                    showQuizState(idx);
+                }
+            }
+        });
+
+        svg.appendChild(fo);
+        textBoxEls.push(fo);
+    });
+
+    // Keep draggable frame on top
+    const frame = document.getElementById('draggableFrame');
+    if (frame) svg.appendChild(frame);
+}
+
+// --- Update visible textboxes ----------------------------------------
+function updateVisibleTextBoxes(fullT) {
+    const activeIdx = closestStateIndex(fullT);
+
+    textBoxEls.forEach((tb, i) => {
+        if (!tb) return;
+        if (i === activeIdx) {
+            tb.style.opacity = '1'; tb.style.display = 'block';
+        } else if (learnedStates[i]) {
+            tb.style.opacity = '1'; tb.style.display = 'block';
+        } else {
+            tb.style.opacity = '0'; tb.style.display = 'none';
+        }
+    });
+
+    // Frame colour
+    updateFrameColour(fullT);
+
+    // Frame stroke: green near normal line crossing points
+    const [, cy] = fullTToPoint(fullT);
+    const frame = document.getElementById('draggableFrame');
+    if (Math.abs(cy - NORMAL_Y) < 4) {
+        frame.style.stroke = '#2c7a2c';
+        frame.style.strokeWidth = '1.2';
+    } else {
+        frame.style.stroke = '#1a1a1a';
+        frame.style.strokeWidth = '0.8';
+    }
+}
+
+// --- Transitions mode ------------------------------------------------
+function updateSlidingText(fullT) {
+    // Find closest transition
+    const tPcts = LANG.transitionsData.map(d => d[3]); // startOffset %
+    const curPct = fullT * 100;
+    let best = 0, minD = Infinity;
+    tPcts.forEach((p, i) => {
+        const dist = Math.abs(p - curPct);
+        if (dist < minD) { minD = dist; best = i; }
+    });
+    lastTransIdx = best;
+
+    const d = LANG.transitionsData[best];
+    const tp = document.getElementById('slidingText');
+    // level: 0=TLR, 1=TL, 2=SL
+    const level = transDisplayLevel[best];
+    tp.textContent = (level === 2) ? d[1] : (level === 1) ? d[0] : d[4];
+
+    const pct = Math.min(86, d[3]);
+    tp.setAttribute('startOffset', pct.toFixed(1) + '%');
+
+    // Colour text near normal line
+    const text = document.getElementById('interactiveText');
+    const pt = fullTToPoint(d[3] / 100);
+    text.style.fill = Math.abs(pt[1] - NORMAL_Y) < 4 ? '#2c7a2c' : '#333';
+}
+
+function handleTransClick() {
+    const tIdx = lastTransIdx;
+    const d = LANG.transitionsData[tIdx];
+    const tp = document.getElementById('slidingText');
+    const level = transDisplayLevel[tIdx];
+
+    if (learnedTrans[tIdx]) {
+        // Learned — cycle TLR → TL → SL → TLR for review
+        const next = (level + 1) % 3;
+        transDisplayLevel[tIdx] = next;
+        tp.textContent = (next === 2) ? d[1] : (next === 1) ? d[0] : d[4];
+    } else if (level === 0) {
+        // TLR → show TL
+        transDisplayLevel[tIdx] = 1;
+        tp.textContent = d[0];
+    } else if (level === 1) {
+        // TL → show SL
+        transDisplayLevel[tIdx] = 2;
+        tp.textContent = d[1];
+    } else {
+        // SL → launch quiz
+        showQuizTrans(tIdx);
+    }
+}
+
+// --- Drag along curve ------------------------------------------------
+function getSvgPoint(e) {
+    const svg = document.getElementById('svgCanvas');
+    const pt  = svg.createSVGPoint();
+    pt.x = e.clientX || (e.touches && e.touches[0].clientX);
+    pt.y = e.clientY || (e.touches && e.touches[0].clientY);
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+}
+
+// Find closest t on curve to mouse x position (simple binary search)
+function xToFullT(mouseX) {
+    // Clamp to curve range
+    mouseX = Math.max(10, Math.min(150, mouseX));
+    // Left half: x 10→80 maps roughly to fullT 0→0.5
+    // Right half: x 80→150 maps to fullT 0.5→1
+    // Use binary search on x coordinate
+    let lo = 0, hi = 1;
+    for (let i = 0; i < 20; i++) {
+        const mid = (lo + hi) / 2;
+        const [x] = fullTToPoint(mid);
+        if (x < mouseX) lo = mid; else hi = mid;
+    }
+    return (lo + hi) / 2;
+}
+
+function positionFrame(fullT) {
+    fullT = Math.max(0, Math.min(1, fullT));
+    currentT = fullT;
+    const [cx, cy] = fullTToPoint(fullT);
+    const frame = document.getElementById('draggableFrame');
+    frame.setAttribute('cx', cx.toFixed(2));
+    frame.setAttribute('cy', cy.toFixed(2));
+    updateFrameColour(fullT);
+    if (isStatesMode) {
+        updateVisibleTextBoxes(fullT);
+    } else {
+        updateSlidingText(fullT);
+    }
+}
+
+function initDrag() {
+    const frame = document.getElementById('draggableFrame');
+    const svg   = document.getElementById('svgCanvas');
+    let lastX   = 80;
+    let dragMoved = false;
+    let downX = 0, downY = 0;
+
+    function onStart(e) {
+        isDragging = true;
+        dragMoved  = false;
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+        downX = clientX; downY = clientY;
+        frame.style.cursor = 'grabbing';
+        document.querySelectorAll('.textBox').forEach(tb => tb.style.pointerEvents = 'none');
+        e.preventDefault();
+    }
+    function onMove(e) {
+        if (!isDragging) return;
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+        if (Math.abs(clientX - downX) > 2 || Math.abs(clientY - downY) > 2) dragMoved = true;
+        const pt = getSvgPoint(e);
+        if (Math.abs(pt.x - lastX) < 0.4) return;
+        lastX = pt.x;
+        positionFrame(xToFullT(pt.x));
+        e.preventDefault();
+    }
+    function onEnd() {
+        if (!isDragging) return;
+        isDragging = false;
+        window._cptDragMoved = dragMoved;
+        frame.style.cursor = 'grab';
+        document.querySelectorAll('.textBox').forEach(tb => tb.style.pointerEvents = 'auto');
+    }
+
+    frame.addEventListener('mousedown', onStart);
+    frame.addEventListener('touchstart', onStart, {passive: false});
+
+    svg.addEventListener('mousedown', e => {
+        if (e.target === frame) return;
+        if (e.target.closest && e.target.closest('.textBox')) return;
+        if (e.target.closest && e.target.closest('#interactiveText')) return;
+        onStart(e);
+        const pt = getSvgPoint(e);
+        positionFrame(xToFullT(pt.x));
+    });
+    svg.addEventListener('touchstart', e => {
+        if (e.target === frame) return;
+        if (e.target.closest && e.target.closest('.textBox')) return;
+        if (e.target.closest && e.target.closest('#interactiveText')) return;
+        onStart(e);
+        const pt = getSvgPoint(e);
+        positionFrame(xToFullT(pt.x));
+    }, {passive: false});
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('touchmove', onMove, {passive: false});
+    document.addEventListener('mouseup',   onEnd);
+    document.addEventListener('touchend',  onEnd);
+}
+
+// --- Direct text-drag (transitions mode) ------------------------------
+// Click and drag directly on the sliding text — same pattern as GTCV.html.
+// No separate hit-area rectangle; the <text>/<textPath> elements are
+// themselves the draggable and clickable target.
+let isTextDragging = false;
+let textHasMoved   = false;
+
+function initTextDrag() {
+    const interactiveText = document.getElementById('interactiveText');
+    const slidingText     = document.getElementById('slidingText');
+    const svg = document.getElementById('svgCanvas');
+
+    function startTextDrag(e) {
+        if (isStatesMode) return;
+        isTextDragging = true;
+        textHasMoved = false;
+        interactiveText.style.cursor = 'grabbing';
+        e.preventDefault();
+    }
+
+    function textDragMove(e) {
+        if (!isTextDragging || isStatesMode) return;
+        textHasMoved = true;
+
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        const pt = svg.createSVGPoint();
+        pt.x = clientX; pt.y = 0;
+        const transformed = pt.matrixTransform(svg.getScreenCTM().inverse());
+        const cursorX = transformed.x;
+
+        // Find closest t along the full valley path to the cursor's x position
+        const fullT = xToFullT(cursorX);
+        positionFrame(fullT);
+        e.preventDefault();
+    }
+
+    function endTextDrag() {
+        isTextDragging = false;
+        interactiveText.style.cursor = 'grab';
+        setTimeout(() => { textHasMoved = false; }, 100);
+    }
+
+    interactiveText.addEventListener('mousedown', startTextDrag);
+    interactiveText.addEventListener('touchstart', startTextDrag, {passive: false});
+    slidingText.addEventListener('mousedown', startTextDrag);
+    slidingText.addEventListener('touchstart', startTextDrag, {passive: false});
+
+    document.addEventListener('mousemove', textDragMove);
+    document.addEventListener('touchmove', textDragMove, {passive: false});
+    document.addEventListener('mouseup', endTextDrag);
+    document.addEventListener('touchend', endTextDrag);
+
+    // Click (no movement) advances TL → SL → Quiz
+    function onTextClick(e) {
+        if (isStatesMode || textHasMoved) return;
+        e.preventDefault();
+        e.stopPropagation();
+        handleTransClick();
+    }
+    interactiveText.addEventListener('click', onTextClick);
+    slidingText.addEventListener('click', onTextClick);
+}
+
+// --- Mode toggle -----------------------------------------------------
+function toggleMode() {
+    isStatesMode = !isStatesMode;
+    document.getElementById('modeToggle').textContent =
+        isStatesMode ? LANG.states_mode_label : LANG.trans_mode_label;
+
+    const text  = document.getElementById('interactiveText');
+    const frame = document.getElementById('draggableFrame');
+
+    if (isStatesMode) {
+        text.style.display  = 'none';
+        frame.style.display = 'block';
+        textBoxEls.forEach(tb => { if (tb) tb.style.display = 'none'; });
+        updateVisibleTextBoxes(currentT);
+    } else {
+        text.style.display  = 'block';
+        frame.style.display = 'none';
+        textBoxEls.forEach(tb => { if (tb) tb.style.display = 'none'; });
+        updateSlidingText(currentT);
+    }
+}
+
+// --- Title cycle -----------------------------------------------------
+function cycleTitles() {
+    titleIndex = (titleIndex + 1) % LANG.titles.length;
+    const tb = document.getElementById('title-box');
+    tb.classList.add('hidden');
+    setTimeout(() => { tb.textContent = LANG.titles[titleIndex]; tb.classList.remove('hidden'); }, 400);
+}
+
+// --- Quiz (states) ---------------------------------------------------
+function showQuizState(idx) {
+    currentQuizIdx = idx;
+    const d = LANG.conceptData[idx];
+    const qc = document.getElementById('quizContainer');
+    document.getElementById('quizQuestion').textContent = d[2];
+    document.getElementById('quizInput').value = '';
+    document.getElementById('quizFeedback').textContent = '';
+    qc.style.transform = 'translate(-50%,-50%)';
+    qc.style.left = '50%'; qc.style.top = '35%';
+    qc.style.display = 'block';
+    setTimeout(() => { try { document.getElementById('quizInput').focus(); } catch(e){} }, 80);
+}
+
+// --- Quiz (transitions) ----------------------------------------------
+function showQuizTrans(idx) {
+    currentQuizIdx = -(idx + 1);
+    const d = LANG.transitionsData[idx];
+    const qc = document.getElementById('quizContainer');
+    document.getElementById('quizQuestion').textContent = d[2];
+    document.getElementById('quizInput').value = '';
+    document.getElementById('quizFeedback').textContent = '';
+    qc.style.transform = 'translate(-50%,-50%)';
+    qc.style.left = '50%'; qc.style.top = '35%';
+    qc.style.display = 'block';
+    setTimeout(() => { try { document.getElementById('quizInput').focus(); } catch(e){} }, 80);
+}
+
+function checkQuizAnswer() {
+    const input = document.getElementById('quizInput').value.trim();
+    const fb    = document.getElementById('quizFeedback');
+
+    if (currentQuizIdx >= 0) {
+        // States quiz — tests TLR (romanized), diacritic-tolerant
+        const correctTlr = LANG.conceptData[currentQuizIdx][5];
+        if (AnswerUtils.check(input, correctTlr)) {
+            fb.textContent = LANG.quiz_correct; fb.style.color = 'green';
+            learnedStates[currentQuizIdx] = true;
+            const tb = textBoxEls[currentQuizIdx];
+            if (tb) { tb.classList.add('learned'); const div = tb.querySelector('div'); if (div) div.textContent = correctTlr; }
+            closedIdx = currentQuizIdx;
+            setTimeout(() => {
+                if (currentQuizIdx === closedIdx) { document.getElementById('quizContainer').style.display = 'none'; currentQuizIdx = -1; }
+            }, 1500);
+        } else {
+            fb.textContent = LANG.quiz_wrong; fb.style.color = 'red';
+        }
+    } else {
+        // Transitions quiz — tests TLR
+        const tIdx   = -(currentQuizIdx + 1);
+        const correctTlr = LANG.transitionsData[tIdx][4];
+        if (AnswerUtils.check(input, correctTlr)) {
+            fb.textContent = LANG.quiz_correct; fb.style.color = 'green';
+            learnedTrans[tIdx] = true;
+            transDisplayLevel[tIdx] = 0; // reset to TLR
+            document.getElementById('slidingText').textContent = correctTlr;
+            closedIdx = currentQuizIdx;
+            setTimeout(() => {
+                if (currentQuizIdx === closedIdx) { document.getElementById('quizContainer').style.display = 'none'; currentQuizIdx = -1; }
+            }, 1500);
+        } else {
+            fb.textContent = LANG.quiz_wrong; fb.style.color = 'red';
+        }
+    }
+}
+
+// --- Quiz drag -------------------------------------------------------
+function initQuizDrag() {
+    const qc = document.getElementById('quizContainer');
+    const handle = document.getElementById('quizHandle');
+    let qDrag = false, qX, qY, qL, qT;
+
+    handle.addEventListener('mousedown', e => {
+        qDrag = true;
+        qX = e.clientX; qY = e.clientY;
+        const r = qc.getBoundingClientRect();
+        qL = r.left; qT = r.top;
+        qc.style.transform = 'none';
+        qc.style.left = qL + 'px'; qc.style.top = qT + 'px';
+        handle.style.cursor = 'grabbing'; e.preventDefault();
+    });
+    document.addEventListener('mousemove', e => {
+        if (!qDrag) return;
+        qc.style.left = (qL + e.clientX - qX) + 'px';
+        qc.style.top  = (qT + e.clientY - qY) + 'px';
+    });
+    document.addEventListener('mouseup', () => { qDrag = false; handle.style.cursor = 'grab'; });
+
+    document.getElementById('quizClose').addEventListener('click', () => {
+        document.getElementById('quizContainer').style.display = 'none';
+        currentQuizIdx = -1;
+    });
+}
+
+// --- Init ------------------------------------------------------------
+function initializeApp() {
+    createTextBoxes();
+    positionFrame(0.5); // start at bottom (most intense / centre of journey)
+
+    initDrag();
+    initTextDrag();
+    initQuizDrag();
+
+    document.getElementById('title-box').addEventListener('click', cycleTitles);
+    document.getElementById('modeToggle').addEventListener('click', toggleMode);
+    document.getElementById('quizCheck').addEventListener('click', checkQuizAnswer);
+    document.getElementById('quizInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') checkQuizAnswer();
+    });
+
+    // Click-outside closes quiz
+    document.addEventListener('click', e => {
+        const qc = document.getElementById('quizContainer');
+        if (qc.style.display === 'none') return;
+        if (qc.contains(e.target)) return;
+        if (textBoxEls.some(b => b && b.contains(e.target))) return;
+        if (document.getElementById('interactiveText').contains(e.target)) return;
+        qc.style.display = 'none'; currentQuizIdx = -1;
+    });
+
+    document.getElementById('quizContainer').style.display = 'none';
+
+    // Fade instruction
+    setTimeout(() => {
+        const di = document.getElementById('drag-instruction');
+        if (di) { di.classList.add('fade'); setTimeout(() => di.style.display='none', 3000); }
+    }, 12000);
+}
+
+document.addEventListener('DOMContentLoaded', initializeApp);
+</script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+{
+  "id": "CC-0013",
+  "version": "1.0",
+  "created": "2026-08-17",
+  "last_updated": "2026-08-17",
+  "status": "active",
+  "concept": {
+    "name": "Freshness of Dairy Products",
+    "description": "The one-way decline of dairy freshness from still-fresh through to completely spoiled — a permanent, irreversible process, not a fluctuating state. Five states (fresh, curdled, rancid, off, gone) mark the condition at each point; four transitions (starting to go off, curdling, turning rancid, spoiling completely) mark the movement between them. Card sits at the boundary of two related concept-card threads: the taxonomy's own 'Freshness' entry (Sensory > Taste/Smell, positive-gradient snapshot rating) and the permanent-decline shape already established by CC-0009 (Illness), which this card mirrors structurally rather than following the snapshot-rating framing.",
+    "taxonomy_ref": "3.4/3.5",
+    "taxonomy_path": "Sensory → Taste/Smell → Freshness (permanent-decline reading)",
+    "shape": "permanent_negative_curve",
+    "template_family": "GPCVN",
+    "template_id": "ROM-GPCVN",
+    "modes_used": [
+      "states",
+      "transitions"
+    ],
+    "notes": "Originally drafted 2026-08-16 as a Conditional-shape card (DU snapshot rating vs. GPCVN permanent decline), per the same near-miss logic worked out for 'Quality' (see Conceptionary_Template_Decision_Log.md). Alan resolved the ambiguity 2026-08-17 by supplying vocabulary for the specific-instance decline reading and requesting GPCVN directly, so this card is built as GPCVN-only rather than Conditional — the DU/snapshot-rating reading remains available as a future separate card if needed, not merged into this one. Vocabulary source: Alan supplied 6 phrases mixing states and transitions ('It's still fresh', 'starting to go off', \"It's curdling\", 'It's rancid', 'It's off', 'It's gone'); sorted per the States/Transitions rule (nouns/adjectives → states, verbs → transitions) into the template's fixed 5-state/4-transition slots. Two items required addition to fill the remaining slots: 'curdled' (adjectival counterpart of Alan's 'It's curdling', filling the natural midpoint state between fresh and rancid) and two transitions ('turning rancid', 'spoiling completely') covering movement the four supplied states implied but had no verb for. Confirmed with Alan before finalizing — see chat 2026-08-17."
+  },
+  "template": {
+    "phonographic": {
+      "id": "ROM-GPCVN",
+      "file": "templates/phonographic/ROM-GPCVN-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-GPCVN",
+      "file": "templates/logographic/LOG-GPCVN-Generic.html",
+      "track": "logographic"
+    }
+  },
+  "location": {
+    "primary": ["LOC-0004"],
+    "secondary": ["LOC-0003", "LOC-0013"],
+    "transitional": ["LOC-0084", "LOC-0106", "LOC-0013", "LOC-0003"]
+  },
+  "language_pairs": {
+    "EN-ID": {
+      "source_language": "English",
+      "target_language": "Bahasa Indonesia",
+      "track": "phonographic",
+      "generated_by": "claude-sonnet-4-6",
+      "generated_date": "2026-08-17",
+      "last_revised": "2026-08-17",
+      "validated": true,
+      "validated_by": "Alan William Preston",
+      "validated_date": "2026-08-17",
+      "lang_config": {
+        "title_states": [
+          "Freshness of Dairy Products",
+          "Kesegaran Produk Susu",
+          "Freshness of Dairy Products"
+        ],
+        "title_transitions": [
+          "Freshness of Dairy Products — Transitions",
+          "Kesegaran Produk Susu — Transisi",
+          "Freshness of Dairy Products — Transitions"
+        ],
+        "conceptData": [
+          ["still fresh", "masih segar", "How do you say 'still fresh' in Indonesian?", 10],
+          ["curdled", "menggumpal", "How do you say 'curdled' in Indonesian?", 40],
+          ["rancid", "tengik", "How do you say 'rancid' in Indonesian?", 60],
+          ["off", "basi", "How do you say 'off' (spoiled) in Indonesian?", 70],
+          ["gone", "busuk", "How do you say 'gone' (completely spoiled) in Indonesian?", 80]
+        ],
+        "transitionsData": [
+          ["starting to go off", "mulai basi", "How do you say 'starting to go off' in Indonesian?", 10],
+          ["curdling", "mulai menggumpal", "How do you say 'curdling' in Indonesian?", 40],
+          ["turning rancid", "menjadi tengik", "How do you say 'turning rancid' in Indonesian?", 50],
+          ["spoiling completely", "membusuk sepenuhnya", "How do you say 'spoiling completely' in Indonesian?", 80]
+        ]
+      }
+    }
+  }
+}

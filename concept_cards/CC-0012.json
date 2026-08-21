@@ -1,0 +1,352 @@
+{
+  "id": "CC-0012",
+  "version": "1.2",
+  "created": "2026-07-11",
+  "last_updated": "2026-07-12",
+  "status": "active",
+  "concept": {
+    "name": "Driving Directions",
+    "description": "Twenty directional phrases a passenger or navigator might give a driver, arranged around a rotating steering wheel from straight-ahead (0°) through progressively sharper turns to full reverse (180°), mirrored left/right for visual symmetry. A discrete named-position concept, not a continuous spectrum — position encodes real-world steering-wheel geometry, not intensity.",
+    "taxonomy_ref": "2.3",
+    "taxonomy_path": "Spatial → Navigation → Driving directions",
+    "shape": "cycle_partial_180",
+    "template_family": "CR-SW",
+    "template_id": "ROM-CR-SW",
+    "modes_used": [
+      "states"
+    ],
+    "notes": "Uses the CR-SW rotating-wheel architecture — unique among circular templates: vocabulary items are stored as an array of OBJECTS (not arrays), keyed by angle {a, tl, sl, (tlr), py, posA, dy}, with py/posA/dy being template-tuned label-placement offsets that must be preserved exactly from the generic template's own V array, not regenerated — only tl/sl/tlr should be substituted per position. Card rows below are given in the SAME fixed 20-item order as the generic template's V array so positioning metadata can be merged 1:1 by index. EN-ID vocabulary reused verbatim from the pre-existing populated instance (Steering_Wheel-Bahasa_Indonesia.html / registry-referenced as populated_instances/phonographic/ROM-CR-SW-EN-ID.html). EN-JA vocabulary newly generated 2026-07-11. v1.1 (2026-07-12): title_sl changed to \"Which way?\" (both pairs); EN-JA display_cycle changed from Japanese to English labels (Show-all button should read in SL, not TL/TLR, since it is a UI control not vocabulary content); UeyR (\"Do a Uey\") SL text simplified to \"Turn around\" in both pairs, with the Indonesian TL text's \"(AUS/NZ)\" slang annotation dropped to match (UeyL \"Hang a Uey\" intentionally left unchanged). v1.2 (2026-07-12): added title_tlr, instr_disappear_tlr, instr_body_tlr for EN-JA — the LOG-CR-SW template title and instructions panel only had TL/SL layers, missing TLR entirely (unlike vocabulary items, which already correctly implement the full TLR/TL/SL cycle). Template-level fix: title box converted from a 2-state hover-swap (TL default) to a proper 3-state click-cycle (TLR default, matching the vocabulary convention); instructions panel extended from 2-state to 3-state, SL kept as the default entry point (cycle: SL→TLR→TL→SL). App.html injection updated to pass through the three new fields for LOG templates."
+  },
+  "template": {
+    "phonographic": {
+      "id": "ROM-CR-SW",
+      "file": "templates/phonographic/ROM-CR-SW-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-CR-SW",
+      "file": "templates/logographic/LOG-CR-SW-Generic.html",
+      "track": "logographic"
+    }
+  },
+  "language_pairs": {
+    "EN-ID": {
+      "source_language": "English",
+      "target_language": "Bahasa Indonesia",
+      "track": "phonographic",
+      "generated_by": "reused from pre-existing populated instance (pre-dates JSON concept-card architecture)",
+      "generated_date": "unknown (pre-2026-07)",
+      "last_revised": "2026-07-11",
+      "validated": true,
+      "validated_by": "Alan William Preston",
+      "validated_date": "unknown (pre-existing populated instance was already in use)",
+      "lang_config": {
+        "title_tl": "Tunjukkan arah saya",
+        "title_sl": "Which way?",
+        "instr_disappear_tl": "(Ini akan hilang dalam 15 detik)",
+        "instr_disappear_sl": "(This will disappear in 15 seconds)",
+        "instr_body_tl": "Pegang salah satu lingkaran putih dan putar kemudi untuk menampilkan kosakata. Klik setiap kata untuk melihat terjemahan bahasa Inggris, dan klik lagi untuk latihan memori.",
+        "instr_body_sl": "Grab either of the white circles and turn the steering wheel to display vocabulary in Indonesian. Click each word to see the English translation, then click again to do the memory exercise.",
+        "display_cycle": [
+          "Tampilkan<br>semua",
+          "Tampilkan<br>Bahasa Inggris",
+          "Tampilan<br>normal"
+        ],
+        "quiz_placeholder": "Apa kata itu tadi?",
+        "quiz_correct": "Benar! ✓",
+        "quiz_wrong": "Coba lagi!",
+        "V": [
+          {
+            "a": 0,
+            "tl": "Terus lurus ke depan",
+            "sl": "Keep going straight ahead",
+            "py": -355
+          },
+          {
+            "a": 5,
+            "posA": 0,
+            "tl": "Lanjutkan seperti ini",
+            "sl": "Continue as you are",
+            "py": -317
+          },
+          {
+            "a": 15,
+            "tl": "Sedikit ke kanan",
+            "sl": "Veer slightly to the right"
+          },
+          {
+            "a": 340,
+            "tl": "Sedikit ke kiri",
+            "sl": "Veer slightly to the left",
+            "dy": 15
+          },
+          {
+            "a": 40,
+            "tl": "Menyimpang ke kanan",
+            "sl": "Veer right"
+          },
+          {
+            "a": 320,
+            "tl": "Menyimpang ke kiri",
+            "sl": "Veer left"
+          },
+          {
+            "a": 70,
+            "tl": "Belok kanan",
+            "sl": "Turn right"
+          },
+          {
+            "a": 290,
+            "tl": "Belok kiri",
+            "sl": "Turn left"
+          },
+          {
+            "a": 80,
+            "tl": "Belok kanan saja! (sehari-hari)",
+            "sl": "Hang a right!"
+          },
+          {
+            "a": 280,
+            "tl": "Belok kiri saja! (sehari-hari)",
+            "sl": "Hang a left!"
+          },
+          {
+            "a": 90,
+            "tl": "Belok tajam ke kanan",
+            "sl": "Turn hard right"
+          },
+          {
+            "a": 270,
+            "tl": "Belok tajam ke kiri",
+            "sl": "Turn hard left"
+          },
+          {
+            "a": 120,
+            "tl": "Balik arah · berbalik",
+            "sl": "Double back"
+          },
+          {
+            "a": 240,
+            "tl": "Balik arah · berbalik",
+            "sl": "Double back"
+          },
+          {
+            "a": 160,
+            "tl": "Putar balik",
+            "sl": "Do a U-turn"
+          },
+          {
+            "a": 150,
+            "tl": "Putar balik cepat",
+            "sl": "Turn around"
+          },
+          {
+            "a": 210,
+            "tl": "Putar balik cepat (AUS/NZ)",
+            "sl": "Hang a Uey"
+          },
+          {
+            "a": 175,
+            "tl": "Mundur",
+            "sl": "Back up",
+            "py": 210
+          },
+          {
+            "a": 185,
+            "tl": "Mundur lurus",
+            "sl": "Go straight back"
+          },
+          {
+            "a": 180,
+            "tl": "Mundur!",
+            "sl": "Reverse!",
+            "py": 365
+          }
+        ]
+      }
+    },
+    "EN-JA": {
+      "source_language": "English",
+      "target_language": "Japanese",
+      "track": "logographic",
+      "generated_by": "claude-sonnet-4-6",
+      "generated_date": "2026-07-11",
+      "last_revised": "2026-07-11",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "lang_config": {
+        "title_tl": "道を教えて",
+        "title_sl": "Which way?",
+        "instr_disappear_tl": "（15秒で消えます）",
+        "instr_disappear_sl": "(This will disappear in 15 seconds)",
+        "instr_body_tl": "白い丸のどちらかをつかんでハンドルを回すと、単語が表示されます。各単語をクリックするとローマ字→漢字→英語の順に切り替わり、最後にクイズが始まります。",
+        "instr_body_sl": "Grab either of the white circles and turn the steering wheel to display vocabulary. Click each word to cycle through romanized, script, and English, then test yourself with the quiz.",
+        "display_cycle": [
+          "Display all<br>Romaji",
+          "Display all<br>Japanese",
+          "Display all<br>English",
+          "Normal<br>view"
+        ],
+        "quiz_placeholder": "ローマ字で入力してください…",
+        "quiz_correct": "正解！ ✓",
+        "quiz_wrong": "もう一度",
+        "diacritic_instructions": "Tip: macrons (ā→a, ō→o, ū→u) may be typed as plain vowels.",
+        "diacritic_map": [
+          [
+            "ā",
+            "a"
+          ],
+          [
+            "ī",
+            "i"
+          ],
+          [
+            "ū",
+            "u"
+          ],
+          [
+            "ē",
+            "e"
+          ],
+          [
+            "ō",
+            "o"
+          ]
+        ],
+        "collapse_double_vowels": true,
+        "V": [
+          {
+            "a": 0,
+            "tl": "まっすぐ進んでください",
+            "tlr": "Massugu susunde kudasai",
+            "sl": "Keep going straight ahead",
+            "py": -355
+          },
+          {
+            "a": 5,
+            "posA": 0,
+            "tl": "そのまま進んでください",
+            "tlr": "Sonomama susunde kudasai",
+            "sl": "Continue as you are",
+            "py": -317
+          },
+          {
+            "a": 15,
+            "tl": "少し右に寄ってください",
+            "tlr": "Sukoshi migi ni yotte kudasai",
+            "sl": "Veer slightly to the right"
+          },
+          {
+            "a": 340,
+            "tl": "少し左に寄ってください",
+            "tlr": "Sukoshi hidari ni yotte kudasai",
+            "sl": "Veer slightly to the left",
+            "dy": 15
+          },
+          {
+            "a": 40,
+            "tl": "右に寄ってください",
+            "tlr": "Migi ni yotte kudasai",
+            "sl": "Veer right"
+          },
+          {
+            "a": 320,
+            "tl": "左に寄ってください",
+            "tlr": "Hidari ni yotte kudasai",
+            "sl": "Veer left"
+          },
+          {
+            "a": 70,
+            "tl": "右に曲がってください",
+            "tlr": "Migi ni magatte kudasai",
+            "sl": "Turn right"
+          },
+          {
+            "a": 290,
+            "tl": "左に曲がってください",
+            "tlr": "Hidari ni magatte kudasai",
+            "sl": "Turn left"
+          },
+          {
+            "a": 80,
+            "tl": "右に曲がって！",
+            "tlr": "Migi ni magatte!",
+            "sl": "Hang a right!"
+          },
+          {
+            "a": 280,
+            "tl": "左に曲がって！",
+            "tlr": "Hidari ni magatte!",
+            "sl": "Hang a left!"
+          },
+          {
+            "a": 90,
+            "tl": "急に右折してください",
+            "tlr": "Kyū ni usetsu shite kudasai",
+            "sl": "Turn hard right"
+          },
+          {
+            "a": 270,
+            "tl": "急に左折してください",
+            "tlr": "Kyū ni sasetsu shite kudasai",
+            "sl": "Turn hard left"
+          },
+          {
+            "a": 120,
+            "tl": "引き返してください",
+            "tlr": "Hikikaeshite kudasai",
+            "sl": "Double back"
+          },
+          {
+            "a": 240,
+            "tl": "引き返してください",
+            "tlr": "Hikikaeshite kudasai",
+            "sl": "Double back"
+          },
+          {
+            "a": 160,
+            "tl": "ユーターンしてください",
+            "tlr": "Yūtan shite kudasai",
+            "sl": "Do a U-turn"
+          },
+          {
+            "a": 150,
+            "tl": "ユーターンして",
+            "tlr": "Yūtan shite",
+            "sl": "Turn around"
+          },
+          {
+            "a": 210,
+            "tl": "引き返して",
+            "tlr": "Hikikaeshite",
+            "sl": "Hang a Uey"
+          },
+          {
+            "a": 175,
+            "tl": "バックしてください",
+            "tlr": "Bakku shite kudasai",
+            "sl": "Back up",
+            "py": 210
+          },
+          {
+            "a": 185,
+            "tl": "まっすぐバックしてください",
+            "tlr": "Massugu bakku shite kudasai",
+            "sl": "Go straight back"
+          },
+          {
+            "a": 180,
+            "tl": "バック！",
+            "tlr": "Bakku!",
+            "sl": "Reverse!",
+            "py": 365
+          }
+        ],
+        "title_tlr": "Michi o oshiete",
+        "instr_disappear_tlr": "(15-byō de kiemasu)",
+        "instr_body_tlr": "Shiroi maru no dochira ka o tsukande handoru o mawasu to, tango ga hyōji saremasu. Kaku tango o kurikku suru to rōmaji → kanji → eigo no jun ni kirikawari, saigo ni kuizu ga hajimarimasu."
+      }
+    }
+  }
+}

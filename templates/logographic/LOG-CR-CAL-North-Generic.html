@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<!-- Last updated: 2026-08-05 @ 9:19 a.m. (Mangawhai, NZ) -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOG-CR-CAL-N Generic — 365-Day Radial Calendar (Northern Hemisphere)</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0; padding: 0;
+        display: flex; justify-content: center; align-items: center;
+        height: 100vh; background: #f9f9f9; overflow: hidden;
+    }
+    .a4-page {
+        width: 90vw; height: 70vh;
+        border: 5px solid black; background: white;
+        box-sizing: border-box; position: relative; overflow: hidden;
+    }
+    svg { width: 100%; height: 100%; }
+    .watermark {
+        position: absolute; bottom: 5px; width: 100%;
+        text-align: center; font-size: 12px;
+        color: rgba(0,0,0,0.3); font-weight: bold;
+        pointer-events: none; user-select: none;
+    }
+
+    /* ── Title ──────────────────────────────────────────────────── */
+    .title-box {
+        position: absolute; left: 25%; top: 75%; transform: translate(-50%, -50%);
+        font-size: 1em; font-weight: bold; text-align: center;
+        border: 1px solid black; padding: 8px 14px;
+        background: white; z-index: 2; white-space: nowrap;
+        cursor: pointer; transition: opacity 0.5s ease;
+    }
+    .title-box.hidden { opacity: 0; pointer-events: none; }
+
+    /* ── Learned Vocabulary arrays ──────────────────────────────── */
+    .learned-vocab {
+        position: absolute; top: 2%; width: 20%;
+        max-height: 45vh; overflow-y: auto;
+        background: rgba(255,255,255,0.95); border: 1px solid #ccc;
+        border-radius: 4px; padding: 6px 8px; z-index: 5; font-size: 0.78em;
+    }
+    .learned-vocab-left  { left: 2%; }
+    .learned-vocab-right { right: 2%; }
+    .lv-title {
+        font-weight: bold; text-align: center; margin-bottom: 4px;
+        padding-bottom: 3px; border-bottom: 1px solid #ddd; font-size: 0.95em;
+    }
+    .lv-entry { padding: 3px 0; border-bottom: 1px solid #eee; }
+    .lv-entry:last-child { border-bottom: none; }
+    .lv-tlr { font-weight: bold; color: #1a1a1a; }
+    .lv-tl  { color: #333; margin-left: 4px; }
+    .lv-sl  { color: #777; font-size: 0.9em; }
+
+    /* ── Ordinary-day hover tooltip ─────────────────────────────── */
+    #day-tooltip {
+        position: fixed; display: none;
+        background: rgba(255,255,255,0.97);
+        border: 1px solid #aaa; border-radius: 3px;
+        padding: 4px 10px; pointer-events: none;
+        z-index: 200; text-align: center;
+        box-shadow: 1px 2px 6px rgba(0,0,0,0.18);
+        min-width: 90px;
+    }
+    #day-tooltip .tip-tlr { font-size: 12px; font-weight: bold; color: #222; }
+    #day-tooltip .tip-tl  { font-size: 11px; color: #666; }
+
+    /* ── Special-day info panel ──────────────────────────────────── */
+    #info-panel {
+        position: absolute; top: 50%; right: 14px;
+        transform: translateY(-50%);
+        background: white; border: 2px solid #3366cc;
+        border-radius: 6px; padding: 10px 14px;
+        z-index: 100; display: none; min-width: 148px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        text-align: center;
+    }
+    #info-panel .info-tlr  { font-size: 1em;   font-weight: bold; color: #1a1a1a; margin-bottom: 4px; }
+    #info-panel .info-tl   { font-size: 0.95em; color: #333; margin-bottom: 4px; }
+    #info-panel .info-sl   { font-size: 0.85em; color: #555; margin-bottom: 4px; }
+    #info-panel .info-date { font-size: 0.72em; color: #999; }
+
+    /* ── Quiz container ──────────────────────────────────────────── */
+    .quiz-container {
+        position: fixed; top: 40%; left: 75%;
+        transform: translate(-50%, -50%);
+        background: white; border: 3px solid #3366cc;
+        border-radius: 4px; padding: 12px; z-index: 9999;
+        display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.2); width: 320px;
+        cursor: grab;
+    }
+    .quiz-container.dragging { cursor: grabbing; }
+    .quiz-container input { cursor: text; }
+    #quizQuestion { margin-bottom: 10px; font-weight: bold; font-size: 13px; }
+    .quiz-container input {
+        width: 100%; padding: 8px; font-size: 14px;
+        border: 1px solid #ccc; border-radius: 4px;
+        margin-bottom: 8px; box-sizing: border-box;
+    }
+    .char-row { display: flex; gap: 4px; justify-content: center; margin-bottom: 8px; flex-wrap: wrap; }
+    .char-row.empty { display: none; }
+    .char-button {
+        padding: 5px 8px; background: #f5f5f5;
+        border: 2px solid #2196f3; border-radius: 4px;
+        cursor: pointer; font-weight: bold; font-size: 13px; color: #2196f3;
+    }
+    .char-button:hover { background: #e3f2fd; }
+    #quizCheck {
+        width: 100%; padding: 8px; background: #3366cc;
+        color: white; border: none; border-radius: 4px;
+        cursor: pointer; font-weight: bold;
+    }
+    #quizCheck:hover { background: #254e9c; }
+    #quizFeedback { text-align: center; font-weight: bold; margin-top: 8px; min-height: 20px; }
+</style>
+</head>
+<body>
+
+<div class="a4-page">
+    <div id="title-box" class="title-box">TITLE_PLACEHOLDER</div>
+
+    <div id="learned-vocab-left" class="learned-vocab learned-vocab-left">
+        <div class="lv-title">LEARNED_VOCAB_LEFT_LABEL</div>
+        <div id="lv-list-left"></div>
+    </div>
+
+    <div id="learned-vocab-right" class="learned-vocab learned-vocab-right">
+        <div class="lv-title">LEARNED_VOCAB_RIGHT_LABEL</div>
+        <div id="lv-list-right"></div>
+    </div>
+
+    <!-- Ordinary-day hover tooltip -->
+    <div id="day-tooltip">
+        <div class="tip-tlr" id="tip-tlr"></div>
+        <div class="tip-tl" id="tip-tl"></div>
+    </div>
+
+    <!-- Special-day info panel (TLR → TL → SL → Quiz click cycle) -->
+    <div id="info-panel">
+        <div class="info-tlr" id="info-tlr"></div>
+        <div class="info-tl" id="info-tl" style="display:none"></div>
+        <div class="info-sl" id="info-sl" style="display:none"></div>
+        <div class="info-date" id="info-date"></div>
+    </div>
+
+    <svg id="svgCanvas" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+
+        <!-- Inner seasonal disc (proportional sectors, built in JS) -->
+        <g id="inner-disc"></g>
+
+        <!-- Season name labels (built in JS) -->
+        <g id="season-labels" pointer-events="none"></g>
+
+        <!-- Central seasonal decoration icons -->
+        <g opacity="0.18" pointer-events="none">
+            <path  id="snowflake"  d="M50 45 L50 55 M45 50 L55 50 M47 47 L53 53 M47 53 L53 47" stroke="#87CEEB" stroke-width="0.5" fill="none" opacity="0"/>
+            <circle id="cherry1"   cx="48" cy="48" r="1.5" fill="#FFB7C5" opacity="0"/>
+            <circle id="cherry2"   cx="52" cy="48" r="1.5" fill="#FFB7C5" opacity="0"/>
+            <circle id="cherry3"   cx="50" cy="52" r="1.5" fill="#FFB7C5" opacity="0"/>
+            <circle id="cherry4"   cx="48" cy="52" r="1.5" fill="#FFB7C5" opacity="0"/>
+            <circle id="cherry5"   cx="52" cy="52" r="1.5" fill="#FFB7C5" opacity="0"/>
+            <circle id="summer-sun" cx="50" cy="50" r="3"  fill="#FFD700" opacity="0"/>
+            <path  id="leaf"       d="M50 48 Q48 50 50 52 Q52 50 50 48" fill="#FF8C00" opacity="0"/>
+        </g>
+
+        <!-- 365-day outer ring (built in JS) -->
+        <g id="day-ring"></g>
+
+        <!-- Circle outlines -->
+        <circle cx="50" cy="50" r="30" fill="none" stroke="#666" stroke-width="0.25"/>
+        <circle cx="50" cy="50" r="40" fill="none" stroke="#666" stroke-width="0.25"/>
+    </svg>
+
+    <div class="watermark">&copy; 2026 Alan William Preston</div>
+</div>
+
+<!-- Quiz -->
+<div id="quizContainer" class="quiz-container">
+    <div id="quizQuestion"></div>
+    <input type="text" id="quizInput" placeholder="QUIZ_PLACEHOLDER_TEXT">
+    <div class="char-row" id="charRow"></div>
+    <button id="quizCheck">QUIZ_BUTTON_LABEL</button>
+    <div id="quizFeedback"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+//  LOG-CR-CAL-N — Generic 365-Day Radial Calendar, Northern Hemisphere
+//  © 2026 Alan William Preston
+//
+//  LOG (logographic) convention: 4-step click cycle TLR → TL → SL → Quiz.
+//  Quiz tests TLR. Title cycle: TLR_TITLE → TL_TITLE → SL_TITLE, no
+//  combined variant (established convention, confirmed against
+//  LOG-CR-TTT/LOG-CR-CMP).
+//
+//  Data uses named object keys (sl/tl/tlr/i/type), not positional array
+//  columns — this sidesteps the off-by-one indexing bug class that has
+//  affected column-array-based Circular templates elsewhere (see Session
+//  Starter Section 4, LOG-CR-CMP entry — that bug arose specifically
+//  from a positional column shifting when TLR was added but downstream
+//  code wasn't updated; named keys can't shift like that).
+//
+//  No drag interaction anywhere in this template (pure click/hover), so
+//  the getScreenCTM()/getBoundingClientRect() dragMove bug class and the
+//  snap-on-release bug class do not apply here.
+//
+//  Season boundaries are defined ONCE (SEASON_BOUNDS below) and consumed
+//  everywhere else (seasonOf(), buildInnerDisc()) — the reference file
+//  this whole family was genericized from defined season boundaries in
+//  three separate places (one of them entirely unused/dead code), which
+//  is a maintainability risk fixed here.
+//
+//  Direction convention — IMPORTANT, differs from the ROM sibling: a LOG
+//  instance of this template only exists when the language being TAUGHT
+//  (TL) itself uses a non-Latin script — English can never be TL here
+//  (English is always Latin-script, hence always the ROM case). So unlike
+//  ROM-CR-CAL-N-Generic.html (where TL defaults to real English, matching
+//  its three real English-teaching instances), THIS file follows the
+//  standard Conceptionary-wide convention instead: SL defaults to real
+//  English (scaffolding/learner's language), TL/TLR are placeholder
+//  tokens for whichever logographic target language this instance ends
+//  up teaching.
+//
+//  ⚠ MONTH-INDEX WARNING (established 2026-08-04, see Session Starter
+//  Section 9): "TL-MONTH-1"/array index 0 is JUNE, not January — day 0
+//  of this template is the summer solstice, not New Year's Day. Full
+//  index-to-month map and explanation sit directly above LANG.months
+//  below. This is a DIFFERENT convention from LOG-CR-CAL-JAP.html, which
+//  starts at 1 January instead — the two Calendar-family templates do
+//  not share a month-numbering convention with each other.
+// ═══════════════════════════════════════════════════════════════════════
+
+const LANG = {
+    // --- Titles (TLR first, then TL, then SL — established LOG convention,
+    //     no combined variant) ---
+    titles: [
+        "TLR_TITLE",          // e.g. romanized target-language title
+        "TL_TITLE",           // e.g. target-language title in native script
+        "SL_TITLE"            // e.g. "365-Day Calendar" (English default)
+    ],
+
+    // --- UI strings -------------------------------------------------------
+    quiz_placeholder: "QUIZ_PLACEHOLDER_TEXT",       // e.g. "Type the romanized name…"
+    quiz_button:      "QUIZ_BUTTON_LABEL",           // e.g. "Check"
+    quiz_correct:     "QUIZ_CORRECT_LABEL",          // e.g. "Correct! ✓"
+    quiz_wrong:       "QUIZ_WRONG_LABEL",            // e.g. "Try again"
+    // Learned Vocabulary array titles. Right = day 0 (21 June) through
+    // day 182 (20 December); Left = day 183 (21 December) through day
+    // 364 (20 June) — the year split exactly in half at the solstices.
+    // See the ⚠ MONTH-INDEX WARNING above LANG.months for day-index
+    // reference, and addToVocabularyArray() below for the split logic.
+    learned_vocab_right_label: "LEARNED_VOCAB_RIGHT_LABEL", // e.g. "Learned (Jun 21 - Dec 20)"
+    learned_vocab_left_label:  "LEARNED_VOCAB_LEFT_LABEL",  // e.g. "Learned (Dec 21 - Jun 20)"
+    // {sl} is substituted with the item's own SL text at runtime, e.g.
+    // "What is the TLR word for 'Summer Solstice'?"
+    quiz_question_template: "QUIZ_QUESTION_TEMPLATE",
+
+    // --- Season names (static UI chrome, not part of the click-to-learn
+    //     cycle — real English default, swap for target language if desired) ---
+    season_names: { summer: "Summer", autumn: "Autumn", winter: "Winter", spring: "Spring" },
+
+    // --- Diacritic input row ------------------------------------------------
+    // Optional on-screen character buttons for the quiz input, e.g.
+    // ["ä","ö","ü","ß","Ä","Ö","Ü"] for German. Leave empty to hide the row
+    // entirely. This is IN ADDITION TO automatic diacritic-insensitive
+    // matching in checkQuiz() below (accent-stripped comparison as a
+    // fallback) — the button row is a convenience, not the only way in.
+    diacritic_chars: [],
+
+    // --- Solar events (built in; universal, real English SL content) ------
+    // Day-of-year index, day 0 = 21 June (Northern Hemisphere reference) —
+    // NOT 1 January. See the ⚠ MONTH-INDEX WARNING above LANG.months.
+    solarEvents: [
+        { i: 0,   sl: "Summer Solstice",  tl: "TL-SOLAR-1", tlr: "TLR-SOLAR-1" },
+        { i: 94,  sl: "Autumnal Equinox", tl: "TL-SOLAR-2", tlr: "TLR-SOLAR-2" },
+        { i: 183, sl: "Winter Solstice",  tl: "TL-SOLAR-3", tlr: "TLR-SOLAR-3" },
+        { i: 272, sl: "Spring Equinox",   tl: "TL-SOLAR-4", tlr: "TLR-SOLAR-4" }
+    ],
+
+    // --- Cultural/holiday placeholder days ---------------------------------
+    // Ready for concept-card injection. sl/tl/tlr are all placeholder
+    // tokens here since (unlike the solar events) there is no universal
+    // content — replace, remove, or add entries as appropriate for the
+    // specific culture/language this instance is being built for. `i` is
+    // the day-of-year index (0 = 21 June) — see buildDays() for the date
+    // mapping. These six are illustrative spacing only, not fixed dates.
+    culturalDays: [
+        { i: 30,  sl: "SL-SPECIAL-1", tl: "TL-SPECIAL-1", tlr: "TLR-SPECIAL-1" },
+        { i: 75,  sl: "SL-SPECIAL-2", tl: "TL-SPECIAL-2", tlr: "TLR-SPECIAL-2" },
+        { i: 150, sl: "SL-SPECIAL-3", tl: "TL-SPECIAL-3", tlr: "TLR-SPECIAL-3" },
+        { i: 210, sl: "SL-SPECIAL-4", tl: "TL-SPECIAL-4", tlr: "TLR-SPECIAL-4" },
+        { i: 260, sl: "SL-SPECIAL-5", tl: "TL-SPECIAL-5", tlr: "TLR-SPECIAL-5" },
+        { i: 330, sl: "SL-SPECIAL-6", tl: "TL-SPECIAL-6", tlr: "TLR-SPECIAL-6" }
+    ],
+
+    // --- Months: [slName, tlName, tlrName, lastDay, startDay] --------------
+    // SL = real English (standard scaffolding default); TL/TLR = placeholder
+    // tokens for whichever logographic target language this instance ends
+    // up teaching. Day 0 = 21 June.
+    // ═══════════════════════════════════════════════════════════════════
+    // ⚠ MONTH-INDEX WARNING — READ BEFORE EDITING ⚠
+    // "TL-MONTH-1" / "TLR-MONTH-1" do NOT correspond to January. Day 0 of
+    // this template is 21 June (the Northern summer solstice), chosen
+    // deliberately so the solstice sits at the very top / 0° of the
+    // circular dial — NOT because the year starts there. This is a
+    // DIFFERENT convention from LOG-CR-CAL-JAP.html, which starts at
+    // 1 January instead — the two Calendar-family templates do not share
+    // a month-numbering convention with each other. Explicit map, array
+    // index → real calendar month, for this file:
+    //   index 0  = JUNE       index 6  = DECEMBER
+    //   index 1  = JULY       index 7  = JANUARY
+    //   index 2  = AUGUST     index 8  = FEBRUARY
+    //   index 3  = SEPTEMBER  index 9  = MARCH
+    //   index 4  = OCTOBER    index 10 = APRIL
+    //   index 5  = NOVEMBER   index 11 = MAY
+    //                         index 12 = JUNE (again — wraps, days 1-20)
+    // The `sl` column (first element of each row) already carries the
+    // real English month name for exactly this reason — cross-check it
+    // against the placeholder token number before assuming "MONTH-N"
+    // means the Nth month of the calendar year. It doesn't.
+    // ═══════════════════════════════════════════════════════════════════
+    months: [
+        ["June",      "TL-MONTH-1",  "TLR-MONTH-1",  30, 21], // idx 0  = JUNE (NOT January)
+        ["July",      "TL-MONTH-2",  "TLR-MONTH-2",  31, 1],  // idx 1  = JULY
+        ["August",    "TL-MONTH-3",  "TLR-MONTH-3",  31, 1],  // idx 2  = AUGUST
+        ["September", "TL-MONTH-4",  "TLR-MONTH-4",  30, 1],  // idx 3  = SEPTEMBER
+        ["October",   "TL-MONTH-5",  "TLR-MONTH-5",  31, 1],  // idx 4  = OCTOBER
+        ["November",  "TL-MONTH-6",  "TLR-MONTH-6",  30, 1],  // idx 5  = NOVEMBER
+        ["December",  "TL-MONTH-7",  "TLR-MONTH-7",  31, 1],  // idx 6  = DECEMBER
+        ["January",   "TL-MONTH-8",  "TLR-MONTH-8",  31, 1],  // idx 7  = JANUARY
+        ["February",  "TL-MONTH-9",  "TLR-MONTH-9",  28, 1],  // idx 8  = FEBRUARY, non-leap year default
+        ["March",     "TL-MONTH-10", "TLR-MONTH-10", 31, 1],  // idx 9  = MARCH
+        ["April",     "TL-MONTH-11", "TLR-MONTH-11", 30, 1],  // idx 10 = APRIL
+        ["May",       "TL-MONTH-12", "TLR-MONTH-12", 31, 1],  // idx 11 = MAY
+        ["June",      "TL-MONTH-1",  "TLR-MONTH-1",  20, 1]   // idx 12 = JUNE again, days 1–20, wraps to month 1
+    ],
+
+    // --- Date-format templates ----------------------------------------------
+    // {day}=numeral, {ord}=English ordinal (1st/2nd/3rd…), {month}=month name.
+    // SL format is real English ordinal style since SL=English is fixed
+    // here; TL/TLR formats are neutral placeholder defaults — adjust per
+    // the actual target language's date convention when authoring a
+    // specific instance.
+    date_format_sl:  "{ord} {month}",
+    date_format_tl:  "{day} {month}",
+    date_format_tlr: "{day} {month}"
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════════════════════════════════════
+const CX = 50, CY = 50;
+const R_IN  = 30;   // inner edge of day ring (= outer edge of seasonal disc)
+const R_OUT = 40;   // outer edge of day ring
+const DEG   = 360 / 365;   // degrees per day
+
+// Season boundaries — SINGLE SOURCE OF TRUTH, consumed by seasonOf() and
+// buildInnerDisc() below. Day 0 = 21 June (Northern Hemisphere summer
+// solstice) — NOT 1 January. See the ⚠ MONTH-INDEX WARNING above
+// LANG.months for the full day-index → calendar-month map.
+const SEASON_BOUNDS = { summer: [0, 93], autumn: [94, 182], winter: [183, 271], spring: [272, 364] };
+
+// Colour palette
+const SC = {
+    summer: { base: 'rgba(34,139,34,0.35)',   hover: 'rgba(15,90,15,0.62)'   },
+    autumn: { base: 'rgba(255,140,0,0.35)',   hover: 'rgba(190,95,0,0.62)'   },
+    winter: { base: 'rgba(176,224,230,0.50)', hover: 'rgba(90,150,180,0.75)' },
+    spring: { base: 'rgba(144,238,144,0.50)', hover: 'rgba(40,170,40,0.70)'  }
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+//  DAY GENERATION  (day 0 = 21 June)
+// ═══════════════════════════════════════════════════════════════════════
+function ord(n) {
+    const s = ['th','st','nd','rd'], v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+function formatDate(day, month, template) {
+    return template.replace('{ord}', ord(day)).replace('{day}', day).replace('{month}', month);
+}
+
+function buildDays() {
+    const days = [];
+    LANG.months.forEach(([mSL, mTL, mTLR, last, start]) => {
+        for (let d = start; d <= last; d++) {
+            days.push({
+                index: days.length,
+                day: d, mSL, mTL, mTLR,
+                dateTLR: formatDate(d, mTLR, LANG.date_format_tlr),
+                dateTL:  formatDate(d, mTL,  LANG.date_format_tl),
+                dateSL:  formatDate(d, mSL,  LANG.date_format_sl)
+            });
+        }
+    });
+    return days; // exactly 365
+}
+const DAYS = buildDays();
+
+// ═══════════════════════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════════════════════
+function seasonOf(i) {
+    for (const name of Object.keys(SEASON_BOUNDS)) {
+        const [s, e] = SEASON_BOUNDS[name];
+        if (i >= s && i <= e) return name;
+    }
+    return 'summer';
+}
+
+// Polar → SVG  (0° = top, clockwise)
+function pol(angleDeg, r) {
+    const a = (angleDeg - 90) * Math.PI / 180;
+    return [CX + r * Math.cos(a), CY + r * Math.sin(a)];
+}
+
+// Arc path for one day segment (ring between R_IN and R_OUT)
+function arcPath(i) {
+    const a1 = (i * DEG - 90) * Math.PI / 180;
+    const a2 = ((i + 1) * DEG - 90) * Math.PI / 180;
+    const xi1 = CX + R_IN  * Math.cos(a1), yi1 = CY + R_IN  * Math.sin(a1);
+    const xi2 = CX + R_IN  * Math.cos(a2), yi2 = CY + R_IN  * Math.sin(a2);
+    const xo1 = CX + R_OUT * Math.cos(a1), yo1 = CY + R_OUT * Math.sin(a1);
+    const xo2 = CX + R_OUT * Math.cos(a2), yo2 = CY + R_OUT * Math.sin(a2);
+    return `M${xi1} ${yi1} L${xo1} ${yo1} A${R_OUT} ${R_OUT} 0 0 1 ${xo2} ${yo2} L${xi2} ${yi2} A${R_IN} ${R_IN} 0 0 0 ${xi1} ${yi1}Z`;
+}
+
+// Diacritic-insensitive fallback comparison — strips combining marks so
+// e.g. "Müller" vs "Muller" still matches if the button row wasn't used.
+// Per-language nuances (macron vs. doubled-vowel equivalence, etc.) may
+// need additional rules added when a specific target language is chosen.
+function normalizeForCompare(str) {
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  SPECIAL DAYS  (solar events + cultural placeholders, merged)
+// ═══════════════════════════════════════════════════════════════════════
+const SPECIAL = [
+    ...LANG.solarEvents.map(s => ({ ...s, t: 'solar'   })),
+    ...LANG.culturalDays.map(s => ({ ...s, t: 'holiday' }))
+];
+const SPECIAL_MAP = {};
+SPECIAL.forEach(s => { SPECIAL_MAP[s.i] = s; });
+
+// ═══════════════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════════════
+const clickState = {};    // dayIndex → 0 (hidden) | 1 (TL shown) | 2 (SL shown)
+const learned    = {};    // dayIndex → boolean
+SPECIAL.forEach(s => { clickState[s.i] = 0; learned[s.i] = false; });
+let activeDay      = -1;
+let currentQuizDay = -1;
+
+// ═══════════════════════════════════════════════════════════════════════
+//  BUILD INNER SEASONAL DISC
+//  Sectors derived directly from SEASON_BOUNDS (single source of truth) so
+//  they always align exactly with the outer day ring and with seasonOf().
+// ═══════════════════════════════════════════════════════════════════════
+function buildInnerDisc() {
+    const g  = document.getElementById('inner-disc');
+    const lg = document.getElementById('season-labels');
+
+    Object.keys(SEASON_BOUNDS).forEach(name => {
+        const [s, eIncl] = SEASON_BOUNDS[name];
+        const e = eIncl + 1; // exclusive end for angle math
+        const angStart = s * DEG;
+        const angEnd   = e * DEG;
+        const span     = angEnd - angStart;
+        const a1 = (angStart - 90) * Math.PI / 180;
+        const a2 = (angEnd   - 90) * Math.PI / 180;
+        const x1 = CX + R_IN * Math.cos(a1), y1 = CY + R_IN * Math.sin(a1);
+        const x2 = CX + R_IN * Math.cos(a2), y2 = CY + R_IN * Math.sin(a2);
+        const laf = span > 180 ? 1 : 0;
+
+        const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        p.setAttribute('d', `M${CX} ${CY} L${x1} ${y1} A${R_IN} ${R_IN} 0 ${laf} 1 ${x2} ${y2} Z`);
+        p.style.fill        = SC[name].base;
+        p.style.stroke      = '#bbb';
+        p.style.strokeWidth = '0.2';
+        g.appendChild(p);
+
+        const midAng = angStart + span / 2;
+        const [lx, ly] = pol(midAng, 18);
+        const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', lx); t.setAttribute('y', ly);
+        t.setAttribute('text-anchor', 'middle');
+        t.setAttribute('dominant-baseline', 'central');
+        t.setAttribute('font-size', '2.8');
+        t.setAttribute('font-weight', 'bold');
+        t.setAttribute('font-family', 'Arial,sans-serif');
+        t.setAttribute('fill', '#444');
+        t.textContent = LANG.season_names[name].toUpperCase();
+        lg.appendChild(t);
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  BUILD 365-DAY OUTER RING
+// ═══════════════════════════════════════════════════════════════════════
+function buildDayRing() {
+    const g       = document.getElementById('day-ring');
+    const tooltip = document.getElementById('day-tooltip');
+    const tipTLR  = document.getElementById('tip-tlr');
+    const tipTL   = document.getElementById('tip-tl');
+
+    DAYS.forEach(day => {
+        const i   = day.index;
+        const col = SC[seasonOf(i)];
+        const sp  = SPECIAL_MAP[i];
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', arcPath(i));
+        path.setAttribute('data-day', i);
+
+        path.style.fill        = learned[i] ? 'rgba(255,215,0,0.55)' : col.base;
+        path.style.stroke      = sp ? (sp.t === 'solar' ? '#FFD700' : '#D4900A') : 'rgba(0,0,0,0.07)';
+        path.style.strokeWidth = sp ? (sp.t === 'solar' ? '0.35' : '0.22') : '0.05';
+        path.style.cursor      = sp ? 'pointer' : 'default';
+
+        path.addEventListener('mouseenter', () => {
+            if (!learned[i]) path.style.fill = col.hover;
+            if (sp) path.style.strokeWidth = sp.t === 'solar' ? '0.55' : '0.40';
+            tipTLR.textContent = day.dateTLR;
+            tipTL.textContent  = day.dateTL;
+            tooltip.style.display = 'block';
+            updateDecoration(i);
+        });
+        path.addEventListener('mousemove', e => {
+            tooltip.style.left = (e.clientX + 14) + 'px';
+            tooltip.style.top  = (e.clientY - 40) + 'px';
+        });
+        path.addEventListener('mouseleave', () => {
+            path.style.fill = learned[i] ? 'rgba(255,215,0,0.55)' : col.base;
+            if (sp) path.style.strokeWidth = sp.t === 'solar' ? '0.35' : '0.22';
+            tooltip.style.display = 'none';
+        });
+
+        if (sp) path.addEventListener('click', () => handleSpecialClick(i));
+
+        g.appendChild(path);
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  SPECIAL DAY CLICK HANDLER  (TL → SL → Quiz, 3-step ROM cycle)
+// ═══════════════════════════════════════════════════════════════════════
+const infoPanel = document.getElementById('info-panel');
+const infoTLR   = document.getElementById('info-tlr');
+const infoTL    = document.getElementById('info-tl');
+const infoSL    = document.getElementById('info-sl');
+const infoDate  = document.getElementById('info-date');
+
+function handleSpecialClick(dayIdx) {
+    if (learned[dayIdx]) return;
+
+    const sp  = SPECIAL_MAP[dayIdx];
+    const day = DAYS[dayIdx];
+
+    if (activeDay !== dayIdx) {
+        clickState[dayIdx] = 1;
+        activeDay = dayIdx;
+    } else {
+        clickState[dayIdx]++;
+    }
+
+    const state = clickState[dayIdx];
+    const dateLine = day.dateTLR + '  ·  ' + day.dateTL + '  ·  ' + day.dateSL;
+
+    if (state === 1) {
+        infoTLR.textContent      = sp.tlr;
+        infoTL.style.display     = 'none';
+        infoSL.style.display     = 'none';
+        infoDate.textContent     = dateLine;
+        infoPanel.style.display  = 'block';
+    } else if (state === 2) {
+        infoTLR.textContent      = sp.tlr;
+        infoTL.textContent       = sp.tl;
+        infoTL.style.display     = 'block';
+        infoSL.style.display     = 'none';
+        infoDate.textContent     = dateLine;
+        infoPanel.style.display  = 'block';
+    } else if (state === 3) {
+        infoTLR.textContent      = sp.tlr;
+        infoTL.textContent       = sp.tl;
+        infoTL.style.display     = 'block';
+        infoSL.textContent       = sp.sl;
+        infoSL.style.display     = 'block';
+        infoDate.textContent     = dateLine;
+        infoPanel.style.display  = 'block';
+    } else {
+        infoPanel.style.display = 'none';
+        launchQuiz(dayIdx);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  QUIZ
+// ═══════════════════════════════════════════════════════════════════════
+function launchQuiz(dayIdx) {
+    currentQuizDay = dayIdx;
+    const sp = SPECIAL_MAP[dayIdx];
+    document.getElementById('quizQuestion').textContent =
+        LANG.quiz_question_template.replace('{sl}', sp.sl);
+    document.getElementById('quizInput').value = '';
+    document.getElementById('quizFeedback').textContent = '';
+    document.getElementById('quizContainer').style.display = 'block';
+    setTimeout(() => { try { document.getElementById('quizInput').focus(); } catch(e) {} }, 100);
+}
+
+function checkQuiz() {
+    if (currentQuizDay < 0) return;
+    const sp     = SPECIAL_MAP[currentQuizDay];
+    const answer = document.getElementById('quizInput').value.trim();
+    const fb     = document.getElementById('quizFeedback');
+
+    const exact      = answer.toLowerCase() === sp.tlr.toLowerCase();
+    const normalized = normalizeForCompare(answer) === normalizeForCompare(sp.tlr);
+
+    if (exact || normalized) {
+        fb.textContent = LANG.quiz_correct;
+        fb.style.color = 'green';
+        learned[currentQuizDay] = true;
+        markLearned(currentQuizDay);
+        addToVocabularyArray(currentQuizDay);
+        setTimeout(() => {
+            document.getElementById('quizContainer').style.display = 'none';
+            currentQuizDay = -1;
+            activeDay = -1;
+        }, 1500);
+    } else {
+        fb.textContent = LANG.quiz_wrong;
+        fb.style.color = 'red';
+    }
+}
+
+function markLearned(dayIdx) {
+    const path = document.querySelector(`[data-day="${dayIdx}"]`);
+    if (path) {
+        path.style.fill        = 'rgba(255,215,0,0.55)';
+        path.style.stroke      = '#B8860B';
+        path.style.strokeWidth = '0.45';
+    }
+}
+
+function addToVocabularyArray(dayIdx) {
+    const sp = SPECIAL_MAP[dayIdx];
+    if (!sp) return;
+    const entry = document.createElement('div');
+    entry.className = 'lv-entry';
+    entry.innerHTML =
+        `<span class="lv-tlr">${sp.tlr}</span>` +
+        `<span class="lv-tl">${sp.tl}</span><br>` +
+        `<span class="lv-sl">${sp.sl}</span>`;
+    // Right: day 0 (21 June) through day 182 (20 December).
+    // Left: day 183 (21 December) through day 364 (20 June).
+    const targetId = dayIdx <= 182 ? 'lv-list-right' : 'lv-list-left';
+    document.getElementById(targetId).appendChild(entry);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  CENTRAL SEASONAL DECORATION
+// ═══════════════════════════════════════════════════════════════════════
+function updateDecoration(dayIdx) {
+    const ids = ['snowflake','cherry1','cherry2','cherry3','cherry4','cherry5','summer-sun','leaf'];
+    ids.forEach(id => { const el = document.getElementById(id); if (el) el.setAttribute('opacity','0'); });
+
+    switch (seasonOf(dayIdx)) {
+        case 'winter':
+            document.getElementById('snowflake').setAttribute('opacity','1'); break;
+        case 'spring':
+            ['cherry1','cherry2','cherry3','cherry4','cherry5'].forEach(id =>
+                document.getElementById(id).setAttribute('opacity','1'));
+            break;
+        case 'summer':
+            document.getElementById('summer-sun').setAttribute('opacity','1'); break;
+        case 'autumn':
+            document.getElementById('leaf').setAttribute('opacity','1'); break;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  TITLE CYCLE  (SL → TL → SL/TL combined — established convention)
+// ═══════════════════════════════════════════════════════════════════════
+let titleIdx = 0;
+
+// ═══════════════════════════════════════════════════════════════════════
+//  DIACRITIC CHARACTER ROW  (built from LANG.diacritic_chars; hidden if empty)
+// ═══════════════════════════════════════════════════════════════════════
+function buildCharRow() {
+    const row = document.getElementById('charRow');
+    if (!LANG.diacritic_chars || LANG.diacritic_chars.length === 0) {
+        row.classList.add('empty');
+        return;
+    }
+    LANG.diacritic_chars.forEach(ch => {
+        const btn = document.createElement('button');
+        btn.className = 'char-button';
+        btn.type = 'button';
+        btn.textContent = ch;
+        btn.addEventListener('click', e => {
+            e.preventDefault();
+            const inp = document.getElementById('quizInput');
+            const pos = inp.selectionStart;
+            inp.value = inp.value.substring(0, pos) + ch + inp.value.substring(pos);
+            inp.focus();
+            inp.setSelectionRange(pos + 1, pos + 1);
+        });
+        row.appendChild(btn);
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  QUIZ CONTAINER DRAG-ANYWHERE
+// ═══════════════════════════════════════════════════════════════════════
+function makeQuizDraggable() {
+    const qc = document.getElementById('quizContainer');
+    let qDragging = false, offsetX = 0, offsetY = 0;
+
+    function qStart(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+        e.stopPropagation();
+        const rect = qc.getBoundingClientRect();
+        qc.style.transform = 'none';
+        qc.style.left = rect.left + 'px';
+        qc.style.top  = rect.top + 'px';
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+        offsetX = clientX - rect.left;
+        offsetY = clientY - rect.top;
+        qDragging = true;
+        qc.classList.add('dragging');
+        e.preventDefault();
+    }
+    function qMove(e) {
+        if (!qDragging) return;
+        e.stopPropagation();
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+        qc.style.left = (clientX - offsetX) + 'px';
+        qc.style.top  = (clientY - offsetY) + 'px';
+        e.preventDefault();
+    }
+    function qEnd(e) {
+        if (!qDragging) return;
+        qDragging = false;
+        qc.classList.remove('dragging');
+        // A drag-release (mouseup) synthesizes a click event immediately
+        // afterward, targeted at whatever's under the cursor at that exact
+        // pixel — which, on a fast or slightly imprecise drag, can easily
+        // land just outside the container's own bounds even though the
+        // user was clearly still interacting with it. Without this guard,
+        // that synthetic click gets misread by the outside-click handler
+        // below as "user clicked away," dismissing the quiz immediately
+        // after every drag. Swallow exactly one click event here;
+        // quizJustDragged is consumed and reset by the outside-click
+        // handler itself. (Same fix as Rice-Growing/LUN/MEN/TML, 2026-08-03/04.)
+        quizJustDragged = true;
+        if (e) e.stopPropagation();
+    }
+
+    qc.addEventListener('mousedown', qStart);
+    qc.addEventListener('touchstart', qStart, { passive: false });
+    document.addEventListener('mousemove', qMove);
+    document.addEventListener('touchmove', qMove, { passive: false });
+    document.addEventListener('mouseup', qEnd);
+    document.addEventListener('touchend', qEnd);
+}
+let quizJustDragged = false;
+
+// ═══════════════════════════════════════════════════════════════════════
+//  OUTSIDE-CLICK DISMISSAL
+// ═══════════════════════════════════════════════════════════════════════
+document.addEventListener('click', e => {
+    if (quizJustDragged) { quizJustDragged = false; return; }
+    const ring = document.getElementById('day-ring');
+    const qc   = document.getElementById('quizContainer');
+
+    if (infoPanel.style.display !== 'none' &&
+        !infoPanel.contains(e.target) &&
+        !ring.contains(e.target)) {
+        infoPanel.style.display = 'none';
+        if (activeDay >= 0) clickState[activeDay] = 0;
+        activeDay = -1;
+    }
+
+    if (qc.style.display !== 'none' &&
+        !qc.contains(e.target) &&
+        !ring.contains(e.target)) {
+        qc.style.display = 'none';
+        if (currentQuizDay >= 0) clickState[currentQuizDay] = 0;
+        currentQuizDay = -1;
+    }
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+//  INITIALISE
+// ═══════════════════════════════════════════════════════════════════════
+function init() {
+    buildInnerDisc();
+    buildDayRing();
+    buildCharRow();
+    updateDecoration(0);
+
+    document.getElementById('title-box').textContent = LANG.titles[0];
+    document.getElementById('title-box').addEventListener('click', function () {
+        this.classList.add('hidden');
+        setTimeout(() => {
+            titleIdx = (titleIdx + 1) % LANG.titles.length;
+            this.textContent = LANG.titles[titleIdx];
+            this.classList.remove('hidden');
+        }, 500);
+    });
+
+    document.getElementById('quizInput').placeholder = LANG.quiz_placeholder;
+    document.getElementById('quizCheck').textContent  = LANG.quiz_button;
+    document.getElementById('quizCheck').addEventListener('click', checkQuiz);
+    document.getElementById('quizInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') checkQuiz();
+    });
+    makeQuizDraggable();
+
+    document.querySelector('#learned-vocab-left .lv-title').textContent  = LANG.learned_vocab_left_label;
+    document.querySelector('#learned-vocab-right .lv-title').textContent = LANG.learned_vocab_right_label;
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

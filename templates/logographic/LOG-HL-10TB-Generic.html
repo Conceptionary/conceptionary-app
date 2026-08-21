@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOG-HL-10TB Generic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f9f9f9;
+            overflow: hidden;
+        }
+
+        .a4-page {
+            width: 90vw;
+            height: 70vh;
+            border: 5px solid black;
+            background-color: white;
+            box-sizing: border-box;
+            position: relative;
+            touch-action: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .watermark {
+            position: absolute;
+            bottom: 5px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            pointer-events: none;
+            user-select: none;
+            z-index: 0;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .path-line {
+            stroke: black;
+            stroke-width: 0.5;
+            fill: none;
+        }
+
+        /* Background gradient */
+        #conceptBackground {
+            fill: url(#conceptGradient);
+            opacity: 0.2;
+        }
+
+        /* States Template Elements */
+        .textBox {
+            cursor: pointer;
+            font-size: 0.32em;
+            fill: black;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transform: scale(0.5);
+        }
+
+        .textBox.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .textBox.learned {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            fill: green;
+        }
+
+        #draggableFrame {
+            cursor: move;
+            fill: rgba(100, 150, 255, 0.2);
+            stroke: black;
+            stroke-width: 0.5px;
+            pointer-events: all;
+            opacity: 0.8;
+        }
+
+        #draggableFrame:hover {
+            fill: rgba(100, 150, 255, 0.5);
+        }
+
+        #draggableFrame.dragging {
+            cursor: grabbing;
+            fill: rgba(255, 150, 100, 0.5);
+            stroke: #cc6600;
+        }
+
+        /* Transitions Template Elements */
+        .sliding-text {
+            font-size: 4px;
+            font-weight: bold;
+            fill: blue;
+            cursor: pointer;
+        }
+        
+        .sliding-text.learned {
+            fill: green;
+        }
+
+        /* Common Title Box Styling */
+        .title-box {
+            position: absolute;
+            top: 2%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1em;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid black;
+            padding: 10px;
+            background-color: white;
+            z-index: 2;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .title-box.hidden {
+            opacity: 0;
+            transform: translateX(-50%) scale(0.9);
+        }
+        
+        /* Mode Toggle Button */
+        .mode-toggle {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            padding: 8px 16px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 3;
+        }
+        
+        /* Concept Indicator */
+        .concept-indicator {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1em;
+            padding: 5px 10px;
+            background-color: white;
+            border: 1px solid #555;
+            border-radius: 4px;
+            z-index: 3;
+        }
+        
+        /* Level indicator for transitions mode */
+        .level-indicator {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            padding: 5px 10px;
+            background-color: white;
+            border: 1px solid #555;
+            border-radius: 4px;
+            z-index: 3;
+        }
+
+        /* Quiz container styles */
+        .quiz-container {
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 3px solid #3366cc;
+            border-radius: 4px;
+            padding: 12px;
+            z-index: 9999;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            max-width: 360px;
+            width: 360px;
+            pointer-events: auto;
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .quiz-container input {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .quiz-container button {
+            width: 100%;
+            padding: 8px;
+            background-color: #3366cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .quiz-container button:hover {
+            background-color: #254e9c;
+        }
+        
+        #quizFeedback {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 8px;
+            min-height: 20px;
+        }
+
+        /* Vocabulary Arrays Styles */
+        .vocabulary-array {
+            position: absolute;
+            top: 2%;
+            width: 25%;
+            max-height: 40vh;
+            overflow-y: auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px;
+            z-index: 4;
+            display: none;
+        }
+
+        #increasing-array {
+            left: 12.5%;
+        }
+
+        #decreasing-array {
+            right: 12.5%;
+        }
+
+        .array-title {
+            font-size: 0.9em;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 5px;
+            padding: 3px;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .vocabulary-item {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.75em;
+            margin: 3px 0;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background-color: #f9f9f9;
+            transition: background-color 0.3s ease;
+        }
+
+        .vocabulary-item:hover {
+            background-color: #eaf2ff;
+        }
+
+        .vocabulary-item .tlr {
+            font-weight: bold;
+            color: #ff6600;
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .vocabulary-item .tl {
+            font-weight: bold;
+            color: #0066cc;
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .vocabulary-item .sl {
+            color: #555;
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        
+        .vocabulary-item .tlr.hidden,
+        .vocabulary-item .tl.hidden,
+        .vocabulary-item .sl.hidden {
+            color: transparent;
+            user-select: none;
+            background-color: #f0f0f0;
+        }
+        
+        /* Toggle visibility button */
+        .toggle-visibility {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 0.7em;
+            padding: 2px 5px;
+            background-color: #eee;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        /* Tools Menu */
+        .tools-menu {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 5;
+        }
+
+        .tools-button {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+
+        .tools-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 30px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            width: 150px;
+            padding: 5px 0;
+            z-index: 10;
+        }
+
+        .tools-dropdown.active {
+            display: block;
+        }
+
+        .tool-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            pointer-events: auto;
+            user-select: none;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .tool-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Drag instruction */
+        .drag-instruction {
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9em;
+            padding: 5px 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            z-index: 3;
+            opacity: 1;
+            transition: opacity 2s ease;
+        }
+        
+        .drag-instruction.fade {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="a4-page">
+        <div id="title-box" class="title-box"></div>
+        <div id="concept-indicator" class="concept-indicator">Position</div>
+        <div id="level-indicator" class="level-indicator">TLR (Romanized)</div>
+        <div id="drag-instruction" class="drag-instruction">Drag the blue frame along the line to explore vocabulary!</div>
+        
+        <!-- Tools Menu -->
+        <div class="tools-menu">
+            <div class="tools-button">Tools</div>
+            <div class="tools-dropdown">
+                <div class="tool-item" id="loadConcept">Load Concept</div>
+                <div class="tool-item" id="startQuiz">Quick Quiz</div>
+                <div class="tool-item" id="toggleArrays">Toggle Arrays</div>
+            </div>
+        </div>
+        
+        <!-- Vocabulary Arrays -->
+        <div id="increasing-array" class="vocabulary-array">
+            <div class="array-title">Increasing Progression</div>
+            <button class="toggle-visibility" id="toggle-increasing">Hide All</button>
+            <div id="increasing-items"></div>
+        </div>
+        
+        <div id="decreasing-array" class="vocabulary-array">
+            <div class="array-title">Decreasing Progression</div>
+            <button class="toggle-visibility" id="toggle-decreasing">Hide All</button>
+            <div id="decreasing-items"></div>
+        </div>
+        
+        <svg id="svgCanvas" viewBox="0 0 160 50" preserveAspectRatio="xMidYMid meet">
+            <!-- Concept Gradient -->
+            <defs>
+                <linearGradient id="conceptGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#4a4a4a;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#87ceeb;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#4a4a4a;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            
+            <line id="horizontalLine" class="path-line" x1="0" y1="25" x2="160" y2="25"/>
+            <rect id="conceptBackground" x="0" y="22" width="160" height="6"/>
+            
+            <!-- States Mode Elements -->
+            <rect id="draggableFrame" x="0" y="20" width="10" height="10" rx="2"/>
+            
+            <!-- Transitions Mode Elements - Single Draggable Text -->
+            <text id="interactiveText" class="sliding-text">
+                <textPath id="slidingText" href="#horizontalLine" startOffset="0%">
+                    TLR-T1
+                </textPath>
+            </text>
+        </svg>
+        <button id="modeToggle" class="mode-toggle">Toggle Mode</button>
+        <div class="watermark">
+            &copy; 2026 Alan William Preston
+        </div>
+    </div>
+
+    <!-- Quiz Container -->
+    <div id="quizContainer" class="quiz-container">
+        <input type="text" id="quizInput" placeholder="Enter the TLR (romanized) word">
+        <button id="quizCheck">Check</button>
+        <div id="quizFeedback"></div>
+    </div>
+
+    <script>
+        // Horizontal line template data with 10 textboxes - 4-level hierarchy: TLR, TL, SL, Quiz
+        // Format: [TLR, TL, SL, Quiz Question, Position along line (0-160 units)]
+        const conceptData = [
+            ["TLR1", "TL1", "SL1", "What is the TLR word for 'SL1'?", 0],       // 0%
+            ["TLR2", "TL2", "SL2", "What is the TLR word for 'SL2'?", 17.8],    // ~11%
+            ["TLR3", "TL3", "SL3", "What is the TLR word for 'SL3'?", 35.6],    // ~22%
+            ["TLR4", "TL4", "SL4", "What is the TLR word for 'SL4'?", 53.3],    // ~33%
+            ["TLR5", "TL5", "SL5", "What is the TLR word for 'SL5'?", 71.1],    // ~44%
+            ["TLR6", "TL6", "SL6", "What is the TLR word for 'SL6'?", 88.9],    // ~56%
+            ["TLR7", "TL7", "SL7", "What is the TLR word for 'SL7'?", 106.7],   // ~67%
+            ["TLR8", "TL8", "SL8", "What is the TLR word for 'SL8'?", 124.4],   // ~78%
+            ["TLR9", "TL9", "SL9", "What is the TLR word for 'SL9'?", 142.2],   // ~89%
+            ["TLR10", "TL10", "SL10", "What is the TLR word for 'SL10'?", 160]   // 100%
+        ];
+
+        // Transitions data for horizontal progression - 9 segments with 4-level hierarchy
+        const transitionsData = [
+            ["TLR-T1", "TL-T1", "SL-T1", "What is the TLR word for 'SL-T1'?", 0],
+            ["TLR-T2", "TL-T2", "SL-T2", "What is the TLR word for 'SL-T2'?", 10.3],
+            ["TLR-T3", "TL-T3", "SL-T3", "What is the TLR word for 'SL-T3'?", 20.6],
+            ["TLR-T4", "TL-T4", "SL-T4", "What is the TLR word for 'SL-T4'?", 30.9],
+            ["TLR-T5", "TL-T5", "SL-T5", "What is the TLR word for 'SL-T5'?", 41.2],
+            ["TLR-T6", "TL-T6", "SL-T6", "What is the TLR word for 'SL-T6'?", 51.5],
+            ["TLR-T7", "TL-T7", "SL-T7", "What is the TLR word for 'SL-T7'?", 61.8],
+            ["TLR-T8", "TL-T8", "SL-T8", "What is the TLR word for 'SL-T8'?", 72.1],
+            ["TLR-T9", "TL-T9", "SL-T9", "What is the TLR word for 'SL-T9'?", 82.4]
+        ];
+
+        // Global variables
+        let isStatesMode = true;
+        let currentQuizIndex = -1;
+        let slidingTextMode = 0; // 0: TLR, 1: TL, 2: SL, 3: Quiz
+        let statesLearnedItems = []; // Separate array for States Mode
+        let transitionsLearnedItems = []; // Separate array for Transitions Mode
+        let textBoxElements = [];
+        let addedIncreasingItems = [];
+        let addedDecreasingItems = [];
+        let currentTextLayer = new Array(10).fill(0); // Start with TLR (index 0) for 10 textboxes
+        
+        // TRANSITIONS MODE VARIABLES
+        let startPercent = 0;
+        let isDraggingText = false;
+        let lastX = 0;
+        let hasMovedDuringDrag = false;
+        
+        // Title text options
+        // Title cycle: TLR (default) → TL → SL → TLR, per mode. See
+        // "Logographic UI Conventions" in Conceptionary_Template_Definitions.md.
+        const titleTexts = {
+            states: ["TLR_TITLE_STATES", "TL_TITLE_STATES", "SL_TITLE_STATES"],
+            transitions: ["TLR_TITLE_TRANSITIONS", "TL_TITLE_TRANSITIONS", "SL_TITLE_TRANSITIONS"]
+        };
+        let currentTextIndex = 0;
+        
+        // Activation distance for text boxes
+        const activationDistance = 18;
+
+        // DOM elements
+        let svg, horizontalLine, conceptBackground, titleBox, conceptIndicator, levelIndicator;
+        let modeToggleBtn, frame, quizContainer, quizInput, quizCheck, quizFeedback;
+        let increasingArray, decreasingArray, increasingItems, decreasingItems;
+        let toggleIncreasingBtn, toggleDecreasingBtn, interactiveText;
+
+        // TRANSITIONS MODE FUNCTIONS
+        
+        function getTransitionDataForPosition(percent) {
+            if (percent < 8) return { index: 0, data: transitionsData[0] };
+            else if (percent < 16) return { index: 1, data: transitionsData[1] };
+            else if (percent < 24) return { index: 2, data: transitionsData[2] };
+            else if (percent < 32) return { index: 3, data: transitionsData[3] };
+            else if (percent < 40) return { index: 4, data: transitionsData[4] };
+            else if (percent < 48) return { index: 5, data: transitionsData[5] };
+            else if (percent < 56) return { index: 6, data: transitionsData[6] };
+            else if (percent < 64) return { index: 7, data: transitionsData[7] };
+            else return { index: 8, data: transitionsData[8] };
+        }
+
+        function updateTextBasedOnPosition(percent) {
+            if (isStatesMode) return;
+            
+            // Allow range up to 93% to prevent text extending beyond frame
+            percent = Math.min(93, Math.max(0, percent));
+            const transitionData = getTransitionDataForPosition(percent);
+            const index = transitionData.index;
+            const data = transitionData.data;
+            
+            const textPath = document.getElementById("slidingText");
+            if (!textPath) return;
+            
+            if (transitionsLearnedItems[index]) {
+                interactiveText.classList.add('learned');
+                // For learned items, cycle between TLR, TL, and SL
+                if (slidingTextMode === 0) {
+                    textPath.textContent = data[0]; // TLR
+                } else if (slidingTextMode === 1) {
+                    textPath.textContent = data[1]; // TL
+                } else {
+                    textPath.textContent = data[2]; // SL
+                }
+            } else {
+                interactiveText.classList.remove('learned');
+                // For unlearned items, show based on current mode
+                if (slidingTextMode === 0) {
+                    textPath.textContent = data[0]; // TLR
+                } else if (slidingTextMode === 1) {
+                    textPath.textContent = data[1]; // TL
+                } else if (slidingTextMode === 2) {
+                    textPath.textContent = data[2]; // SL
+                }
+            }
+            
+            conceptIndicator.textContent = data[2]; // Always show SL in indicator
+            updateLevelIndicator();
+        }
+
+        function updateTextPosition(percent) {
+            if (isStatesMode) return;
+            
+            // Constrain to 93% to prevent text from extending beyond frame boundary
+            percent = Math.min(93, Math.max(0, percent));
+            
+            const textPath = document.getElementById("slidingText");
+            if (textPath) {
+                textPath.setAttribute("startOffset", `${percent}%`);
+            }
+            updateTextBasedOnPosition(percent);
+        }
+
+        function startTextDrag(event) {
+            if (isStatesMode) return;
+            
+            isDraggingText = true;
+            hasMovedDuringDrag = false;
+            lastX = event.touches ? event.touches[0].clientX : event.clientX;
+            event.preventDefault();
+        }
+
+        function dragText(event) {
+            if (!isDraggingText || isStatesMode) return;
+            
+            let currentX = event.touches ? event.touches[0].clientX : event.clientX;
+            let movement = currentX - lastX;
+            
+            if (Math.abs(movement) > 5) {
+                hasMovedDuringDrag = true;
+            }
+            
+            lastX = currentX;
+            startPercent += movement * 0.15; // Reduced sensitivity for better control
+            
+            // Constrain to 0-93% range to keep text within frame boundaries
+            startPercent = Math.min(93, Math.max(0, startPercent));
+            updateTextPosition(startPercent);
+            
+            if (event.cancelable) event.preventDefault();
+        }
+
+        function endTextDrag() {
+            isDraggingText = false;
+        }
+
+        // 4-level cycling: TLR -> TL -> SL -> Quiz
+        function toggleTextFormat(event) {
+            if (isStatesMode || isDraggingText || hasMovedDuringDrag) {
+                return;
+            }
+            
+            const transitionData = getTransitionDataForPosition(startPercent);
+            const index = transitionData.index;
+            const data = transitionData.data;
+            
+            if (transitionsLearnedItems[index]) {
+                // Cycle between TLR, TL, and SL for learned items
+                slidingTextMode = (slidingTextMode + 1) % 3;
+                updateTextBasedOnPosition(startPercent);
+            } else {
+                // TLR(0) -> TL(1) -> SL(2) -> Quiz(3) for unlearned items
+                if (slidingTextMode === 0) {
+                    // From TLR to TL
+                    slidingTextMode = 1;
+                    updateTextBasedOnPosition(startPercent);
+                } else if (slidingTextMode === 1) {
+                    // From TL to SL
+                    slidingTextMode = 2;
+                    updateTextBasedOnPosition(startPercent);
+                } else if (slidingTextMode === 2) {
+                    // From SL to Quiz
+                    slidingTextMode = 3;
+                    showQuiz(index, interactiveText);
+                    return;
+                } else {
+                    // From Quiz back to TLR
+                    slidingTextMode = 0;
+                    updateTextBasedOnPosition(startPercent);
+                }
+            }
+            
+            updateLevelIndicator();
+            if (event && event.cancelable) event.preventDefault();
+        }
+
+        function updateLevelIndicator() {
+            if (isStatesMode) {
+                levelIndicator.style.display = 'none';
+                return;
+            }
+            
+            levelIndicator.style.display = 'block';
+            
+            switch (slidingTextMode) {
+                case 0:
+                    levelIndicator.textContent = 'TLR (Romanized)';
+                    break;
+                case 1:
+                    levelIndicator.textContent = 'Target Language';
+                    break;
+                case 2:
+                    levelIndicator.textContent = 'Source Language';
+                    break;
+                case 3:
+                    levelIndicator.textContent = 'Quiz Mode';
+                    break;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            
+            try {
+                // Get DOM elements
+                svg = document.getElementById("svgCanvas");
+                horizontalLine = document.getElementById("horizontalLine");
+                conceptBackground = document.getElementById("conceptBackground");
+                titleBox = document.getElementById("title-box");
+                conceptIndicator = document.getElementById("concept-indicator");
+                levelIndicator = document.getElementById("level-indicator");
+                modeToggleBtn = document.getElementById("modeToggle");
+                frame = document.getElementById("draggableFrame");
+                quizContainer = document.getElementById("quizContainer");
+                quizInput = document.getElementById("quizInput");
+                quizCheck = document.getElementById("quizCheck");
+                quizFeedback = document.getElementById("quizFeedback");
+                interactiveText = document.getElementById("interactiveText");
+                
+                increasingArray = document.getElementById("increasing-array");
+                decreasingArray = document.getElementById("decreasing-array");
+                increasingItems = document.getElementById("increasing-items");
+                decreasingItems = document.getElementById("decreasing-items");
+                toggleIncreasingBtn = document.getElementById("toggle-increasing");
+                toggleDecreasingBtn = document.getElementById("toggle-decreasing");
+                
+                if (!svg || !horizontalLine || !titleBox || !modeToggleBtn || !frame) {
+                    console.error("Critical elements are missing from the DOM");
+                    return;
+                }
+
+                // Title box: TLR by default (matches the vocabulary-item
+                // convention — see Conceptionary_Template_Definitions.md).
+                // Was previously left showing a static HTML placeholder
+                // until the title was clicked; now genuinely defaults to
+                // real content from the moment the page loads.
+                titleBox.textContent = titleTexts.states[0];
+                currentTextIndex = 0;
+                
+                // Initialize separate arrays for each mode
+                statesLearnedItems = new Array(conceptData.length).fill(false);
+                transitionsLearnedItems = new Array(transitionsData.length).fill(false);
+                addedIncreasingItems = new Array(transitionsData.length).fill(false);
+                addedDecreasingItems = new Array(transitionsData.length).fill(false);
+                
+                // Initialize States mode
+                isStatesMode = true;
+                createTextBoxes();
+                initializeFramePosition();
+                setupEventListeners();
+                
+                // Hide sliding text in States mode
+                if (interactiveText) {
+                    interactiveText.style.display = 'none';
+                }
+                
+                // Set initial UI state
+                levelIndicator.style.display = 'none';
+                quizContainer.style.display = 'none';
+                increasingArray.style.display = 'none';
+                decreasingArray.style.display = 'none';
+                
+                // Hide drag instruction after 5 seconds
+                setTimeout(() => {
+                    const dragInstruction = document.getElementById('drag-instruction');
+                    if (dragInstruction) {
+                        dragInstruction.classList.add('fade');
+                        setTimeout(() => {
+                            dragInstruction.style.display = 'none';
+                        }, 2000);
+                    }
+                }, 5000);
+                
+                
+            } catch (error) {
+                console.error("Error initializing application:", error);
+            }
+        }
+
+        // Create text boxes for States mode with alternating above/below pattern and 4-level cycling
+        function createTextBoxes() {
+            if (!isStatesMode) return;
+            
+            // Clear existing text boxes
+            document.querySelectorAll('.textBox').forEach(box => {
+                if (box && box.parentNode) box.parentNode.removeChild(box);
+            });
+            textBoxElements = [];
+            
+            // Create 10 text boxes with alternating above/below pattern
+            for (let i = 0; i < conceptData.length; i++) {
+                const x = conceptData[i][4]; // X position from data
+                let textAnchor = "middle";
+                let y = 18.9; // Default above the line
+                
+                // Adjust text anchor for edge positions
+                if (i === 0) textAnchor = "start";  // Left end
+                if (i === conceptData.length - 1) textAnchor = "end";  // Right end
+                
+                // Alternating pattern: odd indices (1,3,5,7,9) go below the line
+                if (i % 2 === 1) {
+                    y = 33.6; // Below the line
+                }
+                
+                const textBox = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                textBox.setAttribute("class", "textBox");
+                textBox.setAttribute("x", x);
+                textBox.setAttribute("y", y);
+                textBox.setAttribute("text-anchor", textAnchor);
+                textBox.setAttribute("data-index", i);
+                
+                // Set initial text based on current layer (starts with TLR)
+                textBox.textContent = conceptData[i][currentTextLayer[i]];
+                
+                if (statesLearnedItems[i]) textBox.classList.add('learned');
+                
+                // Add click event listener with 4-level cycling
+                textBox.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const index = parseInt(this.getAttribute('data-index'));
+                    
+                    if (statesLearnedItems[index]) {
+                        // Cycle between TLR, TL, and SL for learned items
+                        if (currentTextLayer[index] === 0) {
+                            currentTextLayer[index] = 1; // TLR -> TL
+                            this.textContent = conceptData[index][1];
+                        } else if (currentTextLayer[index] === 1) {
+                            currentTextLayer[index] = 2; // TL -> SL
+                            this.textContent = conceptData[index][2];
+                        } else {
+                            currentTextLayer[index] = 0; // SL -> TLR
+                            this.textContent = conceptData[index][0];
+                        }
+                    } else {
+                        // TLR -> TL -> SL -> Quiz cycle for unlearned items
+                        if (currentTextLayer[index] === 0) {
+                            currentTextLayer[index] = 1; // TLR -> TL
+                            this.textContent = conceptData[index][1];
+                        } else if (currentTextLayer[index] === 1) {
+                            currentTextLayer[index] = 2; // TL -> SL
+                            this.textContent = conceptData[index][2];
+                        } else if (currentTextLayer[index] === 2) {
+                            currentTextLayer[index] = 3; // SL -> Quiz
+                            showQuiz(index, this);
+                        } else {
+                            currentTextLayer[index] = 0; // Reset to TLR
+                            this.textContent = conceptData[index][0];
+                        }
+                    }
+                });
+                
+                svg.appendChild(textBox);
+                textBoxElements.push(textBox);
+            }
+            
+        }
+
+        function showQuiz(index, element) {
+            const currentData = isStatesMode ? conceptData : transitionsData;
+            
+            if (index < 0 || index >= currentData.length) {
+                console.error("Invalid quiz index:", index, "Max length:", currentData.length);
+                return;
+            }
+            
+            currentQuizIndex = index;
+            
+            // Generate dynamic quiz question with SL word - asking for TLR
+            const slWord = currentData[index][2];
+            quizInput.placeholder = `What is the TLR word for '${slWord}'?`;
+            quizInput.value = '';
+            quizFeedback.textContent = '';
+            
+            quizContainer.style.display = 'block';
+            quizContainer.style.visibility = 'visible';
+            quizContainer.style.opacity = '1';
+            quizContainer.style.zIndex = '9999';
+            
+            setTimeout(() => {
+                try {
+                    quizInput.focus();
+                } catch (e) {
+                    console.error("Error focusing quiz input:", e);
+                }
+            }, 100);
+        }
+
+        function addToVocabularyArray(index, isIncreasing) {
+            try {
+                const currentData = transitionsData;
+                const tlr = currentData[index][0]; // TLR (Romanized)
+                const tl = currentData[index][1]; // Target Language
+                const sl = currentData[index][2]; // Source Language
+                
+                const itemElement = document.createElement('div');
+                itemElement.className = 'vocabulary-item';
+                
+                const tlrSpan = document.createElement('span');
+                tlrSpan.className = 'tlr';
+                tlrSpan.textContent = tlr;
+                
+                const tlSpan = document.createElement('span');
+                tlSpan.className = 'tl';
+                tlSpan.textContent = tl;
+                
+                const slSpan = document.createElement('span');
+                slSpan.className = 'sl';
+                slSpan.textContent = sl;
+                
+                tlrSpan.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.classList.toggle('hidden');
+                });
+                
+                tlSpan.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.classList.toggle('hidden');
+                });
+                
+                slSpan.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.classList.toggle('hidden');
+                });
+                
+                itemElement.appendChild(tlrSpan);
+                itemElement.appendChild(tlSpan);
+                itemElement.appendChild(slSpan);
+                
+                if (isIncreasing) {
+                    increasingItems.appendChild(itemElement);
+                    addedIncreasingItems[index] = true;
+                } else {
+                    decreasingItems.appendChild(itemElement);
+                    addedDecreasingItems[index] = true;
+                }
+                
+            } catch (error) {
+                console.error("Error adding vocabulary item:", error);
+            }
+        }
+
+        function checkQuizAnswer() {
+            if (currentQuizIndex < 0) {
+                console.error("No valid quiz index");
+                return;
+            }
+            
+            const currentData = isStatesMode ? conceptData : transitionsData;
+            const userAnswer = quizInput.value.trim().toLowerCase();
+            const correctAnswer = currentData[currentQuizIndex][0].toLowerCase(); // TLR is correct answer
+            
+            if (userAnswer === correctAnswer) {
+                quizFeedback.textContent = 'Correct!';
+                quizFeedback.style.color = 'green';
+                
+                if (isStatesMode) {
+                    statesLearnedItems[currentQuizIndex] = true;
+                    const textBox = textBoxElements[currentQuizIndex];
+                    if (textBox) {
+                        textBox.classList.add('learned');
+                        textBox.textContent = currentData[currentQuizIndex][0]; // Show TLR
+                        currentTextLayer[currentQuizIndex] = 0; // Set to TLR
+                    }
+                } else {
+                    // Handle transitions mode - RESET TO TLR MODE AND ADD TO ARRAYS
+                    transitionsLearnedItems[currentQuizIndex] = true;
+                    slidingTextMode = 0; // Reset to TLR
+                    
+                    const targetTextElement = document.getElementById(`interactiveText`);
+                    
+                    if (targetTextElement) {
+                        targetTextElement.classList.add('learned');
+                        
+                        // Update the text content to show TLR
+                        const textPath = document.getElementById("slidingText");
+                        if (textPath) {
+                            textPath.textContent = currentData[currentQuizIndex][0]; // TLR
+                        }
+                    }
+                    
+                    // ADD TO VOCABULARY ARRAYS
+                    const position = startPercent;
+                    
+                    if (position < 46.5 && !addedIncreasingItems[currentQuizIndex]) {
+                        addToVocabularyArray(currentQuizIndex, true);
+                    } else if (position >= 46.5 && !addedDecreasingItems[currentQuizIndex]) {
+                        addToVocabularyArray(currentQuizIndex, false);
+                    }
+                    
+                    updateLevelIndicator();
+                    updateTextBasedOnPosition(startPercent);
+                }
+                
+                setTimeout(() => { 
+                    quizContainer.style.display = 'none'; 
+                    currentQuizIndex = -1;
+                }, 1500);
+            } else {
+                quizFeedback.textContent = 'Try again';
+                quizFeedback.style.color = 'red';
+            }
+        }
+
+        function updateVisibleTextBoxes(point) {
+            if (!isStatesMode) return -1;
+            
+            let closestIndex = -1;
+            let minDistance = Infinity;
+            
+            // Find closest text box
+            textBoxElements.forEach((textBox, index) => {
+                if (!textBox) return;
+                
+                const x = parseFloat(textBox.getAttribute('x'));
+                const y = parseFloat(textBox.getAttribute('y'));
+                
+                const distance = Math.sqrt(Math.pow(point.x - x, 2) + Math.pow(point.y - y, 2));
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestIndex = index;
+                }
+            });
+            
+            // Update visibility
+            textBoxElements.forEach((textBox, index) => {
+                if (!textBox) return;
+                
+                if (index === closestIndex && minDistance < activationDistance) {
+                    textBox.classList.add('active');
+                } else if (statesLearnedItems[index]) {
+                    textBox.classList.remove('active');
+                    textBox.classList.add('learned');
+                } else {
+                    textBox.classList.remove('active', 'learned');
+                }
+            });
+            
+            if (closestIndex !== -1 && minDistance < activationDistance && conceptData[closestIndex]) {
+                conceptIndicator.textContent = conceptData[closestIndex][2]; // Show SL in indicator
+            }
+            
+            return closestIndex;
+        }
+
+        function initializeFramePosition() {
+            // Start at the beginning of the line
+            const x = 0; // Start position (left edge of line)
+            const y = 25; // Line Y position
+            const frameWidth = parseFloat(frame.getAttribute('width'));
+            const frameHeight = parseFloat(frame.getAttribute('height'));
+            
+            frame.setAttribute('x', x - frameWidth/2);
+            frame.setAttribute('y', y - frameHeight/2);
+            
+            const startPoint = { x: x, y: y };
+            updateVisibleTextBoxes(startPoint);
+            conceptIndicator.textContent = conceptData[0][2]; // Show SL
+        }
+
+        // Frame dragging functionality
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        function startDrag(e) {
+            if (!isStatesMode) return;
+            isDragging = true;
+            frame.classList.add('dragging');
+            
+            const point = getEventPoint(e);
+            offsetX = point.x - parseFloat(frame.getAttribute("x"));
+            offsetY = point.y - parseFloat(frame.getAttribute("y"));
+            
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function dragMove(e) {
+            if (!isDragging || !isStatesMode) return;
+            
+            const point = getEventPoint(e);
+            let newX = point.x - offsetX;
+            
+            // Constrain to horizontal line bounds (accounting for frame width)
+            const minX = -5; // Left boundary
+            const maxX = 155; // Right boundary
+            newX = Math.max(minX, Math.min(maxX, newX));
+            
+            const frameWidth = parseFloat(frame.getAttribute('width'));
+            const frameHeight = parseFloat(frame.getAttribute('height'));
+            const lineY = 25;
+            
+            frame.setAttribute("x", newX);
+            frame.setAttribute("y", lineY - frameHeight/2);
+
+            // Create point for checking closest textbox
+            const centerPoint = { x: newX + frameWidth/2, y: lineY };
+            updateVisibleTextBoxes(centerPoint);
+            
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function endDrag(e) {
+            if (isDragging) {
+                isDragging = false;
+                frame.classList.remove('dragging');
+                
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+        }
+
+        function getEventPoint(event) {
+            const isTouchEvent = event.type.includes('touch');
+            const point = svg.createSVGPoint();
+            const clientX = isTouchEvent ? event.touches[0].clientX : event.clientX;
+            const clientY = isTouchEvent ? event.touches[0].clientY : event.clientY;
+            point.x = clientX;
+            point.y = clientY;
+            return point.matrixTransform(svg.getScreenCTM().inverse());
+        }
+
+        function toggleMode() {
+            isStatesMode = !isStatesMode;
+
+            // Reset to TLR default on mode switch — otherwise a learner who
+            // had cycled to SL/TL in the old mode lands on the same index
+            // in the new mode instead of starting fresh at TLR.
+            currentTextIndex = 0;
+            
+            if (isStatesMode) {
+                // Switch to States mode
+                frame.style.display = 'block';
+                
+                // Hide the single sliding text element
+                if (interactiveText) {
+                    interactiveText.style.display = 'none';
+                }
+                
+                titleBox.textContent = titleTexts.states[currentTextIndex];
+                levelIndicator.style.display = 'none';
+                
+                createTextBoxes();
+                initializeFramePosition();
+                
+                increasingArray.style.display = 'none';
+                decreasingArray.style.display = 'none';
+            } else {
+                // Switch to Transitions mode
+                frame.style.display = 'none';
+                
+                // Show the single sliding text element
+                if (interactiveText) {
+                    interactiveText.style.display = 'block';
+                }
+                
+                titleBox.textContent = titleTexts.transitions[currentTextIndex];
+                slidingTextMode = 0; // Start with TLR
+                updateLevelIndicator();
+                
+                // Remove text boxes
+                document.querySelectorAll('.textBox').forEach(box => {
+                    if (box && box.parentNode) box.parentNode.removeChild(box);
+                });
+                textBoxElements = [];
+                
+                // Initialize sliding text position to start of line (0%)
+                startPercent = 0;
+                updateTextPosition(startPercent);
+                
+                increasingArray.style.display = 'block';
+                decreasingArray.style.display = 'block';
+            }
+            
+            quizContainer.style.display = 'none';
+        }
+
+        function switchTitleText() {
+            titleBox.classList.add('hidden');
+            setTimeout(() => {
+                currentTextIndex = (currentTextIndex + 1) % 3;
+                const modeKey = isStatesMode ? 'states' : 'transitions';
+                titleBox.textContent = titleTexts[modeKey][currentTextIndex];
+                titleBox.classList.remove('hidden');
+            }, 500);
+        }
+
+        function toggleArrayVisibility(arrayType) {
+            try {
+                const container = document.getElementById(arrayType + "-items");
+                const button = document.getElementById("toggle-" + arrayType);
+                if (!container || !button) {
+                    console.error("Container or button not found for " + arrayType);
+                    return;
+                }
+                
+                const spans = container.querySelectorAll('.vocabulary-item .tlr, .vocabulary-item .tl, .vocabulary-item .sl');
+                
+                let visibleCount = 0;
+                spans.forEach(span => {
+                    if (!span.classList.contains('hidden')) {
+                        visibleCount++;
+                    }
+                });
+                
+                const mostlyVisible = visibleCount > spans.length / 2;
+                
+                spans.forEach(span => {
+                    if (mostlyVisible) {
+                        span.classList.add('hidden');
+                    } else {
+                        span.classList.remove('hidden');
+                    }
+                });
+                
+                button.textContent = mostlyVisible ? 'Show All' : 'Hide All';
+            } catch (error) {
+                console.error("Error in toggleArrayVisibility:", error);
+            }
+        }
+
+        function setupEventListeners() {
+            // Frame dragging events
+            frame.addEventListener('mousedown', startDrag);
+            frame.addEventListener('touchstart', startDrag, { passive: false });
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('touchmove', dragMove, { passive: false });
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+            
+            // UI events
+            titleBox.addEventListener('click', switchTitleText);
+            modeToggleBtn.addEventListener('click', toggleMode);
+            quizCheck.addEventListener('click', checkQuizAnswer);
+            quizInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') checkQuizAnswer();
+            });
+            
+            // TRANSITIONS MODE EVENT SETUP
+            // Mouse events
+            interactiveText.addEventListener("mousedown", startTextDrag);
+            document.addEventListener("mousemove", dragText);
+            document.addEventListener("mouseup", endTextDrag);
+            
+            // Click event with proper delay to allow drag detection
+            interactiveText.addEventListener("click", function(e) {
+                setTimeout(() => {
+                    toggleTextFormat(e);
+                }, 10);
+            });
+            
+            // Touch events
+            interactiveText.addEventListener("touchstart", startTextDrag, { passive: false });
+            document.addEventListener("touchmove", dragText, { passive: false });
+            document.addEventListener("touchend", endTextDrag);
+            
+            // Touch end event with proper delay
+            interactiveText.addEventListener("touchend", function(e) {
+                setTimeout(() => {
+                    if (!hasMovedDuringDrag && !isStatesMode) {
+                        toggleTextFormat(e);
+                    }
+                }, 10);
+            });
+            
+            // Tools menu setup
+            const toolsButton = document.querySelector('.tools-button');
+            const toolsDropdown = document.querySelector('.tools-dropdown');
+            const loadConceptBtn = document.getElementById("loadConcept");
+            const startQuizBtn = document.getElementById("startQuiz");
+            const toggleArraysBtn = document.getElementById("toggleArrays");
+            
+            let dropdownOpen = false;
+            
+            if (toolsButton) {
+                toolsButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownOpen = !dropdownOpen;
+                    toolsDropdown.classList.toggle('active', dropdownOpen);
+                });
+            }
+            
+            document.addEventListener('click', function(e) {
+                if (toolsButton && toolsDropdown && 
+                    !toolsButton.contains(e.target) && !toolsDropdown.contains(e.target)) {
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                }
+            });
+            
+            if (loadConceptBtn) {
+                loadConceptBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                    alert("Load Concept feature will integrate with API to fetch vocabulary for language concepts.");
+                });
+            }
+            
+            if (startQuizBtn) {
+                startQuizBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                    
+                    const currentData = isStatesMode ? conceptData : transitionsData;
+                    const randomIndex = Math.floor(Math.random() * currentData.length);
+                    showQuiz(randomIndex, null);
+                });
+            }
+            
+            if (toggleArraysBtn) {
+                toggleArraysBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                    
+                    const visibility = increasingArray.style.display === 'none' || increasingArray.style.display === '';
+                    increasingArray.style.display = visibility ? 'block' : 'none';
+                    decreasingArray.style.display = visibility ? 'block' : 'none';
+                });
+            }
+            
+            if (toggleIncreasingBtn) {
+                toggleIncreasingBtn.addEventListener('click', function() {
+                    toggleArrayVisibility('increasing');
+                });
+            }
+            
+            if (toggleDecreasingBtn) {
+                toggleDecreasingBtn.addEventListener('click', function() {
+                    toggleArrayVisibility('decreasing');
+                });
+            }
+            
+            // Document click handler for closing quizzes
+            document.addEventListener('click', function(e) {
+                if (quizContainer.style.display !== 'none' && 
+                    !quizContainer.contains(e.target) &&
+                    !e.target.classList.contains('textBox') &&
+                    !e.target.classList.contains('sliding-text')) {
+                    
+                    quizContainer.style.display = 'none';
+                    currentQuizIndex = -1;
+                    
+                    // Reset to TLR mode if quiz was open
+                    if (!isStatesMode && slidingTextMode === 3) {
+                        slidingTextMode = 0; // Reset to TLR
+                        updateLevelIndicator();
+                        updateTextBasedOnPosition(startPercent);
+                    }
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>

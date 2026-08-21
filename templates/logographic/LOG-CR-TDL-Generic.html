@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOG-CR-TDL Generic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0; padding: 0;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; background-color: #f9f9f9; overflow: hidden;
+        }
+        .a4-page {
+            width: 90vw; height: 70vh;
+            border: 5px solid black; background-color: white;
+            box-sizing: border-box; position: relative;
+            touch-action: none; z-index: 1; overflow: hidden;
+        }
+        .watermark {
+            position: absolute; bottom: 5px; width: 100%;
+            text-align: center; font-size: 12px;
+            color: rgba(0,0,0,0.3); font-weight: bold;
+            pointer-events: none; user-select: none; z-index: 0;
+        }
+        svg { width: 100%; height: 100%; overflow: visible; }
+        .circle-path { stroke: #2c5aa0; stroke-width: 0.5; fill: none; }
+        .tide-segment { stroke: #ddd; stroke-width: 0.3; transition: fill 0.3s ease; }
+        .segment-highlighted { stroke: #4682B4; stroke-width: 1px; filter: brightness(1.1); }
+        .segment-label {
+            font-size: 2.8px; font-weight: bold; fill: #333;
+            text-anchor: middle; dominant-baseline: central;
+            pointer-events: none; font-family: Arial, sans-serif;
+        }
+        .high-tide-segment  { fill: none; }
+        .outgoing-segment   { fill: url(#tidalHeightGradient); }
+        .low-tide-segment   { fill: none; }
+        .incoming-segment   { fill: url(#tidalHeightGradient); }
+        .textBox {
+            cursor: pointer; font-size: 0.8em; fill: black;
+            opacity: 0; display: none;
+            transition: opacity 0.5s ease-in-out;
+            text-anchor: middle; font-family: Arial, sans-serif;
+            /* transform: scale(...) removed 2026-07-20 as a diagnostic
+               test — even transform:scale(1), which is mathematically a
+               no-op, can change how a browser establishes a foreignObject
+               element's coordinate context, a known area of cross-browser
+               inconsistency. Testing whether removing it entirely
+               resolves a persistent, unexplained rendering offset. */
+        }
+        .textBox.active  { opacity: 1; display: block; }
+        .textBox.learned { opacity: 0.5; display: block; fill: green; }
+        .textBox.learned.active { opacity: 1; }
+        .textBox.hidden  { opacity: 0; display: none; }
+        #draggableFrame {
+            cursor: grab; fill: url(#moonGradient);
+            pointer-events: all; opacity: 1; transition: opacity 0.15s ease; z-index: 1000;
+        }
+        #draggableFrame.dragging { cursor: grabbing; opacity: 0.2; }
+        .title-box {
+            position: absolute; top: 2%; left: 75%; transform: translateX(-50%);
+            font-size: 1em; font-weight: bold; text-align: center;
+            cursor: pointer; border: 1px solid black; padding: 10px;
+            background-color: white; z-index: 2;
+            transition: opacity 0.5s ease, transform 0.5s ease; font-family: Arial, sans-serif;
+        }
+        .title-box.hidden { opacity: 0; transform: translateX(-50%) scale(0.9); }
+        .mode-toggle {
+            position: absolute; bottom: 30px; left: 75%; transform: translateX(-50%);
+            font-size: 0.8em; padding: 8px 16px;
+            background-color: #f0f0f0; border: 1px solid #ccc;
+            border-radius: 4px; cursor: pointer; z-index: 3;
+        }
+        .drag-instruction {
+            position: absolute; top: 60px; right: 10px;
+            font-size: 0.9em; padding: 5px 10px;
+            background-color: rgba(255,255,255,0.9); border: 1px solid #ccc;
+            border-radius: 4px; z-index: 3; opacity: 1;
+            transition: opacity 3s ease; max-width: 200px;
+        }
+        .drag-instruction.fade { opacity: 0; }
+        .quiz-container {
+            position: fixed; top: 40%; left: 75%;
+            transform: translate(-50%,-50%);
+            background-color: white; border: 3px solid #3366cc;
+            border-radius: 4px; padding: 12px; z-index: 9999;
+            display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            max-width: 360px; width: 360px;
+            pointer-events: auto; visibility: visible; opacity: 1;
+        }
+        .quiz-container input {
+            width: 100%; padding: 8px; font-size: 14px;
+            border: 1px solid #ccc; border-radius: 4px;
+            margin-bottom: 10px; font-family: Arial, sans-serif;
+        }
+        .quiz-container button {
+            width: 100%; padding: 8px; background-color: #3366cc;
+            color: white; border: none; border-radius: 4px;
+            cursor: pointer; font-weight: bold;
+        }
+        .quiz-container button:hover { background-color: #254e9c; }
+        #quizFeedback { text-align: center; font-weight: bold; margin-top: 8px; min-height: 20px; }
+        .learned-vocabulary {
+            position: absolute; top: 2%; left: 5px;
+            width: 25%; max-height: 40vh; overflow-y: auto;
+            background-color: rgba(255,255,255,0.9); border: 1px solid #ccc;
+            border-radius: 4px; padding: 5px; z-index: 4; display: block;
+        }
+        .array-title {
+            font-size: 0.9em; text-align: center; font-weight: bold;
+            margin-bottom: 5px; padding: 3px;
+            background-color: #f0f0f0; border-bottom: 1px solid #ccc;
+        }
+        .vocabulary-item {
+            display: flex; flex-direction: column; font-size: 0.75em;
+            margin: 3px 0; padding: 5px; border: 1px solid #ddd;
+            border-radius: 3px; background-color: #f9f9f9;
+            transition: background-color 0.3s ease;
+        }
+        .vocabulary-item:hover { background-color: #eaf2ff; }
+        .vocabulary-item .tl-word {
+            font-weight: bold; color: green; cursor: pointer;
+            padding: 2px 5px; border-radius: 3px; font-family: Arial, sans-serif;
+        }
+        .vocabulary-item .sl-word {
+            color: #555; cursor: pointer; padding: 2px 5px; border-radius: 3px;
+        }
+        .vocabulary-item .tl-word.hidden,
+        .vocabulary-item .sl-word.hidden {
+            color: transparent; user-select: none; background-color: #f0f0f0;
+        }
+        .toggle-visibility {
+            position: absolute; top: 5px; right: 5px; font-size: 0.7em;
+            padding: 2px 5px; background-color: #eee; border: 1px solid #ccc;
+            border-radius: 3px; cursor: pointer; z-index: 5;
+        }
+        .time-marker {
+            font-size: 2.5px; fill: #2c5aa0; font-weight: bold;
+            text-anchor: middle; pointer-events: none;
+        }
+        .tidal-icon { opacity: 0.2; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div class="a4-page">
+        <div id="title-box" class="title-box">TITLE_PLACEHOLDER</div>
+        <div id="drag-instruction" class="drag-instruction">DRAG_INSTRUCTION_PLACEHOLDER</div>
+
+        <div id="learned-vocabulary" class="learned-vocabulary">
+            <div class="array-title" id="array-title">ARRAY_TITLE_PLACEHOLDER</div>
+            <button class="toggle-visibility" id="toggle-learned">HIDE_ALL_LABEL</button>
+            <div id="learned-items"></div>
+        </div>
+
+        <svg id="svgCanvas" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+            <defs>
+                <radialGradient id="waveGradient" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%"   style="stop-color:#87CEEB;stop-opacity:1"/>
+                    <stop offset="60%"  style="stop-color:#4682B4;stop-opacity:1"/>
+                    <stop offset="100%" style="stop-color:#1E90FF;stop-opacity:1"/>
+                </radialGradient>
+                <!-- Moon gradient for the draggableFrame — colors sampled
+                     directly from Alan's reference photo (Moon.jpg) by
+                     sampling actual pixel brightness across the disc
+                     (15th to 98th percentile, excluding the black night-
+                     sky background), giving the real warm gold/bronze
+                     tones of that photo rather than an estimated palette.
+                     Radial, brightest near center fading to the darker
+                     tone at the edge, similar to the limb-darkening
+                     treatment used for the Sun gradient elsewhere in this
+                     project. Added 2026-07-19 per Alan's request. -->
+                <radialGradient id="moonGradient" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%"   style="stop-color:#f5b55b;stop-opacity:1"/>
+                    <stop offset="40%"  style="stop-color:#e2a24a;stop-opacity:1"/>
+                    <stop offset="70%"  style="stop-color:#b87830;stop-opacity:1"/>
+                    <stop offset="100%" style="stop-color:#a36a1d;stop-opacity:1"/>
+                </radialGradient>
+                <!-- Tidal height gradient: deepest blue at the top (full/
+                     high tide) fading to lighter blue at the bottom (low
+                     tide). Linear, not radial — the color should depend
+                     on vertical position (tidal height) alone, not
+                     distance from center, and applies the same way to
+                     both the outgoing and incoming halves since it's
+                     tracking tide height, not direction of flow.
+                     Colors sampled directly from Alan's reference image
+                     (BlueSeaGradients.png, 5 bands), reversed so the
+                     darkest sits at the top per his request.
+                     Added 2026-07-19 per Alan's request. -->
+                <linearGradient id="tidalHeightGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%"   style="stop-color:#003399;stop-opacity:0.85"/>
+                    <stop offset="25%"  style="stop-color:#0b58b3;stop-opacity:0.78"/>
+                    <stop offset="50%"  style="stop-color:#2299dd;stop-opacity:0.70"/>
+                    <stop offset="75%"  style="stop-color:#33ccee;stop-opacity:0.62"/>
+                    <stop offset="100%" style="stop-color:#6bf3fc;stop-opacity:0.55"/>
+                </linearGradient>
+            </defs>
+
+            <circle id="circlePath" cx="50" cy="50" r="30" class="circle-path"/>
+
+            <!-- Tide segments -->
+            <path id="high-tide-segment"  class="tide-segment high-tide-segment"/>
+            <path id="outgoing-segment"   class="tide-segment outgoing-segment"/>
+            <path id="low-tide-segment"   class="tide-segment low-tide-segment"/>
+            <path id="incoming-segment"   class="tide-segment incoming-segment"/>
+
+            <!-- Time markers -->
+            <text class="time-marker" x="50" y="17">0h</text>
+            <text class="time-marker" x="62" y="23">1h</text>
+            <text class="time-marker" x="71" y="32">2h</text>
+            <text class="time-marker" x="77" y="44">3h</text>
+            <text class="time-marker" x="77" y="56">4h</text>
+            <text class="time-marker" x="71" y="68">5h</text>
+            <text class="time-marker" x="62" y="77">6h</text>
+            <text class="time-marker" x="50" y="83">6h 12m</text>
+            <text class="time-marker" x="38" y="77">7h</text>
+            <text class="time-marker" x="29" y="68">8h</text>
+            <text class="time-marker" x="23" y="56">9h</text>
+            <text class="time-marker" x="23" y="44">10h</text>
+            <text class="time-marker" x="29" y="32">11h</text>
+            <text class="time-marker" x="38" y="23">12h</text>
+
+            <!-- Central tidal icons -->
+            <g id="tidal-decorations" class="tidal-icon">
+                <path id="wave1" d="M 42 48 Q 44 46 46 48 Q 48 50 50 48 Q 52 46 54 48 Q 56 50 58 48"
+                      stroke="#1E90FF" stroke-width="0.5" fill="none" opacity="0"/>
+                <path id="wave2" d="M 42 52 Q 44 50 46 52 Q 48 54 50 52 Q 52 50 54 52 Q 56 54 58 52"
+                      stroke="#1E90FF" stroke-width="0.5" fill="none" opacity="0"/>
+                <line id="low-line" x1="44" y1="50" x2="56" y2="50"
+                      stroke="#87CEEB" stroke-width="0.5" opacity="0"/>
+            </g>
+
+            <!-- Phase labels — populated from LANG config at runtime -->
+            <text id="label-high"     class="segment-label" x="50" y="27"></text>
+            <text id="label-outgoing" class="segment-label" x="68" y="50"></text>
+            <text id="label-low"      class="segment-label" x="50" y="73"></text>
+            <text id="label-incoming" class="segment-label" x="32" y="50"></text>
+
+            <circle id="draggableFrame" cx="50" cy="20" r="4"/>
+        </svg>
+
+        <button id="modeToggle" class="mode-toggle">STATES_MODE_LABEL</button>
+
+        <div class="watermark">&copy; 2026 Alan William Preston</div>
+    </div>
+
+    <div id="quizContainer" class="quiz-container">
+        <input type="text" id="quizInput" placeholder="QUIZ_PLACEHOLDER">
+        <button id="quizCheck">QUIZ_BUTTON_LABEL</button>
+        <div id="quizFeedback"></div>
+    <div id="quizDiacriticNote" style="font-size:10px;color:#888;text-align:center;margin-top:6px;padding-top:6px;border-top:1px solid #eee;"></div>
+    </div>
+
+    <script>
+
+    // =====================================================================
+    // =====================================================================
+// LOGOGRAPHIC VARIANT — 4-level cycle: TLR (default) → TL → SL → Quiz
+// Quiz tests TLR (romanized) reproduction with diacritic normalization.
+// =====================================================================
+// LANGUAGE CONFIGURATION BLOCK
+    // To create a new language pair, replace ALL values in this section.
+    // SL = Source Language  |  TL = Target Language (language being learned)
+    // Do NOT change anything outside this block.
+    // =====================================================================
+    const LANG = {
+
+        // --- Title cycle (click title box to cycle) ----------------------
+        titles: [
+        "LOG-CR-TDL Generic",
+        "TLR_TITLE",
+        "TL_TITLE",
+        "SL_TITLE"
+    ],
+
+        // --- UI strings --------------------------------------------------
+        drag_instruction:   "DRAG_INSTRUCTION",   // e.g. "Drag the wave marker to explore!"
+        array_title:        "ARRAY_TITLE",         // e.g. "Learned Vocabulary"
+        hide_all_label:     "HIDE_ALL_LABEL",      // e.g. "Hide All"
+        show_all_label:     "SHOW_ALL_LABEL",      // e.g. "Show All"
+        states_mode_label:  "STATES_MODE_LABEL",   // e.g. "Switch to Transitions Mode"
+        trans_mode_label:   "TRANS_MODE_LABEL",    // e.g. "Switch to States Mode"
+        quiz_placeholder:   "QUIZ_PLACEHOLDER",    // e.g. "Enter the [TL] phrase"
+        quiz_button:        "QUIZ_BUTTON_LABEL",   // e.g. "Check"
+        quiz_correct:       "QUIZ_CORRECT",        // e.g. "Correct! ✓"
+        quiz_wrong:         "QUIZ_WRONG",          // e.g. "Try again"
+    // --- Diacritic / romanization normalization --------------------------
+    // Shown near the quiz input so learners know they can type plain vowels.
+    diacritic_instructions: "DIACRITIC_INSTRUCTIONS",
+    // e.g. "Tip: macrons (ā→a, ō→o) may be typed as plain vowels."
+    diacritic_map: [
+        // ["ā","a"], ["ī","i"], ["ū","u"], ["ē","e"], ["ō","o"]
+    ],
+    collapse_double_vowels: false,
+
+        // --- Phase labels (shown on the four quadrants of the dial) ------
+        phase_high:     "PHASE_HIGH",      // e.g. "HIGH TIDE"
+        phase_outgoing: "PHASE_OUTGOING",  // e.g. "OUTGOING"
+        phase_low:      "PHASE_LOW",       // e.g. "LOW TIDE"
+        phase_incoming: "PHASE_INCOMING",  // e.g. "INCOMING"
+
+        // --- States mode vocabulary (12 items) ---------------------------
+        // Format: [ SL phrase, TL phrase, Quiz question, angle (0–360°) ]
+        // Angle 0° = top of circle (high tide peak); increases clockwise.
+        statesData: [
+            ["SL-S1", "TL-S1", "TLR-S1", "QUIZ-S1",  0  ],
+            ["SL-S2", "TL-S2", "TLR-S2", "QUIZ-S2",  30 ],
+            ["SL-S3", "TL-S3", "TLR-S3", "QUIZ-S3",  60 ],
+            ["SL-S4", "TL-S4", "TLR-S4", "QUIZ-S4",  90 ],
+            ["SL-S5", "TL-S5", "TLR-S5", "QUIZ-S5",  120],
+            ["SL-S6", "TL-S6", "TLR-S6", "QUIZ-S6",  150],
+            ["SL-S7", "TL-S7", "TLR-S7", "QUIZ-S7",  180],
+            ["SL-S8", "TL-S8", "TLR-S8", "QUIZ-S8",  210],
+            ["SL-S9", "TL-S9", "TLR-S9", "QUIZ-S9",  225],
+            ["SL-S10", "TL-S10", "TLR-S10", "QUIZ-S10", 240],
+            ["SL-S11", "TL-S11", "TLR-S11", "QUIZ-S11", 270],
+            ["SL-S12", "TL-S12", "TLR-S12", "QUIZ-S12", 330]
+        ],
+
+        // --- Transitions mode vocabulary (12 items) ----------------------
+        // Format: [ SL phrase, TL phrase, Quiz question, angle (0–360°) ]
+        transitionsData: [
+            ["SL-T1", "TL-T1", "TLR-T1", "QUIZ-T1",  90 ],
+            ["SL-T2", "TL-T2", "TLR-T2", "QUIZ-T2",  105],
+            ["SL-T3", "TL-T3", "TLR-T3", "QUIZ-T3",  120],
+            ["SL-T4", "TL-T4", "TLR-T4", "QUIZ-T4",  135],
+            ["SL-T5", "TL-T5", "TLR-T5", "QUIZ-T5",  165],
+            ["SL-T6", "TL-T6", "TLR-T6", "QUIZ-T6",  180],
+            ["SL-T7", "TL-T7", "TLR-T7", "QUIZ-T7",  195],
+            ["SL-T8", "TL-T8", "TLR-T8", "QUIZ-T8",  225],
+            ["SL-T9", "TL-T9", "TLR-T9", "QUIZ-T9",  240],
+            ["SL-T10", "TL-T10", "TLR-T10", "QUIZ-T10", 270],
+            ["SL-T11", "TL-T11", "TLR-T11", "QUIZ-T11", 315],
+            ["SL-T12", "TL-T12", "TLR-T12", "QUIZ-T12", 345]
+        ]
+    };
+    // =====================================================================
+    // END OF LANGUAGE CONFIGURATION BLOCK
+
+// --- Answer normalization (diacritic-tolerant for TLR quiz answers) ---
+const AnswerUtils = {
+    normalize: function(text) {
+        let t = text.toLowerCase();
+        LANG.diacritic_map.forEach(([accented, plain]) => {
+            t = t.split(accented).join(plain);
+        });
+        if (LANG.collapse_double_vowels) {
+            t = t.replace(/aa/g,'a').replace(/ee/g,'e').replace(/ii/g,'i')
+                 .replace(/oo/g,'o').replace(/uu/g,'u');
+        }
+        return t.replace(/\s+/g,' ').trim().toLowerCase();
+    },
+    checkAnswer: function(userInput, correct) {
+        return this.normalize(userInput) === this.normalize(correct);
+    }
+};
+
+    // No language-specific content appears below this line.
+    // =====================================================================
+
+
+    // --- Apply UI strings from config ------------------------------------
+    document.getElementById('title-box').textContent        = LANG.titles[0];
+    document.getElementById('drag-instruction').textContent = LANG.drag_instruction;
+    document.getElementById('array-title').textContent      = LANG.array_title;
+    document.getElementById('toggle-learned').textContent   = LANG.hide_all_label;
+    document.getElementById('modeToggle').textContent       = LANG.states_mode_label;
+    document.getElementById('quizInput').placeholder        = LANG.quiz_placeholder;
+    document.getElementById('quizCheck').textContent        = LANG.quiz_button;
+    const _dNote = document.getElementById('quizDiacriticNote');
+    if (_dNote) _dNote.textContent = LANG.diacritic_instructions;
+    document.getElementById('label-high').textContent       = LANG.phase_high;
+    document.getElementById('label-outgoing').textContent   = LANG.phase_outgoing;
+    document.getElementById('label-low').textContent        = LANG.phase_low;
+    document.getElementById('label-incoming').textContent   = LANG.phase_incoming;
+
+    // --- Runtime state --------------------------------------------------
+    let isStatesMode    = true;
+    let currentQuizIndex = -1;
+    let learnedItemsStates      = new Array(LANG.statesData.length).fill(false);
+    let learnedItemsTransitions = new Array(LANG.transitionsData.length).fill(false);
+
+    // Textbox radius, per Alan's request 2026-07-19: each item sits along
+    // its own radial line (through its hour-marker angle) at a point 25%
+    // of the circle's own radius (30) beyond the circumference — i.e.
+    // radius = 30 * 1.25 = 37.5 for every item, uniformly. This replaces
+    // the per-item positionOverrides approach entirely — after several
+    // rounds where custom coordinates weren't rendering as expected
+    // despite repeated verification, Alan asked to go back to a single
+    // regular formula tied directly to each hour marker's own angle,
+    // rather than individually-specified positions.
+    const textBoxRadius = 30 * 1.25;
+    const positionOverrides = {
+        8:  { x: 18, y: 70 }, // S9  (was ~46.1,87.3) — moved per Alan's
+                              // 2026-07-21 request
+        9:  { x: 10, y: 50 }, // S10 — moved 2026-07-21 (was 10,40),
+                              // matching ROM-CR-TDL
+        10: { x: 20, y: 30 }  // S11 — moved 2026-07-21 (was 11,30),
+                              // matching ROM-CR-TDL
+        // S8 and S12 intentionally left at their formula positions
+        // (~31.3,82.5 and ~31.2,17.5) — Alan confirmed these are correct
+        // as-is.
+    };
+    let textBoxElements = [];
+    let currentPosition = 0;
+    let isDragging      = false;
+    let currentTextIndex = 0;
+    let closedIdx = -1;
+
+    // --- Vocabulary array panel -----------------------------------------
+    function toggleArrayVisibility() {
+        const container = document.getElementById('learned-items');
+        const button    = document.getElementById('toggle-learned');
+        if (!container || !button) return;
+        const spans = container.querySelectorAll('.vocabulary-item .tl-word, .vocabulary-item .sl-word');
+        let visibleCount = 0;
+        spans.forEach(s => { if (!s.classList.contains('hidden')) visibleCount++; });
+        const mostlyVisible = visibleCount > spans.length / 2;
+        spans.forEach(s => { s.classList.toggle('hidden', mostlyVisible); });
+        button.textContent = mostlyVisible ? LANG.show_all_label : LANG.hide_all_label;
+    }
+
+    function addToVocabularyArray(index, data) {
+        const tl = data[index][1];
+        const sl = data[index][0];
+        const item = document.createElement('div');
+        item.className = 'vocabulary-item';
+        const tlSpan = document.createElement('span');
+        tlSpan.className = 'tl-word';
+        tlSpan.textContent = tl;
+        const slSpan = document.createElement('span');
+        slSpan.className = 'sl-word';
+        slSpan.textContent = sl;
+        [tlSpan, slSpan].forEach(s => {
+            s.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('hidden');
+            });
+        });
+        item.appendChild(tlSpan);
+        item.appendChild(slSpan);
+        document.getElementById('learned-items').appendChild(item);
+    }
+
+    // --- SVG segment geometry -------------------------------------------
+    function createSegments() {
+        const c = { x: 50, y: 50 }, r = 30;
+        // Recalibrated 2026-07-19 to a semi-diurnal (~12.4h) 2-phase
+        // model per Alan: high tide and low tide are the two turning
+        // POINTS (top = 50,20 = hour 0/12.4; bottom = 50,80 = hour 6.2),
+        // not their own segments. Outgoing spans the full right half
+        // (top → right → bottom, hours 0–6.2); incoming spans the full
+        // left half (bottom → left → top, hours 6.2–12.4). The old
+        // 4-quadrant model (high/outgoing/low/incoming each getting a
+        // 90° quarter) is retired — high-tide-segment and low-tide-
+        // segment are left with no path (see below) so they render as
+        // nothing, while their labels remain as point-markers.
+        const halves = [
+            { id: 'outgoing-segment',   a1: -90, a2:  90 },
+            { id: 'incoming-segment',   a1:  90, a2: 270 }
+        ];
+        halves.forEach(q => {
+            const a1 = q.a1 * Math.PI / 180, a2 = q.a2 * Math.PI / 180;
+            const x1 = c.x + r * Math.cos(a1), y1 = c.y + r * Math.sin(a1);
+            const x2 = c.x + r * Math.cos(a2), y2 = c.y + r * Math.sin(a2);
+            document.getElementById(q.id).setAttribute('d',
+                `M ${c.x} ${c.y} L ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2} Z`);
+        });
+        // high-tide-segment / low-tide-segment intentionally left with no
+        // 'd' attribute — they no longer represent their own area.
+    }
+
+    function updateSegmentHighlight(angle) {
+        const a = ((angle % 360) + 360) % 360;
+        ['high-tide-segment','outgoing-segment','low-tide-segment','incoming-segment']
+            .forEach(id => document.getElementById(id).classList.remove('segment-highlighted'));
+        // Recalibrated 2026-07-19: only two real segments now (outgoing =
+        // 0–180, incoming = 180–360, in this data-angle convention where
+        // 0=top/12 o'clock, 180=bottom/6 o'clock). high-tide-segment and
+        // low-tide-segment are never highlighted as areas anymore — they
+        // have no rendered path — but the wave decoration still gets a
+        // "high"/"low" flourish within a narrow band near the actual
+        // turning points (top and bottom), so the visual richness of
+        // approaching/leaving full or low tide isn't lost.
+        const active = a < 180 ? 'outgoing-segment' : 'incoming-segment';
+        document.getElementById(active).classList.add('segment-highlighted');
+
+        const nearTop    = a <= 15 || a >= 345;
+        const nearBottom = a >= 165 && a <= 195;
+        const decoPhase  = nearTop ? 'high' : nearBottom ? 'low' : (a < 180 ? 'outgoing' : 'incoming');
+        updateTidalDecoration(decoPhase);
+    }
+
+    function updateTidalDecoration(phase) {
+        const w1 = document.getElementById('wave1');
+        const w2 = document.getElementById('wave2');
+        const ll = document.getElementById('low-line');
+        if (phase === 'high' || phase === 'incoming') {
+            w1.setAttribute('opacity','1'); w2.setAttribute('opacity','1');
+            ll.setAttribute('opacity','0');
+        } else if (phase === 'low') {
+            w1.setAttribute('opacity','0'); w2.setAttribute('opacity','0');
+            ll.setAttribute('opacity','1');
+        } else {
+            w1.setAttribute('opacity','0.5'); w2.setAttribute('opacity','0.5');
+            ll.setAttribute('opacity','0.5');
+        }
+    }
+
+    // --- Text boxes -----------------------------------------------------
+    function createTextBoxes() {
+        document.querySelectorAll('.textBox').forEach(b => b.parentNode && b.parentNode.removeChild(b));
+        textBoxElements = [];
+
+        const svg         = document.getElementById('svgCanvas');
+        const c           = { x: 50, y: 50 };
+        const currentData = isStatesMode ? LANG.statesData : LANG.transitionsData;
+        const learnedItems= isStatesMode ? learnedItemsStates : learnedItemsTransitions;
+
+        currentData.forEach((item, index) => {
+            const angle = (item[4] - 90) * Math.PI / 180;
+            let x = c.x + textBoxRadius * Math.cos(angle);
+            let y = c.y + textBoxRadius * Math.sin(angle);
+            if (positionOverrides[index]) {
+                if (positionOverrides[index].x !== undefined) x = positionOverrides[index].x;
+                if (positionOverrides[index].y !== undefined) y = positionOverrides[index].y;
+            }
+
+            const fo = document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+            fo.setAttribute('x', x - 30);
+            fo.setAttribute('y', y - 12);
+            fo.setAttribute('width',  '60');
+            fo.setAttribute('height', '24');
+            fo.setAttribute('class',  'textBox');
+            fo.setAttribute('data-index', index);
+            fo.style.pointerEvents = 'auto';
+            fo.style.zIndex = '500';
+
+            const div = document.createElement('div');
+            // ROOT CAUSE FOUND 2026-07-20: the div was never vertically
+            // centered within its foreignObject — only text-align:center
+            // (horizontal) was set. A plain <div> flows from the TOP of
+            // its container, so the text rendered near the box's top
+            // edge, not its true center — meaning it appeared roughly
+            // half the box height (12 units) away from where the
+            // position calculation actually placed it. For items above
+            // the circle's center this pushed the text even further
+            // away; for items below center it pulled the text toward
+            // the middle — producing exactly the asymmetric "egg" shape
+            // Alan described. Confirmed via a debug marker plotted at
+            // the exact computed (x,y): the marker formed a perfect
+            // circle, proving the coordinate math was correct all along
+            // and the bug was purely in text layout within the box.
+            // Fixed with flexbox centering, filling the full box.
+            div.style.display        = 'flex';
+            div.style.alignItems     = 'center';
+            div.style.justifyContent = 'center';
+            div.style.width          = '100%';
+            div.style.height         = '100%';
+            div.style.boxSizing      = 'border-box';
+            div.style.textAlign  = 'center';
+            div.style.fontSize   = '2.5px';
+            div.style.fontFamily = 'Arial, sans-serif';
+            div.style.color      = 'black';
+            div.style.cursor     = 'pointer';
+            div.style.lineHeight = '1.1';
+            div.style.fontWeight = 'normal';
+            // Textboxes sit at radius 36, outside the circle's own
+            // radius-30 gradient fill, so most text is on the plain page
+            // background — but box edges can still dip into the gradient
+            // for some items, and the gradient's darker (top) end would
+            // make plain dark text hard to read there. A single-corner
+            // shadow wasn't enough contrast against a deep blue
+            // background, so this is now a full white halo in all four
+            // directions, robust against both the white page and any
+            // part of the new tidalHeightGradient — added 2026-07-19.
+            div.style.textShadow =
+                '1px 1px 2px white, -1px -1px 2px white, ' +
+                '1px -1px 2px white, -1px 1px 2px white';
+            div.textContent = item[2]; // starts at TLR — LOG convention
+            fo.appendChild(div);
+
+            if (learnedItems[index]) fo.classList.add('learned');
+
+            fo.addEventListener('click', function() {
+                const idx  = parseInt(this.getAttribute('data-index'));
+                const div  = this.querySelector('div');
+                const data = isStatesMode ? LANG.statesData : LANG.transitionsData;
+                const lrnd = isStatesMode ? learnedItemsStates : learnedItemsTransitions;
+
+                if (document.getElementById('quizContainer').style.display !== 'none'
+                    && currentQuizIndex === idx) return;
+
+                // Previously this cycle only referenced TL (data[idx][1])
+                // and SL (data[idx][0]) — missing TLR (data[idx][2])
+                // entirely, which is required for a LOG template: the
+                // cycle must be TLR (default) → TL → SL → TLR/Quiz, per
+                // "Logographic UI Conventions" in
+                // Conceptionary_Template_Definitions.md. Fixed 2026-07-20.
+                const tlrText = data[idx][2];
+                const tlText  = data[idx][1];
+                const slText  = data[idx][0];
+
+                if (lrnd[idx]) {
+                    // Learned: cycle TLR → TL → SL → TLR
+                    if (div.textContent === tlrText) {
+                        div.textContent = tlText;
+                        div.style.fontSize = '2.5px';
+                    } else if (div.textContent === tlText) {
+                        div.textContent = slText;
+                        div.style.fontSize = '2.3px';
+                    } else {
+                        div.textContent = tlrText;
+                        div.style.fontSize = '2.5px';
+                    }
+                } else {
+                    // Not learned: TLR → TL → SL → Quiz
+                    if (div.textContent === tlrText) {
+                        div.textContent = tlText;
+                        div.style.fontSize = '2.5px';
+                    } else if (div.textContent === tlText) {
+                        div.textContent = slText;
+                        div.style.fontSize = '2.3px';
+                    } else if (div.textContent === slText) {
+                        showQuiz(idx, this);
+                    } else {
+                        div.textContent = tlrText;
+                        div.style.fontSize = '2.5px';
+                    }
+                }
+            });
+
+            const draggableFrame = document.getElementById('draggableFrame');
+            if (draggableFrame && draggableFrame.parentNode) {
+                draggableFrame.parentNode.insertBefore(fo, draggableFrame);
+            } else {
+                svg.appendChild(fo);
+            }
+            textBoxElements.push(fo);
+        });
+
+        const frame = document.getElementById('draggableFrame');
+        if (frame && frame.parentNode) frame.parentNode.appendChild(frame);
+    }
+
+    // --- Frame positioning & update -------------------------------------
+    function findClosestItem(angle) {
+        const data = isStatesMode ? LANG.statesData : LANG.transitionsData;
+        const norm = ((angle % 360) + 360) % 360;
+        let closest = 0, minDiff = 360;
+        data.forEach((item, i) => {
+            let diff = Math.abs(norm - item[4]);
+            if (diff > 180) diff = 360 - diff;
+            if (diff < minDiff) { minDiff = diff; closest = i; }
+        });
+        return closest;
+    }
+
+    function updateVisibleTextBoxes(itemIndex) {
+        const data    = isStatesMode ? LANG.statesData : LANG.transitionsData;
+        const learned = isStatesMode ? learnedItemsStates : learnedItemsTransitions;
+        textBoxElements.forEach((tb, i) => {
+            if (!tb) return;
+            if (i === itemIndex) {
+                tb.classList.add('active'); tb.classList.remove('hidden');
+                tb.style.opacity = '1'; tb.style.display = 'block';
+            } else if (learned[i]) {
+                tb.classList.remove('active'); tb.classList.remove('hidden');
+                tb.style.opacity = '0.5'; tb.style.display = 'block';
+            } else {
+                tb.classList.remove('active'); tb.classList.add('hidden');
+                tb.style.opacity = '0'; tb.style.display = 'none';
+            }
+        });
+    }
+
+    function positionFrameOnItem(itemIndex) {
+        const data  = isStatesMode ? LANG.statesData : LANG.transitionsData;
+        const c     = { x: 50, y: 50 }, r = 30;
+        const angle = (data[itemIndex][4] - 90) * Math.PI / 180;
+        const frame = document.getElementById('draggableFrame');
+        frame.setAttribute('cx', c.x + r * Math.cos(angle));
+        frame.setAttribute('cy', c.y + r * Math.sin(angle));
+        currentPosition = itemIndex;
+        updateVisibleTextBoxes(itemIndex);
+        updateSegmentHighlight(data[itemIndex][4]);
+    }
+
+    // --- Quiz -----------------------------------------------------------
+    function showQuiz(index) {
+        const data = isStatesMode ? LANG.statesData : LANG.transitionsData;
+        currentQuizIndex = index;
+        const qc = document.getElementById('quizContainer');
+        document.getElementById('quizInput').placeholder = data[index][2];
+        document.getElementById('quizInput').value = '';
+        document.getElementById('quizFeedback').textContent = '';
+        qc.style.display    = 'block';
+        qc.style.visibility = 'visible';
+        qc.style.opacity    = '1';
+        qc.style.zIndex     = '9999';
+        setTimeout(() => { try { document.getElementById('quizInput').focus(); } catch(e){} }, 100);
+    }
+
+    function checkQuizAnswer() {
+        if (currentQuizIndex < 0) return;
+        const data    = isStatesMode ? LANG.statesData : LANG.transitionsData;
+        const learned = isStatesMode ? learnedItemsStates : learnedItemsTransitions;
+        const input   = document.getElementById('quizInput').value.trim();
+        // LOG convention: the quiz tests TLR (romanized), not TL (script)
+        // — was incorrectly testing against data[idx][1] (TL). Fixed
+        // 2026-07-20, alongside the same fix to the click-cycle above.
+        const correct = data[currentQuizIndex][2];
+        const fb      = document.getElementById('quizFeedback');
+
+        if (AnswerUtils.checkAnswer(input, correct)) {
+            fb.textContent = LANG.quiz_correct;
+            fb.style.color = 'green';
+            learned[currentQuizIndex] = true;
+
+            const tb = textBoxElements[currentQuizIndex];
+            if (tb) {
+                tb.classList.add('learned');
+                const div = tb.querySelector('div');
+                if (div) div.textContent = correct;
+                const c = { x: 50, y: 50 };
+                const angle = (data[currentQuizIndex][4] - 90) * Math.PI / 180;
+                let lx = c.x + textBoxRadius * Math.cos(angle);
+                let ly = c.y + textBoxRadius * Math.sin(angle);
+                if (positionOverrides[currentQuizIndex]) {
+                    if (positionOverrides[currentQuizIndex].x !== undefined) lx = positionOverrides[currentQuizIndex].x;
+                    if (positionOverrides[currentQuizIndex].y !== undefined) ly = positionOverrides[currentQuizIndex].y;
+                }
+                tb.setAttribute('x', lx - 30);
+                tb.setAttribute('y', ly - 12);
+            }
+            addToVocabularyArray(currentQuizIndex, data);
+            closedIdx = currentQuizIndex;
+            setTimeout(() => {
+                if (currentQuizIndex === closedIdx) {
+                    document.getElementById('quizContainer').style.display = 'none';
+                    currentQuizIndex = -1;
+                }
+            }, 1500);
+        } else {
+            fb.textContent = LANG.quiz_wrong;
+            fb.style.color = 'red';
+            const tb = textBoxElements[currentQuizIndex];
+            if (tb) {
+                const div = tb.querySelector('div');
+                if (div) { div.textContent = correct; div.style.fontSize = '2.5px'; }
+            }
+        }
+    }
+
+    // --- Mode toggle ----------------------------------------------------
+
+    function toggleMode() {
+        isStatesMode = !isStatesMode;
+        document.getElementById('modeToggle').textContent =
+            isStatesMode ? LANG.states_mode_label : LANG.trans_mode_label;
+        createTextBoxes();
+        positionFrameOnItem(0);
+    }
+
+    // --- Init -----------------------------------------------------------
+    function initializeApp() {
+        const svg       = document.getElementById('svgCanvas');
+        const frame     = document.getElementById('draggableFrame');
+        const titleBox  = document.getElementById('title-box');
+        const qc        = document.getElementById('quizContainer');
+        const quizInput = document.getElementById('quizInput');
+
+        if (!svg || !frame || !titleBox) return;
+
+        createSegments();
+        createTextBoxes();
+        positionFrameOnItem(0);
+
+        frame.style.pointerEvents = 'all';
+        frame.style.cursor = 'grab';
+
+        // Drag handlers
+        frame.addEventListener('mousedown',  e => { isDragging = true; frame.classList.add('dragging'); e.preventDefault(); e.stopPropagation(); });
+        frame.addEventListener('touchstart', e => { isDragging = true; frame.classList.add('dragging'); e.preventDefault(); e.stopPropagation(); }, { passive: false });
+
+        function onMove(e) {
+            if (!isDragging) return;
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            const rect = svg.getBoundingClientRect();
+
+            // The SVG's viewBox is a square with preserveAspectRatio=
+            // "xMidYMid meet", but the .a4-page container is NOT square
+            // (90vw × 70vh) — letterboxed rather than stretched. This
+            // specific onMove (the Moon's own drag handler) was missed
+            // when the letterbox-aware fix was applied to every other
+            // draggable element in this project — found 2026-07-20 while
+            // cross-checking the file Alan was actually testing against
+            // this working copy.
+            const renderedSize = Math.min(rect.width, rect.height);
+            const offsetX = rect.left + (rect.width  - renderedSize) / 2;
+            const offsetY = rect.top  + (rect.height - renderedSize) / 2;
+            const svgX = ((clientX - offsetX) / renderedSize) * 100;
+            const svgY = ((clientY - offsetY) / renderedSize) * 100;
+            const angle = Math.atan2(svgY - 50, svgX - 50);
+            const r = 30;
+            frame.setAttribute('cx', 50 + r * Math.cos(angle));
+            frame.setAttribute('cy', 50 + r * Math.sin(angle));
+            const deg  = (angle * 180 / Math.PI + 90 + 360) % 360;
+            const idx  = findClosestItem(deg);
+            currentPosition = idx;
+            updateVisibleTextBoxes(idx);
+            updateSegmentHighlight(deg);
+            e.preventDefault(); e.stopPropagation();
+        }
+
+        function onEnd(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            frame.classList.remove('dragging');
+            frame.style.cursor = 'grab';
+            positionFrameOnItem(currentPosition);
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+        }
+
+        document.addEventListener('mousemove',  onMove);
+        document.addEventListener('touchmove',  onMove,  { passive: false });
+        document.addEventListener('mouseup',    onEnd);
+        document.addEventListener('touchend',   onEnd);
+        document.addEventListener('mouseleave', onEnd);
+
+        // Title cycle
+        titleBox.addEventListener('click', function() {
+            this.classList.add('hidden');
+            setTimeout(() => {
+                currentTextIndex = (currentTextIndex + 1) % LANG.titles.length;
+                this.textContent = LANG.titles[currentTextIndex];
+                this.classList.remove('hidden');
+            }, 500);
+        });
+
+        document.getElementById('modeToggle').addEventListener('click', toggleMode);
+        document.getElementById('quizCheck').addEventListener('click', checkQuizAnswer);
+        quizInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkQuizAnswer(); });
+        document.getElementById('toggle-learned').addEventListener('click', toggleArrayVisibility);
+
+        // Outside-click dismisses quiz
+        document.addEventListener('click', function(e) {
+            if (qc.style.display === 'none') return;
+            if (qc.contains(e.target)) return;
+            if (textBoxElements.some(b => b && b.contains(e.target))) return;
+            const learned = isStatesMode ? learnedItemsStates : learnedItemsTransitions;
+            const data    = isStatesMode ? LANG.statesData : LANG.transitionsData;
+            if (currentQuizIndex >= 0 && !learned[currentQuizIndex]) {
+                const tb = textBoxElements[currentQuizIndex];
+                if (tb) {
+                    const div = tb.querySelector('div');
+                    if (div) { div.textContent = data[currentQuizIndex][1]; div.style.fontSize = '2.5px'; }
+                }
+            }
+            qc.style.display = 'none';
+            currentQuizIndex = -1;
+        });
+
+        qc.style.display = 'none';
+
+        // Fade drag instruction after 15s
+        setTimeout(() => {
+            const di = document.getElementById('drag-instruction');
+            if (di) {
+                di.classList.add('fade');
+                setTimeout(() => { di.style.display = 'none'; }, 3000);
+            }
+        }, 15000);
+    }
+
+    document.addEventListener('DOMContentLoaded', initializeApp);
+
+    </script>
+</body>
+</html>

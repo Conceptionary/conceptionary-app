@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOG-CR-MOY Generic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0; padding: 0;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; background-color: #f9f9f9; overflow: hidden;
+        }
+        .a4-page {
+            width: 90vw; height: 70vh;
+            border: 5px solid black; background-color: white;
+            box-sizing: border-box; position: relative;
+            touch-action: none; z-index: 1; overflow: hidden;
+        }
+        .watermark {
+            position: absolute; bottom: 5px; width: 100%;
+            text-align: center; font-size: 12px;
+            color: rgba(0,0,0,0.3); font-weight: bold;
+            pointer-events: none; user-select: none; z-index: 0;
+        }
+        svg { width: 100%; height: 100%; overflow: visible; }
+        .circle-path { stroke: #333; stroke-width: 0.5; fill: none; }
+        .month-segment {
+            stroke: #ddd; stroke-width: 0.3;
+            fill: rgba(135,206,250,0.15); transition: fill 0.3s ease;
+        }
+        .segment-highlighted {
+            fill: rgba(255,255,0,0.6) !important;
+            stroke: #ffd700; stroke-width: 1px;
+        }
+        .segment-label {
+            font-size: 2.5px; font-weight: bold; fill: #333;
+            text-anchor: middle; dominant-baseline: central;
+            pointer-events: none; font-family: Arial, sans-serif; opacity: 0;
+        }
+        .textBox {
+            cursor: pointer; font-size: 0.8em; fill: black;
+            opacity: 0; display: none;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transform: scale(0.5); text-anchor: middle; font-family: Arial, sans-serif;
+        }
+        .textBox.active  { opacity: 1; display: block; transform: scale(1) translateY(0); }
+        .textBox.learned { opacity: 0.5; display: block; transform: scale(1) translateY(0); }
+        .textBox.learned.active { opacity: 1; }
+        .textBox.hidden  { opacity: 0; display: none; }
+
+        #draggableFrame {
+            cursor: grab; fill: url(#sunGradient);
+            stroke: #ff6f00; stroke-width: 1.5px;
+            pointer-events: all; opacity: 0.9; transition: fill 0.2s ease; z-index: 1000;
+        }
+        #draggableFrame:hover  { stroke-width: 2px; }
+        #draggableFrame.dragging { cursor: grabbing; stroke-width: 2px; }
+
+        .title-box {
+            position: absolute; top: 2%; left: 50%; transform: translateX(-50%);
+            font-size: 1em; font-weight: bold; text-align: center;
+            cursor: pointer; border: 1px solid black; padding: 10px;
+            background-color: white; z-index: 2;
+            transition: opacity 0.5s ease, transform 0.5s ease; font-family: Arial, sans-serif;
+        }
+        .title-box.hidden { opacity: 0; transform: translateX(-50%) scale(0.9); }
+
+        .display-mode-toggle, .seasons-toggle {
+            position: absolute; bottom: 30px;
+            font-size: 0.8em; padding: 8px 16px;
+            background-color: #f0f0f0; border: 1px solid #ccc;
+            border-radius: 4px; cursor: pointer; z-index: 3;
+        }
+        .display-mode-toggle { left: 50%; transform: translateX(-110%); }
+        .seasons-toggle      { left: 50%; transform: translateX(10%); }
+
+        .drag-instruction {
+            position: absolute; top: 60px; right: 10px;
+            font-size: 0.9em; padding: 5px 10px;
+            background-color: rgba(255,255,255,0.9); border: 1px solid #ccc;
+            border-radius: 4px; z-index: 3; opacity: 1;
+            transition: opacity 3s ease; max-width: 220px;
+        }
+        .drag-instruction.fade { opacity: 0; }
+
+        .quiz-container {
+            position: fixed; top: 40%; left: 75%; transform: translate(-50%,-50%);
+            background-color: white; border: 3px solid #3366cc;
+            border-radius: 4px; padding: 12px; z-index: 9999;
+            display: none; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            max-width: 360px; width: 360px;
+        }
+        .quiz-container input {
+            width: 100%; padding: 8px; font-size: 14px;
+            border: 1px solid #ccc; border-radius: 4px;
+            margin-bottom: 10px; font-family: Arial, sans-serif;
+        }
+        .quiz-container button {
+            width: 100%; padding: 8px; background-color: #3366cc;
+            color: white; border: none; border-radius: 4px;
+            cursor: pointer; font-weight: bold;
+        }
+        .quiz-container button:hover { background-color: #254e9c; }
+        #quizFeedback { text-align: center; font-weight: bold; margin-top: 8px; min-height: 20px; }
+
+        .vocabulary-array {
+            position: absolute; top: 1%; left: 2%;
+            width: 22%; max-height: 60vh; overflow-y: auto;
+            background-color: rgba(255,255,255,0.95); border: 2px solid #3366cc;
+            border-radius: 8px; padding: 8px; z-index: 4; display: block;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .array-title {
+            font-size: 1em; text-align: center; font-weight: bold;
+            margin-bottom: 8px; padding: 6px;
+            background-color: #3366cc; color: white; border-radius: 4px;
+        }
+        .vocabulary-item {
+            display: flex; flex-direction: column; font-size: 0.85em;
+            margin: 6px 0; padding: 8px; border: 1px solid #ddd;
+            border-radius: 4px; background-color: #f9f9f9;
+            transition: background-color 0.3s ease;
+        }
+        .vocabulary-item:hover { background-color: #eaf2ff; }
+        .vocabulary-item .tl-word {
+            font-weight: bold; color: green; cursor: pointer;
+            padding: 3px 6px; border-radius: 3px;
+            font-family: Arial, sans-serif; margin-bottom: 3px;
+        }
+        .vocabulary-item .sl-word {
+            color: #555; cursor: pointer; padding: 3px 6px; border-radius: 3px;
+        }
+        .vocabulary-item .tl-word.hidden,
+        .vocabulary-item .sl-word.hidden {
+            color: transparent; user-select: none; background-color: #f0f0f0;
+        }
+        .toggle-visibility {
+            display: block; width: 100%; margin-top: 8px;
+            font-size: 0.85em; padding: 6px 12px;
+            background-color: #f0f0f0; border: 1px solid #ccc;
+            border-radius: 4px; cursor: pointer; transition: background-color 0.3s ease;
+        }
+        .toggle-visibility:hover { background-color: #e0e0e0; }
+
+        .season-arc {
+            opacity: 0; transition: opacity 0.4s ease; pointer-events: none;
+        }
+        .season-arc.visible { opacity: 0.55; }
+        .season-label {
+            font-size: 2.2px; font-weight: bold; fill: #333;
+            text-anchor: middle; dominant-baseline: central;
+            pointer-events: none; font-family: Arial, sans-serif; opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .season-label.visible { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div class="a4-page">
+        <div id="title-box" class="title-box">TITLE_PLACEHOLDER</div>
+        <div id="display-mode-toggle" class="display-mode-toggle">SHOW_TL_LABEL</div>
+        <div id="seasons-toggle" class="seasons-toggle">SEASONS_TOGGLE_LABEL</div>
+        <div id="drag-instruction" class="drag-instruction">DRAG_INSTRUCTION_PLACEHOLDER</div>
+
+        <div id="learned-array" class="vocabulary-array">
+            <div class="array-title" id="array-title">ARRAY_TITLE_PLACEHOLDER</div>
+            <button class="toggle-visibility" id="toggle-learned">HIDE_ALL_LABEL</button>
+            <div id="learned-items"></div>
+        </div>
+
+        <svg id="svgCanvas" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+            <defs>
+                <radialGradient id="sunGradient" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%"   style="stop-color:#ffeb3b;stop-opacity:1"/>
+                    <stop offset="70%"  style="stop-color:#ffa726;stop-opacity:1"/>
+                    <stop offset="100%" style="stop-color:#ff6f00;stop-opacity:0.8"/>
+                </radialGradient>
+            </defs>
+
+            <circle id="circlePath" class="circle-path" cx="50" cy="50" r="30"/>
+
+            <g id="segmentsContainer"></g>
+            <g id="seasonArcsContainer"></g>
+            <g id="textBoxesContainer"></g>
+
+            <circle id="draggableFrame" cx="50" cy="20" r="4"/>
+        </svg>
+
+        <div class="watermark">&copy; 2026 Alan William Preston</div>
+    </div>
+
+    <div id="quizContainer" class="quiz-container">
+        <input type="text" id="quizInput" placeholder="QUIZ_PLACEHOLDER">
+        <button id="quizCheck">QUIZ_BUTTON_LABEL</button>
+        <div id="quizFeedback"></div>
+    <div id="quizDiacriticNote" style="font-size:10px;color:#888;text-align:center;margin-top:6px;padding-top:6px;border-top:1px solid #eee;"></div>
+    </div>
+
+    <script>
+
+    // =====================================================================
+    // =====================================================================
+// LOGOGRAPHIC VARIANT — 4-level cycle: TLR (default) → TL → SL → Quiz
+// Quiz tests TLR (romanized) reproduction with diacritic normalization.
+// =====================================================================
+// LANGUAGE CONFIGURATION BLOCK
+    // To create a new language pair, replace ALL values in this section.
+    // SL = Source Language  |  TL = Target Language (language being learned)
+    // Do NOT change anything outside this block.
+    // =====================================================================
+    const LANG = {
+
+        // --- Title cycle (click title box to cycle) ----------------------
+        // Title cycle: TLR (default) → TL → SL → TLR. See "Logographic
+        // UI Conventions" in Conceptionary_Template_Definitions.md.
+        // Previously this array's first element was the literal string
+        // "LOG-CR-MOY Generic" (a disconnected placeholder shown by
+        // default on load) sitting before three otherwise-correctly-
+        // ordered TLR/TL/SL elements — removed, so TLR now correctly
+        // becomes the default.
+        titles: [
+        "TLR_TITLE",
+        "TL_TITLE",
+        "SL_TITLE"
+    ],
+
+        // --- UI strings --------------------------------------------------
+            show_tlr_label:   "SHOW_TLR_LABEL",     // e.g. "Show: Romanized (TLR)"
+    show_tl_label:     "SHOW_TL_LABEL",     // e.g. "Show: Target Language"
+        show_sl_label:     "SHOW_SL_LABEL",     // e.g. "Show: Source Language"
+        seasons_toggle:    "SEASONS_TOGGLE",    // e.g. "Toggle Seasons"
+        drag_instruction:  "DRAG_INSTRUCTION",  // e.g. "Drag the sun around to explore months!"
+        array_title:       "ARRAY_TITLE",       // e.g. "Learned Vocabulary"
+        hide_all_label:    "HIDE_ALL_LABEL",    // e.g. "Hide All"
+        show_all_label:    "SHOW_ALL_LABEL",    // e.g. "Show All"
+        quiz_placeholder:  "QUIZ_PLACEHOLDER",  // e.g. "Enter the [TL] word"
+        quiz_button:       "QUIZ_BUTTON",       // e.g. "Check"
+        quiz_correct:      "QUIZ_CORRECT",      // e.g. "Correct!"
+        quiz_wrong:        "QUIZ_WRONG",        // e.g. "Try again"
+    // --- Diacritic / romanization normalization --------------------------
+    // Shown near the quiz input so learners know they can type plain vowels.
+    diacritic_instructions: "DIACRITIC_INSTRUCTIONS",
+    // e.g. "Tip: macrons (ā→a, ō→o) may be typed as plain vowels."
+    diacritic_map: [
+        // ["ā","a"], ["ī","i"], ["ū","u"], ["ē","e"], ["ō","o"]
+    ],
+    collapse_double_vowels: false,
+
+        // --- Months data (12 items) ---------------------------------------
+        // Format: [ SL month name, TL month name, Quiz question ]
+        // Segment labels use the first 3 characters of the SL name.
+        monthsData: [
+            ["SL-Jan", "TL-Jan", "TLR-Jan", "QUIZ-Jan"],
+            ["SL-Feb", "TL-Feb", "TLR-Feb", "QUIZ-Feb"],
+            ["SL-Mar", "TL-Mar", "TLR-Mar", "QUIZ-Mar"],
+            ["SL-Apr", "TL-Apr", "TLR-Apr", "QUIZ-Apr"],
+            ["SL-May", "TL-May", "TLR-May", "QUIZ-May"],
+            ["SL-Jun", "TL-Jun", "TLR-Jun", "QUIZ-Jun"],
+            ["SL-Jul", "TL-Jul", "TLR-Jul", "QUIZ-Jul"],
+            ["SL-Aug", "TL-Aug", "TLR-Aug", "QUIZ-Aug"],
+            ["SL-Sep", "TL-Sep", "TLR-Sep", "QUIZ-Sep"],
+            ["SL-Oct", "TL-Oct", "TLR-Oct", "QUIZ-Oct"],
+            ["SL-Nov", "TL-Nov", "TLR-Nov", "QUIZ-Nov"],
+            ["SL-Dec", "TL-Dec", "TLR-Dec", "QUIZ-Dec"]
+        ],
+
+        // --- Seasons data (overlay arcs; any number of entries) ------------
+        // startMonth/endMonth: 0 = January ... 11 = December.
+        // If startMonth > endMonth, the season wraps around the year-end
+        // (e.g. a rainy season running Oct–Mar) and is drawn as two arcs.
+        // label: the text shown on the season arc (TL, or "TL (SL)" etc.)
+        seasonsData: [
+            {
+                label: "TL_SEASON_1 (SL_SEASON_1)",   // e.g. "Musim Kemarau (Dry Season)"
+                startMonth: 3,   // April
+                endMonth:   9,   // October
+                color: "#FFD54F"
+            },
+            {
+                label: "TL_SEASON_2 (SL_SEASON_2)",   // e.g. "Musim Hujan (Rainy Season)"
+                startMonth: 9,   // October
+                endMonth:   3,   // April — wraps around
+                color: "#64B5F6"
+            }
+            // Add, remove, or adjust entries to match the TL culture's seasons.
+            // Leave as an empty array [] if seasons are not relevant.
+        ]
+    };
+    // =====================================================================
+    // END OF LANGUAGE CONFIGURATION BLOCK
+
+// --- Answer normalization (diacritic-tolerant for TLR quiz answers) ---
+const AnswerUtils = {
+    normalize: function(text) {
+        let t = text.toLowerCase();
+        LANG.diacritic_map.forEach(([accented, plain]) => {
+            t = t.split(accented).join(plain);
+        });
+        if (LANG.collapse_double_vowels) {
+            t = t.replace(/aa/g,'a').replace(/ee/g,'e').replace(/ii/g,'i')
+                 .replace(/oo/g,'o').replace(/uu/g,'u');
+        }
+        return t.replace(/\s+/g,' ').trim().toLowerCase();
+    },
+    checkAnswer: function(userInput, correct) {
+        return this.normalize(userInput) === this.normalize(correct);
+    }
+};
+
+    // No language-specific content appears below this line.
+    // =====================================================================
+
+
+    // --- Apply UI strings from config ------------------------------------
+    document.getElementById('title-box').textContent          = LANG.titles[0];
+    document.getElementById('display-mode-toggle').textContent= LANG.show_tlr_label;
+    document.getElementById('seasons-toggle').textContent     = LANG.seasons_toggle;
+    document.getElementById('drag-instruction').textContent   = LANG.drag_instruction;
+    document.getElementById('array-title').textContent        = LANG.array_title;
+    document.getElementById('toggle-learned').textContent     = LANG.hide_all_label;
+    document.getElementById('quizInput').placeholder          = LANG.quiz_placeholder;
+    document.getElementById('quizCheck').textContent          = LANG.quiz_button;
+    const _dNote = document.getElementById('quizDiacriticNote');
+    if (_dNote) _dNote.textContent = LANG.diacritic_instructions;
+
+    // --- Runtime state -----------------------------------------------------
+    const monthsData  = LANG.monthsData;
+    const seasonsData = LANG.seasonsData;
+
+    let currentMonth     = 0;
+    let isDragging       = false;
+    let currentQuizIndex = -1;
+    let learnedItems     = new Array(12).fill(false);
+    let textBoxElements  = [];
+    let displayMode      = 0; // 0: TL, 1: SL
+    let showSeasons      = false;
+    let currentTextIndex = 0;
+
+    // --- Vocabulary array panel --------------------------------------------
+    function toggleArrayVisibility() {
+        try {
+            const container = document.getElementById('learned-items');
+            const button    = document.getElementById('toggle-learned');
+            if (!container || !button) return;
+            const spans = container.querySelectorAll('.vocabulary-item .tl-word, .vocabulary-item .sl-word');
+            let visibleCount = 0;
+            spans.forEach(s => { if (!s.classList.contains('hidden')) visibleCount++; });
+            const mostlyVisible = visibleCount > spans.length / 2;
+            spans.forEach(s => s.classList.toggle('hidden', mostlyVisible));
+            button.textContent = mostlyVisible ? LANG.show_all_label : LANG.hide_all_label;
+        } catch (e) { console.error('toggleArrayVisibility error:', e); }
+    }
+
+    function cycleDisplayMode() {
+        displayMode = (displayMode + 1) % 2;
+        const button = document.getElementById('display-mode-toggle');
+        button.textContent = displayMode === 0 ? LANG.show_tlr_label : LANG.show_sl_label;
+        updateAllTextBoxes();
+    }
+
+    function updateAllTextBoxes() {
+        textBoxElements.forEach((tb, i) => {
+            if (!tb) return;
+            const div = tb.querySelector('div');
+            if (div) div.textContent = displayMode === 0 ? monthsData[i][1] : monthsData[i][0];
+        });
+    }
+
+    // --- Clock segments -----------------------------------------------------
+    function createSegments() {
+        const container = document.getElementById('segmentsContainer');
+        const c = { x: 50, y: 50 }, r = 30;
+        for (let i = 0; i < 12; i++) {
+            const a1 = (i * 30 - 90) * Math.PI / 180;
+            const a2 = ((i + 1) * 30 - 90) * Math.PI / 180;
+            const x1 = c.x + r * Math.cos(a1), y1 = c.y + r * Math.sin(a1);
+            const x2 = c.x + r * Math.cos(a2), y2 = c.y + r * Math.sin(a2);
+            const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+            path.setAttribute('d', `M ${c.x} ${c.y} L ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2} Z`);
+            path.setAttribute('class', 'month-segment');
+            path.setAttribute('data-month', i);
+            container.appendChild(path);
+
+            const mid = (a1 + a2) / 2, lr = r * 0.7;
+            const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+            label.setAttribute('x', c.x + lr * Math.cos(mid));
+            label.setAttribute('y', c.y + lr * Math.sin(mid));
+            label.setAttribute('class', 'segment-label');
+            label.textContent = monthsData[i][0].substring(0, 3);
+            container.appendChild(label);
+        }
+    }
+
+    // --- Season overlay arcs -------------------------------------------------
+    function createSeasonArcs() {
+        const container = document.getElementById('seasonArcsContainer');
+        const c = { x: 50, y: 50 }, innerR = 32, outerR = 36;
+
+        seasonsData.forEach((season, idx) => {
+            const { startMonth, endMonth } = season;
+            if (startMonth > endMonth) {
+                drawSeasonArc(container, c, innerR, outerR, startMonth, 12, season.color, idx * 2);
+                drawSeasonArc(container, c, innerR, outerR, 0, endMonth, season.color, idx * 2 + 1);
+                const mid = (startMonth + 12 + endMonth) / 2 % 12;
+                drawSeasonLabel(container, c, (innerR + outerR) / 2, mid, season.label);
+            } else {
+                drawSeasonArc(container, c, innerR, outerR, startMonth, endMonth, season.color, idx);
+                const mid = (startMonth + endMonth) / 2;
+                drawSeasonLabel(container, c, (innerR + outerR) / 2, mid, season.label);
+            }
+        });
+    }
+
+    function drawSeasonArc(container, c, innerR, outerR, startMonth, endMonth, color, uid) {
+        const a1 = (startMonth * 30 - 90) * Math.PI / 180;
+        const a2 = (endMonth   * 30 - 90) * Math.PI / 180;
+        const xo1 = c.x + outerR * Math.cos(a1), yo1 = c.y + outerR * Math.sin(a1);
+        const xo2 = c.x + outerR * Math.cos(a2), yo2 = c.y + outerR * Math.sin(a2);
+        const xi1 = c.x + innerR * Math.cos(a2), yi1 = c.y + innerR * Math.sin(a2);
+        const xi2 = c.x + innerR * Math.cos(a1), yi2 = c.y + innerR * Math.sin(a1);
+        const largeArc = (endMonth - startMonth) > 6 ? 1 : 0;
+        const d = `M ${xo1} ${yo1} A ${outerR} ${outerR} 0 ${largeArc} 1 ${xo2} ${yo2} L ${xi1} ${yi1} A ${innerR} ${innerR} 0 ${largeArc} 0 ${xi2} ${yi2} Z`;
+        const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+        path.setAttribute('d', d);
+        path.setAttribute('class', 'season-arc');
+        path.setAttribute('fill', color);
+        path.setAttribute('id', `season-arc-${uid}`);
+        container.appendChild(path);
+    }
+
+    function drawSeasonLabel(container, c, radius, monthPos, text) {
+        const a = (monthPos * 30 - 90) * Math.PI / 180;
+        const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+        label.setAttribute('x', c.x + radius * Math.cos(a));
+        label.setAttribute('y', c.y + radius * Math.sin(a));
+        label.setAttribute('class', 'season-label');
+        label.textContent = text;
+        container.appendChild(label);
+    }
+
+    function toggleSeasons() {
+        showSeasons = !showSeasons;
+        document.querySelectorAll('.season-arc, .season-label').forEach(el => {
+            el.classList.toggle('visible', showSeasons);
+        });
+    }
+
+    // --- Text boxes ------------------------------------------------------------
+    function calculateBoxDimensions() {
+        let maxLength = 0;
+        monthsData.forEach(m => {
+            maxLength = Math.max(maxLength, m[0].length, m[1].length);
+        });
+        return { width: Math.max(40, maxLength * 0.7), height: 18 };
+    }
+
+    function createTextBoxes() {
+        const container = document.getElementById('textBoxesContainer');
+        const c = { x: 50, y: 50 };
+        const { width: boxWidth, height: boxHeight } = calculateBoxDimensions();
+
+        for (let i = 0; i < 12; i++) {
+            const r = 30;
+            const angle = (i * 30 - 90) * Math.PI / 180;
+            const x = c.x + r * Math.cos(angle);
+            const y = c.y + r * Math.sin(angle);
+
+            const fo = document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+            fo.setAttribute('x', x - boxWidth / 2);
+            fo.setAttribute('y', y - boxHeight / 2);
+            fo.setAttribute('width',  boxWidth);
+            fo.setAttribute('height', boxHeight);
+            fo.setAttribute('class', 'textBox');
+            fo.setAttribute('data-index', i);
+            fo.style.pointerEvents = 'auto';
+            fo.style.zIndex = '500';
+
+            const div = document.createElement('div');
+            // Vertical centering: previously only text-align:center
+            // (horizontal) was set. A plain div flows from the TOP of
+            // its container, so text rendered near the box's top edge
+            // rather than its true center — the same root-cause bug
+            // found and fixed on LOG-CR-TDL via a debug-marker test.
+            // Fixed the same way here with flexbox, filling the full
+            // box. Fixed 2026-07-21 as part of the systematic re-fix
+            // across the Circular family.
+            div.style.display        = 'flex';
+            div.style.alignItems     = 'center';
+            div.style.justifyContent = 'center';
+            div.style.width          = '100%';
+            div.style.height         = '100%';
+            div.style.boxSizing      = 'border-box';
+            div.style.textAlign  = 'center';
+            div.style.fontSize   = '5px';
+            div.style.fontFamily = 'Arial, sans-serif';
+            div.style.color      = 'black';
+            div.style.cursor     = 'pointer';
+            div.style.lineHeight = '1.2';
+            div.textContent = monthsData[i][2]; // start with TLR
+            fo.appendChild(div);
+
+            if (learnedItems[i]) fo.classList.add('learned');
+            fo.setAttribute('data-display-state', '0'); // 0: TL, 1: SL, then quiz
+
+            fo.addEventListener('click', function() {
+                const idx = parseInt(this.getAttribute('data-index'));
+                const div = this.querySelector('div');
+                let state = parseInt(this.getAttribute('data-display-state') || '0');
+
+                if (learnedItems[idx]) {
+                    if (state === 0) { div.textContent = monthsData[idx][0]; this.setAttribute('data-display-state','1'); }
+                    else             { div.textContent = monthsData[idx][1]; this.setAttribute('data-display-state','0'); }
+                } else {
+                    if (state === 0) {
+                        div.textContent = monthsData[idx][0]; // SL
+                        this.setAttribute('data-display-state','1');
+                    } else if (state === 1) {
+                        showQuiz(idx);
+                        this.setAttribute('data-display-state','0');
+                    }
+                }
+            });
+
+            container.appendChild(fo);
+            textBoxElements.push(fo);
+        }
+    }
+
+    function getLearnedRadius() { return 30; }
+
+    function addToVocabularyArray(index) {
+        try {
+            const container = document.getElementById('learned-items');
+            const tl = monthsData[index][1];
+            const sl = monthsData[index][0];
+
+            const item = document.createElement('div');
+            item.className = 'vocabulary-item';
+
+            const tlSpan = document.createElement('span');
+            tlSpan.className = 'tl-word';
+            tlSpan.textContent = tl;
+
+            const slSpan = document.createElement('span');
+            slSpan.className = 'sl-word';
+            slSpan.textContent = sl;
+
+            [tlSpan, slSpan].forEach(s => {
+                s.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.classList.toggle('hidden');
+                });
+            });
+
+            item.appendChild(tlSpan);
+            item.appendChild(slSpan);
+            container.appendChild(item);
+        } catch (e) { console.error('addToVocabularyArray error:', e); }
+    }
+
+    // --- Frame & visibility ------------------------------------------------
+    function updateVisibleTextBoxes(monthIndex) {
+        textBoxElements.forEach((tb, i) => {
+            if (!tb) return;
+            if (i === monthIndex) {
+                tb.classList.add('active'); tb.classList.remove('hidden');
+                tb.style.opacity = '1'; tb.style.display = 'block';
+            } else if (learnedItems[i]) {
+                tb.classList.remove('active'); tb.classList.remove('hidden');
+                tb.style.opacity = '0.5'; tb.style.display = 'block';
+            } else {
+                tb.classList.remove('active'); tb.classList.add('hidden');
+                tb.style.opacity = '0'; tb.style.display = 'none';
+            }
+        });
+
+        document.querySelectorAll('.month-segment').forEach((seg, i) => {
+            seg.classList.toggle('segment-highlighted', i === monthIndex);
+        });
+    }
+
+    function positionFrameOnMonth(monthIndex) {
+        const c = { x: 50, y: 50 }, r = 30;
+        const angle = (monthIndex * 30 - 90) * Math.PI / 180;
+        const frame = document.getElementById('draggableFrame');
+        frame.setAttribute('cx', c.x + r * Math.cos(angle));
+        frame.setAttribute('cy', c.y + r * Math.sin(angle));
+        currentMonth = monthIndex;
+        updateVisibleTextBoxes(monthIndex);
+    }
+
+    // --- Quiz ----------------------------------------------------------------
+    function showQuiz(index) {
+        currentQuizIndex = index;
+        const qc = document.getElementById('quizContainer');
+        document.getElementById('quizInput').placeholder = monthsData[index][2];
+        document.getElementById('quizInput').value = '';
+        document.getElementById('quizFeedback').textContent = '';
+        qc.style.display    = 'block';
+        qc.style.visibility = 'visible';
+        qc.style.opacity    = '1';
+        qc.style.zIndex     = '9999';
+        setTimeout(() => { try { document.getElementById('quizInput').focus(); } catch(e){} }, 100);
+    }
+
+    let closedIdx = -1;
+    function checkQuizAnswer() {
+        if (currentQuizIndex < 0) return;
+        const input   = document.getElementById('quizInput').value.trim();
+        const correct = monthsData[currentQuizIndex][2] // TLR;
+        const fb      = document.getElementById('quizFeedback');
+
+        if (AnswerUtils.checkAnswer(input, correct)) {
+            fb.textContent = LANG.quiz_correct;
+            fb.style.color = 'green';
+            learnedItems[currentQuizIndex] = true;
+
+            const tb = textBoxElements[currentQuizIndex];
+            if (tb) {
+                tb.classList.add('learned');
+                const div = tb.querySelector('div');
+                if (div) div.textContent = correct;
+                const c = { x: 50, y: 50 };
+                const angle = (currentQuizIndex * 30 - 90) * Math.PI / 180;
+                const lr = getLearnedRadius();
+                const dims = calculateBoxDimensions();
+                tb.setAttribute('x', c.x + lr * Math.cos(angle) - dims.width  / 2);
+                tb.setAttribute('y', c.y + lr * Math.sin(angle) - dims.height / 2);
+            }
+            addToVocabularyArray(currentQuizIndex);
+            closedIdx = currentQuizIndex;
+            setTimeout(() => {
+                if (currentQuizIndex === closedIdx) {
+                    document.getElementById('quizContainer').style.display = 'none';
+                    currentQuizIndex = -1;
+                }
+            }, 1500);
+        } else {
+            fb.textContent = LANG.quiz_wrong;
+            fb.style.color = 'red';
+            const tb = textBoxElements[currentQuizIndex];
+            if (tb) {
+                const div = tb.querySelector('div');
+                if (div) { div.textContent = correct; div.style.fontSize = '4px'; }
+            }
+        }
+    }
+
+    // --- Init ------------------------------------------------------------------
+    function initializeApp() {
+        const svg       = document.getElementById('svgCanvas');
+        const frame     = document.getElementById('draggableFrame');
+        const titleBox  = document.getElementById('title-box');
+        const qc        = document.getElementById('quizContainer');
+        const quizInput = document.getElementById('quizInput');
+
+        if (!svg || !frame || !titleBox) return;
+
+        createSegments();
+        createSeasonArcs();
+        createTextBoxes();
+        positionFrameOnMonth(0);
+
+        frame.style.pointerEvents = 'all';
+        frame.style.cursor = 'grab';
+        frame.style.zIndex = '1000';
+
+        frame.addEventListener('mousedown',  e => { isDragging = true; frame.classList.add('dragging'); e.preventDefault(); e.stopPropagation(); });
+        frame.addEventListener('touchstart', e => { isDragging = true; frame.classList.add('dragging'); e.preventDefault(); e.stopPropagation(); }, { passive: false });
+
+        function onMove(e) {
+            if (!isDragging) return;
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            try {
+                const rect = svg.getBoundingClientRect();
+
+                // The SVG's viewBox is a square (0 0 100 100) with
+                // preserveAspectRatio="xMidYMid meet", but the .a4-page
+                // container is NOT square (90vw × 70vh) — so the square
+                // content is letterboxed (centered, with blank padding
+                // added to the wider dimension) rather than stretched.
+                // Dividing directly by rect.width/height (which includes
+                // that letterbox padding) miscalculates the angle
+                // whenever the cursor drifts into the padding while
+                // dragging — same root cause and fix as
+                // LOG-CR-LUN-Generic.html / LOG-CR-MEN-Generic.html /
+                // LOG-CR-TTT-Generic.html / LOG-CR-DOW-Generic.html.
+                const renderedSize = Math.min(rect.width, rect.height);
+                const offsetX = rect.left + (rect.width  - renderedSize) / 2;
+                const offsetY = rect.top  + (rect.height - renderedSize) / 2;
+
+                const svgX = ((clientX - offsetX) / renderedSize) * 100;
+                const svgY = ((clientY - offsetY) / renderedSize) * 100;
+                const angle = Math.atan2(svgY - 50, svgX - 50);
+                const r = 30;
+                frame.setAttribute('cx', 50 + r * Math.cos(angle));
+                frame.setAttribute('cy', 50 + r * Math.sin(angle));
+                const deg = (angle * 180 / Math.PI + 90 + 360) % 360;
+                const monthIndex = Math.max(0, Math.min(11, Math.floor(deg / 30)));
+                currentMonth = monthIndex;
+                updateVisibleTextBoxes(monthIndex);
+            } catch (err) { console.error('drag error:', err); }
+            e.preventDefault(); e.stopPropagation();
+        }
+
+        function onEnd(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            frame.classList.remove('dragging');
+            frame.style.cursor = 'grab';
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+        }
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('mouseup',   onEnd);
+        document.addEventListener('touchend',  onEnd);
+        document.addEventListener('mouseleave',onEnd);
+
+        titleBox.addEventListener('click', function() {
+            this.classList.add('hidden');
+            setTimeout(() => {
+                currentTextIndex = (currentTextIndex + 1) % LANG.titles.length;
+                this.textContent = LANG.titles[currentTextIndex];
+                this.classList.remove('hidden');
+            }, 500);
+        });
+
+        document.getElementById('display-mode-toggle').addEventListener('click', cycleDisplayMode);
+        document.getElementById('seasons-toggle').addEventListener('click', toggleSeasons);
+        document.getElementById('quizCheck').addEventListener('click', checkQuizAnswer);
+        quizInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkQuizAnswer(); });
+        document.getElementById('toggle-learned').addEventListener('click', toggleArrayVisibility);
+
+        document.addEventListener('click', function(e) {
+            if (qc.style.display === 'none') return;
+            if (qc.contains(e.target)) return;
+            if (textBoxElements.some(b => b && b.contains(e.target))) return;
+            if (currentQuizIndex >= 0 && !learnedItems[currentQuizIndex]) {
+                const tb = textBoxElements[currentQuizIndex];
+                if (tb) {
+                    const div = tb.querySelector('div');
+                    if (div) { div.textContent = monthsData[currentQuizIndex][1]; div.style.fontSize = '4px'; }
+                }
+            }
+            qc.style.display = 'none';
+            currentQuizIndex = -1;
+        });
+
+        qc.style.display = 'none';
+
+        setTimeout(() => {
+            const di = document.getElementById('drag-instruction');
+            if (di) {
+                di.classList.add('fade');
+                setTimeout(() => { di.style.display = 'none'; }, 3000);
+            }
+        }, 15000);
+    }
+
+    document.addEventListener('DOMContentLoaded', initializeApp);
+
+    </script>
+</body>
+</html>

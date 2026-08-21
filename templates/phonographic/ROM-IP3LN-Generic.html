@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instant Permanent Negative - Phonographic Template</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f9f9f9;
+            overflow: hidden;
+        }
+
+        .a4-page {
+            width: 90vw;
+            height: 70vh;
+            border: 5px solid black;
+            background-color: white;
+            box-sizing: border-box;
+            position: relative;
+            touch-action: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .watermark {
+            position: absolute;
+            bottom: 5px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            pointer-events: none;
+            user-select: none;
+            z-index: 0;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .path-line {
+            stroke: black;
+            stroke-width: 0.025;
+            fill: none;
+        }
+
+        #conceptBackground {
+            fill: url(#negativeGradient);
+            opacity: 0.3;
+        }
+
+        .textBox {
+            cursor: pointer;
+            font-size: 0.4em;
+            fill: black;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transform: scale(0.5);
+        }
+
+        .textBox.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .textBox.learned {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            fill: #d32f2f;
+        }
+
+        #draggableFrame {
+            cursor: move;
+            fill: rgba(200, 100, 100, 0.3);
+            stroke: #d32f2f;
+            stroke-width: 0.1px;
+            pointer-events: all;
+            opacity: 0.8;
+        }
+
+        #draggableFrame:hover {
+            fill: rgba(200, 100, 100, 0.5);
+        }
+
+        #draggableFrame.dragging {
+            cursor: grabbing;
+            fill: rgba(255, 100, 100, 0.5);
+            stroke: #c62828;
+        }
+
+        .sliding-text {
+            font-size: 4px;
+            font-weight: bold;
+            fill: #d32f2f;
+            cursor: pointer;
+        }
+        
+        .sliding-text.learned {
+            fill: #b71c1c;
+        }
+
+        .title-box {
+            position: absolute;
+            top: 2%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1em;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid black;
+            padding: 10px;
+            background-color: white;
+            z-index: 2;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .title-box.hidden {
+            opacity: 0;
+            transform: translateX(-50%) scale(0.9);
+        }
+        
+        .mode-toggle {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            padding: 8px 16px;
+            background-color: #ffebee;
+            border: 1px solid #f44336;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 3;
+        }
+        
+        .concept-indicator {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1em;
+            padding: 5px 10px;
+            background-color: white;
+            border: 1px solid #f44336;
+            border-radius: 4px;
+            z-index: 3;
+        }
+        
+        .level-indicator {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            padding: 5px 10px;
+            background-color: white;
+            border: 1px solid #f44336;
+            border-radius: 4px;
+            z-index: 3;
+        }
+
+        .quiz-container {
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 3px solid #f44336;
+            border-radius: 4px;
+            padding: 12px;
+            z-index: 9999;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            max-width: 360px;
+            width: 360px;
+            pointer-events: auto;
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .quiz-container input {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .quiz-container button {
+            width: 100%;
+            padding: 8px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .quiz-container button:hover {
+            background-color: #e53935;
+        }
+        
+        #quizFeedback {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 8px;
+            min-height: 20px;
+        }
+
+        .vocabulary-array {
+            position: absolute;
+            top: 100px;
+            width: 25%;
+            max-height: 40vh;
+            overflow-y: auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #f44336;
+            border-radius: 4px;
+            padding: 5px;
+            z-index: 4;
+            display: none;
+        }
+
+        #increasing-array {
+            left: 5px;
+        }
+
+        #decreasing-array {
+            right: 5px;
+        }
+
+        .array-title {
+            font-size: 0.9em;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 5px;
+            padding: 3px;
+            background-color: #ffebee;
+            border-bottom: 1px solid #f44336;
+        }
+
+        .vocabulary-item {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.75em;
+            margin: 3px 0;
+            padding: 5px;
+            border: 1px solid #ffcdd2;
+            border-radius: 3px;
+            background-color: #fef9f9;
+            transition: background-color 0.3s ease;
+        }
+
+        .vocabulary-item:hover {
+            background-color: #ffebee;
+        }
+
+        .vocabulary-item .target-language {
+            font-weight: bold;
+            color: #d32f2f;
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .vocabulary-item .source-language {
+            color: #555;
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        
+        .vocabulary-item .target-language.hidden,
+        .vocabulary-item .source-language.hidden {
+            color: transparent;
+            user-select: none;
+            background-color: #f0f0f0;
+        }
+        
+        .toggle-visibility {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 0.7em;
+            padding: 2px 5px;
+            background-color: #ffebee;
+            border: 1px solid #f44336;
+            border-radius: 3px;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        .tools-menu {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 5;
+        }
+
+        .tools-button {
+            background-color: #ffebee;
+            border: 1px solid #f44336;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+
+        .tools-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 30px;
+            background-color: white;
+            border: 1px solid #f44336;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            width: 150px;
+            padding: 5px 0;
+            z-index: 10;
+        }
+
+        .tools-dropdown.active {
+            display: block;
+        }
+
+        .tool-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            pointer-events: auto;
+            user-select: none;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .tool-item:hover {
+            background-color: #ffebee;
+        }
+    </style>
+</head>
+<body>
+    <div class="a4-page">
+        <div id="title-box" class="title-box">Instant Permanent Negative - Phonographic</div>
+        <div id="concept-indicator" class="concept-indicator">Position</div>
+        <div id="level-indicator" class="level-indicator">Target Language</div>
+        
+        <div class="tools-menu">
+            <div class="tools-button">Tools</div>
+            <div class="tools-dropdown">
+                <div class="tool-item" id="loadConcept">Load Concept</div>
+                <div class="tool-item" id="startQuiz">Quick Quiz</div>
+                <div class="tool-item" id="toggleArrays">Toggle Arrays</div>
+            </div>
+        </div>
+        
+        <div id="increasing-array" class="vocabulary-array">
+            <div class="array-title">Negative Progression</div>
+            <button class="toggle-visibility" id="toggle-increasing">Hide All</button>
+            <div id="increasing-items"></div>
+        </div>
+        
+        <div id="decreasing-array" class="vocabulary-array">
+            <div class="array-title">Decline Progression</div>
+            <button class="toggle-visibility" id="toggle-decreasing">Hide All</button>
+            <div id="decreasing-items"></div>
+        </div>
+        
+        <svg id="svgCanvas" viewBox="-30 0 160 50" preserveAspectRatio="xMidYMid meet">
+            <defs>
+                <linearGradient id="negativeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#ef5350;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#ffcdd2;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#ffebee;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            
+            <path id="gradualChangePath" class="path-line" />
+            <path id="conceptBackground"></path>
+            
+            <rect id="draggableFrame" x="-25" y="35" width="10" height="5"/>
+            
+            <text id="interactiveText" class="sliding-text">
+                <textPath id="slidingText" href="#gradualChangePath" startOffset="0%">
+                    TL-T1
+                </textPath>
+            </text>
+        </svg>
+        <button id="modeToggle" class="mode-toggle">Toggle Mode</button>
+        <div class="watermark">
+            &copy; 2025 Alan William Preston - Instant Permanent Negative Template (Phonographic)
+        </div>
+    </div>
+
+    <div id="quizContainer" class="quiz-container">
+        <input type="text" id="quizInput" placeholder="Enter the target language word">
+        <button id="quizCheck">Check</button>
+        <div id="quizFeedback"></div>
+    </div>
+
+    <script>
+        const conceptData = [
+            ["TL1", "SL1", "What is the TL word for 'SL1'?", 25],
+            ["TL2", "SL2", "What is the TL word for 'SL2'?", 50],
+            ["TL3", "SL3", "What is the TL word for 'SL3'?", 75]
+        ];
+
+        const transitionsData = [
+            ["TL-T1", "SL-T1", "What is the TL word for 'SL-T1'?", 25],
+            ["TL-T2", "SL-T2", "What is the TL word for 'SL-T2'?", 50],
+            ["TL-T3", "SL-T3", "What is the TL word for 'SL-T3'?", 75]
+        ];
+
+        let isStatesMode = true;
+        let pathLength = 0;
+        let currentQuizIndex = -1;
+        let slidingTextMode = 0;
+        let learnedItems = [];
+        let textBoxElements = [];
+        let addedIncreasingItems = [];
+        let addedDecreasingItems = [];
+        let currentTextLayer = new Array(3).fill(0);
+        
+        let startPercent = 0;
+        let isDraggingText = false;
+        let lastX = 0;
+        let hasMovedDuringDrag = false;
+        
+        const titleTexts = {
+            states: ["Instant Permanent Negative - Phonographic", "Negative Changes", "Detrimental Transformations"],
+            transitions: ["Permanent Negative Transitions", "Instant Declines", "Detrimental Changes"]
+        };
+        let currentTextIndex = 0;
+        
+        const activationDistance = 11.4;
+
+        const pathPoints = [
+            `-25,20`, 
+            `50,20`,
+            `50,40`,
+            `125,40`
+        ];
+
+        let svg, pathLine, conceptBackground, titleBox, conceptIndicator, levelIndicator;
+        let modeToggleBtn, frame, quizContainer, quizInput, quizCheck, quizFeedback;
+        let increasingArray, decreasingArray, increasingItems, decreasingItems;
+        let toggleIncreasingBtn, toggleDecreasingBtn;
+
+        function getTransitionDataForPosition(percent) {
+            if (percent < 37.5) return { index: 0, data: transitionsData[0] };
+            else if (percent < 62.5) return { index: 1, data: transitionsData[1] };
+            else return { index: 2, data: transitionsData[2] };
+        }
+
+        function updateTextBasedOnPosition(percent) {
+            if (isStatesMode) return;
+            
+            percent = Math.min(100, Math.max(0, percent));
+            const transitionData = getTransitionDataForPosition(percent);
+            const index = transitionData.index;
+            const data = transitionData.data;
+            
+            const textPath = document.getElementById("slidingText");
+            if (!textPath) return;
+            
+            if (learnedItems[index]) {
+                interactiveText.classList.add('learned');
+                if (slidingTextMode === 0) {
+                    textPath.textContent = data[0];
+                } else {
+                    textPath.textContent = data[1];
+                }
+            } else {
+                interactiveText.classList.remove('learned');
+                if (slidingTextMode === 0) {
+                    textPath.textContent = data[0];
+                } else if (slidingTextMode === 1) {
+                    textPath.textContent = data[1];
+                }
+            }
+            
+            conceptIndicator.textContent = data[1];
+            updateLevelIndicator();
+        }
+
+        function updateTextPosition(percent) {
+            if (isStatesMode) return;
+            
+            percent = Math.min(100, Math.max(0, percent));
+            const textPath = document.getElementById("slidingText");
+            if (textPath) {
+                textPath.setAttribute("startOffset", `${percent}%`);
+            }
+            updateTextBasedOnPosition(percent);
+        }
+
+        function startTextDrag(event) {
+            if (isStatesMode) return;
+            
+            isDraggingText = true;
+            hasMovedDuringDrag = false;
+            lastX = event.touches ? event.touches[0].clientX : event.clientX;
+            event.preventDefault();
+        }
+
+        function dragText(event) {
+            if (!isDraggingText || isStatesMode) return;
+            
+            let currentX = event.touches ? event.touches[0].clientX : event.clientX;
+            let movement = currentX - lastX;
+            
+            if (Math.abs(movement) > 5) {
+                hasMovedDuringDrag = true;
+            }
+            
+            lastX = currentX;
+            startPercent += movement * 0.2;
+            startPercent = Math.min(100, Math.max(0, startPercent));
+            updateTextPosition(startPercent);
+            
+            if (event.cancelable) event.preventDefault();
+        }
+
+        function endTextDrag() {
+            isDraggingText = false;
+        }
+
+        function toggleTextFormat(event) {
+            if (isStatesMode || isDraggingText || hasMovedDuringDrag) {
+                return;
+            }
+            
+            const transitionData = getTransitionDataForPosition(startPercent);
+            const index = transitionData.index;
+            const data = transitionData.data;
+            
+            if (learnedItems[index]) {
+                slidingTextMode = (slidingTextMode + 1) % 2;
+                updateTextBasedOnPosition(startPercent);
+            } else {
+                if (slidingTextMode === 0) {
+                    slidingTextMode = 1;
+                    updateTextBasedOnPosition(startPercent);
+                } else if (slidingTextMode === 1) {
+                    slidingTextMode = 2;
+                    showQuiz(index, interactiveText);
+                    return;
+                } else {
+                    slidingTextMode = 0;
+                    updateTextBasedOnPosition(startPercent);
+                }
+            }
+            
+            updateLevelIndicator();
+            if (event && event.cancelable) event.preventDefault();
+        }
+
+        function updateLevelIndicator() {
+            if (isStatesMode) {
+                levelIndicator.style.display = 'none';
+                return;
+            }
+            
+            levelIndicator.style.display = 'block';
+            
+            switch (slidingTextMode) {
+                case 0:
+                    levelIndicator.textContent = 'Target Language';
+                    break;
+                case 1:
+                    levelIndicator.textContent = 'Source Language';
+                    break;
+                case 2:
+                    levelIndicator.textContent = 'Quiz Mode';
+                    break;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            console.log("Initializing Instant Permanent Negative Template - Phonographic Version...");
+            
+            try {
+                svg = document.getElementById("svgCanvas");
+                pathLine = document.getElementById("gradualChangePath");
+                conceptBackground = document.getElementById("conceptBackground");
+                titleBox = document.getElementById("title-box");
+                conceptIndicator = document.getElementById("concept-indicator");
+                levelIndicator = document.getElementById("level-indicator");
+                modeToggleBtn = document.getElementById("modeToggle");
+                frame = document.getElementById("draggableFrame");
+                quizContainer = document.getElementById("quizContainer");
+                quizInput = document.getElementById("quizInput");
+                quizCheck = document.getElementById("quizCheck");
+                quizFeedback = document.getElementById("quizFeedback");
+                
+                increasingArray = document.getElementById("increasing-array");
+                decreasingArray = document.getElementById("decreasing-array");
+                increasingItems = document.getElementById("increasing-items");
+                decreasingItems = document.getElementById("decreasing-items");
+                toggleIncreasingBtn = document.getElementById("toggle-increasing");
+                toggleDecreasingBtn = document.getElementById("toggle-decreasing");
+                
+                if (!svg || !pathLine || !titleBox || !modeToggleBtn || !frame) {
+                    console.error("Critical elements are missing from the DOM");
+                    return;
+                }
+                
+                learnedItems = new Array(Math.max(conceptData.length, transitionsData.length)).fill(false);
+                addedIncreasingItems = new Array(transitionsData.length).fill(false);
+                addedDecreasingItems = new Array(transitionsData.length).fill(false);
+                
+                console.log("Setting path coordinates:", pathPoints);
+                pathLine.setAttribute('d', `M ${pathPoints.join(' L ')}`);
+                conceptBackground.setAttribute('d', `M ${pathPoints.join(' L ')} L 125,50 L -25,50 Z`);
+                
+                pathLength = pathLine.getTotalLength();
+                console.log("Path length:", pathLength);
+                
+                isStatesMode = true;
+                createTextBoxes();
+                initializeFramePosition();
+                setupEventListeners();
+                
+                const interactiveText = document.getElementById("interactiveText");
+                if (interactiveText) {
+                    interactiveText.style.display = 'none';
+                }
+                
+                levelIndicator.style.display = 'none';
+                quizContainer.style.display = 'none';
+                increasingArray.style.display = 'none';
+                decreasingArray.style.display = 'none';
+                
+                console.log("Template initialized successfully");
+                
+            } catch (error) {
+                console.error("Error initializing application:", error);
+            }
+        }
+
+        function createTextBoxes() {
+            if (!isStatesMode) return;
+            
+            document.querySelectorAll('.textBox').forEach(box => {
+                if (box && box.parentNode) box.parentNode.removeChild(box);
+            });
+            textBoxElements = [];
+            
+            const textBoxConfig = [
+                { x: 12.5, y: 18, anchor: "middle", index: 0 },
+                { x: 52, y: 30, anchor: "start", index: 1 },
+                { x: 87.5, y: 38, anchor: "middle", index: 2 }
+            ];
+            
+            for (let i = 0; i < textBoxConfig.length; i++) {
+                const config = textBoxConfig[i];
+                
+                const textBox = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                textBox.setAttribute("class", "textBox");
+                textBox.setAttribute("x", config.x);
+                textBox.setAttribute("y", config.y);
+                textBox.setAttribute("text-anchor", config.anchor);
+                textBox.setAttribute("data-index", config.index);
+                
+                textBox.textContent = conceptData[config.index][currentTextLayer[config.index]];
+                
+                if (learnedItems[config.index]) textBox.classList.add('learned');
+                
+                textBox.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const index = parseInt(this.getAttribute('data-index'));
+                    
+                    if (learnedItems[index]) {
+                        if (currentTextLayer[index] === 0) {
+                            currentTextLayer[index] = 1;
+                            this.textContent = conceptData[index][1];
+                        } else {
+                            currentTextLayer[index] = 0;
+                            this.textContent = conceptData[index][0];
+                        }
+                    } else {
+                        if (currentTextLayer[index] === 0) {
+                            currentTextLayer[index] = 1;
+                            this.textContent = conceptData[index][1];
+                        } else if (currentTextLayer[index] === 1) {
+                            currentTextLayer[index] = 2;
+                            showQuiz(index, this);
+                        } else {
+                            currentTextLayer[index] = 0;
+                            this.textContent = conceptData[index][0];
+                        }
+                    }
+                });
+                
+                svg.appendChild(textBox);
+                textBoxElements.push(textBox);
+            }
+            
+            console.log("Created", textBoxElements.length, "text boxes");
+        }
+
+        function showQuiz(index, element) {
+            const currentData = isStatesMode ? conceptData : transitionsData;
+            
+            if (index < 0 || index >= currentData.length) {
+                console.error("Invalid quiz index:", index);
+                return;
+            }
+            
+            currentQuizIndex = index;
+            
+            const slWord = currentData[index][1];
+            quizInput.placeholder = `What is the TL word for '${slWord}'?`;
+            quizInput.value = '';
+            quizFeedback.textContent = '';
+            
+            quizContainer.style.display = 'block';
+            quizContainer.style.visibility = 'visible';
+            quizContainer.style.opacity = '1';
+            quizContainer.style.zIndex = '9999';
+            
+            setTimeout(() => {
+                try {
+                    quizInput.focus();
+                } catch (e) {
+                    console.error("Error focusing quiz input:", e);
+                }
+            }, 100);
+        }
+
+        function addToVocabularyArray(index, isIncreasing) {
+            try {
+                const currentData = transitionsData;
+                const targetLanguage = currentData[index][0];
+                const sourceLanguage = currentData[index][1];
+                
+                const itemElement = document.createElement('div');
+                itemElement.className = 'vocabulary-item';
+                
+                const targetSpan = document.createElement('span');
+                targetSpan.className = 'target-language';
+                targetSpan.textContent = targetLanguage;
+                
+                const sourceSpan = document.createElement('span');
+                sourceSpan.className = 'source-language';
+                sourceSpan.textContent = sourceLanguage;
+                
+                targetSpan.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.classList.toggle('hidden');
+                });
+                
+                sourceSpan.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.classList.toggle('hidden');
+                });
+                
+                itemElement.appendChild(targetSpan);
+                itemElement.appendChild(sourceSpan);
+                
+                if (isIncreasing) {
+                    increasingItems.appendChild(itemElement);
+                    addedIncreasingItems[index] = true;
+                } else {
+                    decreasingItems.appendChild(itemElement);
+                    addedDecreasingItems[index] = true;
+                }
+                
+                console.log("Added vocabulary item:", targetLanguage, "->", sourceLanguage);
+            } catch (error) {
+                console.error("Error adding vocabulary item:", error);
+            }
+        }
+
+        function checkQuizAnswer() {
+            if (currentQuizIndex < 0) {
+                console.error("No valid quiz index");
+                return;
+            }
+            
+            const currentData = isStatesMode ? conceptData : transitionsData;
+            const userAnswer = quizInput.value.trim().toLowerCase();
+            const correctAnswer = currentData[currentQuizIndex][0].toLowerCase();
+            
+            if (userAnswer === correctAnswer) {
+                quizFeedback.textContent = 'Correct!';
+                quizFeedback.style.color = 'green';
+                
+                learnedItems[currentQuizIndex] = true;
+                
+                if (isStatesMode) {
+                    const textBox = textBoxElements[currentQuizIndex];
+                    if (textBox) {
+                        textBox.classList.add('learned');
+                        textBox.textContent = currentData[currentQuizIndex][0];
+                        currentTextLayer[currentQuizIndex] = 0;
+                    }
+                } else {
+                    slidingTextMode = 0;
+                    
+                    const targetTextElement = document.getElementById(`interactiveText`);
+                    
+                    if (targetTextElement) {
+                        targetTextElement.classList.add('learned');
+                        
+                        const textPath = document.getElementById("slidingText");
+                        if (textPath) {
+                            textPath.textContent = currentData[currentQuizIndex][0];
+                        }
+                    }
+                    
+                    const position = startPercent;
+                    
+                    if (position < 50 && !addedIncreasingItems[currentQuizIndex]) {
+                        addToVocabularyArray(currentQuizIndex, true);
+                    } else if (position >= 50 && !addedDecreasingItems[currentQuizIndex]) {
+                        addToVocabularyArray(currentQuizIndex, false);
+                    }
+                    
+                    updateLevelIndicator();
+                    updateTextBasedOnPosition(startPercent);
+                }
+                
+                setTimeout(() => { 
+                    quizContainer.style.display = 'none'; 
+                    currentQuizIndex = -1;
+                }, 1500);
+            } else {
+                quizFeedback.textContent = 'Try again';
+                quizFeedback.style.color = 'red';
+            }
+        }
+
+        function updateVisibleTextBoxes(point) {
+            if (!isStatesMode) return -1;
+            
+            let closestIndex = -1;
+            let minDistance = Infinity;
+            
+            textBoxElements.forEach((textBox, index) => {
+                if (!textBox) return;
+                
+                const x = parseFloat(textBox.getAttribute('x'));
+                const y = parseFloat(textBox.getAttribute('y'));
+                
+                const distance = Math.sqrt(Math.pow(point.x - x, 2) + Math.pow(point.y - y, 2));
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestIndex = index;
+                }
+            });
+            
+            textBoxElements.forEach((textBox, index) => {
+                if (!textBox) return;
+                
+                if (index === closestIndex && minDistance < activationDistance) {
+                    textBox.classList.add('active');
+                } else if (learnedItems[index]) {
+                    textBox.classList.remove('active');
+                    textBox.classList.add('learned');
+                } else {
+                    textBox.classList.remove('active', 'learned');
+                }
+            });
+            
+            if (closestIndex !== -1 && minDistance < activationDistance && conceptData[closestIndex]) {
+                conceptIndicator.textContent = conceptData[closestIndex][1];
+            }
+            
+            return closestIndex;
+        }
+
+        function initializeFramePosition() {
+            const startPoint = pathLine.getPointAtLength(0);
+            const frameWidth = parseFloat(frame.getAttribute('width'));
+            const frameHeight = parseFloat(frame.getAttribute('height'));
+            
+            frame.setAttribute('x', startPoint.x);
+            frame.setAttribute('y', startPoint.y - frameHeight/2);
+            
+            updateVisibleTextBoxes(startPoint);
+            conceptIndicator.textContent = conceptData[0][1];
+        }
+
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        function startDrag(e) {
+            if (!isStatesMode) return;
+            isDragging = true;
+            frame.classList.add('dragging');
+            
+            const point = getEventPoint(e);
+            offsetX = point.x - parseFloat(frame.getAttribute("x"));
+            offsetY = point.y - parseFloat(frame.getAttribute("y"));
+            
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function dragMove(e) {
+            if (!isDragging || !isStatesMode) return;
+            
+            const point = getEventPoint(e);
+            const newX = point.x - offsetX;
+            const newY = point.y - offsetY;
+
+            const closestPoint = getClosestPointOnPath(newX, newY);
+            const frameWidth = parseFloat(frame.getAttribute('width'));
+            const frameHeight = parseFloat(frame.getAttribute('height'));
+            
+            frame.setAttribute("x", closestPoint.x - frameWidth / 2);
+            frame.setAttribute("y", closestPoint.y - frameHeight / 2);
+
+            updateVisibleTextBoxes(closestPoint);
+            
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function endDrag(e) {
+            if (isDragging) {
+                isDragging = false;
+                frame.classList.remove('dragging');
+                
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+        }
+
+        function getEventPoint(event) {
+            const isTouchEvent = event.type.includes('touch');
+            const point = svg.createSVGPoint();
+            const clientX = isTouchEvent ? event.touches[0].clientX : event.clientX;
+            const clientY = isTouchEvent ? event.touches[0].clientY : event.clientY;
+            point.x = clientX;
+            point.y = clientY;
+            return point.matrixTransform(svg.getScreenCTM().inverse());
+        }
+
+        function getClosestPointOnPath(x, y) {
+            let closestPoint = null;
+            let closestDistance = Infinity;
+
+            const sampleRate = 0.3;
+            for (let i = 0; i < pathLength; i += sampleRate) {
+                const point = pathLine.getPointAtLength(i);
+                const distance = Math.sqrt(Math.pow(point.x - x, 2) + Math.pow(point.y - y, 2));
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestPoint = point;
+                }
+            }
+
+            return closestPoint || pathLine.getPointAtLength(0);
+        }
+
+        function toggleMode() {
+            isStatesMode = !isStatesMode;
+            
+            if (isStatesMode) {
+                frame.style.display = 'block';
+                
+                const interactiveText = document.getElementById("interactiveText");
+                if (interactiveText) {
+                    interactiveText.style.display = 'none';
+                }
+                
+                titleBox.textContent = titleTexts.states[currentTextIndex];
+                levelIndicator.style.display = 'none';
+                
+                createTextBoxes();
+                initializeFramePosition();
+                
+                increasingArray.style.display = 'none';
+                decreasingArray.style.display = 'none';
+            } else {
+                frame.style.display = 'none';
+                
+                const interactiveText = document.getElementById("interactiveText");
+                if (interactiveText) {
+                    interactiveText.style.display = 'block';
+                }
+                
+                titleBox.textContent = titleTexts.transitions[currentTextIndex];
+                slidingTextMode = 0;
+                updateLevelIndicator();
+                
+                document.querySelectorAll('.textBox').forEach(box => {
+                    if (box && box.parentNode) box.parentNode.removeChild(box);
+                });
+                textBoxElements = [];
+                
+                startPercent = 0;
+                updateTextPosition(startPercent);
+                
+                increasingArray.style.display = 'block';
+                decreasingArray.style.display = 'block';
+            }
+            
+            quizContainer.style.display = 'none';
+        }
+
+        function switchTitleText() {
+            titleBox.classList.add('hidden');
+            setTimeout(() => {
+                currentTextIndex = (currentTextIndex + 1) % 3;
+                const modeKey = isStatesMode ? 'states' : 'transitions';
+                titleBox.textContent = titleTexts[modeKey][currentTextIndex];
+                titleBox.classList.remove('hidden');
+            }, 500);
+        }
+
+        function toggleArrayVisibility(arrayType) {
+            try {
+                const container = document.getElementById(arrayType + "-items");
+                const button = document.getElementById("toggle-" + arrayType);
+                if (!container || !button) {
+                    console.error("Container or button not found for " + arrayType);
+                    return;
+                }
+                
+                const spans = container.querySelectorAll('.vocabulary-item .target-language, .vocabulary-item .source-language');
+                
+                let visibleCount = 0;
+                spans.forEach(span => {
+                    if (!span.classList.contains('hidden')) {
+                        visibleCount++;
+                    }
+                });
+                
+                const mostlyVisible = visibleCount > spans.length / 2;
+                
+                spans.forEach(span => {
+                    if (mostlyVisible) {
+                        span.classList.add('hidden');
+                    } else {
+                        span.classList.remove('hidden');
+                    }
+                });
+                
+                button.textContent = mostlyVisible ? 'Show All' : 'Hide All';
+            } catch (error) {
+                console.error("Error in toggleArrayVisibility:", error);
+            }
+        }
+
+        function setupEventListeners() {
+            frame.addEventListener('mousedown', startDrag);
+            frame.addEventListener('touchstart', startDrag, { passive: false });
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('touchmove', dragMove, { passive: false });
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+            
+            titleBox.addEventListener('click', switchTitleText);
+            modeToggleBtn.addEventListener('click', toggleMode);
+            quizCheck.addEventListener('click', checkQuizAnswer);
+            quizInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') checkQuizAnswer();
+            });
+            
+            const interactiveText = document.getElementById("interactiveText");
+            
+            interactiveText.addEventListener("mousedown", startTextDrag);
+            document.addEventListener("mousemove", dragText);
+            document.addEventListener("mouseup", endTextDrag);
+            
+            interactiveText.addEventListener("click", function(e) {
+                setTimeout(() => {
+                    toggleTextFormat(e);
+                }, 10);
+            });
+            
+            interactiveText.addEventListener("touchstart", startTextDrag, { passive: false });
+            document.addEventListener("touchmove", dragText, { passive: false });
+            document.addEventListener("touchend", endTextDrag);
+            
+            interactiveText.addEventListener("touchend", function(e) {
+                setTimeout(() => {
+                    if (!hasMovedDuringDrag && !isStatesMode) {
+                        toggleTextFormat(e);
+                    }
+                }, 10);
+            });
+            
+            const toolsButton = document.querySelector('.tools-button');
+            const toolsDropdown = document.querySelector('.tools-dropdown');
+            const loadConceptBtn = document.getElementById("loadConcept");
+            const startQuizBtn = document.getElementById("startQuiz");
+            const toggleArraysBtn = document.getElementById("toggleArrays");
+            
+            let dropdownOpen = false;
+            
+            if (toolsButton) {
+                toolsButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownOpen = !dropdownOpen;
+                    toolsDropdown.classList.toggle('active', dropdownOpen);
+                });
+            }
+            
+            document.addEventListener('click', function(e) {
+                if (toolsButton && toolsDropdown && 
+                    !toolsButton.contains(e.target) && !toolsDropdown.contains(e.target)) {
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                }
+            });
+            
+            if (loadConceptBtn) {
+                loadConceptBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                    alert("Load Concept feature will integrate with API to fetch vocabulary for instant permanent negative changes for phonographic languages.");
+                });
+            }
+            
+            if (startQuizBtn) {
+                startQuizBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                    
+                    const currentData = isStatesMode ? conceptData : transitionsData;
+                    const randomIndex = Math.floor(Math.random() * currentData.length);
+                    showQuiz(randomIndex, null);
+                });
+            }
+            
+            if (toggleArraysBtn) {
+                toggleArraysBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                    
+                    const visibility = increasingArray.style.display === 'none' || increasingArray.style.display === '';
+                    increasingArray.style.display = visibility ? 'block' : 'none';
+                    decreasingArray.style.display = visibility ? 'block' : 'none';
+                });
+            }
+            
+            if (toggleIncreasingBtn) {
+                toggleIncreasingBtn.addEventListener('click', function() {
+                    toggleArrayVisibility('increasing');
+                });
+            }
+            
+            if (toggleDecreasingBtn) {
+                toggleDecreasingBtn.addEventListener('click', function() {
+                    toggleArrayVisibility('decreasing');
+                });
+            }
+            
+            document.addEventListener('click', function(e) {
+                if (quizContainer.style.display !== 'none' && 
+                    !quizContainer.contains(e.target) &&
+                    !e.target.classList.contains('textBox') &&
+                    !e.target.classList.contains('sliding-text')) {
+                    
+                    quizContainer.style.display = 'none';
+                    currentQuizIndex = -1;
+                    
+                    if (!isStatesMode && slidingTextMode === 2) {
+                        slidingTextMode = 0;
+                        updateLevelIndicator();
+                        updateTextBasedOnPosition(startPercent);
+                    }
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inverted Bell Curve - Sudden Dip Template</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f9f9f9;
+            overflow: hidden;
+        }
+
+        .a4-page {
+            width: 90vw;
+            height: 70vh;
+            border: 5px solid black;
+            background-color: white;
+            box-sizing: border-box;
+            position: relative;
+            touch-action: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .watermark {
+            position: absolute;
+            bottom: 5px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            pointer-events: none;
+            user-select: none;
+            z-index: 0;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .inverted-curve {
+            stroke: black;
+            stroke-width: 0.25;
+            fill: none;
+        }
+
+        /* States Template Elements */
+        .textBox {
+            cursor: pointer;
+            font-size: 0.2em;
+            fill: black;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transform: scale(0.5);
+            text-anchor: middle;
+        }
+
+        .textBox.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        /* Make learned items visible */
+        .textBox.learned {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            fill: green;
+        }
+
+        #draggableFrame {
+            cursor: grab;
+            fill: rgba(100, 150, 255, 0.2);
+            stroke: black;
+            stroke-width: 0.1px;
+            pointer-events: all;
+            opacity: 0.8;
+        }
+
+        #draggableFrame.dragging {
+            cursor: grabbing;
+        }
+
+        /* Background gradient for inverted concept */
+        #conceptBackground {
+            fill: url(#invertedConceptGradient);
+            opacity: 0.2;
+        }
+
+        /* Transitions Template Elements */
+        .sliding-text {
+            font-size: 3.5px;
+            font-weight: bold;
+            fill: blue;
+            cursor: pointer;
+            dominant-baseline: auto;
+            pointer-events: all;
+        }
+        
+        /* Learned items styling for sliding text */
+        .sliding-text.learned {
+            fill: green;
+        }
+
+        /* Common Title Box Styling */
+        .title-box {
+            position: absolute;
+            top: 2%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1em;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid black;
+            padding: 10px;
+            background-color: white;
+            z-index: 2;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .title-box.hidden {
+            opacity: 0;
+            transform: translateX(-50%) scale(0.9);
+        }
+        
+        /* Mode Toggle Button */
+        .mode-toggle {
+            position: absolute;
+            bottom: 30px;
+            left: 35%;   /* moved 10% toward centre from 25%, to stay clear
+                           of the Descending Progression panel when it grows
+                           tall after several transitions are learned */
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            padding: 8px 16px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 3;
+        }
+        
+        /* Concept Indicator */
+        .concept-indicator {
+            position: absolute;
+            bottom: 60px;
+            left: 25%;
+            transform: translateX(-50%);
+            font-size: 1em;
+            padding: 5px 10px;
+            background-color: white;
+            border: 1px solid #555;
+            border-radius: 4px;
+            z-index: 3;
+        }
+        
+        /* Level indicator for transitions mode */
+        .level-indicator {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            padding: 5px 10px;
+            background-color: white;
+            border: 1px solid #555;
+            border-radius: 4px;
+            z-index: 3;
+        }
+
+        /* Quiz container styles */
+        .quiz-container {
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 3px solid #3366cc;
+            border-radius: 4px;
+            padding: 12px;
+            z-index: 9999;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            max-width: 360px;
+            width: 360px;
+            pointer-events: auto;
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .quiz-container input {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .quiz-container button {
+            width: 100%;
+            padding: 8px;
+            background-color: #3366cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .quiz-container button:hover {
+            background-color: #254e9c;
+        }
+        
+        #quizFeedback {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 8px;
+            min-height: 20px;
+        }
+
+        /* Vocabulary Arrays Styles */
+        .vocabulary-array {
+            position: absolute;
+            top: 45%;
+            width: 25%;
+            max-height: 17vh;   /* reduced further (was 20vh) — panels now
+                                   start at top:25% instead of 20%, so a
+                                   slightly smaller max-height preserves the
+                                   same clearance above the Toggle Mode
+                                   button */
+            overflow-y: auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px;
+            z-index: 4;
+            display: none;
+        }
+
+        #increasing-array {
+            left: 5px;
+            top: 25%;   /* Descending Progression — Wide's curve baseline
+                           sits much higher in the canvas than Shallow's
+                           (offset 10 vs 25), so the sliding text is close
+                           to the top here; top:20% clears it, sitting just
+                           below the curve line instead */
+        }
+
+        #decreasing-array {
+            right: 5px;
+            top: 25%;   /* Ascending Progression — moved to match */
+        }
+
+        .array-title {
+            font-size: 0.9em;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 5px;
+            padding: 3px;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .vocabulary-item {
+            display: flex;
+            font-size: 0.8em;
+            margin: 3px 0;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background-color: #f9f9f9;
+            transition: background-color 0.3s ease;
+        }
+
+        .vocabulary-item:hover {
+            background-color: #eaf2ff;
+        }
+
+        .vocabulary-item .target-language {
+            flex: 1;
+            font-weight: bold;
+            color: green;
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .vocabulary-item .source-language {
+            flex: 1;
+            color: #555;
+            text-align: right;
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        
+        .vocabulary-item .target-language.hidden,
+        .vocabulary-item .source-language.hidden {
+            color: transparent;
+            user-select: none;
+            background-color: #f0f0f0;
+        }
+        
+        .vocabulary-item.hidden .target-language,
+        .vocabulary-item.hidden .source-language {
+            color: transparent;
+            user-select: none;
+        }
+        
+        .vocabulary-item.hidden {
+            background-color: #f0f0f0;
+        }
+        
+        /* Toggle visibility button */
+        .toggle-visibility {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 0.7em;
+            padding: 2px 5px;
+            background-color: #eee;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        /* Tools Menu */
+        .tools-menu {
+            position: absolute;
+            top: 10%;   /* moved down from 10px to make room for the
+                           Ascending Progression array at top:2% */
+            right: 10px;
+            z-index: 5;
+        }
+
+        .tools-button {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+
+        .tools-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 30px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            width: 150px;
+            padding: 5px 0;
+            z-index: 10;
+        }
+
+        .tools-dropdown.active {
+            display: block;
+        }
+
+        .tool-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            pointer-events: auto;
+            user-select: none;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .tool-item:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="a4-page">
+        <div id="title-box" class="title-box">Inverted Concept Spectrum</div>
+        <div id="concept-indicator" class="concept-indicator">Concept Position</div>
+        <div id="level-indicator" class="level-indicator">Target Language</div>
+        
+        <!-- Tools Menu -->
+        <div class="tools-menu">
+            <div class="tools-button">Tools</div>
+            <div class="tools-dropdown">
+                <div class="tool-item" id="loadConcept">Load Concept</div>
+                <div class="tool-item" id="startQuiz">Quick Quiz</div>
+                <div class="tool-item" id="toggleArrays">Toggle Arrays</div>
+            </div>
+        </div>
+        
+        <!-- Vocabulary Arrays -->
+        <div id="increasing-array" class="vocabulary-array">
+            <div class="array-title">Descending Progression</div>
+            <button class="toggle-visibility" id="toggle-increasing">Hide All</button>
+            <div id="increasing-items"></div>
+        </div>
+        
+        <div id="decreasing-array" class="vocabulary-array">
+            <div class="array-title">Ascending Progression</div>
+            <button class="toggle-visibility" id="toggle-decreasing">Hide All</button>
+            <div id="decreasing-items"></div>
+        </div>
+        
+        <svg id="svgCanvas" viewBox="-30 0 160 50" preserveAspectRatio="xMidYMid meet">
+            <!-- Inverted Concept Gradient -->
+            <defs>
+                <linearGradient id="invertedConceptGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#4a4a4a;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#ff4444;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#4a4a4a;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            
+            <path id="invertedCurve" class="inverted-curve"></path>
+            <path id="conceptBackground"></path>
+            
+            <!-- States Mode Elements -->
+            <rect id="draggableFrame" x="40" y="35" width="10" height="5"/>
+            
+            <!-- Transitions Mode Elements -->
+            <text id="interactiveText" class="sliding-text">
+                <textPath id="slidingText" href="#invertedCurve" startOffset="1%" dy="-5">
+                    Click and drag this
+                </textPath>
+            </text>
+        </svg>
+        <button id="modeToggle" class="mode-toggle">Toggle Mode</button>
+        <div class="watermark">
+            &copy; 2026 Alan William Preston
+        </div>
+    </div>
+
+    <!-- Quiz Container -->
+    <div id="quizContainer" class="quiz-container">
+        <input type="text" id="quizInput" placeholder="Enter the target language word">
+        <button id="quizCheck">Check</button>
+        <div id="quizFeedback"></div>
+    </div>
+
+    <script>
+        // Generic placeholder data for inverted curve - 21 positions total (10 descending + dip + 10 ascending)
+        // NATIVE COLUMN ORDER: [SL, TL, Quiz, Position] — column[0]=SL, column[1]=TL.
+        // (Confirmed against this template's own display logic, which reads
+        //  column[1] as the default/Target Language display.)
+        const conceptData = [
+            // Descending phase (normal to lower) - positions 5% to 45%
+            ["SL1", "TL1", "What is the TL word for 'SL1'?", 5],
+            ["SL2", "TL2", "What is the TL word for 'SL2'?", 9.44],
+            ["SL3", "TL3", "What is the TL word for 'SL3'?", 13.89],
+            ["SL4", "TL4", "What is the TL word for 'SL4'?", 18.33],
+            ["SL5", "TL5", "What is the TL word for 'SL5'?", 22.78],
+            ["SL6", "TL6", "What is the TL word for 'SL6'?", 27.22],
+            ["SL7", "TL7", "What is the TL word for 'SL7'?", 31.67],
+            ["SL8", "TL8", "What is the TL word for 'SL8'?", 36.11],
+            ["SL9", "TL9", "What is the TL word for 'SL9'?", 40.56],
+            ["SL10", "TL10", "What is the TL word for 'SL10'?", 45],
+            
+            // Lowest point (50%)
+            ["SL-Lowest", "TL-Lowest", "What is the TL word for 'SL-Lowest'?", 50],
+            
+            // Ascending phase (lower back to normal) - positions 55% to 95%
+            ["SL-9", "TL-9", "What is the TL word for 'SL-9'?", 55],
+            ["SL-8", "TL-8", "What is the TL word for 'SL-8'?", 60],
+            ["SL-7", "TL-7", "What is the TL word for 'SL-7'?", 65],
+            ["SL-6", "TL-6", "What is the TL word for 'SL-6'?", 70],
+            ["SL-5", "TL-5", "What is the TL word for 'SL-5'?", 75],
+            ["SL-4", "TL-4", "What is the TL word for 'SL-4'?", 80],
+            ["SL-3", "TL-3", "What is the TL word for 'SL-3'?", 85],
+            ["SL-2", "TL-2", "What is the TL word for 'SL-2'?", 90],
+            ["SL-1", "TL-1", "What is the TL word for 'SL-1'?", 95]
+        ];
+
+        // Transitions data for dynamic changes between states - inverted pattern
+        // Same native column order: [SL, TL, Quiz, Position]
+        const transitionsData = [
+            // Descending transitions (1% to 45%)
+            ["SL-T1", "TL-T1", "What is the TL word for 'SL-T1'?", 1],
+            ["SL-T2", "TL-T2", "What is the TL word for 'SL-T2'?", 15],
+            ["SL-T3", "TL-T3", "What is the TL word for 'SL-T3'?", 25],
+            ["SL-T4", "TL-T4", "What is the TL word for 'SL-T4'?", 35],
+            ["SL-T5", "TL-T5", "What is the TL word for 'SL-T5'?", 45],
+            
+            // Lowest transition (50%)
+            ["SL-T-Lowest", "TL-T-Lowest", "What is the TL word for 'SL-T-Lowest'?", 50],
+            
+            // Recovery transitions (55% to 78%)
+            ["SL-T6", "TL-T6", "What is the TL word for 'SL-T6'?", 55],
+            ["SL-T7", "TL-T7", "What is the TL word for 'SL-T7'?", 65],
+            ["SL-T8", "TL-T8", "What is the TL word for 'SL-T8'?", 75],
+            ["SL-T9", "TL-T9", "What is the TL word for 'SL-T9'?", 78]
+        ];
+
+        // Define global variables
+        let isStatesMode = true;
+        let pathLength = 0;
+        let currentQuizIndex = -1;
+        let slidingTextMode = 0; // 0: Target Language, 1: Source Language, 2: Quiz
+        let learnedItemsStates = [];
+        let learnedItemsTransitions = [];
+        let textBoxElements = [];
+        let addedIncreasingItems = [];
+        let addedDecreasingItems = [];
+        
+        // Title text options
+        const titleTexts = {
+            states: ["Inverted Concept Spectrum", "Target Language View", "Source Language View"],
+            transitions: ["Inverted Transitions", "Decline & Recovery", "Temporal Dips"]
+        };
+        let currentTextIndex = 0;
+        
+        // Activation distance for text boxes
+        const activationDistance = 5;
+
+        // Global function to toggle vocabulary array visibility
+        function toggleArrayVisibility(arrayType) {
+            try {
+                const container = document.getElementById(arrayType + "-items");
+                const button = document.getElementById("toggle-" + arrayType);
+                if (!container || !button) {
+                    console.error("Container or button not found for " + arrayType);
+                    return;
+                }
+                
+                const spans = container.querySelectorAll('.vocabulary-item .target-language, .vocabulary-item .source-language');
+                
+                let visibleCount = 0;
+                spans.forEach(span => {
+                    if (!span.classList.contains('hidden')) {
+                        visibleCount++;
+                    }
+                });
+                
+                const mostlyVisible = visibleCount > spans.length / 2;
+                
+                spans.forEach(span => {
+                    if (mostlyVisible) {
+                        span.classList.add('hidden');
+                    } else {
+                        span.classList.remove('hidden');
+                    }
+                });
+                
+                button.textContent = mostlyVisible ? 'Show All' : 'Hide All';
+            } catch (error) {
+                console.error("Error in toggleArrayVisibility:", error);
+            }
+        }
+
+
+        // Function to update all text boxes based on current display level
+        // Resets every UNLEARNED textbox back to its TL display.
+        // Called when the drag frame moves to a different textbox.
+        function updateAllTextBoxes() {
+            textBoxElements.forEach((textBox, index) => {
+                if (textBox && conceptData[index] && !learnedItemsStates[index]) {
+                    textBox.textContent = conceptData[index][1]; // TL
+                }
+            });
+        }
+
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("ROM-GTCVI-Wide-Generic.html — build 2026-07-09-b (mode-separated learned arrays + alternating stagger)");
+            initializeApp();
+        });
+
+        // Main initialization function
+        function initializeApp() {
+            console.log("Initializing Inverted Bell Curve Template...");
+            
+            try {
+                // Get DOM elements
+                const svg = document.getElementById("svgCanvas");
+                const invertedCurve = document.getElementById("invertedCurve");
+                const conceptBackground = document.getElementById("conceptBackground");
+                const titleBox = document.getElementById("title-box");
+                const conceptIndicator = document.getElementById("concept-indicator");
+                const levelIndicator = document.getElementById("level-indicator");
+                const modeToggleBtn = document.getElementById("modeToggle");
+                const frame = document.getElementById("draggableFrame");
+                const interactiveText = document.getElementById("interactiveText");
+                const slidingText = document.getElementById("slidingText");
+                const quizContainer = document.getElementById("quizContainer");
+                const quizInput = document.getElementById("quizInput");
+                const quizCheck = document.getElementById("quizCheck");
+                const quizFeedback = document.getElementById("quizFeedback");
+                
+                // Tool menu items
+                const loadConceptBtn = document.getElementById("loadConcept");
+                const startQuizBtn = document.getElementById("startQuiz");
+                const toggleArraysBtn = document.getElementById("toggleArrays");
+                
+                // Vocabulary arrays elements
+                const increasingArray = document.getElementById("increasing-array");
+                const decreasingArray = document.getElementById("decreasing-array");
+                const increasingItems = document.getElementById("increasing-items");
+                const decreasingItems = document.getElementById("decreasing-items");
+                const toggleIncreasingBtn = document.getElementById("toggle-increasing");
+                const toggleDecreasingBtn = document.getElementById("toggle-decreasing");
+                
+                // Check if critical elements exist
+                if (!svg || !invertedCurve || !titleBox || !modeToggleBtn || !frame || !interactiveText) {
+                    console.error("Critical elements are missing from the DOM");
+                    return;
+                }
+                
+                // Initialize arrays
+                learnedItemsStates = new Array(conceptData.length).fill(false);
+                learnedItemsTransitions = new Array(transitionsData.length).fill(false);
+                addedIncreasingItems = new Array(transitionsData.length).fill(false);
+                addedDecreasingItems = new Array(transitionsData.length).fill(false);
+                
+                // Generate INVERTED bell curve (dips down instead of peaks up)
+                const a = 30; // Height of bell curve (now depth)
+                const b = 50; // Center x-position
+                const c = 15; // Width parameter
+                
+                const curvePoints = [];
+                for (let x = -30; x <= 130; x += 1) {
+                    // INVERTED: Add the exponential instead of subtracting it
+                    const y = 10 + a * Math.exp(-Math.pow(x - b, 2) / (2 * Math.pow(c, 2)));
+                    curvePoints.push(`${x},${y}`);
+                }
+                
+                // Set the inverted curve path
+                const invertedCurvePath = `M ${curvePoints.join(' L ')}`;
+                invertedCurve.setAttribute('d', invertedCurvePath);
+                conceptBackground.setAttribute('d', `${invertedCurvePath} L 130,50 L -30,50 Z`);
+                
+                pathLength = invertedCurve.getTotalLength();
+                
+                // Helper function: Find data point at a position on the inverted curve
+                function getDataPointAtPosition(position) {
+                    const currentData = isStatesMode ? conceptData : transitionsData;
+                    
+                    let closestIndex = 0;
+                    let minDistance = Infinity;
+                    
+                    for (let i = 0; i < currentData.length; i++) {
+                        const distance = Math.abs(currentData[i][3] - position);
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            closestIndex = i;
+                        }
+                    }
+                    
+                    return {
+                        index: closestIndex,
+                        data: currentData[closestIndex]
+                    };
+                }
+                
+                // Update level indicator based on current mode
+                function updateLevelIndicator() {
+                    if (isStatesMode) {
+                        levelIndicator.style.display = 'none';
+                        return;
+                    }
+                    
+                    levelIndicator.style.display = 'block';
+                    
+                    switch (slidingTextMode) {
+                        case 0:
+                            levelIndicator.textContent = 'Target Language';
+                            break;
+                        case 1:
+                            levelIndicator.textContent = 'Source Language';
+                            break;
+                        case 2:
+                            levelIndicator.textContent = 'Quiz Mode';
+                            break;
+                    }
+                }
+                
+                // Update sliding text in transitions mode
+                function updateSlidingText(dataPoint) {
+                    if (isStatesMode) return;
+                    
+                    if (!dataPoint) {
+                        slidingText.textContent = "Click and drag this";
+                        return;
+                    }
+                    
+                    const index = dataPoint.index;
+                    const data = dataPoint.data;
+                    
+                    // Update the concept indicator
+                    conceptIndicator.textContent = data[0]; // Source language name
+                    
+                    if (learnedItemsTransitions[index]) {
+                        // If learned, toggle between target and source languages
+                        slidingText.textContent = slidingTextMode === 0 ? data[1] : data[0];
+                        interactiveText.classList.add('learned');
+                    } else {
+                        interactiveText.classList.remove('learned');
+                        
+                        if (slidingTextMode === 0) {
+                            slidingText.textContent = data[1]; // Target Language
+                        } else if (slidingTextMode === 1) {
+                            slidingText.textContent = data[0]; // Source Language
+                        }
+                    }
+                    
+                    updateLevelIndicator();
+                }
+                
+                // Create text boxes for States mode
+                function createTextBoxes() {
+                    if (!isStatesMode) return;
+                    
+                    // Clear existing text boxes
+                    document.querySelectorAll('.textBox').forEach(box => {
+                        if (box && box.parentNode) box.parentNode.removeChild(box);
+                    });
+                    textBoxElements = [];
+                    
+                    // Create new text boxes
+                    for (let i = 0; i < conceptData.length; i++) {
+                        const positionPercent = conceptData[i][3];
+                        const position = (positionPercent / 100) * pathLength;
+                        const point = invertedCurve.getPointAtLength(position);
+
+                        // IMPORTANT: unlearned items are positioned at their
+                        // TRUE curve point (no offset). The drag frame tracks
+                        // the true curve, and activationDistance is small (5
+                        // units) — an unconditional alternating offset here
+                        // (as an earlier version of this file had) pushes
+                        // "below" items ~7 units from the frame's actual
+                        // path, permanently exceeding activationDistance and
+                        // making them impossible to reach via drag at all.
+                        // The alternating above/below offset is applied ONLY
+                        // to items that are already learned, by
+                        // restaggerLearnedTextBoxes() — at that point they no
+                        // longer need to be drag-reachable, since learned
+                        // items stay visible unconditionally.
+                        const textBox = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                        textBox.setAttribute("class", "textBox");
+                        textBox.setAttribute("x", point.x);
+                        textBox.setAttribute("y", point.y + 3);
+                        textBox.setAttribute("text-anchor", "middle");
+                        textBox.setAttribute("data-index", i);
+                        textBox.textContent = conceptData[i][1]; // Start with TL (Target Language)
+                        
+                        if (learnedItemsStates[i]) textBox.classList.add('learned');
+                        
+                        // Per-textbox click cycle, driven by the box's OWN current text —
+                        // no shared global displayLevel.
+                        textBox.addEventListener('click', function() {
+                            const index = parseInt(this.getAttribute('data-index'));
+                            
+                            if (learnedItemsStates[index]) {
+                                this.textContent = (this.textContent === conceptData[index][1]) ?
+                                    conceptData[index][0] : conceptData[index][1];
+                            } else {
+                                if (this.textContent === conceptData[index][1]) {
+                                    this.textContent = conceptData[index][0]; // Show SL
+                                } else if (this.textContent === conceptData[index][0]) {
+                                    showQuiz(index, this); // Open quiz directly
+                                } else {
+                                    this.textContent = conceptData[index][1]; // Reset to TL
+                                }
+                            }
+                        });
+                        
+                        svg.appendChild(textBox);
+                        textBoxElements.push(textBox);
+                    }
+                    
+                    console.log("Created", textBoxElements.length, "text boxes for inverted curve");
+
+                    // Learned items stay permanently visible along the curve
+                    // (see the proximity-visibility logic below), so if more
+                    // than one is learned they can end up close enough on the
+                    // curve to overlap — worst along the flatter baseline
+                    // sections either side of the dip. Nudge them apart on
+                    // creation in case any were already learned when the
+                    // mode was (re)built.
+                    restaggerLearnedTextBoxes();
+                }
+
+                // Alternate learned items above/below the curve, matching
+                // the pattern already proven in ROM-DU-Generic: each item's
+                // vertical offset is based on its OWN fixed conceptData
+                // index (even = above, odd = below), not on its rank among
+                // currently-learned items. This keeps every item's true
+                // horizontal position on the curve completely untouched
+                // (position still encodes meaning) and keeps an item's
+                // vertical placement stable — it never jumps around as
+                // other items get learned or not, unlike a rank-based
+                // approach would.
+                function restaggerLearnedTextBoxes() {
+                    if (!textBoxElements || textBoxElements.length === 0) return;
+
+                    const verticalOffset = 8; // px, above/below the default position
+
+                    for (let i = 0; i < conceptData.length; i++) {
+                        if (!learnedItemsStates[i]) continue;
+                        const box = textBoxElements[i];
+                        if (!box) continue;
+
+                        const positionPercent = conceptData[i][3];
+                        const position = (positionPercent / 100) * pathLength;
+                        const point = invertedCurve.getPointAtLength(position);
+                        const offsetY = (i % 2 === 0) ? -verticalOffset : verticalOffset;
+
+                        box.setAttribute('x', point.x);
+                        box.setAttribute('y', (point.y + 3) + offsetY);
+                    }
+                }
+                
+                // Add a word to vocabulary array
+                function addToVocabularyArray(index, isIncreasing) {
+                    try {
+                        const currentData = transitionsData;
+                        const sourceLanguage = currentData[index][0];
+                        const targetLanguage = currentData[index][1];
+                        
+                        // Create item element
+                        const itemElement = document.createElement('div');
+                        itemElement.className = 'vocabulary-item';
+                        
+                        // Create Target Language span
+                        const targetSpan = document.createElement('span');
+                        targetSpan.className = 'target-language';
+                        targetSpan.textContent = targetLanguage;
+                        
+                        // Create Source Language span
+                        const sourceSpan = document.createElement('span');
+                        sourceSpan.className = 'source-language';
+                        sourceSpan.textContent = sourceLanguage;
+                        
+                        // Add click handlers to individual spans
+                        targetSpan.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            this.classList.toggle('hidden');
+                        });
+                        
+                        sourceSpan.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            this.classList.toggle('hidden');
+                        });
+                        
+                        // Add spans to item
+                        itemElement.appendChild(targetSpan);
+                        itemElement.appendChild(sourceSpan);
+                        
+                        // Add to appropriate array
+                        if (isIncreasing) {
+                            increasingItems.appendChild(itemElement);
+                            addedIncreasingItems[index] = true;
+                        } else {
+                            decreasingItems.appendChild(itemElement);
+                            addedDecreasingItems[index] = true;
+                        }
+                        
+                        console.log("Added vocabulary item:", targetLanguage, sourceLanguage);
+                    } catch (error) {
+                        console.error("Error adding vocabulary item:", error);
+                    }
+                }
+                
+                // Initialize frame position
+                function initializeFramePosition() {
+                    // Default start: extreme left end (0%) — the normal baseline
+                    // state before the dip begins. Consistent with the suite-wide
+                    // convention: left-to-right = normal → intensifying → normal.
+                    const startPoint = invertedCurve.getPointAtLength(0);
+                    frame.setAttribute('x', startPoint.x - parseFloat(frame.getAttribute('width'))/2);
+                    frame.setAttribute('y', startPoint.y - parseFloat(frame.getAttribute('height'))/2);
+                    updateVisibleTextBoxes(startPoint);
+                }
+                
+                // Update visible text boxes based on frame position
+                function updateVisibleTextBoxes(point) {
+                    if (!isStatesMode) return -1;
+                    
+                    let closestIndex = -1;
+                    let minDistance = Infinity;
+                    
+                    // Find closest text box and update visibility
+                    textBoxElements.forEach((textBox, index) => {
+                        if (!textBox) return;
+                        
+                        const x = parseFloat(textBox.getAttribute('x'));
+                        const y = parseFloat(textBox.getAttribute('y'));
+                        
+                        const distance = Math.sqrt(Math.pow(point.x - x, 2) + Math.pow(point.y - y, 2));
+                        
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            closestIndex = index;
+                        }
+                    });
+                    
+                    // Ensure ONLY ONE text box is active at a time
+                    textBoxElements.forEach((textBox, index) => {
+                        if (!textBox) return;
+                        
+                        if (index === closestIndex && minDistance < activationDistance) {
+                            // Show only the closest text box
+                            textBox.classList.add('active');
+                            textBox.classList.remove('hidden');
+                        } else if (learnedItemsStates[index]) {
+                            // Keep learned items visible but not active
+                            textBox.classList.remove('active');
+                            textBox.classList.add('learned');
+                            textBox.classList.remove('hidden');
+                        } else {
+                            // Hide all other text boxes
+                            textBox.classList.remove('active', 'learned');
+                            textBox.classList.add('hidden');
+                        }
+                    });
+                    
+                    if (closestIndex !== -1 && minDistance < activationDistance && conceptData[closestIndex]) {
+                        conceptIndicator.textContent = conceptData[closestIndex][0];
+                    }
+                    
+                    return closestIndex;
+                }
+                
+                // Show quiz for an item
+                function showQuiz(index, element) {
+                    console.log("Showing quiz for index:", index);
+                    const currentData = isStatesMode ? conceptData : transitionsData;
+                    currentQuizIndex = index;
+                    
+                    // Update quiz content
+                    quizInput.placeholder = currentData[index][2];
+                    quizInput.value = '';
+                    quizFeedback.textContent = '';
+                    
+                    // Make quiz visible
+                    quizContainer.style.display = 'block';
+                    quizContainer.style.visibility = 'visible';
+                    quizContainer.style.opacity = '1';
+                    quizContainer.style.zIndex = '9999';
+                    
+                    // Focus input with delay
+                    setTimeout(() => {
+                        try {
+                            quizInput.focus();
+                        } catch (e) {
+                            console.error("Error focusing quiz input:", e);
+                        }
+                    }, 100);
+                }
+                
+                // Check quiz answer
+                function checkQuizAnswer() {
+                    if (currentQuizIndex < 0) return;
+                    
+                    const currentData = isStatesMode ? conceptData : transitionsData;
+                    const userAnswer = quizInput.value.trim().toLowerCase();
+                    const correctAnswer = currentData[currentQuizIndex][1].toLowerCase();
+                    
+                    if (userAnswer === correctAnswer) {
+                        // Correct answer
+                        quizFeedback.textContent = 'Correct!';
+                        quizFeedback.style.color = 'green';
+                        
+                        // Mark as learned — in the correct mode-specific array only,
+                        // so a Transitions-mode quiz answer can't bleed into States
+                        // mode display at the same array index (and vice versa).
+                        if (isStatesMode) {
+                            learnedItemsStates[currentQuizIndex] = true;
+                        } else {
+                            learnedItemsTransitions[currentQuizIndex] = true;
+                        }
+                        
+                        if (isStatesMode) {
+                            // Update text box in states mode
+                            const textBox = textBoxElements[currentQuizIndex];
+                            if (textBox) {
+                                textBox.classList.add('learned');
+                                textBox.textContent = currentData[currentQuizIndex][1];
+                            }
+                            // This box's position was set at creation time,
+                            // before it was known to be learned — apply the
+                            // alternating above/below offset now that it is.
+                            restaggerLearnedTextBoxes();
+                        } else {
+                            // In transitions mode
+                            slidingTextMode = 0;
+                            slidingText.textContent = currentData[currentQuizIndex][1];
+                            interactiveText.classList.add('learned');
+                            updateLevelIndicator();
+                            
+                            // Add to vocabulary array
+                            const position = currentData[currentQuizIndex][3];
+                            const isIncreasing = position < 50; // For inverted curve: < 50 = descending
+                            
+                            if (isIncreasing && !addedIncreasingItems[currentQuizIndex]) {
+                                addToVocabularyArray(currentQuizIndex, true);
+                            } else if (!isIncreasing && !addedDecreasingItems[currentQuizIndex]) {
+                                addToVocabularyArray(currentQuizIndex, false);
+                            }
+                        }
+                        
+                        // Hide quiz after delay
+                        setTimeout(() => { quizContainer.style.display = 'none'; }, 1500);
+                    } else {
+                        // Wrong answer
+                        quizFeedback.textContent = 'Try again';
+                        quizFeedback.style.color = 'red';
+                    }
+                }
+                
+                // Frame dragging variables
+                let isDragging = false;
+                
+                // Frame drag start handler
+                function startDrag(e) {
+                    if (!isStatesMode) return;
+                    
+                    isDragging = true;
+                    frame.classList.add('dragging');
+                    
+                    e.preventDefault();
+                }
+                
+                // Frame drag move handler with proper boundary constraints
+                function dragMove(e) {
+                    if (!isDragging || !isStatesMode) return;
+                    
+                    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                    
+                    // Get SVG bounding rectangle for coordinate conversion
+                    const svgRect = svg.getBoundingClientRect();
+                    const svgX = ((clientX - svgRect.left) / svgRect.width) * 160 - 30; // Map to viewBox coordinates
+                    
+                    // Find closest point on curve by testing positions along the path
+                    let bestPosition = 0;
+                    let minDistance = Infinity;
+                    
+                    // Test every 1% along the path for efficiency
+                    for (let i = 0; i <= 100; i++) {
+                        const testLength = (i / 100) * pathLength;
+                        const testPoint = invertedCurve.getPointAtLength(testLength);
+                        const distance = Math.abs(testPoint.x - svgX);
+                        
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            bestPosition = i / 100;
+                        }
+                    }
+                    
+                    // Get the actual point on the curve
+                    const curvePoint = invertedCurve.getPointAtLength(bestPosition * pathLength);
+                    
+                    // Position the frame
+                    const frameWidth = parseFloat(frame.getAttribute('width'));
+                    const frameHeight = parseFloat(frame.getAttribute('height'));
+                    
+                    let frameX = curvePoint.x - frameWidth/2;
+                    let frameY = curvePoint.y - frameHeight/2;
+                    
+                    // Apply boundary constraints to keep frame visible within curve area
+                    const leftEdgePoint = invertedCurve.getPointAtLength(0);
+                    const rightEdgePoint = invertedCurve.getPointAtLength(pathLength);
+                    
+                    // Constrain X position to keep frame fully visible
+                    if (frameX < leftEdgePoint.x) {
+                        frameX = leftEdgePoint.x;
+                    }
+                    if (frameX > rightEdgePoint.x - frameWidth) {
+                        frameX = rightEdgePoint.x - frameWidth;
+                    }
+                    
+                    frame.setAttribute('x', frameX);
+                    frame.setAttribute('y', frameY);
+                    
+                    // Update visible text boxes
+                    const frameCenter = {
+                        x: frameX + frameWidth/2,
+                        y: frameY + frameHeight/2
+                    };
+                    
+                    updateVisibleTextBoxes(frameCenter);
+                    
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                
+                // Frame drag end handler
+                function endDrag(e) {
+                    if (isDragging) {
+                        isDragging = false;
+                        frame.classList.remove('dragging');
+                        
+                        if (e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        }
+                    }
+                }
+                
+                // Text dragging variables
+                let isTextDragging = false;
+                let hasMoved = false;
+                
+                // Text drag start handler
+                function startTextDrag(e) {
+                    if (isStatesMode) return;
+                    isTextDragging = true;
+                    hasMoved = false;
+                    console.log("Text drag started");
+                    e.preventDefault();
+                }
+                
+                // Text drag move handler with proper boundary constraints
+                function textDragMove(e) {
+                    if (!isTextDragging || isStatesMode) return;
+                    
+                    hasMoved = true;
+                    
+                    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                    
+                    const svgPoint = svg.createSVGPoint();
+                    svgPoint.x = clientX;
+                    svgPoint.y = 0;
+                    const transformedPoint = svgPoint.matrixTransform(svg.getScreenCTM().inverse());
+                    const cursorX = transformedPoint.x;
+                    
+                    let bestPosition = 0;
+                    let minDistance = Infinity;
+                    
+                    for (let i = 0; i <= 1000; i++) {
+                        const testPosition = i / 10;
+                        const testLength = (testPosition / 100) * pathLength;
+                        const testPoint = invertedCurve.getPointAtLength(testLength);
+                        const distance = Math.abs(testPoint.x - cursorX);
+                        
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            bestPosition = testPosition;
+                        }
+                    }
+                    
+                    // Apply boundary constraints to keep text visible within transitions area
+                    let visualOffset = bestPosition;
+                    
+                    // Constrain text position to visible range
+                    if (visualOffset < 1) {        
+                        visualOffset = 1;
+                    } else if (visualOffset > 78) { 
+                        visualOffset = 78;
+                    }
+                    
+                    slidingText.setAttribute('startOffset', `${visualOffset}%`);
+                    
+                    const newDataIndex = getDataPointAtPosition(visualOffset);
+                    if (newDataIndex && newDataIndex.index !== undefined) {
+                        updateSlidingText(newDataIndex);
+                    }
+                    
+                    e.preventDefault();
+                }
+                
+                // Text drag end handler
+                function endTextDrag() {
+                    if (isTextDragging) {
+                        console.log("Text drag ended, hasMoved:", hasMoved);
+                    }
+                    isTextDragging = false;
+                    setTimeout(() => { hasMoved = false; }, 100);
+                }
+                
+                // Handle sliding text clicks
+                function handleSlidingTextClick(e) {
+                    console.log("Sliding text click detected");
+                    if (isStatesMode || hasMoved) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const offset = parseFloat(slidingText.getAttribute('startOffset')) || 50;
+                    const position = offset;
+                    const dataPoint = getDataPointAtPosition(position);
+                    
+                    if (dataPoint) {
+                        const index = dataPoint.index;
+                        
+                        // Handle click based on learned status
+                        if (learnedItemsTransitions[index]) {
+                            slidingTextMode = (slidingTextMode === 0) ? 1 : 0;
+                            updateSlidingText(dataPoint);
+                        } else {
+                            // Cycle through levels
+                            if (slidingTextMode === 0) {
+                                slidingTextMode = 1; // Source Language
+                                updateSlidingText(dataPoint);
+                            } else if (slidingTextMode === 1) {
+                                slidingTextMode = 2; // Quiz
+                                updateLevelIndicator();
+                                showQuiz(index, interactiveText);
+                            } else {
+                                slidingTextMode = 0; // Target Language
+                                updateSlidingText(dataPoint);
+                            }
+                        }
+                    }
+                }
+                
+                // Toggle arrays visibility
+                function toggleArrays() {
+                    const visibility = increasingArray.style.display === 'none' || increasingArray.style.display === '';
+                    increasingArray.style.display = visibility ? 'block' : 'none';
+                    decreasingArray.style.display = visibility ? 'block' : 'none';
+                }
+                
+                // Toggle between modes
+                function toggleMode() {
+                    console.log("Toggling mode from", isStatesMode ? "States" : "Transitions", "to", isStatesMode ? "Transitions" : "States");
+                    isStatesMode = !isStatesMode;
+                    
+                    if (isStatesMode) {
+                        // Switch to States mode
+                        frame.style.display = 'block';
+                        interactiveText.style.display = 'none';
+                        titleBox.textContent = titleTexts.states[currentTextIndex];
+                        levelIndicator.style.display = 'none';
+                        
+                        // Create text boxes
+                        createTextBoxes();
+                        initializeFramePosition();
+                        
+                        // Hide vocabulary arrays
+                        increasingArray.style.display = 'none';
+                        decreasingArray.style.display = 'none';
+                    } else {
+                        // Switch to Transitions mode
+                        frame.style.display = 'none';
+                        interactiveText.style.display = 'block';
+                        titleBox.textContent = titleTexts.transitions[currentTextIndex];
+                        
+                        // Reset sliding text to starting position
+                        slidingText.setAttribute('startOffset', '1%');
+                        slidingTextMode = 0;
+                        updateLevelIndicator();
+                        
+                        // Remove text boxes
+                        document.querySelectorAll('.textBox').forEach(box => {
+                            if (box && box.parentNode) box.parentNode.removeChild(box);
+                        });
+                        textBoxElements = [];
+                        
+                        // Set initial data point
+                        const position = 1;
+                        const dataPoint = getDataPointAtPosition(position);
+                        updateSlidingText(dataPoint);
+                        
+                        // Show vocabulary arrays
+                        increasingArray.style.display = 'block';
+                        decreasingArray.style.display = 'block';
+                        
+                        // Ensure text is visible and re-attach events
+                        setTimeout(() => {
+                            interactiveText.style.display = 'block';
+                            
+                            // Re-attach drag events after element becomes visible
+                            interactiveText.removeEventListener('mousedown', startTextDrag);
+                            interactiveText.removeEventListener('touchstart', startTextDrag);
+                            slidingText.removeEventListener('mousedown', startTextDrag);
+                            slidingText.removeEventListener('touchstart', startTextDrag);
+                            
+                            interactiveText.addEventListener('mousedown', startTextDrag);
+                            interactiveText.addEventListener('touchstart', startTextDrag, { passive: false });
+                            slidingText.addEventListener('mousedown', startTextDrag);
+                            slidingText.addEventListener('touchstart', startTextDrag, { passive: false });
+                        }, 50);
+                    }
+                    
+                    // Hide quiz
+                    quizContainer.style.display = 'none';
+                }
+                
+                // Switch title text language
+                function switchTitleText() {
+                    titleBox.classList.add('hidden');
+                    setTimeout(() => {
+                        currentTextIndex = (currentTextIndex + 1) % 3;
+                        const modeKey = isStatesMode ? 'states' : 'transitions';
+                        titleBox.textContent = titleTexts[modeKey][currentTextIndex];
+                        titleBox.classList.remove('hidden');
+                    }, 500);
+                }
+                
+                // Load concept function (placeholder for future API integration)
+                function loadConcept() {
+                    alert("Load Concept feature will integrate with API to fetch vocabulary for inverted conceptual spectrums (sudden dips and recoveries).");
+                }
+                
+                // Document click handler for closing quizzes
+                document.addEventListener('click', function(e) {
+                    if (quizContainer.style.display !== 'none' && 
+                        !quizContainer.contains(e.target) && 
+                        e.target !== interactiveText &&
+                        e.target !== slidingText &&
+                        !textBoxElements.includes(e.target)) {
+                        
+                        console.log("Hiding quiz from outside click");
+                        quizContainer.style.display = 'none';
+                        
+                        // Reset to target language mode if in quiz mode
+                        if (slidingTextMode === 2) {
+                            slidingTextMode = 0;
+                            
+                            // Update display in transitions mode
+                            if (!isStatesMode) {
+                                const offset = parseFloat(slidingText.getAttribute('startOffset')) || 50;
+                                const position = offset;
+                                const dataPoint = getDataPointAtPosition(position);
+                                updateSlidingText(dataPoint);
+                            }
+                        }
+                    }
+                });
+                
+                // Add event listeners
+                // Frame dragging
+                frame.addEventListener('mousedown', startDrag);
+                frame.addEventListener('touchstart', startDrag, { passive: false });
+                document.addEventListener('mousemove', dragMove);
+                document.addEventListener('touchmove', dragMove, { passive: false });
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchend', endDrag);
+                
+                // Text dragging event listeners
+                interactiveText.addEventListener('mousedown', startTextDrag);
+                interactiveText.addEventListener('touchstart', startTextDrag, { passive: false });
+                slidingText.addEventListener('mousedown', startTextDrag);
+                slidingText.addEventListener('touchstart', startTextDrag, { passive: false });
+                
+                // Global drag move and end events for text
+                document.addEventListener('mousemove', function(e) {
+                    if (isTextDragging && !isStatesMode) {
+                        textDragMove(e);
+                    }
+                });
+                document.addEventListener('touchmove', function(e) {
+                    if (isTextDragging && !isStatesMode) {
+                        textDragMove(e);
+                    }
+                }, { passive: false });
+                document.addEventListener('mouseup', endTextDrag);
+                document.addEventListener('touchend', endTextDrag);
+                
+                // Text clicking
+                interactiveText.addEventListener('click', handleSlidingTextClick);
+                slidingText.addEventListener('click', handleSlidingTextClick);
+                interactiveText.addEventListener('touchend', function(e) {
+                    if (!isTextDragging && !isStatesMode && !hasMoved) {
+                        handleSlidingTextClick(e);
+                    }
+                });
+                
+                // Other UI controls
+                titleBox.addEventListener('click', switchTitleText);
+                modeToggleBtn.addEventListener('click', toggleMode);
+                quizCheck.addEventListener('click', checkQuizAnswer);
+                quizInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') checkQuizAnswer();
+                });
+                
+                // Tools menu interaction
+                const toolsButton = document.querySelector('.tools-button');
+                const toolsDropdown = document.querySelector('.tools-dropdown');
+                
+                let dropdownOpen = false;
+                
+                if (toolsButton) {
+                    toolsButton.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        dropdownOpen = !dropdownOpen;
+                        
+                        if (dropdownOpen) {
+                            toolsDropdown.classList.add('active');
+                        } else {
+                            toolsDropdown.classList.remove('active');
+                        }
+                    });
+                }
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (toolsButton && toolsDropdown && 
+                        !toolsButton.contains(e.target) && !toolsDropdown.contains(e.target)) {
+                        dropdownOpen = false;
+                        toolsDropdown.classList.remove('active');
+                    }
+                });
+                
+                // Tool menu item handlers
+                if (loadConceptBtn) {
+                    loadConceptBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        dropdownOpen = false;
+                        if (toolsDropdown) toolsDropdown.classList.remove('active');
+                        loadConcept();
+                    });
+                }
+                
+                if (startQuizBtn) {
+                    startQuizBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        dropdownOpen = false;
+                        if (toolsDropdown) toolsDropdown.classList.remove('active');
+                        
+                        // Start quick quiz
+                        const currentData = isStatesMode ? conceptData : transitionsData;
+                        const randomIndex = Math.floor(Math.random() * currentData.length);
+                        
+                        currentQuizIndex = randomIndex;
+                        quizInput.placeholder = currentData[randomIndex][2];
+                        quizInput.value = '';
+                        quizFeedback.textContent = '';
+                        
+                        quizContainer.style.display = 'block';
+                        quizContainer.style.visibility = 'visible';
+                        quizContainer.style.opacity = '1';
+                        quizContainer.style.zIndex = '9999';
+                        
+                        setTimeout(() => {
+                            quizInput.focus();
+                        }, 100);
+                    });
+                }
+                
+                if (toggleArraysBtn) {
+                    toggleArraysBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        dropdownOpen = false;
+                        if (toolsDropdown) toolsDropdown.classList.remove('active');
+                        toggleArrays();
+                    });
+                }
+                
+                // Toggle array visibility buttons
+                toggleIncreasingBtn.addEventListener('click', function() {
+                    toggleArrayVisibility('increasing');
+                });
+                
+                toggleDecreasingBtn.addEventListener('click', function() {
+                    toggleArrayVisibility('decreasing');
+                });
+                
+                // Initialize the UI
+                createTextBoxes();
+                initializeFramePosition();
+                interactiveText.style.display = 'none';
+                levelIndicator.style.display = 'none';
+                quizContainer.style.display = 'none';
+                increasingArray.style.display = 'none';
+                decreasingArray.style.display = 'none';
+                
+                // Set sliding text starting position
+                slidingText.setAttribute('startOffset', '1%');
+                
+                console.log("Inverted Bell Curve Template initialized successfully");
+                console.log("States Mode: 19 textboxes positioned along inverted curve");
+                console.log("Transitions Mode: 10 transition phrases for decline & recovery");
+                console.log("Perfect for concepts that suddenly dip and then recover");
+                
+            } catch (error) {
+                console.error("Error initializing application:", error);
+            }
+        }
+    </script>
+</body>
+</html>

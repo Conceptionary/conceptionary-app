@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagonal Line for Phonographic Languages - Generic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f9f9f9;
+            overflow: hidden;
+        }
+
+        .a4-page {
+            width: 90vw;
+            height: 70vh;
+            border: 5px solid black;
+            background-color: white;
+            box-sizing: border-box;
+            position: relative;
+            touch-action: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .watermark {
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            font-size: 10px;
+            color: rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            pointer-events: none;
+            user-select: none;
+            z-index: 2;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .diagonal-line {
+            stroke: black;
+            stroke-width: 0.5;
+            fill: none;
+        }
+
+        #conceptBackground {
+            fill: url(#conceptGradient);
+            opacity: 0.2;
+        }
+
+        /* States Template Elements */
+        .textBox {
+            cursor: pointer;
+            font-size: 0.32em;
+            fill: black;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transform: scale(0.5);
+            pointer-events: all;
+        }
+
+        .textBox.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .textBox.learned {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            fill: green;
+        }
+
+        #draggableFrame {
+            cursor: move;
+            fill: rgba(100, 150, 255, 0.2);
+            stroke: black;
+            stroke-width: 0.5px;
+            pointer-events: all;
+            opacity: 0.8;
+        }
+
+        #draggableFrame:hover {
+            fill: rgba(100, 150, 255, 0.5);
+        }
+
+        #draggableFrame.dragging {
+            cursor: grabbing;
+            fill: rgba(255, 150, 100, 0.5);
+            stroke: #cc6600;
+        }
+
+        /* Transitions Template Elements */
+        .sliding-text {
+            font-size: 4px;
+            font-weight: bold;
+            fill: blue;
+            cursor: pointer;
+            pointer-events: all;
+        }
+        
+        .sliding-text.learned {
+            fill: green;
+        }
+
+        /* Title Box Styling - Top left */
+        .title-box {
+            position: absolute;
+            top: 2%;
+            left: 2%;
+            font-size: 1em;
+            font-weight: bold;
+            text-align: left;
+            cursor: pointer;
+            border: 1px solid black;
+            padding: 10px;
+            background-color: white;
+            z-index: 10;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            max-width: 40%;
+        }
+        
+        .title-box.hidden {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        
+        /* Mode Toggle Button - RIGHT SIDE */
+        .mode-toggle {
+            position: absolute;
+            bottom: 30px;
+            left: 75%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            padding: 8px 16px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 15;
+        }
+        
+        /* Concept Indicator - MOVED DOWN TO BUTTON LEVEL */
+        .concept-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 25%;
+            transform: translateX(-50%);
+            font-size: 1em;
+            padding: 5px 10px;
+            background-color: white;
+            border: 1px solid #555;
+            border-radius: 4px;
+            z-index: 10;
+        }
+        
+        /* Level indicator - TOP RIGHT */
+        .level-indicator {
+            position: absolute;
+            top: 5%;
+            left: 75%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            padding: 5px 10px;
+            background-color: white;
+            border: 1px solid #555;
+            border-radius: 4px;
+            z-index: 10;
+        }
+
+        /* Quiz container styles - Center left position */
+        .quiz-container {
+            position: fixed;
+            top: 50%;
+            left: 15%;
+            transform: translateY(-50%);
+            background-color: white;
+            border: 3px solid #3366cc;
+            border-radius: 4px;
+            padding: 12px;
+            z-index: 50;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            max-width: 360px;
+            width: 360px;
+            pointer-events: auto;
+        }
+        
+        .quiz-container input {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        
+        .quiz-container button {
+            width: 100%;
+            padding: 8px;
+            background-color: #3366cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .quiz-container button:hover {
+            background-color: #254e9c;
+        }
+        
+        #quizFeedback {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 8px;
+            min-height: 20px;
+        }
+
+        /* Vocabulary Arrays Styles */
+        .vocabulary-array {
+            position: absolute;
+            top: 12%;
+            width: 25%;
+            max-height: 40vh;
+            overflow-y: auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px;
+            z-index: 4;
+            display: none;
+        }
+
+        #increasing-array {
+            left: 25%;
+            transform: translateX(-50%);
+        }
+
+        #decreasing-array {
+            left: 75%;
+            transform: translateX(-50%);
+        }
+
+        .array-title {
+            font-size: 0.9em;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 5px;
+            padding: 3px;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .vocabulary-item {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.75em;
+            margin: 3px 0;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background-color: #f9f9f9;
+            transition: background-color 0.3s ease;
+        }
+
+        .vocabulary-item:hover {
+            background-color: #eaf2ff;
+        }
+
+        .vocabulary-item .tl {
+            font-weight: bold;
+            color: #0066cc;
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .vocabulary-item .sl {
+            color: #555;
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        
+        .vocabulary-item .tl.hidden,
+        .vocabulary-item .sl.hidden {
+            color: transparent;
+            user-select: none;
+            background-color: #f0f0f0;
+        }
+        
+        .toggle-visibility {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 0.7em;
+            padding: 2px 5px;
+            background-color: #eee;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        /* Tools Menu */
+        .tools-menu {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 20;
+        }
+
+        .tools-button {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+
+        /* Drag instruction */
+        .drag-instruction {
+            position: absolute;
+            top: 50%;
+            left: 25%;
+            transform: translate(-50%, -50%);
+            font-size: 0.9em;
+            padding: 5px 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            z-index: 10;
+            opacity: 1;
+            transition: opacity 2s ease;
+        }
+        
+        .drag-instruction.fade {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="a4-page">
+        <div id="title-box" class="title-box">Diagonal Line for Phonographic Languages - Generic</div>
+        <div id="concept-indicator" class="concept-indicator">Position</div>
+        <div id="level-indicator" class="level-indicator">Target Language</div>
+        <div id="drag-instruction" class="drag-instruction">💡 Drag the frame along the diagonal line to explore vocabulary!</div>
+        
+        <!-- Tools Menu -->
+        <div class="tools-menu">
+            <div class="tools-button" id="tools-button">Tools</div>
+        </div>
+        
+        <!-- Vocabulary Arrays -->
+        <div id="increasing-array" class="vocabulary-array">
+            <div class="array-title">Upward Transitions</div>
+            <button class="toggle-visibility" id="toggle-increasing">Hide All</button>
+            <div id="increasing-items"></div>
+        </div>
+        
+        <div id="decreasing-array" class="vocabulary-array">
+            <div class="array-title">Downward Transitions</div>
+            <button class="toggle-visibility" id="toggle-decreasing">Hide All</button>
+            <div id="decreasing-items"></div>
+        </div>
+        
+        <svg id="svgCanvas" viewBox="0 0 200 100" preserveAspectRatio="xMidYMid meet">
+            <defs>
+                <linearGradient id="conceptGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#4a4a4a;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#87ceeb;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#4a4a4a;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            
+            <!-- Diagonal Line from bottom-left to top-right -->
+            <line id="diagonalLine" class="diagonal-line" x1="10" y1="90" x2="190" y2="10"/>
+            <path id="conceptBackground" d="M 7 87 L 193 7 L 193 13 L 7 93 Z"/>
+            
+            <!-- States Mode Elements -->
+            <rect id="draggableFrame" x="5" y="85" width="10" height="8" rx="2"/>
+            
+            <!-- Transitions Mode Elements -->
+            <rect id="transitionFrame" x="185" y="5" width="10" height="8" rx="2" style="fill: rgba(255,255,0,0.3); stroke: #DAA520; display: none;" class="yellow-frame"/>
+            <text id="transitionText" x="200" y="9" text-anchor="start" style="font-size: 6px; fill: blue; display: none; cursor: pointer;">TL increasing1</text>
+        </svg>
+        
+        <button id="modeToggle" class="mode-toggle">Toggle Mode</button>
+        
+        <div class="watermark">
+            &copy; 2025 Alan William Preston - Diagonal Line for Phonographic Languages - Generic
+        </div>
+    </div>
+
+    <!-- Quiz Container -->
+    <div id="quizContainer" class="quiz-container">
+        <input type="text" id="quizInput" placeholder="Enter the TL word">
+        <button id="quizCheck">Check</button>
+        <div id="quizFeedback"></div>
+    </div>
+
+    <script>
+        console.log("Diagonal Line for Phonographic Languages - Generic Starting");
+        
+        // States data (10 positions) - numbered from bottom-left to top-right
+        const statesData = [
+            {t: 0.05, tl: "TL1", sl: "SL1", learned: false, level: 0},
+            {t: 0.15, tl: "TL2", sl: "SL2", learned: false, level: 0},
+            {t: 0.25, tl: "TL3", sl: "SL3", learned: false, level: 0},
+            {t: 0.35, tl: "TL4", sl: "SL4", learned: false, level: 0},
+            {t: 0.45, tl: "TL5", sl: "SL5", learned: false, level: 0},
+            {t: 0.55, tl: "TL6", sl: "SL6", learned: false, level: 0},
+            {t: 0.65, tl: "TL7", sl: "SL7", learned: false, level: 0},
+            {t: 0.75, tl: "TL8", sl: "SL8", learned: false, level: 0},
+            {t: 0.85, tl: "TL9", sl: "SL9", learned: false, level: 0},
+            {t: 0.95, tl: "TL10", sl: "SL10", learned: false, level: 0}
+        ];
+        
+        // Transitions data with two-level naming convention (no TLR)
+        const directionalVocab = {
+            upward: [
+                {tl: "TL increasing1", sl: "SL increasing1", learned: false, addedToArray: false},
+                {tl: "TL increasing2", sl: "SL increasing2", learned: false, addedToArray: false}
+            ],
+            downward: [
+                {tl: "TL decreasing1", sl: "SL decreasing1", learned: false, addedToArray: false},
+                {tl: "TL decreasing2", sl: "SL decreasing2", learned: false, addedToArray: false}
+            ],
+            stationary: [
+                {tl: "TL stationary1", sl: "SL stationary1", learned: false, addedToArray: false}
+            ]
+        };
+        
+        // Global variables
+        let isStatesMode = true;
+        let textElements = [];
+        let currentQuizIndex = -1;
+        let isDragging = false;
+        let currentFrame = null;
+        let previousT = 0.05;
+        let currentDirection = 'stationary';
+        let currentDirectionalIndex = 0;
+        let statesLearnedItems = [];
+        let addedIncreasingItems = [];
+        let addedDecreasingItems = [];
+        
+        // Title texts for cycling
+        const titleTexts = {
+            states: ["Diagonal Line for Phonographic Languages - Generic", "Target Language View", "Source Language View"],
+            transitions: ["Diagonal Line Transitions - Two Level System", "Dynamic Changes", "Diagonal Progression"]
+        };
+        let currentTextIndex = 0;
+        
+        function debugLog(message) {
+            console.log(`[DEBUG] ${message}`);
+        }
+        
+        // Calculate position along diagonal line
+        function calculateDiagonalPosition(t) {
+            // t ranges from 0 (bottom-left) to 1 (top-right)
+            const x = 10 + t * (190 - 10); // X coordinate along diagonal
+            const y = 90 - t * (90 - 10);  // Y coordinate along diagonal
+            return {x, y};
+        }
+        
+        function getDisplayText(item) {
+            if (item.learned) {
+                const texts = [item.tl, item.sl];
+                return texts[item.level % 2];
+            } else {
+                switch(item.level) {
+                    case 0: return item.tl;
+                    case 1: return item.sl;
+                    default: return item.tl;
+                }
+            }
+        }
+        
+        function createTextElements() {
+            console.log("Creating text elements for", isStatesMode ? "States" : "Transitions");
+            
+            // Clear existing elements
+            textElements.forEach(el => {
+                if (el.parentNode) el.parentNode.removeChild(el);
+            });
+            textElements = [];
+            
+            // Only create positioned textboxes for States Mode
+            if (!isStatesMode) {
+                console.log("Transitions mode - no textboxes created, using moving text only");
+                return;
+            }
+            
+            const svg = document.querySelector('svg');
+            
+            statesData.forEach((item, index) => {
+                const pos = calculateDiagonalPosition(item.t);
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                
+                // Alternate positioning around the diagonal line
+                const offset = index % 2 === 0 ? -8 : 8;
+                text.setAttribute('x', pos.x + offset);
+                text.setAttribute('y', pos.y + (index % 2 === 0 ? -3 : 3));
+                text.setAttribute('text-anchor', index % 2 === 0 ? 'end' : 'start');
+                text.setAttribute('class', 'textBox');
+                text.textContent = getDisplayText(item);
+                
+                if (item.learned) {
+                    text.classList.add('learned');
+                }
+                
+                text.addEventListener('click', function() {
+                    handleTextClick(index);
+                });
+                
+                svg.appendChild(text);
+                textElements.push(text);
+            });
+        }
+        
+        function handleTextClick(index) {
+            console.log("Text clicked, index:", index);
+            const item = statesData[index];
+            const textEl = textElements[index];
+            
+            if (item.learned) {
+                // Cycle through display modes for learned items
+                item.level = (item.level + 1) % 2;
+                if (textEl) textEl.textContent = getDisplayText(item);
+            } else {
+                // Progress through learning sequence for unlearned items
+                if (item.level === 0) {
+                    item.level = 1; // TL → SL
+                    if (textEl) textEl.textContent = getDisplayText(item);
+                } else if (item.level === 1) {
+                    // SL → Quiz
+                    showQuiz(index, 'states');
+                }
+            }
+        }
+        
+        function updateTextVisibility(currentT) {
+            if (!isStatesMode) return;
+            
+            let closestIndex = -1;
+            let minDistance = Infinity;
+            
+            // Find the single closest textbox
+            textElements.forEach((textEl, index) => {
+                if (index >= statesData.length) return;
+                
+                const distance = Math.abs(currentT - statesData[index].t);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestIndex = index;
+                }
+            });
+            
+            // Show only the closest textbox if within range, hide all others
+            textElements.forEach((textEl, index) => {
+                if (index === closestIndex && minDistance < 0.08) {
+                    textEl.classList.add('active');
+                    textEl.style.opacity = '1';
+                    document.getElementById('concept-indicator').textContent = `Position ${index + 1}`;
+                } else if (statesData[index] && statesData[index].learned) {
+                    textEl.classList.remove('active');
+                    textEl.classList.add('learned');
+                    textEl.style.opacity = '0.3'; // Dim learned items
+                } else {
+                    textEl.classList.remove('active', 'learned');
+                    textEl.style.opacity = '0'; // Hide unlearned items
+                }
+            });
+        }
+        
+        function updateTransitionText(currentT) {
+            if (isStatesMode) return;
+            
+            let newDirection;
+            
+            // Determine direction with proper sensitivity
+            const tDifference = currentT - previousT;
+            
+            // Only change direction on significant movement
+            if (Math.abs(tDifference) > 0.02) {
+                if (tDifference > 0) {
+                    newDirection = 'upward';   // Moving up the diagonal (increasing t)
+                } else {
+                    newDirection = 'downward'; // Moving down the diagonal (decreasing t)  
+                }
+            } else {
+                // Keep current direction if minimal movement
+                newDirection = currentDirection;
+            }
+            
+            debugLog(`Current T: ${currentT}, Previous T: ${previousT}, T Diff: ${tDifference}, Direction: ${newDirection}`);
+            
+            // Reset vocabulary index when direction changes
+            if (newDirection !== currentDirection) {
+                currentDirection = newDirection;
+                currentDirectionalIndex = 0;
+                debugLog(`DIRECTION CHANGED to: ${currentDirection}, resetting vocab index to 0`);
+            }
+            
+            // Always update previousT for next comparison
+            previousT = currentT;
+            
+            // Update the text display
+            updateTransitionTextDisplay();
+            
+            // Position the text at the frame location
+            const pos = calculateDiagonalPosition(currentT);
+            const text = document.getElementById('transitionText');
+            if (text) {
+                text.setAttribute('x', pos.x + 15);
+                text.setAttribute('y', pos.y);
+            }
+        }
+        
+        function updateTransitionTextDisplay() {
+            debugLog(`updateTransitionTextDisplay called - Direction: ${currentDirection}, Index: ${currentDirectionalIndex}`);
+            
+            const vocab = directionalVocab[currentDirection][currentDirectionalIndex];
+            const text = document.getElementById('transitionText');
+            
+            if (!vocab) {
+                debugLog(`ERROR: No vocab found for direction ${currentDirection}, index ${currentDirectionalIndex}`);
+                return;
+            }
+            
+            if (!text) {
+                debugLog(`ERROR: No text element found`);
+                return;
+            }
+            
+            let displayText;
+            
+            if (vocab.learned) {
+                // For learned items, use their individual display mode
+                if (!vocab.hasOwnProperty('learnedDisplayMode')) {
+                    vocab.learnedDisplayMode = 0; // Default to TL
+                }
+                switch(vocab.learnedDisplayMode) {
+                    case 0: displayText = vocab.tl; break;
+                    case 1: displayText = vocab.sl; break;
+                    default: displayText = vocab.tl;
+                }
+                text.classList.add('learned');
+            } else {
+                // For unlearned items, check their click progression level
+                if (!vocab.hasOwnProperty('clickLevel')) {
+                    vocab.clickLevel = 0; // Initialize to TL level
+                }
+                
+                if (vocab.clickLevel === 0) {
+                    displayText = vocab.tl; // Show TL
+                } else if (vocab.clickLevel === 1) {
+                    displayText = vocab.sl; // Show SL (from previous click)
+                } else {
+                    // Shouldn't be at clickLevel 2 here (that would be quiz)
+                    vocab.clickLevel = 0;
+                    displayText = vocab.tl; // Reset to TL
+                }
+                text.classList.remove('learned');
+            }
+            
+            debugLog(`Setting text to: "${displayText}" from vocab:`, vocab);
+            text.textContent = displayText;
+        }
+        
+        function handleTransitionTextClick() {
+            const vocab = directionalVocab[currentDirection][currentDirectionalIndex];
+            if (!vocab) return;
+            
+            debugLog(`Transition text clicked - Direction: ${currentDirection}, Index: ${currentDirectionalIndex}, Learned: ${vocab.learned}`);
+            
+            if (vocab.learned) {
+                // For learned items, cycle through display modes (TL → SL)
+                if (!vocab.hasOwnProperty('learnedDisplayMode')) {
+                    vocab.learnedDisplayMode = 0; // Initialize to TL
+                }
+                vocab.learnedDisplayMode = (vocab.learnedDisplayMode + 1) % 2;
+                
+                const text = document.getElementById('transitionText');
+                if (text) {
+                    switch(vocab.learnedDisplayMode) {
+                        case 0: text.textContent = vocab.tl; break;
+                        case 1: text.textContent = vocab.sl; break;
+                    }
+                }
+                debugLog(`Learned item - cycled to display mode ${vocab.learnedDisplayMode}: ${text.textContent}`);
+            } else {
+                // For unlearned items: implement proper TL → SL → Quiz progression
+                if (!vocab.hasOwnProperty('clickLevel')) {
+                    vocab.clickLevel = 0; // Initialize: 0 = TL, 1 = SL, 2 = Quiz
+                }
+                
+                const text = document.getElementById('transitionText');
+                
+                if (vocab.clickLevel === 0) {
+                    // Currently showing TL → Progress to SL
+                    vocab.clickLevel = 1;
+                    if (text) text.textContent = vocab.sl;
+                    debugLog(`Progressed from TL to SL: ${vocab.sl}`);
+                } else if (vocab.clickLevel === 1) {
+                    // Currently showing SL → Progress to Quiz
+                    vocab.clickLevel = 2;
+                    debugLog(`Progressing from SL to Quiz`);
+                    showQuiz(currentDirectionalIndex, 'transitions');
+                    return;
+                } else {
+                    // Shouldn't reach here, but reset if needed
+                    vocab.clickLevel = 0;
+                    if (text) text.textContent = vocab.tl;
+                    debugLog(`Reset to TL: ${vocab.tl}`);
+                }
+            }
+        }
+        
+        function showQuiz(index, mode) {
+            currentQuizIndex = index;
+            
+            let item, questionText;
+            if (mode === 'states') {
+                item = statesData[index];
+                questionText = `Enter TL for '${item.sl}'`;
+            } else {
+                item = directionalVocab[currentDirection][currentDirectionalIndex];
+                // Extract the base term from the TL (remove "TL " prefix for the question)
+                const baseTerm = item.tl.replace('TL ', '');
+                questionText = `Enter TL for '${baseTerm}'`;
+            }
+            
+            document.getElementById('quizInput').placeholder = questionText;
+            document.getElementById('quizInput').value = '';
+            document.getElementById('quizFeedback').textContent = '';
+            document.getElementById('quizContainer').style.display = 'block';
+            
+            setTimeout(() => {
+                document.getElementById('quizInput').focus();
+            }, 100);
+        }
+        
+        function normalizeText(text) {
+            return text.toLowerCase().trim();
+        }
+        
+        function checkAnswer() {
+            if (currentQuizIndex === -1) return;
+            
+            let item, correct;
+            const answer = document.getElementById('quizInput').value.trim();
+            
+            if (isStatesMode) {
+                item = statesData[currentQuizIndex];
+                correct = item.tl;
+            } else {
+                item = directionalVocab[currentDirection][currentDirectionalIndex];
+                correct = item.tl;
+            }
+            
+            // Normalize both the user's answer and the correct answer for comparison
+            const normalizedAnswer = normalizeText(answer);
+            const normalizedCorrect = normalizeText(correct);
+            
+            debugLog(`Comparing normalized: "${normalizedAnswer}" vs "${normalizedCorrect}"`);
+            
+            if (normalizedAnswer === normalizedCorrect) {
+                document.getElementById('quizFeedback').textContent = 'Correct!';
+                document.getElementById('quizFeedback').style.color = 'green';
+                
+                item.learned = true;
+                
+                if (isStatesMode) {
+                    // States Mode vocabulary NEVER goes to arrays
+                    item.level = 0;
+                    textElements[currentQuizIndex].classList.add('learned');
+                    textElements[currentQuizIndex].textContent = getDisplayText(item);
+                    debugLog(`States mode: item ${currentQuizIndex} learned - NOT added to arrays`);
+                } else {
+                    // Only Transitions Mode adds to arrays, and only upward/downward
+                    updateTransitionTextDisplay();
+                    
+                    debugLog(`Transitions mode quiz correct - Direction: ${currentDirection}, Index: ${currentDirectionalIndex}`);
+                    
+                    if (!item.addedToArray && (currentDirection === 'upward' || currentDirection === 'downward')) {
+                        debugLog(`Adding ${currentDirection} vocab to array...`);
+                        addToArray(currentDirection, currentDirectionalIndex);
+                        item.addedToArray = true;
+                        debugLog(`Successfully added ${currentDirection} vocab to array`);
+                    } else if (currentDirection === 'stationary') {
+                        debugLog(`Stationary vocab - not adding to array`);
+                    } else if (item.addedToArray) {
+                        debugLog(`Item already added to array`);
+                    }
+                    
+                    // Advance to next vocabulary item in same direction
+                    const maxIndex = directionalVocab[currentDirection].length - 1;
+                    if (currentDirectionalIndex < maxIndex) {
+                        currentDirectionalIndex++;
+                        debugLog(`Advanced to vocab index ${currentDirectionalIndex}`);
+                        updateTransitionTextDisplay();
+                    } else {
+                        debugLog(`Already at max vocab index for ${currentDirection}`);
+                    }
+                }
+                
+                setTimeout(() => {
+                    closeQuiz();
+                }, 1500);
+            } else {
+                document.getElementById('quizFeedback').textContent = 'Try again!';
+                document.getElementById('quizFeedback').style.color = 'red';
+            }
+        }
+        
+        function addToArray(direction, vocabIndex) {
+            const vocab = directionalVocab[direction][vocabIndex];
+            if (!vocab) return;
+            
+            // Skip stationary items
+            if (direction === 'stationary') return;
+            
+            const div = document.createElement('div');
+            div.className = 'vocabulary-item';
+            div.innerHTML = `
+                <span class="tl">${vocab.tl}</span>
+                <span class="sl">${vocab.sl}</span>
+            `;
+            
+            const spans = div.querySelectorAll('span');
+            spans.forEach(span => {
+                span.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.classList.toggle('hidden');
+                });
+            });
+            
+            let targetContainer;
+            if (direction === 'upward') {
+                targetContainer = document.getElementById('increasing-items');
+            } else if (direction === 'downward') {
+                targetContainer = document.getElementById('decreasing-items');
+            }
+            
+            if (targetContainer) {
+                targetContainer.appendChild(div);
+            }
+        }
+        
+        function closeQuiz() {
+            document.getElementById('quizContainer').style.display = 'none';
+            currentQuizIndex = -1;
+        }
+        
+        function toggleMode() {
+            console.log("Toggling mode");
+            isStatesMode = !isStatesMode;
+            
+            const blueFrame = document.getElementById('draggableFrame');
+            const redFrame = document.getElementById('transitionFrame');
+            const transitionText = document.getElementById('transitionText');
+            const titleBox = document.getElementById('title-box');
+            const levelIndicator = document.getElementById('level-indicator');
+            const conceptBackground = document.getElementById('conceptBackground');
+            
+            if (isStatesMode) {
+                blueFrame.style.display = 'block';
+                redFrame.style.display = 'none';
+                transitionText.style.display = 'none';
+                titleBox.textContent = titleTexts.states[currentTextIndex];
+                levelIndicator.style.display = 'none';
+                
+                // Reset title box position for States Mode (top-left)
+                titleBox.style.left = '2%';
+                titleBox.style.transform = 'none';
+                titleBox.style.textAlign = 'left';
+                
+                // Hide the gradient background in States Mode
+                conceptBackground.style.display = 'none';
+                
+                // Hide vocabulary arrays in States Mode
+                const increasingArray = document.getElementById('increasing-array');
+                const decreasingArray = document.getElementById('decreasing-array');
+                increasingArray.style.display = 'none';
+                decreasingArray.style.display = 'none';
+            } else {
+                blueFrame.style.display = 'none';
+                redFrame.style.display = 'block';
+                transitionText.style.display = 'block';
+                titleBox.textContent = titleTexts.transitions[currentTextIndex];
+                levelIndicator.style.display = 'block';
+                levelIndicator.textContent = 'Target Language';
+                
+                // Center title box at 25% for Transitions Mode
+                titleBox.style.left = '25%';
+                titleBox.style.transform = 'translateX(-50%)';
+                titleBox.style.textAlign = 'center';
+                
+                // Show the gradient background in Transitions Mode
+                conceptBackground.style.display = 'block';
+                
+                // Show vocabulary arrays in Transitions Mode
+                const increasingArray = document.getElementById('increasing-array');
+                const decreasingArray = document.getElementById('decreasing-array');
+                increasingArray.style.display = 'block';
+                decreasingArray.style.display = 'block';
+                
+                // Initialize transitions mode
+                previousT = 0.05;
+                currentDirection = 'stationary';
+                currentDirectionalIndex = 0;
+                updateTransitionTextDisplay();
+            }
+            
+            createTextElements();
+            
+            const activeFrame = isStatesMode ? blueFrame : redFrame;
+            const currentT = isStatesMode ? 0.05 : 0.95;
+            updateTextVisibility(currentT);
+            
+            if (!isStatesMode) {
+                updateTransitionText(currentT);
+            }
+        }
+        
+        function switchTitleText() {
+            const titleBox = document.getElementById('title-box');
+            titleBox.classList.add('hidden');
+            setTimeout(() => {
+                currentTextIndex = (currentTextIndex + 1) % 3;
+                const modeKey = isStatesMode ? 'states' : 'transitions';
+                titleBox.textContent = titleTexts[modeKey][currentTextIndex];
+                titleBox.classList.remove('hidden');
+            }, 300);
+        }
+
+        function toggleArrayVisibility(arrayType) {
+            try {
+                const container = document.getElementById(arrayType + "-items");
+                const button = document.getElementById("toggle-" + arrayType);
+                if (!container || !button) {
+                    console.error("Container or button not found for " + arrayType);
+                    return;
+                }
+                
+                const spans = container.querySelectorAll('.vocabulary-item .tl, .vocabulary-item .sl');
+                
+                let visibleCount = 0;
+                spans.forEach(span => {
+                    if (!span.classList.contains('hidden')) {
+                        visibleCount++;
+                    }
+                });
+                
+                const mostlyVisible = visibleCount > spans.length / 2;
+                
+                spans.forEach(span => {
+                    if (mostlyVisible) {
+                        span.classList.add('hidden');
+                    } else {
+                        span.classList.remove('hidden');
+                    }
+                });
+                
+                button.textContent = mostlyVisible ? 'Show All' : 'Hide All';
+            } catch (error) {
+                console.error("Error in toggleArrayVisibility:", error);
+            }
+        }
+        
+        // Convert screen coordinates to diagonal parameter t
+        function screenToDiagonal(clientX, clientY, containerRect) {
+            const svgRect = document.getElementById('svgCanvas').getBoundingClientRect();
+            
+            // Convert to SVG coordinates
+            const svgX = ((clientX - svgRect.left) / svgRect.width) * 200;
+            const svgY = ((clientY - svgRect.top) / svgRect.height) * 100;
+            
+            // Project point onto diagonal line
+            // Line goes from (10, 90) to (190, 10)
+            const x1 = 10, y1 = 90, x2 = 190, y2 = 10;
+            
+            // Calculate projection parameter
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const lineLength = Math.sqrt(dx * dx + dy * dy);
+            
+            const projX = svgX - x1;
+            const projY = svgY - y1;
+            
+            const t = (projX * dx + projY * dy) / (dx * dx + dy * dy);
+            
+            // Clamp t between 0 and 1
+            return Math.max(0, Math.min(1, t));
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM ready - initializing Diagonal Line Phonographic Template");
+            
+            const blueFrame = document.getElementById('draggableFrame');
+            const redFrame = document.getElementById('transitionFrame');
+            const transitionText = document.getElementById('transitionText');
+            const modeToggle = document.getElementById('modeToggle');
+            const titleBox = document.getElementById('title-box');
+            const quizCheck = document.getElementById('quizCheck');
+            const quizInput = document.getElementById('quizInput');
+            const toolsButton = document.getElementById('tools-button');
+            const dragInstruction = document.getElementById('drag-instruction');
+            
+            // Initialize arrays
+            statesLearnedItems = new Array(statesData.length).fill(false);
+            addedIncreasingItems = new Array(Object.values(directionalVocab).flat().length).fill(false);
+            addedDecreasingItems = new Array(Object.values(directionalVocab).flat().length).fill(false);
+            
+            // Create initial text elements
+            createTextElements();
+            
+            // Setup mode toggle
+            modeToggle.onclick = toggleMode;
+            
+            // Setup title click
+            titleBox.onclick = switchTitleText;
+            
+            // Setup quiz
+            quizCheck.onclick = checkAnswer;
+            quizInput.onkeydown = function(e) {
+                if (e.key === 'Enter') checkAnswer();
+            };
+            
+            // Setup transition text click
+            transitionText.addEventListener('click', handleTransitionTextClick);
+            
+            // Setup vocabulary array toggle buttons
+            document.getElementById('toggle-increasing').onclick = function() {
+                toggleArrayVisibility('increasing');
+            };
+            
+            document.getElementById('toggle-decreasing').onclick = function() {
+                toggleArrayVisibility('decreasing');
+            };
+            
+            // Setup global click handler for closing quiz
+            document.addEventListener('click', function(e) {
+                const quizContainer = document.getElementById('quizContainer');
+                if (quizContainer && quizContainer.style.display === 'block' && 
+                    !quizContainer.contains(e.target) && 
+                    !textElements.includes(e.target) &&
+                    e.target !== transitionText) {
+                    
+                    debugLog("Closing quiz - clicked outside");
+                    
+                    // Reset vocabulary items to allow re-entry into learning loop
+                    if (currentQuizIndex !== -1) {
+                        if (isStatesMode) {
+                            // Reset States Mode item back to TL display
+                            const item = statesData[currentQuizIndex];
+                            if (item && !item.learned) {
+                                item.level = 0; // Reset to TL level
+                                if (textElements[currentQuizIndex]) {
+                                    textElements[currentQuizIndex].textContent = item.tl;
+                                }
+                                debugLog(`Reset States item ${currentQuizIndex} back to TL`);
+                            }
+                        } else {
+                            // Reset Transitions Mode item back to TL display
+                            const vocab = directionalVocab[currentDirection][currentDirectionalIndex];
+                            if (vocab && !vocab.learned) {
+                                vocab.clickLevel = 0; // Reset to TL level
+                                delete vocab.learnedDisplayMode; // Reset display mode
+                                const text = document.getElementById('transitionText');
+                                if (text) {
+                                    text.textContent = vocab.tl; // Show TL
+                                }
+                                debugLog(`Reset Transitions item back to TL`);
+                            }
+                        }
+                    }
+                    
+                    closeQuiz();
+                }
+            });
+            
+            // Setup dragging for both frames
+            function startDrag(frame) {
+                return function(e) {
+                    console.log("Starting drag on", frame.id);
+                    isDragging = true;
+                    currentFrame = frame;
+                    frame.classList.add('dragging');
+                    e.preventDefault();
+                    e.stopPropagation();
+                };
+            }
+            
+            blueFrame.addEventListener('mousedown', startDrag(blueFrame));
+            redFrame.addEventListener('mousedown', startDrag(redFrame));
+            
+            // Touch events for mobile
+            blueFrame.addEventListener('touchstart', startDrag(blueFrame));
+            redFrame.addEventListener('touchstart', startDrag(redFrame));
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging || !currentFrame) return;
+                
+                const containerRect = document.querySelector('.a4-page').getBoundingClientRect();
+                const t = screenToDiagonal(e.clientX, e.clientY, containerRect);
+                
+                // Update frame position
+                const pos = calculateDiagonalPosition(t);
+                currentFrame.setAttribute('x', pos.x - 5);
+                currentFrame.setAttribute('y', pos.y - 4);
+                
+                updateTextVisibility(t);
+                
+                if (!isStatesMode) {
+                    updateTransitionText(t);
+                }
+                
+                e.preventDefault();
+            });
+            
+            document.addEventListener('touchmove', function(e) {
+                if (!isDragging || !currentFrame) return;
+                
+                const touch = e.touches[0];
+                const containerRect = document.querySelector('.a4-page').getBoundingClientRect();
+                const t = screenToDiagonal(touch.clientX, touch.clientY, containerRect);
+                
+                // Update frame position
+                const pos = calculateDiagonalPosition(t);
+                currentFrame.setAttribute('x', pos.x - 5);
+                currentFrame.setAttribute('y', pos.y - 4);
+                
+                updateTextVisibility(t);
+                
+                if (!isStatesMode) {
+                    updateTransitionText(t);
+                }
+                
+                e.preventDefault();
+            }, { passive: false });
+            
+            document.addEventListener('mouseup', function() {
+                if (isDragging && currentFrame) {
+                    console.log("Ending drag on", currentFrame.id);
+                    currentFrame.classList.remove('dragging');
+                    isDragging = false;
+                    currentFrame = null;
+                }
+            });
+            
+            document.addEventListener('touchend', function() {
+                if (isDragging && currentFrame) {
+                    console.log("Ending touch drag on", currentFrame.id);
+                    currentFrame.classList.remove('dragging');
+                    isDragging = false;
+                    currentFrame = null;
+                }
+            });
+            
+            // Initialize UI state
+            const levelIndicator = document.getElementById('level-indicator');
+            const conceptBackground = document.getElementById('conceptBackground');
+            levelIndicator.style.display = 'none'; // Hidden in States Mode initially
+            conceptBackground.style.display = 'none'; // Hidden in States Mode initially
+            
+            // Initialize frame position to TL1 (bottom-left of diagonal)
+            const initialPos = calculateDiagonalPosition(0.05);
+            blueFrame.setAttribute('x', initialPos.x - 5);
+            blueFrame.setAttribute('y', initialPos.y - 4);
+            
+            // Initialize frame position and visibility
+            updateTextVisibility(0.05);
+            
+            // Hide drag instruction after 5 seconds
+            setTimeout(() => {
+                if (dragInstruction) {
+                    dragInstruction.classList.add('fade');
+                    setTimeout(() => {
+                        dragInstruction.style.display = 'none';
+                    }, 2000);
+                }
+            }, 5000);
+            
+            console.log("Diagonal Line Phonographic Template Initialized Successfully");
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOG-CR-CMP Generic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0; padding: 0;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; background-color: #f9f9f9; overflow: hidden;
+        }
+        .a4-page {
+            width: 90vw; height: 70vh;
+            border: 5px solid black; background-color: white;
+            box-sizing: border-box; position: relative;
+            touch-action: none; z-index: 1; overflow: hidden;
+        }
+        .watermark {
+            position: absolute; bottom: 5px; width: 100%;
+            text-align: center; font-size: 12px;
+            color: rgba(0,0,0,0.3); font-weight: bold;
+            pointer-events: none; user-select: none; z-index: 0;
+        }
+        svg { width: 100%; height: 100%; overflow: visible; }
+        .compass-circle { stroke: #333; stroke-width: 0.5; fill: none; }
+        .degree-marker  { stroke: #999; stroke-width: 0.15; }
+        .major-marker   { stroke: #666; stroke-width: 0.3; }
+        .degree-label   {
+            font-size: 2px; fill: #666; text-anchor: middle;
+            dominant-baseline: central; pointer-events: none;
+        }
+        .quadrant-fill { fill-opacity: 0.15; stroke: none; }
+        .q1-quadrant { fill: #b3d9ff; }
+        .q2-quadrant { fill: #fff4b3; }
+        .q3-quadrant { fill: #ffcc99; }
+        .q4-quadrant { fill: #ffb3d9; }
+
+        .textBox {
+            cursor: pointer; font-size: 0.8em; fill: black;
+            opacity: 0; display: none;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transform: scale(0.5); text-anchor: middle; font-family: Arial, sans-serif;
+        }
+        .textBox.active  { opacity: 1; display: block; transform: scale(1) translateY(0); }
+        .textBox.learned { opacity: 0.5; display: block; transform: scale(1) translateY(0); fill: green; }
+        .textBox.visible { opacity: 0.5; display: block; transform: scale(1) translateY(0); }
+        .textBox.learned.active { opacity: 1; }
+        .textBox.hidden  { opacity: 0; display: none; }
+
+        .compass-arrow { cursor: grab; pointer-events: all; z-index: 1000; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+        .compass-arrow:hover    { cursor: grab; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5)); }
+        .compass-arrow.dragging { cursor: grabbing; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6)); }
+        .needle-north { fill: #cc2222; stroke: #7a1010; stroke-width: 0.25; }
+        .needle-south { fill: #2255aa; stroke: #10306e; stroke-width: 0.25; }
+        .needle-highlight { stroke: white; stroke-width: 0.25; opacity: 0.5; pointer-events: none; }
+        .needle-pivot { fill: url(#needlePivotGradient); stroke: #555; stroke-width: 0.3; }
+        .needle-pivot-highlight { fill: white; opacity: 0.5; pointer-events: none; }
+
+        .title-box {
+            position: absolute; top: 2%; left: 75%; transform: translateX(-50%);
+            font-size: 1em; font-weight: bold; text-align: center;
+            cursor: pointer; border: 1px solid black; padding: 10px;
+            background-color: white; z-index: 2;
+            transition: opacity 0.5s ease, transform 0.5s ease; font-family: Arial, sans-serif;
+        }
+        .title-box.hidden { opacity: 0; transform: translateX(-50%) scale(0.9); }
+
+        .direction-indicator {
+            position: absolute; top: 2%; right: 2%;
+            font-size: 1em; padding: 5px 10px;
+            background-color: white; border: 1px solid #555; border-radius: 4px; z-index: 3;
+        }
+        .display-mode-toggle {
+            position: absolute; top: 60px; right: 10px;
+            font-size: 0.7em; padding: 5px 10px;
+            background-color: #e8f4fd; border: 1px solid #3366cc;
+            border-radius: 4px; cursor: pointer; z-index: 3;
+        }
+        .show-all-toggle {
+            position: absolute; bottom: 2%; right: 2%;
+            font-size: 0.7em; padding: 5px 10px;
+            background-color: #e8f4fd; border: 1px solid #3366cc;
+            border-radius: 4px; cursor: pointer; z-index: 3;
+        }
+        .drag-instruction {
+            position: absolute; top: 150px; right: 10px;
+            font-size: 0.9em; padding: 5px 10px;
+            background-color: rgba(255,255,255,0.9); border: 1px solid #ccc;
+            border-radius: 4px; z-index: 3; opacity: 1;
+            transition: opacity 3s ease; max-width: 200px;
+        }
+        .drag-instruction.fade { opacity: 0; }
+
+        .quiz-container {
+            position: fixed; top: 40%; left: 75%; transform: translate(-50%,-50%);
+            background-color: white; border: 3px solid #3366cc; border-radius: 4px;
+            padding: 12px; z-index: 9999; display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); max-width: 360px; width: 360px;
+            pointer-events: auto; visibility: visible; opacity: 1;
+        }
+        .quiz-container input {
+            width: 100%; padding: 8px; font-size: 14px;
+            border: 1px solid #ccc; border-radius: 4px;
+            margin-bottom: 10px; font-family: Arial, sans-serif;
+        }
+        .quiz-container button {
+            width: 100%; padding: 8px; background-color: #3366cc;
+            color: white; border: none; border-radius: 4px;
+            cursor: pointer; font-weight: bold;
+        }
+        .quiz-container button:hover { background-color: #254e9c; }
+        #quizFeedback { text-align: center; font-weight: bold; margin-top: 8px; min-height: 20px; }
+
+        .learned-vocabulary {
+            position: absolute; top: 2%; left: 2%;
+            width: 25%; max-height: 96%; overflow-y: auto;
+            background-color: rgba(255,255,255,0.9); border: 1px solid #ccc;
+            border-radius: 4px; padding: 5px; z-index: 4; display: block;
+        }
+        .array-title {
+            font-size: 0.9em; text-align: center; font-weight: bold;
+            margin-bottom: 5px; padding: 3px; background-color: #f0f0f0;
+            border-bottom: 1px solid #ccc;
+        }
+        .vocabulary-item {
+            display: flex; flex-direction: column; font-size: 0.75em;
+            margin: 3px 0; padding: 5px; border: 1px solid #ddd;
+            border-radius: 3px; background-color: #f9f9f9;
+            transition: background-color 0.3s ease;
+        }
+        .vocabulary-item:hover { background-color: #eaf2ff; }
+        .vocabulary-item .tl-word {
+            font-weight: bold; color: green; cursor: pointer;
+            padding: 2px 5px; border-radius: 3px; font-family: Arial, sans-serif;
+        }
+        .vocabulary-item .sl-word {
+            color: #555; cursor: pointer; padding: 2px 5px; border-radius: 3px;
+        }
+        .vocabulary-item .tl-word.hidden,
+        .vocabulary-item .sl-word.hidden {
+            color: transparent; user-select: none; background-color: #f0f0f0;
+        }
+        .toggle-visibility {
+            position: absolute; top: 5px; right: 5px; font-size: 0.7em;
+            padding: 2px 5px; background-color: #eee; border: 1px solid #ccc;
+            border-radius: 3px; cursor: pointer; z-index: 5;
+        }
+        .compass-rose-decoration { fill: none; stroke: #666; stroke-width: 0.2; opacity: 0.3; }
+    </style>
+</head>
+<body>
+    <div class="a4-page">
+        <div id="title-box" class="title-box">TITLE_PLACEHOLDER</div>
+        <div id="direction-indicator" class="direction-indicator">DIRECTION_INDICATOR_PLACEHOLDER</div>
+        <div id="display-mode-toggle" class="display-mode-toggle">SHOW_TL_LABEL</div>
+        <div id="drag-instruction" class="drag-instruction">DRAG_INSTRUCTION_PLACEHOLDER</div>
+        <button id="show-all-toggle" class="show-all-toggle">SHOW_ALL_DIRECTIONS_LABEL</button>
+
+        <div id="learned-vocabulary" class="learned-vocabulary">
+            <div class="array-title">ARRAY_TITLE_PLACEHOLDER</div>
+            <button class="toggle-visibility" id="toggle-learned">HIDE_ALL_LABEL</button>
+            <div id="learned-items"></div>
+        </div>
+
+        <svg id="svgCanvas" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+            <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto">
+                    <polygon points="0 0, 10 3, 0 6" fill="#ff3333"/>
+                </marker>
+                <radialGradient id="needlePivotGradient" cx="35%" cy="35%" r="65%">
+                    <stop offset="0%"   style="stop-color:#f5f5f5;stop-opacity:1"/>
+                    <stop offset="60%"  style="stop-color:#b0b0b0;stop-opacity:1"/>
+                    <stop offset="100%" style="stop-color:#707070;stop-opacity:1"/>
+                </radialGradient>
+            </defs>
+
+            <!-- Color-coded quadrants -->
+            <g id="quadrants">
+                <path id="q1-quadrant" class="quadrant-fill q1-quadrant"/>
+                <path id="q2-quadrant" class="quadrant-fill q2-quadrant"/>
+                <path id="q3-quadrant" class="quadrant-fill q3-quadrant"/>
+                <path id="q4-quadrant" class="quadrant-fill q4-quadrant"/>
+            </g>
+
+            <!-- Compass rose decoration -->
+            <g id="compass-rose">
+                <circle cx="50" cy="50" r="8"  class="compass-rose-decoration"/>
+                <circle cx="50" cy="50" r="12" class="compass-rose-decoration"/>
+            </g>
+
+            <!-- Degree markers added by JavaScript -->
+            <g id="degree-markers"></g>
+
+            <!-- Main compass circle -->
+            <circle id="compassCircle" cx="50" cy="50" r="30" class="compass-circle"/>
+
+            <!-- Compass needle — fixed at center (50,50), rotates in place
+                 around its own pivot rather than translating out to the
+                 rim, per Alan's request 2026-07-22 to match a classic
+                 magnetic-needle look (red=north tip, blue=south tip). -->
+            <g id="compassArrow" class="compass-arrow">
+                <path class="needle-north" d="M 50 21 L 48.6 50 L 51.4 50 Z"/>
+                <path class="needle-south" d="M 50 79 L 48.6 50 L 51.4 50 Z"/>
+                <line class="needle-highlight" x1="50" y1="21" x2="50" y2="79"/>
+                <circle class="needle-pivot" cx="50" cy="50" r="3"/>
+                <circle class="needle-pivot-highlight" cx="49.2" cy="49.2" r="1"/>
+            </g>
+        </svg>
+
+        <div class="watermark">&copy; 2026 Alan William Preston</div>
+    </div>
+
+    <div id="quizContainer" class="quiz-container">
+        <input type="text" id="quizInput" placeholder="QUIZ_PLACEHOLDER">
+        <button id="quizCheck">QUIZ_BUTTON_LABEL</button>
+        <div id="quizFeedback"></div>
+    <div id="quizDiacriticNote" style="font-size:10px;color:#888;text-align:center;margin-top:6px;padding-top:6px;border-top:1px solid #eee;"></div>
+    </div>
+
+    <script>
+
+    // =====================================================================
+    // =====================================================================
+// LOGOGRAPHIC VARIANT — 4-level cycle: TLR (default) → TL → SL → Quiz
+// Quiz tests TLR (romanized) reproduction with diacritic normalization.
+// =====================================================================
+// LANGUAGE CONFIGURATION BLOCK
+    // To create a new language pair, replace ALL values in this section.
+    // SL = Source Language  |  TL = Target Language (language being learned)
+    //
+    // STRUCTURE: This template maps the 16-point compass rose onto a
+    // circular dial divided into 4 colour-coded 90° quadrants (Q1 = N
+    // through NE, Q2 = E through SE, Q3 = S through SW, Q4 = W through
+    // NW — each spanning from one cardinal point to the next, centred on
+    // the intermediate direction). Degree markers (0-359°) line the rim,
+    // with major tick labels every 10°.
+    // Do NOT change anything outside this block.
+    // =====================================================================
+    const LANG = {
+
+        // --- Title cycle (click title box to cycle) ----------------------
+        titles: [
+        "TLR_TITLE",
+        "TL_TITLE",
+        "SL_TITLE"
+    ],
+
+        // --- UI strings --------------------------------------------------
+            show_tlr_label:   "SHOW_TLR_LABEL",     // e.g. "Show: Romanized (TLR)"
+    show_tl_label:    "SHOW_TL_LABEL",     // e.g. "Show: Target Language"
+        show_sl_label:    "SHOW_SL_LABEL",     // e.g. "Show: Source Language"
+        drag_instruction: "DRAG_INSTRUCTION",  // e.g. "Drag the arrow around to explore compass directions!"
+        array_title:      "ARRAY_TITLE",       // e.g. "Learned Vocabulary"
+        hide_all_label:   "HIDE_ALL_LABEL",    // e.g. "Hide All"
+        show_all_label:   "SHOW_ALL_LABEL",    // e.g. "Show All"
+        show_all_directions_label: "SHOW_ALL_DIRECTIONS_LABEL", // e.g. "Show All"
+        hide_all_directions_label: "HIDE_ALL_DIRECTIONS_LABEL", // e.g. "Hide All"
+        quiz_placeholder: "QUIZ_PLACEHOLDER",  // e.g. "Enter the [TL] direction"
+        quiz_button:      "QUIZ_BUTTON_LABEL", // e.g. "Check"
+        quiz_correct:     "QUIZ_CORRECT",      // e.g. "Correct!"
+        quiz_wrong:       "QUIZ_WRONG",        // e.g. "Try again"
+    // --- Diacritic / romanization normalization --------------------------
+    // Shown near the quiz input so learners know they can type plain vowels.
+    diacritic_instructions: "DIACRITIC_INSTRUCTIONS",
+    // e.g. "Tip: macrons (ā→a, ō→o) may be typed as plain vowels."
+    diacritic_map: [
+        // ["ā","a"], ["ī","i"], ["ū","u"], ["ē","e"], ["ō","o"]
+    ],
+    collapse_double_vowels: false,
+
+        // --- Vocabulary data (16 compass points) ----------------------------
+        // Format: [ SL direction, TL direction, TLR direction, Quiz question, Angle (0-360°) ]
+        // Angle 0° = North (top), increases clockwise in 22.5° steps.
+        directionsData: [
+            ["SL-N", "TL-N", "TLR-N", "QUIZ-N",   0    ],
+            ["SL-NNE", "TL-NNE", "TLR-NNE", "QUIZ-NNE", 22.5 ],
+            ["SL-NE", "TL-NE", "TLR-NE", "QUIZ-NE",  45   ],
+            ["SL-ENE", "TL-ENE", "TLR-ENE", "QUIZ-ENE", 67.5 ],
+            ["SL-E", "TL-E", "TLR-E", "QUIZ-E",   90   ],
+            ["SL-ESE", "TL-ESE", "TLR-ESE", "QUIZ-ESE", 112.5],
+            ["SL-SE", "TL-SE", "TLR-SE", "QUIZ-SE",  135  ],
+            ["SL-SSE", "TL-SSE", "TLR-SSE", "QUIZ-SSE", 157.5],
+            ["SL-S", "TL-S", "TLR-S", "QUIZ-S",   180  ],
+            ["SL-SSW", "TL-SSW", "TLR-SSW", "QUIZ-SSW", 202.5],
+            ["SL-SW", "TL-SW", "TLR-SW", "QUIZ-SW",  225  ],
+            ["SL-WSW", "TL-WSW", "TLR-WSW", "QUIZ-WSW", 247.5],
+            ["SL-W", "TL-W", "TLR-W", "QUIZ-W",   270  ],
+            ["SL-WNW", "TL-WNW", "TLR-WNW", "QUIZ-WNW", 292.5],
+            ["SL-NW", "TL-NW", "TLR-NW", "QUIZ-NW",  315  ],
+            ["SL-NNW", "TL-NNW", "TLR-NNW", "QUIZ-NNW", 337.5]
+        ]
+    };
+    // =====================================================================
+    // END OF LANGUAGE CONFIGURATION BLOCK
+
+// --- Answer normalization (diacritic-tolerant for TLR quiz answers) ---
+const AnswerUtils = {
+    normalize: function(text) {
+        let t = text.toLowerCase();
+        LANG.diacritic_map.forEach(([accented, plain]) => {
+            t = t.split(accented).join(plain);
+        });
+        if (LANG.collapse_double_vowels) {
+            t = t.replace(/aa/g,'a').replace(/ee/g,'e').replace(/ii/g,'i')
+                 .replace(/oo/g,'o').replace(/uu/g,'u');
+        }
+        return t.replace(/\s+/g,' ').trim().toLowerCase();
+    },
+    checkAnswer: function(userInput, correct) {
+        return this.normalize(userInput) === this.normalize(correct);
+    }
+};
+
+    // No language-specific content appears below this line.
+    // =====================================================================
+
+
+    // --- Apply UI strings from config ------------------------------------
+    document.getElementById('title-box').textContent          = LANG.titles[0];
+    document.getElementById('display-mode-toggle').textContent= LANG.show_tlr_label;
+    document.getElementById('drag-instruction').textContent   = LANG.drag_instruction;
+    document.querySelector('.array-title').textContent        = LANG.array_title;
+    document.getElementById('toggle-learned').textContent     = LANG.hide_all_label;
+    document.getElementById('show-all-toggle').textContent    = LANG.show_all_directions_label;
+    document.getElementById('quizInput').placeholder          = LANG.quiz_placeholder;
+    document.getElementById('quizCheck').textContent          = LANG.quiz_button;
+    const _dNote = document.getElementById('quizDiacriticNote');
+    if (_dNote) _dNote.textContent = LANG.diacritic_instructions;
+
+    // --- Runtime state -----------------------------------------------------
+    const directionsData = LANG.directionsData;
+    let currentQuizIndex = -1;
+    let learnedItems     = new Array(directionsData.length).fill(false);
+    let textBoxElements  = [];
+    let displayMode      = 0; // 0: TL, 1: SL
+    let currentDirection = 0;
+    let isDragging       = false;
+    let currentTextIndex = 0;
+    let showAllTextBoxes = false;
+
+    // Textbox radius, per Alan's request 2026-07-22: every item — learned
+    // or not — sits along its own radial line (through its own compass
+    // angle) at a point 25% of the circle's own radius (30) beyond the
+    // circumference, i.e. radius = 30 * 1.25 = 37.5, uniformly. This
+    // replaces the old two-tier active(10)/learned(22) radius split
+    // entirely, matching the fix applied to LOG-CR-TDL for the same
+    // clustering/overlap complaint.
+    const textBoxRadius = 30 * 1.25;
+    // Hook for individual exceptions if specific compass points still
+    // overlap after the uniform radius (e.g. adjacent points at dense
+    // angles) — empty for now, same pattern as LOG-CR-TDL/SEA-TEMP.
+    const positionOverrides = {};
+
+    // --- Compass-point hierarchy (font size + case), per Alan's request
+    // 2026-07-22 ---------------------------------------------------------
+    // Tier is derived from each point's ANGLE, not the literal character
+    // count of whatever text happens to be displayed — the 16-point rose
+    // has a fixed structure (4 cardinal / 4 intercardinal / 8 secondary-
+    // intercardinal points) regardless of target language, so basing this
+    // on angle keeps it correct even when a translation's word length
+    // doesn't match the English acronym's letter count (e.g. Alan's "4
+    // letters" example, ENE, is actually 3 — the real hierarchy is 1/2/3
+    // letters cardinal/intercardinal/secondary, confirmed against the
+    // full 16-point set).
+    //   Tier 1 (cardinal: N/E/S/W)      — 100% size, UPPERCASE
+    //   Tier 2 (intercardinal: NE/SE/SW/NW) — 75% size, Capitalized
+    //   Tier 3 (secondary: NNE/ENE/etc) — 50% size, lowercase
+    const BASE_FONT_SIZE_PX = 7;
+    function getCompassTier(index) {
+        const angle = ((directionsData[index][4] % 360) + 360) % 360;
+        if (angle % 90 === 0) return 1;
+        if (angle % 45 === 0) return 2;
+        return 3;
+    }
+    function applyTierStyle(div, index) {
+        const tier = getCompassTier(index);
+        if (tier === 1) {
+            div.style.fontSize = BASE_FONT_SIZE_PX + "px";
+            div.style.textTransform = "uppercase";
+        } else if (tier === 2) {
+            div.style.fontSize = (BASE_FONT_SIZE_PX * 0.75) + "px";
+            div.style.textTransform = "capitalize";
+        } else {
+            div.style.fontSize = (BASE_FONT_SIZE_PX * 0.5) + "px";
+            div.style.textTransform = "lowercase";
+        }
+    }
+
+    // --- Quadrants -------------------------------------------------------------
+    function createQuadrants() {
+        const center = { x: 50, y: 50 }, radius = 30;
+        const quadrants = [
+            { id: 'q1-quadrant', startAngle: 315, endAngle: 45  },
+            { id: 'q2-quadrant', startAngle: 45,  endAngle: 135 },
+            { id: 'q3-quadrant', startAngle: 135, endAngle: 225 },
+            { id: 'q4-quadrant', startAngle: 225, endAngle: 315 }
+        ];
+        quadrants.forEach(quad => {
+            const a1 = (quad.startAngle - 90) * Math.PI / 180;
+            const a2 = (quad.endAngle   - 90) * Math.PI / 180;
+            const x1 = center.x + radius * Math.cos(a1), y1 = center.y + radius * Math.sin(a1);
+            const x2 = center.x + radius * Math.cos(a2), y2 = center.y + radius * Math.sin(a2);
+            const largeArc = (quad.endAngle - quad.startAngle) > 180 ? 1 : 0;
+            const d = [`M ${center.x} ${center.y}`, `L ${x1} ${y1}`,
+                       `A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`, 'Z'].join(' ');
+            const el = document.getElementById(quad.id);
+            if (el) el.setAttribute('d', d);
+        });
+    }
+
+    // --- Degree markers ----------------------------------------------------------
+    function createDegreeMarkers() {
+        const markersGroup = document.getElementById("degree-markers");
+        const center = { x: 50, y: 50 }, radius = 30;
+        for (let degree = 0; degree < 360; degree++) {
+            const angle = (degree - 90) * Math.PI / 180;
+            const isMajor = degree % 10 === 0;
+            const markerLength = isMajor ? 2 : 1;
+            const x1 = center.x + radius * Math.cos(angle), y1 = center.y + radius * Math.sin(angle);
+            const x2 = center.x + (radius + markerLength) * Math.cos(angle);
+            const y2 = center.y + (radius + markerLength) * Math.sin(angle);
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", x1); line.setAttribute("y1", y1);
+            line.setAttribute("x2", x2); line.setAttribute("y2", y2);
+            line.setAttribute("class", isMajor ? "major-marker" : "degree-marker");
+            markersGroup.appendChild(line);
+
+            if (isMajor) {
+                const lx = center.x + (radius + 4) * Math.cos(angle);
+                const ly = center.y + (radius + 4) * Math.sin(angle);
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", lx); text.setAttribute("y", ly);
+                text.setAttribute("class", "degree-label");
+                text.textContent = degree;
+                markersGroup.appendChild(text);
+            }
+        }
+    }
+
+    // --- Display mode toggle ------------------------------------------------------
+    function cycleDisplayMode() {
+        displayMode = (displayMode + 1) % 2;
+        const button = document.getElementById("display-mode-toggle");
+        button.textContent = displayMode === 0 ? LANG.show_tlr_label : LANG.show_sl_label;
+        updateAllTextBoxes();
+    }
+
+    function updateAllTextBoxes() {
+        textBoxElements.forEach((textBox, index) => {
+            if (!textBox) return;
+            const div = textBox.querySelector('div');
+            if (!div) return;
+            if (displayMode === 0) {
+                div.textContent = directionsData[index][1]; // TL
+            } else {
+                div.textContent = directionsData[index][0]; // SL
+            }
+            applyTierStyle(div, index);
+        });
+    }
+
+    // --- Vocabulary array panel ----------------------------------------------------
+    function toggleArrayVisibility() {
+        const container = document.getElementById("learned-items");
+        const button    = document.getElementById("toggle-learned");
+        if (!container || !button) return;
+        const spans = container.querySelectorAll('.vocabulary-item .tl-word, .vocabulary-item .sl-word');
+        let visibleCount = 0;
+        spans.forEach(s => { if (!s.classList.contains('hidden')) visibleCount++; });
+        const mostlyVisible = visibleCount > spans.length / 2;
+        spans.forEach(s => s.classList.toggle('hidden', mostlyVisible));
+        button.textContent = mostlyVisible ? LANG.show_all_label : LANG.hide_all_label;
+    }
+
+    function addToVocabularyArray(index) {
+        const sl = directionsData[index][0];
+        const tl = directionsData[index][1];
+        const item = document.createElement('div');
+        item.className = 'vocabulary-item';
+        const tlSpan = document.createElement('span');
+        tlSpan.className = 'tl-word';
+        tlSpan.textContent = tl;
+        const slSpan = document.createElement('span');
+        slSpan.className = 'sl-word';
+        slSpan.textContent = sl;
+        [tlSpan, slSpan].forEach(s => {
+            s.addEventListener('click', function(e) { e.stopPropagation(); this.classList.toggle('hidden'); });
+        });
+        item.appendChild(tlSpan);
+        item.appendChild(slSpan);
+        document.getElementById("learned-items").appendChild(item);
+    }
+
+    // --- Text boxes -----------------------------------------------------------------
+    function createTextBoxes() {
+        const svg = document.getElementById("svgCanvas");
+        document.querySelectorAll('.textBox').forEach(b => { if (b.parentNode) b.parentNode.removeChild(b); });
+        textBoxElements = [];
+
+        const center = { x: 50, y: 50 };
+
+        directionsData.forEach((item, index) => {
+            const angle = (item[4] - 90) * Math.PI / 180;
+            let x = center.x + textBoxRadius * Math.cos(angle);
+            let y = center.y + textBoxRadius * Math.sin(angle);
+            if (positionOverrides[index]) {
+                if (positionOverrides[index].x !== undefined) x = positionOverrides[index].x;
+                if (positionOverrides[index].y !== undefined) y = positionOverrides[index].y;
+            }
+
+            const fo = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+            fo.setAttribute("x", x - 30);
+            fo.setAttribute("y", y - 12);
+            fo.setAttribute("width",  "60");
+            fo.setAttribute("height", "24");
+            fo.setAttribute("class", "textBox");
+            fo.setAttribute("data-index", index);
+            fo.style.pointerEvents = "auto";
+            fo.style.zIndex = "500";
+
+            const div = document.createElement("div");
+            div.style.width      = "100%";
+            div.style.height     = "100%";
+            div.style.display    = "flex";
+            div.style.alignItems = "center";
+            div.style.justifyContent = "center";
+            div.style.boxSizing  = "border-box";
+            div.style.textAlign  = "center";
+            div.style.fontFamily = "Arial, sans-serif";
+            div.style.color      = "black";
+            div.style.cursor     = "pointer";
+            div.style.lineHeight = "1.1";
+            div.style.fontWeight = "bold";
+            div.style.textShadow = "1px 1px 2px rgba(255,255,255,0.8)";
+            div.textContent = item[2]; // start with TLR
+            fo.appendChild(div);
+            applyTierStyle(div, index);
+
+            if (learnedItems[index]) fo.classList.add('learned');
+
+            fo.addEventListener('click', function() {
+                const idx = parseInt(this.getAttribute('data-index'));
+                const div = this.querySelector('div');
+                const qc  = document.getElementById("quizContainer");
+                if (qc.style.display !== 'none' && currentQuizIndex === idx) return;
+
+                const tlText = directionsData[idx][1], slText = directionsData[idx][0];
+
+                if (learnedItems[idx]) {
+                    if (div.textContent === tlText) { div.textContent = slText; }
+                    else                             { div.textContent = tlText; }
+                } else {
+                    if (div.textContent === tlText) {
+                        div.textContent = slText;
+                    } else if (div.textContent === slText) {
+                        showQuiz(idx);
+                    } else {
+                        div.textContent = tlText;
+                    }
+                }
+                applyTierStyle(div, idx);
+            });
+
+            const arrow = document.getElementById('compassArrow');
+            if (arrow && arrow.parentNode) arrow.parentNode.insertBefore(fo, arrow);
+            else svg.appendChild(fo);
+            textBoxElements.push(fo);
+        });
+
+        const arrow = document.getElementById('compassArrow');
+        if (arrow && arrow.parentNode) arrow.parentNode.appendChild(arrow);
+    }
+
+    function updateVisibleTextBoxes(directionIndex) {
+        textBoxElements.forEach((tb, index) => {
+            if (!tb) return;
+            tb.classList.remove('active', 'learned', 'visible', 'hidden');
+            if (index === directionIndex) {
+                tb.classList.add('active');
+                if (learnedItems[index]) tb.classList.add('learned');
+                tb.style.opacity = '1'; tb.style.display = 'block';
+            } else if (learnedItems[index]) {
+                tb.classList.add('learned');
+                tb.style.opacity = '0.5'; tb.style.display = 'block';
+            } else if (showAllTextBoxes) {
+                tb.classList.add('visible');
+                tb.style.opacity = '0.5'; tb.style.display = 'block';
+            } else {
+                tb.classList.add('hidden');
+                tb.style.opacity = '0'; tb.style.display = 'none';
+            }
+        });
+        const item = directionsData[directionIndex];
+        document.getElementById("direction-indicator").textContent = `${item[1]} (${item[4]}°)`;
+    }
+
+    function toggleShowAllTextBoxes() {
+        showAllTextBoxes = !showAllTextBoxes;
+        const btn = document.getElementById('show-all-toggle');
+        btn.textContent = showAllTextBoxes ? LANG.hide_all_directions_label : LANG.show_all_directions_label;
+        updateVisibleTextBoxes(currentDirection);
+    }
+
+    // --- Quiz ---------------------------------------------------------------------
+    function showQuiz(index) {
+        currentQuizIndex = index;
+        const qc = document.getElementById("quizContainer");
+        const qi = document.getElementById("quizInput");
+        const qf = document.getElementById("quizFeedback");
+        qi.placeholder = directionsData[index][3];
+        qi.value = '';
+        qf.textContent = '';
+        qc.style.display = 'block'; qc.style.visibility = 'visible';
+        qc.style.opacity = '1'; qc.style.zIndex = '9999';
+        setTimeout(() => { try { qi.focus(); } catch(e) {} }, 100);
+    }
+
+    let closedIdx = -1;
+    function checkQuizAnswer() {
+        if (currentQuizIndex < 0) return;
+        const userAnswer = document.getElementById("quizInput").value.trim();
+        const correct    = directionsData[currentQuizIndex][2] // TLR;
+        const qf         = document.getElementById("quizFeedback");
+
+        if (userAnswer.toLowerCase() === correct.toLowerCase()) {
+            qf.textContent = LANG.quiz_correct; qf.style.color = 'green';
+            learnedItems[currentQuizIndex] = true;
+            const tb = textBoxElements[currentQuizIndex];
+            if (tb) {
+                tb.classList.add('learned');
+                const div = tb.querySelector('div');
+                if (div) { div.textContent = correct; applyTierStyle(div, currentQuizIndex); }
+                const center = { x: 50, y: 50 };
+                const angle = (directionsData[currentQuizIndex][4] - 90) * Math.PI / 180;
+                let x = center.x + textBoxRadius * Math.cos(angle);
+                let y = center.y + textBoxRadius * Math.sin(angle);
+                if (positionOverrides[currentQuizIndex]) {
+                    if (positionOverrides[currentQuizIndex].x !== undefined) x = positionOverrides[currentQuizIndex].x;
+                    if (positionOverrides[currentQuizIndex].y !== undefined) y = positionOverrides[currentQuizIndex].y;
+                }
+                tb.setAttribute("x", x - 30);
+                tb.setAttribute("y", y - 12);
+            }
+            addToVocabularyArray(currentQuizIndex);
+            closedIdx = currentQuizIndex;
+            setTimeout(() => {
+                if (currentQuizIndex === closedIdx) {
+                    document.getElementById("quizContainer").style.display = 'none';
+                    currentQuizIndex = -1;
+                }
+            }, 1500);
+        } else {
+            qf.textContent = LANG.quiz_wrong; qf.style.color = 'red';
+            const tb = textBoxElements[currentQuizIndex];
+            if (tb) { const div = tb.querySelector('div'); if (div) { div.textContent = correct; applyTierStyle(div, currentQuizIndex); } }
+        }
+    }
+
+    function positionArrowOnDirection(directionIndex) {
+        const item = directionsData[directionIndex];
+        const arrow = document.getElementById("compassArrow");
+        arrow.setAttribute('transform', `rotate(${item[4]}, 50, 50)`);
+        currentDirection = directionIndex;
+        updateVisibleTextBoxes(directionIndex);
+    }
+
+    function findClosestDirection(angle) {
+        const norm = ((angle % 360) + 360) % 360;
+        let closest = 0, minDiff = 360;
+        directionsData.forEach((item, i) => {
+            let diff = Math.abs(norm - item[4]);
+            if (diff > 180) diff = 360 - diff;
+            if (diff < minDiff) { minDiff = diff; closest = i; }
+        });
+        return closest;
+    }
+
+    // --- Init -----------------------------------------------------------------------
+    function initializeApp() {
+        const svg              = document.getElementById("svgCanvas");
+        const arrow            = document.getElementById("compassArrow");
+        const titleBox         = document.getElementById("title-box");
+        const displayModeToggle= document.getElementById("display-mode-toggle");
+        const quizContainer    = document.getElementById("quizContainer");
+        const quizInput        = document.getElementById("quizInput");
+        const quizCheck        = document.getElementById("quizCheck");
+        const toggleLearnedBtn = document.getElementById("toggle-learned");
+
+        if (!svg || !arrow || !titleBox) { console.error("Critical elements missing"); return; }
+
+        createQuadrants();
+        createDegreeMarkers();
+        createTextBoxes();
+        positionArrowOnDirection(0);
+
+        arrow.style.pointerEvents = 'all';
+        arrow.style.cursor = 'grab';
+        arrow.style.zIndex = '1000';
+
+        const startDrag = (e) => {
+            isDragging = true; arrow.classList.add('dragging'); arrow.style.cursor = 'grabbing';
+            e.preventDefault(); e.stopPropagation();
+        };
+        const dragMove = (e) => {
+            if (!isDragging) return;
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            try {
+                const pt = svg.createSVGPoint();
+                pt.x = clientX; pt.y = clientY;
+                const svgPt = pt.matrixTransform(svg.getScreenCTM().inverse());
+                const svgX = svgPt.x, svgY = svgPt.y;
+                const angle = Math.atan2(svgY - 50, svgX - 50);
+                const angleDeg = (angle * 180 / Math.PI + 90 + 360) % 360;
+                arrow.setAttribute('transform', `rotate(${angleDeg}, 50, 50)`);
+                const idx = findClosestDirection(angleDeg);
+                currentDirection = idx;
+                updateVisibleTextBoxes(idx);
+            } catch (err) { console.error("drag error:", err); }
+            e.preventDefault(); e.stopPropagation();
+        };
+        const endDrag = (e) => {
+            if (!isDragging) return;
+            isDragging = false; arrow.classList.remove('dragging'); arrow.style.cursor = 'grab';
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+        };
+
+        arrow.addEventListener('mousedown', startDrag);
+        arrow.addEventListener('touchstart', startDrag, { passive: false });
+        document.addEventListener('mousemove', dragMove);
+        document.addEventListener('touchmove', dragMove, { passive: false });
+        document.addEventListener('mouseup', endDrag);
+        document.addEventListener('touchend', endDrag);
+        document.addEventListener('mouseleave', endDrag);
+
+        titleBox.addEventListener('click', function() {
+            this.classList.add('hidden');
+            setTimeout(() => {
+                currentTextIndex = (currentTextIndex + 1) % LANG.titles.length;
+                this.textContent = LANG.titles[currentTextIndex];
+                this.classList.remove('hidden');
+            }, 500);
+        });
+
+        displayModeToggle.addEventListener('click', cycleDisplayMode);
+        quizCheck.addEventListener('click', checkQuizAnswer);
+        quizInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkQuizAnswer(); });
+        toggleLearnedBtn.addEventListener('click', toggleArrayVisibility);
+        document.getElementById('show-all-toggle').addEventListener('click', toggleShowAllTextBoxes);
+
+        document.addEventListener('click', function(e) {
+            if (quizContainer.style.display === 'none') return;
+            if (quizContainer.contains(e.target)) return;
+            if (textBoxElements.some(b => b && b.contains(e.target))) return;
+            if (currentQuizIndex >= 0 && !learnedItems[currentQuizIndex]) {
+                const tb = textBoxElements[currentQuizIndex];
+                if (tb) {
+                    const div = tb.querySelector('div');
+                    if (div) { div.textContent = directionsData[currentQuizIndex][1]; applyTierStyle(div, currentQuizIndex); }
+                }
+            }
+            quizContainer.style.display = 'none';
+            currentQuizIndex = -1;
+        });
+
+        quizContainer.style.display = 'none';
+
+        setTimeout(() => {
+            const di = document.getElementById('drag-instruction');
+            if (di) { di.classList.add('fade'); setTimeout(() => { di.style.display = 'none'; }, 3000); }
+        }, 15000);
+    }
+
+    document.addEventListener('DOMContentLoaded', initializeApp);
+
+    </script>
+</body>
+</html>

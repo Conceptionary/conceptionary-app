@@ -1,0 +1,74 @@
+{
+  "id": "CC-0007",
+  "version": "1.1",
+  "created": "2026-07-06",
+  "last_updated": "2026-07-09",
+  "status": "active",
+
+  "concept": {
+    "name": "Months of the Year",
+    "description": "The twelve named months of the annual cycle. A discrete named-category concept arranged in a repeating circle — months are positions in a cycle, not points on a spectrum.",
+    "taxonomy_ref": "1.2",
+    "taxonomy_path": "Temporal → Cyclical time → Months of the year",
+    "shape": "cycle",
+    "template_family": "CR-MOY",
+    "template_id": "ROM-CR-MOY",
+    "modes_used": ["states"],
+    "notes": "ROM-CR-MOY selected — months are a discrete named cyclical sequence. States mode only. January placed at top/start of cycle by convention. v1.1: corrected conceptData — rows were stored as [SL, TL, Quiz, Pos], violating the mandatory schema rule that column [0] is always TL. Swapped to [TL, SL, Quiz, Pos] to match CC-0002/CC-0006 convention. This was causing the App's injection remap (which assumes TL-first input) to double-swap the data, resulting in reversed TL/SL display and an English-answer quiz."
+  },
+
+  "template": {
+    "phonographic": {
+      "id": "ROM-CR-MOY",
+      "file": "templates/phonographic/ROM-CR-MOY-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-CR-MOY",
+      "file": "templates/logographic/LOG-CR-MOY-Generic.html",
+      "track": "logographic"
+    }
+  },
+
+  "language_pairs": {
+    "EN-DE": {
+      "source_language": "English",
+      "target_language": "German",
+      "track": "phonographic",
+      "generated_by": "claude-sonnet-4-6",
+      "generated_date": "2026-07-06",
+      "last_revised": "2026-07-09",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+
+      "lang_config": {
+        "titles": {
+          "states": ["Months of the Year / Monate des Jahres", "Monate des Jahres", "Months of the Year"]
+        },
+
+        "ui": {
+          "quiz_placeholder": "Type in German…",
+          "quiz_button": "Check",
+          "quiz_correct": "Correct! ✓",
+          "quiz_wrong": "Try again"
+        },
+
+        "conceptData": [
+          ["Januar",     "January",   "How do you say 'January' in German?",    0   ],
+          ["Februar",    "February",  "How do you say 'February' in German?",   30  ],
+          ["März",       "March",     "How do you say 'March' in German?",       60  ],
+          ["April",      "April",     "How do you say 'April' in German?",       90  ],
+          ["Mai",        "May",       "How do you say 'May' in German?",         120 ],
+          ["Juni",       "June",      "How do you say 'June' in German?",        150 ],
+          ["Juli",       "July",      "How do you say 'July' in German?",        180 ],
+          ["August",     "August",    "How do you say 'August' in German?",      210 ],
+          ["September",  "September", "How do you say 'September' in German?",   240 ],
+          ["Oktober",    "October",   "How do you say 'October' in German?",     270 ],
+          ["November",   "November",  "How do you say 'November' in German?",    300 ],
+          ["Dezember",   "December",  "How do you say 'December' in German?",    330 ]
+        ]
+      }
+    }
+  }
+}

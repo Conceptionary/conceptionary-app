@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<!-- Last updated: 2026-08-03 (drag-dismiss bug fix; exact time not restated this task, Mangawhai, NZ) -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rice Growing Cycle — Generic (Romanized/Phonographic)</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Hiragino Sans', 'Yu Gothic', Meiryo, Arial, sans-serif;
+      background: #f9f9f9;
+      display: flex; justify-content: center; align-items: center;
+      height: 100vh; overflow: hidden; margin: 0; padding: 0;
+    }
+    .a4-page {
+      width: 90vw; height: 70vh;
+      border: 5px solid #333; background: white;
+      box-sizing: border-box; position: relative; touch-action: none; overflow: hidden;
+    }
+    svg { width: 100%; height: 100%; }
+
+    /* ── Textbox inner div ── */
+    .tb-inner {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; cursor: pointer;
+      border-radius: 2px; border: none;
+      background: rgba(255,255,255,0.05);
+      padding: 0.8px; line-height: 1.2;
+      word-break: break-word; overflow: hidden;
+    }
+    .tb-inner.tl   { font-size:4.3px;  font-weight:bold; color:#000; background:rgba(232,244,255,0.05); border:none; }
+    .tb-inner.sl   { font-size:4.05px; font-weight:bold; color:#000; background:rgba(232,255,243,0.05); border:none; }
+    .tb-inner.quiz { font-size:5.1px;  font-weight:bold; color:#000; background:rgba(245,234,255,0.05); border:none; }
+    .tb-inner.learned { opacity: 0.52; }
+
+    /* ── Title box ── */
+    #titleBox {
+      position: absolute; top: 4%; left: 5%;
+      line-height: 1.35; pointer-events: none; user-select: none;
+    }
+    #titleBox .t1 {
+      font-size: clamp(10px, 2.2vw, 22px);
+      font-weight: bold; font-style: italic; color: #555; display: block;
+    }
+    #titleBox .t2 {
+      font-size: clamp(9px, 1.9vw, 19px);
+      color: #777; display: block;
+    }
+
+    /* ── Language mode badge ── */
+    #langBadge {
+      position: absolute; top: 4%; right: 5%;
+      padding: 5px 16px; border-radius: 14px;
+      font-size: clamp(10px, 1.6vw, 16px);
+      font-weight: bold; color: white;
+      background: #1a4f7c; white-space: nowrap;
+      pointer-events: none; user-select: none;
+    }
+
+    /* ── Display All button ── */
+    #displayAllBtn {
+      position: absolute; top: 12%; right: 5%;
+      padding: 5px 11px; font-size: clamp(10px, 1.3vw, 13px);
+      background: #555; color: white;
+      border: none; border-radius: 5px; cursor: pointer; z-index: 10;
+      white-space: nowrap;
+    }
+    #displayAllBtn:hover { background: #333; }
+    #displayAllBtn.active-tl   { background: #1a4f7c; }
+    #displayAllBtn.active-sl   { background: #1a5e35; }
+
+    /* ── Mode button ── */
+    #modeBtn {
+      position:absolute; top:80%; right:13px;
+      padding:5px 13px; font-size:11px;
+      background:#2c5a9e; color:white;
+      border:none; border-radius:5px; cursor:pointer; z-index:10;
+    }
+    #modeBtn:hover { background:#1a3870; }
+
+    /* ── Watermark ── */
+    .watermark {
+      position:absolute; bottom:6px; left:13px;
+      font-size:10px; color:rgba(0,0,0,0.22);
+      pointer-events:none; user-select:none; white-space:nowrap;
+    }
+
+    /* ── Quiz panel ── */
+    #quizPanel {
+      display:none; position:absolute;
+      background:white; border:2px solid #6c2e98;
+      border-radius:8px; padding:10px 12px; width:195px;
+      box-shadow:0 4px 16px rgba(0,0,0,0.24); z-index:200;
+      cursor: grab;
+    }
+    #quizPanel.dragging { cursor: grabbing; }
+    #quizPanel input { cursor: text; }
+    #quizPrompt { font-size:12px; color:#333; margin-bottom:6px; line-height:1.5; }
+    #quizInput  {
+      width:100%; border:1px solid #bbb; border-radius:4px;
+      padding:4px 7px; font-size:13px; margin-bottom:5px;
+    }
+    .quiz-row { display:flex; gap:5px; }
+    #quizCheck {
+      flex:1; background:#6c2e98; color:white;
+      border:none; border-radius:4px; padding:4px 0;
+      font-size:12px; cursor:pointer;
+    }
+    #quizCheck:hover { background:#561f7e; }
+    #quizClose {
+      background:#888; color:white; border:none;
+      border-radius:4px; padding:4px 8px; font-size:12px; cursor:pointer;
+    }
+    #quizFeedback { font-size:12px; min-height:16px; margin-top:5px; }
+
+    /* ── Drag hint ── */
+    #dragHint {
+      position: absolute; left: 68%; top: 40%;
+      transform: translateY(-50%);
+      font-size: clamp(12px, 1.6vw, 18px);
+      color: #000;
+      pointer-events: none; user-select: none;
+      transition: opacity 0.8s;
+      white-space: nowrap;
+      text-align: left;
+    }
+
+    /* ── Transitions display window ── */
+    #transDisplay {
+      display: none;
+      position: absolute; left: 80%; top: 50%;
+      transform: translate(-50%, -50%);
+      width: 18%; min-width: 150px;
+      background: white;
+      border: 2px solid #b03030;
+      border-radius: 10px;
+      padding: 10px 12px;
+      box-shadow: 0 3px 14px rgba(0,0,0,0.18);
+      z-index: 150; cursor: pointer;
+      text-align: center;
+    }
+    #tdMonth {
+      font-size: clamp(10px, 1.2vw, 13px);
+      color: #888; margin-bottom: 4px;
+      font-style: italic;
+    }
+    #tdContent {
+      font-size: clamp(12px, 1.6vw, 17px);
+      font-weight: bold; line-height: 1.4;
+      min-height: 24px;
+    }
+    #tdContent.td-tl   { color: #1a4f7c; }
+    #tdContent.td-sl   { color: #1a5e35; }
+    #tdContent.td-quiz { color: #6c2e98; }
+    #tdQuizArea {
+      margin-top: 8px; display: none;
+    }
+    #tdInput {
+      width: 100%; border: 1px solid #bbb; border-radius: 4px;
+      padding: 4px 7px; font-size: clamp(11px, 1.4vw, 14px);
+      margin-bottom: 4px;
+    }
+    #tdCheckBtn {
+      width: 100%; background: #6c2e98; color: white;
+      border: none; border-radius: 4px;
+      padding: 4px 0; font-size: clamp(11px, 1.3vw, 13px);
+      cursor: pointer;
+    }
+    #tdCheckBtn:hover { background: #561f7e; }
+    #tdFeedback {
+      font-size: clamp(10px, 1.2vw, 12px);
+      min-height: 14px; margin-top: 4px;
+    }
+    #tdLearned {
+      font-size: clamp(9px, 1.1vw, 11px);
+      color: #1a5e35; margin-top: 3px;
+    }
+
+    /* ── States Mode vocabulary array dropdown ── */
+    #statesVocabArray {
+      display: none;
+      position: absolute; left: 5%; top: 10%;
+      width: 22%; min-width: 160px;
+      z-index: 140;
+    }
+    #statesVocabToggle {
+      background: #1a5e35; color: white;
+      border: none; border-radius: 6px;
+      padding: 5px 10px; font-size: clamp(10px, 1.2vw, 13px);
+      cursor: pointer; width: 100%; text-align: left;
+    }
+    #statesVocabToggle:hover { background: #134a28; }
+    #statesVocabList {
+      display: none;
+      background: white; border: 1px solid #bbb;
+      border-radius: 0 0 6px 6px;
+      max-height: 30vh; overflow-y: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* ── Vocabulary array dropdown (Transitions Mode) ── */
+    #vocabArray {
+      display: none;
+      position: absolute; left: 5%; top: 10%;
+      width: 22%; min-width: 160px;
+      z-index: 140;
+    }
+    #vocabToggle {
+      background: #2c5a9e; color: white;
+      border: none; border-radius: 6px;
+      padding: 5px 10px; font-size: clamp(10px, 1.2vw, 13px);
+      cursor: pointer; width: 100%; text-align: left;
+    }
+    #vocabToggle:hover { background: #1a3870; }
+    #vocabList {
+      display: none;
+      background: white; border: 1px solid #bbb;
+      border-radius: 0 0 6px 6px;
+      max-height: 30vh; overflow-y: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .vocab-entry {
+      padding: 5px 8px; border-bottom: 1px solid #eee;
+      font-size: clamp(9px, 1.1vw, 12px); line-height: 1.5;
+    }
+    .vocab-entry:last-child { border-bottom: none; }
+    .ve-tl   { color: #1a4f7c; }
+    .ve-sl   { color: #1a5e35; }
+
+    /* ── Segment tooltip ── */
+    #segTooltip {
+      display:none; position:absolute;
+      background:rgba(255,255,255,0.97);
+      border:1px solid #bbb; border-radius:6px;
+      padding:5px 10px; font-size:12px; color:#333;
+      white-space:nowrap; pointer-events:none;
+      box-shadow:0 2px 8px rgba(0,0,0,0.18);
+      z-index:300; line-height:1.6;
+    }
+    #segTooltip .tt-month  { font-weight:bold; font-size:13px; }
+    #segTooltip .tt-season { font-size:12px; color:#555; }
+  </style>
+</head>
+<body>
+<div class="a4-page" id="page">
+  <svg id="mainSvg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <!-- Transitions mode ring at r=29 -->
+      <path id="ringPath"
+        d="M 50 21 A 29 29 0 0 1 79 50 A 29 29 0 0 1 50 79 A 29 29 0 0 1 21 50 A 29 29 0 0 1 50 21"/>
+
+      <!-- Water ring text paths at r=44.5 -->
+      <!-- Top half (fallow): clockwise from left (270°) over top to right (90°) -->
+      <path id="topTextPath" d="M 5.5 50 A 44.5 44.5 0 1 1 94.5 50"/>
+      <!-- Bottom half (flooded): anticlockwise from left (270°) under bottom to right (90°) -->
+      <path id="botTextPath" d="M 5.5 50 A 44.5 44.5 0 1 0 94.5 50"/>
+
+      <!-- Arrow marker -->
+      <marker id="arr" markerWidth="3.5" markerHeight="3.5" refX="2" refY="1.75" orient="auto">
+        <path d="M 0 0 L 3.5 1.75 L 0 3.5 Z" fill="#555"/>
+      </marker>
+    </defs>
+
+    <!-- ══════════════════════════════════════════════════════════
+         WATER OUTER RING  (r=42 inner, r=47 outer)
+         Split at 270° (left / Oct–Nov) and 90° (right / Mar–Apr)
+         TOP HALF  = fallow / rain-dependent  (tan/sand)
+         BOTTOM HALF = flooded / controlled  (blue)
+    ══════════════════════════════════════════════════════════ -->
+
+    <!-- Fallow ring — top half, clockwise from 270° over top to 90° -->
+    <path d="M 3 50 A 47 47 0 1 1 97 50 L 92 50 A 42 42 0 1 0 8 50 Z"
+          fill="#b8a070" opacity="0.82"/>
+
+    <!-- Flooded ring — bottom half, clockwise from 90° under bottom to 270° -->
+    <path d="M 97 50 A 47 47 0 1 1 3 50 L 8 50 A 42 42 0 1 0 92 50 Z"
+          fill="#2060a0" opacity="0.85"/>
+
+    <!-- Water ring text labels -->
+    <text font-size="1.7" fill="white" font-weight="bold" letter-spacing="0.05">
+      <textPath href="#topTextPath" startOffset="18%">RING_LABEL_FALLOW_PLACEHOLDER</textPath>
+    </text>
+    <text font-size="1.7" fill="white" font-weight="bold" letter-spacing="0.05">
+      <textPath href="#botTextPath" startOffset="14%">RING_LABEL_FLOODED_PLACEHOLDER</textPath>
+    </text>
+
+    <!-- ══════════════════════════════════════════════════════════
+         12 MONTH SEGMENTS  (r=16 inner, r=42 outer, 30° each)
+         Clockwise from top (0° = 12 o'clock):
+           Jan  0°→30°   midpt 15°
+           Feb  30°→60°  midpt 45°
+           Mar  60°→90°  midpt 75°   ← vocab starts
+           Apr  90°→120° midpt 105°
+           May  120°→150° midpt 135°
+           Jun  150°→180° midpt 165°
+           Jul  180°→210° midpt 195°
+           Aug  210°→240° midpt 225°
+           Sep  240°→270° midpt 255°
+           Oct  270°→300° midpt 285°  ← vocab ends
+           Nov  300°→330° midpt 315°
+           Dec  330°→360° midpt 345°
+
+         Outer r=42 points (50+42·sinθ, 50−42·cosθ):
+           0°  (50.00,  8.00)   30° (71.00, 13.63)   60° (86.37, 29.00)
+          90°  (92.00, 50.00)  120° (86.37, 71.00)  150° (71.00, 86.37)
+         180°  (50.00, 92.00)  210° (29.00, 86.37)  240° (13.63, 71.00)
+         270°   (8.00, 50.00)  300° (13.63, 29.00)  330° (29.00, 13.63)
+
+         Inner r=16 points (50+16·sinθ, 50−16·cosθ):
+           0°  (50.00, 34.00)   30° (58.00, 36.14)   60° (63.86, 42.00)
+          90°  (66.00, 50.00)  120° (63.86, 58.00)  150° (58.00, 63.86)
+         180°  (50.00, 66.00)  210° (42.00, 63.86)  240° (36.14, 58.00)
+         270°  (34.00, 50.00)  300° (36.14, 42.00)  330° (42.00, 36.14)
+    ══════════════════════════════════════════════════════════ -->
+
+    <!-- Jan (0°→30°) fallow -->
+    <path id="seg0"  class="seg" data-seg="0"
+      d="M 50.00 8.00 A 42 42 0 0 1 71.00 13.63 L 58.00 36.14 A 16 16 0 0 0 50.00 34.00 Z"
+      fill="#c8b48a" stroke="white" stroke-width="0.5"/>
+    <!-- Feb (30°→60°) fallow -->
+    <path id="seg1"  class="seg" data-seg="1"
+      d="M 71.00 13.63 A 42 42 0 0 1 86.37 29.00 L 63.86 42.00 A 16 16 0 0 0 58.00 36.14 Z"
+      fill="#c0aa80" stroke="white" stroke-width="0.5"/>
+    <!-- Mar (60°→90°) seed planting -->
+    <path id="seg2"  class="seg" data-seg="2"
+      d="M 86.37 29.00 A 42 42 0 0 1 92.00 50.00 L 66.00 50.00 A 16 16 0 0 0 63.86 42.00 Z"
+      fill="#b09050" stroke="white" stroke-width="0.5"/>
+    <!-- Apr (90°→120°) germination -->
+    <path id="seg3"  class="seg" data-seg="3"
+      d="M 92.00 50.00 A 42 42 0 0 1 86.37 71.00 L 63.86 58.00 A 16 16 0 0 0 66.00 50.00 Z"
+      fill="#90bc58" stroke="white" stroke-width="0.5"/>
+    <!-- May (120°→150°) sprout -->
+    <path id="seg4"  class="seg" data-seg="4"
+      d="M 86.37 71.00 A 42 42 0 0 1 71.00 86.37 L 58.00 63.86 A 16 16 0 0 0 63.86 58.00 Z"
+      fill="#60aa38" stroke="white" stroke-width="0.5"/>
+    <!-- Jun (150°→180°) seedling / transplant -->
+    <path id="seg5"  class="seg" data-seg="5"
+      d="M 71.00 86.37 A 42 42 0 0 1 50.00 92.00 L 50.00 66.00 A 16 16 0 0 0 58.00 63.86 Z"
+      fill="#389828" stroke="white" stroke-width="0.5"/>
+    <!-- Jul (180°→210°) plant / vegetative -->
+    <path id="seg6"  class="seg" data-seg="6"
+      d="M 50.00 92.00 A 42 42 0 0 1 29.00 86.37 L 42.00 63.86 A 16 16 0 0 0 50.00 66.00 Z"
+      fill="#286820" stroke="white" stroke-width="0.5"/>
+    <!-- Aug (210°→240°) plant with flowers -->
+    <path id="seg7"  class="seg" data-seg="7"
+      d="M 29.00 86.37 A 42 42 0 0 1 13.63 71.00 L 36.14 58.00 A 16 16 0 0 0 42.00 63.86 Z"
+      fill="#389030" stroke="white" stroke-width="0.5"/>
+    <!-- Sep (240°→270°) plant with fruit -->
+    <path id="seg8"  class="seg" data-seg="8"
+      d="M 13.63 71.00 A 42 42 0 0 1 8.00 50.00 L 34.00 50.00 A 16 16 0 0 0 36.14 58.00 Z"
+      fill="#90c010" stroke="white" stroke-width="0.5"/>
+    <!-- Oct (270°→300°) seeds / harvest -->
+    <path id="seg9"  class="seg" data-seg="9"
+      d="M 8.00 50.00 A 42 42 0 0 1 13.63 29.00 L 36.14 42.00 A 16 16 0 0 0 34.00 50.00 Z"
+      fill="#d4aa18" stroke="white" stroke-width="0.5"/>
+    <!-- Nov (300°→330°) fallow -->
+    <path id="seg10" class="seg" data-seg="10"
+      d="M 13.63 29.00 A 42 42 0 0 1 29.00 13.63 L 42.00 36.14 A 16 16 0 0 0 36.14 42.00 Z"
+      fill="#b89060" stroke="white" stroke-width="0.5"/>
+    <!-- Dec (330°→360°) fallow -->
+    <path id="seg11" class="seg" data-seg="11"
+      d="M 29.00 13.63 A 42 42 0 0 1 50.00 8.00 L 50.00 34.00 A 16 16 0 0 0 42.00 36.14 Z"
+      fill="#c8b48a" stroke="white" stroke-width="0.5"/>
+
+    <!-- Ring borders -->
+    <circle cx="50" cy="50" r="42" fill="none" stroke="#444" stroke-width="0.4"/>
+    <circle cx="50" cy="50" r="16" fill="white" stroke="#444" stroke-width="0.4"/>
+
+    <!-- Clockwise direction arrow near top -->
+    <path d="M 54 8.4 Q 57 6.8 59.5 9.8"
+          fill="none" stroke="#555" stroke-width="0.65" marker-end="url(#arr)"/>
+
+    <!-- ══════════════════════════════════════════════════════════
+         MONTH NAME LABELS  (r=35, tangential rotation)
+         Position: x=50+35·sinθ,  y=50−35·cosθ   (θ = segment midpoint)
+         Rotation = θ degrees about the label centre
+    ══════════════════════════════════════════════════════════ -->
+    <!-- Jan  15°  → (59.05, 16.18) -->
+    <text transform="rotate(15,59.05,16.18)"  x="59.05" y="15.2"
+          text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.70)">Jan</text>
+    <!-- Feb  45°  → (74.75, 25.25) -->
+    <text transform="rotate(45,74.75,25.25)"  x="74.75" y="24.3"
+          text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.70)">Feb</text>
+    <!-- Mar  75°  → (83.82, 40.95) -->
+    <text transform="rotate(75,83.82,40.95)"  x="83.82" y="40.0"
+          text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.78)">Mar</text>
+    <!-- Apr 105°  → (83.82, 59.05) -->
+    <text transform="rotate(105,83.82,59.05)" x="83.82" y="58.1"
+          text-anchor="middle" font-size="2.4" font-weight="bold" fill="white">Apr</text>
+    <!-- May 135°  → (74.75, 74.75) -->
+    <text transform="rotate(135,74.75,74.75)" x="74.75" y="73.8"
+          text-anchor="middle" font-size="2.4" font-weight="bold" fill="white">May</text>
+    <!-- Jun 165°  → (59.05, 83.82) -->
+    <text transform="rotate(165,59.05,83.82)" x="59.05" y="82.9"
+          text-anchor="middle" font-size="2.4" font-weight="bold" fill="white">Jun</text>
+    <!-- Jul 195°  → (40.95, 83.82) -->
+    <text transform="rotate(195,40.95,83.82)" x="40.95" y="82.9"
+          text-anchor="middle" font-size="2.4" font-weight="bold" fill="white">Jul</text>
+    <!-- Aug 225°  → (25.25, 74.75) -->
+    <text transform="rotate(225,25.25,74.75)" x="25.25" y="73.8"
+          text-anchor="middle" font-size="2.4" font-weight="bold" fill="white">Aug</text>
+    <!-- Sep 255°  → (16.18, 59.05) -->
+    <text transform="rotate(255,16.18,59.05)" x="16.18" y="58.1"
+          text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.78)">Sep</text>
+    <!-- Oct 285°  → (16.18, 40.95) -->
+    <text transform="rotate(285,16.18,40.95)" x="16.18" y="40.0"
+          text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.78)">Oct</text>
+    <!-- Nov 315°  → (25.25, 25.25) -->
+    <text transform="rotate(315,25.25,25.25)" x="25.25" y="24.3"
+          text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.70)">Nov</text>
+    <!-- Dec 345°  → (40.95, 16.18) -->
+    <text transform="rotate(345,40.95,16.18)" x="40.95" y="15.2"
+          text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.70)">Dec</text>
+
+    <!-- ══════════════════════════════════════════════════════════
+         CENTRAL HUB
+    ══════════════════════════════════════════════════════════ -->
+    <text x="50" y="45.5" text-anchor="middle" font-size="4.2" fill="#333">🌾</text>
+    <text x="50" y="51"   text-anchor="middle" font-size="2.8" font-weight="bold" fill="#2c3e50">TL_HUB_LABEL</text>
+    <text x="50" y="55.5" text-anchor="middle" font-size="2.2" fill="#555">SL_HUB_LABEL</text>
+
+    <!-- LAYER BADGE → now an HTML element outside SVG -->
+
+    <!-- ══════════════════════════════════════════════════════════
+         TEXTBOXES  (active months Mar=2 … Oct=9)
+         Centre at r=29;  w=18 h=10;  FO x=cx−9, y=cy−5
+         cx=50+29·sinθ,  cy=50−29·cosθ  (θ=segment midpoint)
+
+         Mar  75°: cx=78.01 cy=42.49 → FO(69.01, 37.49)
+         Apr 105°: cx=78.01 cy=57.51 → FO(69.01, 52.51)
+         May 135°: cx=70.51 cy=70.51 → FO(61.51, 65.51)
+         Jun 165°: cx=57.51 cy=78.01 → FO(48.51, 73.01)
+         Jul 195°: cx=42.49 cy=78.01 → FO(33.49, 73.01)
+         Aug 225°: cx=29.49 cy=70.51 → FO(20.49, 65.51)
+         Sep 255°: cx=21.99 cy=57.51 → FO(12.99, 52.51)
+         Oct 285°: cx=21.99 cy=42.49 → FO(12.99, 37.49)
+    ══════════════════════════════════════════════════════════ -->
+
+    <foreignObject id="tb2" x="64.51" y="34.99" width="27" height="15"
+                   style="display:none; overflow:visible;">
+      <div xmlns="http://www.w3.org/1999/xhtml" class="tb-inner tl">TL-S1</div>
+    </foreignObject>
+
+    <foreignObject id="tb3" x="64.51" y="50.01" width="27" height="15"
+                   style="display:none; overflow:visible;">
+      <div xmlns="http://www.w3.org/1999/xhtml" class="tb-inner tl">TL-S2</div>
+    </foreignObject>
+
+    <foreignObject id="tb4" x="57.01" y="63.01" width="27" height="15"
+                   style="display:none; overflow:visible;">
+      <div xmlns="http://www.w3.org/1999/xhtml" class="tb-inner tl">TL-S3</div>
+    </foreignObject>
+
+    <foreignObject id="tb5" x="44.01" y="70.51" width="27" height="15"
+                   style="display:none; overflow:visible;">
+      <div xmlns="http://www.w3.org/1999/xhtml" class="tb-inner tl">TL-S4</div>
+    </foreignObject>
+
+    <foreignObject id="tb6" x="28.99" y="70.51" width="27" height="15"
+                   style="display:none; overflow:visible;">
+      <div xmlns="http://www.w3.org/1999/xhtml" class="tb-inner tl">TL-S5</div>
+    </foreignObject>
+
+    <foreignObject id="tb7" x="15.99" y="63.01" width="27" height="15"
+                   style="display:none; overflow:visible;">
+      <div xmlns="http://www.w3.org/1999/xhtml" class="tb-inner tl">TL-S6</div>
+    </foreignObject>
+
+    <foreignObject id="tb8" x="8.49" y="50.01" width="27" height="15"
+                   style="display:none; overflow:visible;">
+      <div xmlns="http://www.w3.org/1999/xhtml" class="tb-inner tl">TL-S7</div>
+    </foreignObject>
+
+    <foreignObject id="tb9" x="8.49" y="34.99" width="27" height="15"
+                   style="display:none; overflow:visible;">
+      <div xmlns="http://www.w3.org/1999/xhtml" class="tb-inner tl">TL-S8</div>
+    </foreignObject>
+
+    <!-- ══════════════════════════════════════════════════════════
+         TRANSITIONS MODE SLIDING TEXT  (r=29 ring)
+    ══════════════════════════════════════════════════════════ -->
+    <text id="slideText" style="display:none; font-weight:bold; fill:#b03030; cursor:pointer;">
+      <textPath id="slideTP" href="#ringPath" startOffset="20%">TL-T1</textPath>
+    </text>
+
+    <!-- ══════════════════════════════════════════════════════════
+         DRAGGABLE FRAME  (orbits at r=44, between month labels
+         and the water ring inner edge at r=42)
+         Initial position: March midpoint 75°
+         cx=50+44·sin75°=92.50,  cy=50−44·cos75°=38.61
+    ══════════════════════════════════════════════════════════ -->
+    <circle id="dragRing" cx="92.50" cy="38.61" r="4.5"
+            fill="rgba(255,255,180,0.55)" stroke="rgba(80,60,20,0.55)" stroke-width="0.55"
+            style="cursor:grab;"/>
+    <circle id="dragDot"  cx="92.50" cy="38.61" r="1.5"
+            fill="#333" pointer-events="none"/>
+
+    <!-- Drag hint → now an HTML element outside SVG -->
+  </svg>
+
+  <button id="modeBtn">TRANS_MODE_LABEL</button>
+  <div class="watermark">© 2026 Alan William Preston — GP Cycle Template</div>
+  <div id="segTooltip"></div>
+  <div id="dragHint">← grab and drag the sun around the annual cycle →</div>
+  <div id="titleBox">
+    <span class="t1">TL_TITLE</span>
+    <span class="t2">SL_TITLE</span>
+  </div>
+  <div id="langBadge">TL_BADGE_LABEL</div>
+  <button id="displayAllBtn">DISPLAY_ALL_TL_LABEL</button>
+
+  <!-- Transitions Mode display window -->
+  <div id="transDisplay">
+    <div id="tdMonth">January</div>
+    <div id="tdContent" class="td-tl">TL-T-Fallow</div>
+    <div id="tdQuizArea">
+      <input id="tdInput" type="text" autocomplete="off" autocorrect="off"
+             autocapitalize="off" spellcheck="false" placeholder="QUIZ_PLACEHOLDER_LABEL"/>
+      <button id="tdCheckBtn">Check ✓</button>
+      <div id="tdFeedback"></div>
+    </div>
+    <div id="tdLearned"></div>
+  </div>
+
+  <!-- States Mode vocabulary array -->
+  <div id="statesVocabArray">
+    <button id="statesVocabToggle">▼ &nbsp;Vocabulary learned</button>
+    <div id="statesVocabList"></div>
+  </div>
+
+  <!-- Transitions Mode vocabulary array -->
+  <div id="vocabArray">
+    <button id="vocabToggle">▼ &nbsp;Vocabulary learned</button>
+    <div id="vocabList"></div>
+  </div>
+</div>
+
+<!-- Quiz panel -->
+<div id="quizPanel">
+  <div id="quizPrompt">QUIZ_PROMPT_LABEL</div>
+  <input id="quizInput" type="text" autocomplete="off" autocorrect="off"
+         autocapitalize="off" spellcheck="false" placeholder="e.g. TL-S1"/>
+  <div class="quiz-row">
+    <button id="quizCheck">Check ✓</button>
+    <button id="quizClose">✕</button>
+  </div>
+  <div id="quizFeedback"></div>
+</div>
+
+<script>
+/* ================================================================
+   ANSWER NORMALISATION — generic, language-agnostic by default.
+   ROM quiz tests TL directly (the target language's own Latin-script
+   spelling) rather than a separate romanized TLR tier, so there's no
+   built-in macron/digraph handling here the way the LOG version needed
+   for Japanese romaji. Populate diacritic_map / digraph_map below if a
+   specific target language instance needs accent-insensitive matching
+   (e.g. Vietnamese diacritics) — empty/case-insensitive-only by default.
+================================================================ */
+const ANSWER_CFG = {
+  diacritic_map: [
+    // ["á","a"], ["é","e"], ["í","i"], ["ó","o"], ["ú","u"]
+  ],
+  digraph_map: [
+    // ["ph","f"]
+  ]
+};
+const AnswerUtils = {
+  norm(s) {
+    if (!s) return '';
+    let t = s.toLowerCase().trim();
+    ANSWER_CFG.diacritic_map.forEach(([a, p]) => { t = t.split(a).join(p); });
+    ANSWER_CFG.digraph_map.forEach(([d, p]) => { t = t.split(d).join(p); });
+    return t.replace(/\s+/g, ' ');
+  },
+  match(input, answer) { return this.norm(input) === this.norm(answer); }
+};
+
+/* ================================================================
+   MONTHS  (Jan=0 … Dec=11)
+   vocabIdx: index into vocab[], null = fallow
+================================================================ */
+const MONTHS = [
+  { name:'January',   short:'Jan', angle: 15,  vocabIdx:null },
+  { name:'February',  short:'Feb', angle: 45,  vocabIdx:null },
+  { name:'March',     short:'Mar', angle: 75,  vocabIdx:0    },
+  { name:'April',     short:'Apr', angle:105,  vocabIdx:1    },
+  { name:'May',       short:'May', angle:135,  vocabIdx:2    },
+  { name:'June',      short:'Jun', angle:165,  vocabIdx:3    },
+  { name:'July',      short:'Jul', angle:195,  vocabIdx:4    },
+  { name:'August',    short:'Aug', angle:225,  vocabIdx:5    },
+  { name:'September', short:'Sep', angle:255,  vocabIdx:6    },
+  { name:'October',   short:'Oct', angle:285,  vocabIdx:7    },
+  { name:'November',  short:'Nov', angle:315,  vocabIdx:null },
+  { name:'December',  short:'Dec', angle:345,  vocabIdx:null },
+];
+
+/* ================================================================
+   VOCABULARY  (8 items, vocabIdx 0–7)
+================================================================ */
+// SL fields default to real English (not a placeholder token) — this is
+// the standing Conceptionary convention, since English is the language
+// most editing/review actually happens in. TL remains an acronymic
+// placeholder until a specific target language is chosen. See the
+// Session Starter, Section 9, "SL default language" for the full rule.
+// ROM quiz tests TL directly (the target language's own Latin-script
+// spelling) — no separate romanized TLR tier, unlike the LOG version.
+const vocab = [
+  { tl:'TL-S1', sl:'Seed planting' },
+  { tl:'TL-S2', sl:'Germination' },
+  { tl:'TL-S3', sl:'Sprout' },
+  { tl:'TL-S4', sl:'Seedling' },
+  { tl:'TL-S5', sl:'Plant' },
+  { tl:'TL-S6', sl:'Plant with flowers' },
+  { tl:'TL-S7', sl:'Plant with fruit' },
+  { tl:'TL-S8', sl:'Seeds' },
+];
+
+/* ================================================================
+   TRANSITIONS MODE VOCABULARY  (12 items, one per month)
+   Each month has its own TL / SL entry.
+   Layer cycling (click): TL → SL → TL
+================================================================ */
+// Jan/Feb/Nov/Dec deliberately share one placeholder set (TL/SL-T-Fallow)
+// since they represent the same real concept (the paddy lying fallow) in
+// the original content — keep this repetition when real vocabulary is
+// authored, don't treat it as four separate concepts.
+const transVocab = [
+  // Jan
+  { tl: 'TL-T-Fallow', sl: 'Leaving the paddy fallow' },
+  // Feb
+  { tl: 'TL-T-Fallow', sl: 'Leaving the paddy fallow' },
+  // Mar
+  { tl: 'TL-T1', sl: 'Selecting the seed rice' },
+  // Apr
+  { tl: 'TL-T2', sl: 'Flooding the paddy' },
+  // May
+  { tl: 'TL-T3', sl: 'Rice planting' },
+  // Jun
+  { tl: 'TL-T4', sl: 'Managing the paddy' },
+  // Jul
+  { tl: 'TL-T5', sl: 'Mid-season drying' },
+  // Aug
+  { tl: 'TL-T6', sl: 'Flowering' },
+  // Sep
+  { tl: 'TL-T7', sl: 'Harvesting the rice' },
+  // Oct
+  { tl: 'TL-T8', sl: 'Draining the paddy' },
+  // Nov
+  { tl: 'TL-T-Fallow', sl: 'Leaving the paddy fallow' },
+  // Dec
+  { tl: 'TL-T-Fallow', sl: 'Leaving the paddy fallow' },
+];
+
+/* ================================================================
+   TOOLTIP DATA  (12 entries, one per month segment)
+================================================================ */
+const segTipData = [
+  { month:'January',   season:'❄️ Winter · Fallow' },
+  { month:'February',  season:'❄️ Winter · Fallow' },
+  { month:'March',     season:'🌸 Spring · Seed planting begins' },
+  { month:'April',     season:'🌸 Spring · Germination' },
+  { month:'May',       season:'🌱 Early Summer · Sprout' },
+  { month:'June',      season:'☀️ Summer · Seedling / Transplanting' },
+  { month:'July',      season:'☀️ Summer · Vegetative growth' },
+  { month:'August',    season:'☀️ Late Summer · Heading & flowering' },
+  { month:'September', season:'🍂 Autumn · Grain filling' },
+  { month:'October',   season:'🍂 Autumn · Harvest' },
+  { month:'November',  season:'🍂 Late Autumn · Post-harvest fallow' },
+  { month:'December',  season:'❄️ Winter · Fallow' },
+];
+
+/* ================================================================
+   CONSTANTS
+================================================================ */
+const LAYER      = { TL:0, SL:1, QUIZ:2 };
+const BADGE_LBL  = ['TL_BADGE_LABEL','SL_BADGE_LABEL','QUIZ_BADGE_LABEL'];
+const BADGE_COL  = ['#1a4f7c','#1a5e35','#6c2e98'];
+const LAYER_CLS  = ['tl','sl','quiz'];
+const FONT_SZ    = ['4.3px','4.05px','5.1px'];
+
+/* ================================================================
+   STATE
+================================================================ */
+let isStatesMode = true;
+let frameAngle   = 75;      // March midpoint
+let isDragging   = false;
+
+let tbRevealed   = new Array(12).fill(false);
+let tbLayer      = new Array(12).fill(LAYER.TL);
+let learnedS     = new Array(12).fill(false);
+let learnedT     = new Array(12).fill(false);   // Transitions mode learned items
+let transLayer   = LAYER.TL;
+let transDispLayer = LAYER.TL;
+let displayAllLayer = -1;          // -1 = off; 0/1 = TL/SL all revealed boxes
+let quizIdx      = -1;
+let closedIdx    = -1;
+
+/* ================================================================
+   DOM REFERENCES
+================================================================ */
+const svgEl       = document.getElementById('mainSvg');
+const pageEl      = document.getElementById('page');
+const modeBtnEl   = document.getElementById('modeBtn');
+const dragRingEl  = document.getElementById('dragRing');
+const dragDotEl   = document.getElementById('dragDot');
+const badgeEl        = document.getElementById('langBadge');
+const displayAllBtnEl = document.getElementById('displayAllBtn');
+const transDispEl  = document.getElementById('transDisplay');
+const tdMonthEl    = document.getElementById('tdMonth');
+const tdContentEl  = document.getElementById('tdContent');
+const tdQuizAreaEl = document.getElementById('tdQuizArea');
+const tdInputEl    = document.getElementById('tdInput');
+const tdFbEl       = document.getElementById('tdFeedback');
+const tdLearnedEl  = document.getElementById('tdLearned');
+const vocabArrayEl      = document.getElementById('vocabArray');
+const vocabListEl       = document.getElementById('vocabList');
+const statesVocabArrEl  = document.getElementById('statesVocabArray');
+const statesVocabListEl = document.getElementById('statesVocabList');
+const slideTextEl = document.getElementById('slideText');
+const slideTPEl   = document.getElementById('slideTP');
+const quizPanelEl = document.getElementById('quizPanel');
+const quizInputEl = document.getElementById('quizInput');
+const quizFbEl    = document.getElementById('quizFeedback');
+const quizPrEl    = document.getElementById('quizPrompt');
+const dragHintEl  = document.getElementById('dragHint');
+const tooltipEl   = document.getElementById('segTooltip');
+
+// foEls[i] = null for fallow months (0,1,10,11)
+const foEls  = Array.from({length:12}, (_, i) => document.getElementById('tb' + i) || null);
+const divEls = foEls.map(fo => fo ? fo.querySelector('div') : null);
+
+/* ================================================================
+   GEOMETRY HELPERS
+================================================================ */
+function svgPt(evt) {
+  const pt  = svgEl.createSVGPoint();
+  const src = evt.touches ? evt.touches[0] : evt;
+  pt.x = src.clientX; pt.y = src.clientY;
+  return pt.matrixTransform(svgEl.getScreenCTM().inverse());
+}
+function toAngle(sx, sy) {
+  let a = Math.atan2(sx - 50, -(sy - 50)) * 180 / Math.PI;
+  return (a + 360) % 360;
+}
+function angleToXY(deg, r) {
+  const rad = deg * Math.PI / 180;
+  return { x: 50 + r * Math.sin(rad), y: 50 - r * Math.cos(rad) };
+}
+// Nearest month index from a drag angle
+function nearestSeg(angleDeg) {
+  return Math.round(((angleDeg - 15 + 360) % 360) / 30) % 12;
+}
+
+/* ================================================================
+   BADGE
+================================================================ */
+function updateBadge(layer) {
+  badgeEl.textContent  = BADGE_LBL[layer];
+  badgeEl.style.background = BADGE_COL[layer];
+}
+
+/* ================================================================
+   TRANSITIONS DISPLAY WINDOW
+================================================================ */
+function updateTransDisplay(mIdx) {
+  const m    = MONTHS[mIdx];
+  const item = transVocab[mIdx];
+  tdMonthEl.textContent = m.name;
+  tdLearnedEl.textContent = learnedT[mIdx] ? '✓ Learned' : '';
+
+  // Hide quiz area unless we're in quiz layer
+  tdQuizAreaEl.style.display = 'none';
+  tdFbEl.textContent = '';
+
+  const layer = transDispLayer;
+  tdContentEl.className = 'td-' + ['tl','sl','quiz'][layer];
+
+  if (layer === LAYER.QUIZ) {
+    tdContentEl.textContent = '?';
+    tdQuizAreaEl.style.display = 'block';
+    tdInputEl.value = '';
+    setTimeout(() => tdInputEl.focus(), 60);
+  } else {
+    switch (layer) {
+      case LAYER.TL:  tdContentEl.innerHTML   = item.tl;  break;
+      case LAYER.SL:  tdContentEl.textContent = item.sl;  break;
+    }
+  }
+  // Sync ring text layer
+  transLayer = layer === LAYER.QUIZ ? LAYER.TL : layer;
+  updateBadge(layer);
+}
+
+function handleTransDisplayClick() {
+  const mIdx = nearestSeg(frameAngle);
+  if (learnedT[mIdx]) {
+    // Already learned: cycle TL→SL only
+    transDispLayer = (transDispLayer + 1) % 2;
+  } else {
+    // Unlearned: advance toward quiz
+    transDispLayer = Math.min(transDispLayer + 1, LAYER.QUIZ);
+  }
+  updateTransDisplay(mIdx);
+  updateSlideText(frameAngle);
+}
+
+function checkTransAnswer() {
+  const mIdx = nearestSeg(frameAngle);
+  const answer = tdInputEl.value.trim();
+  if (!answer) return;
+  const item = transVocab[mIdx];
+
+  if (AnswerUtils.match(answer, item.tl)) {
+    tdFbEl.style.color   = '#1a5e35';
+    tdFbEl.textContent   = 'QUIZ_CORRECT_LABEL';
+    learnedT[mIdx]       = true;
+    transDispLayer       = LAYER.TL;
+    addToVocabArray(mIdx);
+    setTimeout(() => {
+      updateTransDisplay(mIdx);
+      updateSlideText(frameAngle);
+    }, 1400);
+  } else {
+    tdFbEl.style.color = '#b03030';
+    tdFbEl.textContent = 'QUIZ_WRONG_LABEL';
+    tdInputEl.value    = '';
+    tdInputEl.focus();
+  }
+}
+
+function addToVocabArray(mIdx) {
+  const m    = MONTHS[mIdx];
+  const item = transVocab[mIdx];
+  // Avoid duplicates
+  if (document.getElementById('ve-' + mIdx)) return;
+  const entry = document.createElement('div');
+  entry.className = 'vocab-entry';
+  entry.id = 've-' + mIdx;
+  entry.innerHTML =
+    `<span class="ve-tl">${item.tl}</span> &nbsp;` +
+    `<span class="ve-sl">${item.sl}</span>` +
+    `<span style="color:#aaa;font-size:0.85em;float:right">${m.short}</span>`;
+  vocabListEl.appendChild(entry);
+  vocabArrayEl.style.display = 'block';
+}
+
+function addToStatesVocabArray(mIdx) {
+  const m    = MONTHS[mIdx];
+  if (m.vocabIdx === null) return;
+  const item = vocab[m.vocabIdx];
+  // Avoid duplicates
+  if (document.getElementById('sve-' + mIdx)) return;
+  const entry = document.createElement('div');
+  entry.className = 'vocab-entry';
+  entry.id = 'sve-' + mIdx;
+  entry.innerHTML =
+    `<span class="ve-tl">${item.tl}</span> &nbsp;` +
+    `<span class="ve-sl">${item.sl}</span>` +
+    `<span style="color:#aaa;font-size:0.85em;float:right">${m.short}</span>`;
+  statesVocabListEl.appendChild(entry);
+  statesVocabArrEl.style.display = 'block';
+}
+
+
+/* ================================================================
+   DISPLAY ALL — cycles all revealed States Mode boxes through
+   TL → SL → back to individual layers
+================================================================ */
+const DA_LABELS = ['DISPLAY_ALL_TL_LABEL', 'DISPLAY_ALL_SL_LABEL'];
+const DA_CLASS  = ['active-tl', 'active-sl'];
+
+displayAllBtnEl.addEventListener('click', () => {
+  // Cycle: -1 → 0 → 1 → -1
+  displayAllLayer = displayAllLayer >= 1 ? -1 : displayAllLayer + 1;
+
+  if (displayAllLayer < 0) {
+    displayAllBtnEl.textContent = 'DISPLAY_ALL_TL_LABEL';
+    displayAllBtnEl.className   = '';
+    // Restore: show only current active box
+    const mIdx = nearestSeg(frameAngle);
+    showOnlyBox(mIdx);
+    updateBadge(tbLayer[mIdx] ?? LAYER.TL);
+  } else {
+    displayAllBtnEl.textContent = DA_LABELS[displayAllLayer];
+    displayAllBtnEl.className   = DA_CLASS[displayAllLayer];
+    // Show ALL revealed boxes at this layer simultaneously
+    foEls.forEach((fo, i) => {
+      if (!fo || MONTHS[i].vocabIdx === null) return;
+      if (tbRevealed[i]) {
+        fo.style.display = 'block';
+        tbLayer[i] = displayAllLayer;
+        applyLayer(i, displayAllLayer);
+      }
+    });
+    updateBadge(displayAllLayer);
+  }
+});
+
+function applyLayer(mIdx, layer) {
+  const m = MONTHS[mIdx];
+  if (m.vocabIdx === null) return;
+  const div  = divEls[mIdx];
+  if (!div) return;
+  const item = vocab[m.vocabIdx];
+  div.className = 'tb-inner ' + LAYER_CLS[layer];
+  if (learnedS[mIdx]) div.classList.add('learned');
+  div.style.fontSize = FONT_SZ[layer];
+  switch (layer) {
+    case LAYER.TL:   div.innerHTML = item.tl;  break;
+    case LAYER.SL:   div.innerHTML = item.sl;  break;
+    case LAYER.QUIZ: div.innerHTML = '?';      break;
+  }
+}
+
+/* ================================================================
+   FRAME POSITIONING
+================================================================ */
+function setFrame(angleDeg) {
+  frameAngle = angleDeg;
+  const p = angleToXY(angleDeg, 44);
+  dragRingEl.setAttribute('cx', p.x.toFixed(2));
+  dragRingEl.setAttribute('cy', p.y.toFixed(2));
+  dragDotEl.setAttribute('cx',  p.x.toFixed(2));
+  dragDotEl.setAttribute('cy',  p.y.toFixed(2));
+}
+function snapFrame() {
+  const mIdx = nearestSeg(frameAngle);
+  setFrame(MONTHS[mIdx].angle);
+  return mIdx;
+}
+
+/* ================================================================
+   SEGMENT HIGHLIGHT
+================================================================ */
+function highlightSeg(activeIdx) {
+  document.querySelectorAll('.seg').forEach((el, i) => {
+    el.style.filter         = (i === activeIdx) ? 'brightness(1.22)' : '';
+    el.setAttribute('stroke-width', (i === activeIdx) ? '1.2' : '0.5');
+  });
+}
+
+/* ================================================================
+   STATES MODE — show only the active textbox, hide all others
+================================================================ */
+function showOnlyBox(mIdx) {
+  foEls.forEach((fo, i) => {
+    if (!fo || MONTHS[i].vocabIdx === null) return;
+    if (i === mIdx) {
+      // Active segment — always show
+      fo.style.display = 'block';
+      if (!tbRevealed[i]) {
+        tbRevealed[i] = true;
+        tbLayer[i]    = LAYER.TL;
+        applyLayer(i, LAYER.TL);
+      }
+    } else if (learnedS[i]) {
+      // Learned — stay visible at TL
+      fo.style.display = 'block';
+      if (tbLayer[i] !== LAYER.TL) {
+        tbLayer[i] = LAYER.TL;
+        applyLayer(i, LAYER.TL);
+      }
+    } else {
+      // Unlearned and not active — hide
+      fo.style.display = 'none';
+    }
+  });
+}
+
+/* ================================================================
+   STATES MODE — handle textbox click
+================================================================ */
+function handleBoxClick(mIdx) {
+  if (!isStatesMode) return;
+  const m = MONTHS[mIdx];
+  if (m.vocabIdx === null) return;
+  let layer = tbLayer[mIdx];
+
+  if (learnedS[mIdx]) {
+    // Learned: cycle TL → SL → TL
+    layer = (layer + 1) % 2;
+    tbLayer[mIdx] = layer;
+    applyLayer(mIdx, layer);
+    updateBadge(layer);
+  } else {
+    // Unlearned: advance TL → SL → Quiz
+    if (layer < LAYER.QUIZ) layer++;
+    tbLayer[mIdx] = layer;
+    if (layer === LAYER.QUIZ) {
+      applyLayer(mIdx, LAYER.QUIZ);
+      showQuiz(mIdx);
+    } else {
+      applyLayer(mIdx, layer);
+      updateBadge(layer);
+    }
+  }
+}
+
+/* ================================================================
+   QUIZ
+================================================================ */
+function showQuiz(mIdx) {
+  const m = MONTHS[mIdx];
+  if (m.vocabIdx === null) return;
+  quizIdx = mIdx;
+  const item = vocab[m.vocabIdx];
+  quizPrEl.innerHTML =
+    `QUIZ_PROMPT_LABEL:<br><strong style="color:#1a5e35;font-size:14px;">${item.sl}</strong>`;
+  quizInputEl.value  = '';
+  quizFbEl.textContent = '';
+  quizFbEl.style.color = '#333';
+
+  // Position quiz panel near the textbox
+  const fo       = foEls[mIdx];
+  const fx       = parseFloat(fo.getAttribute('x'));
+  const fy       = parseFloat(fo.getAttribute('y'));
+  const fw       = parseFloat(fo.getAttribute('width'));
+  const fh       = parseFloat(fo.getAttribute('height'));
+  const svgRect  = svgEl.getBoundingClientRect();
+  const pageRect = pageEl.getBoundingClientRect();
+  const scaleX   = svgRect.width  / 100;
+  const scaleY   = svgRect.height / 100;
+
+  let qLeft = (svgRect.left - pageRect.left) + (fx + fw / 2) * scaleX - 97;
+  let qTop  = (svgRect.top  - pageRect.top)  + (fy + fh + 2) * scaleY;
+  qLeft = Math.max(5, Math.min(qLeft, pageRect.width  - 205));
+  qTop  = Math.max(5, Math.min(qTop,  pageRect.height - 145));
+
+  quizPanelEl.style.left    = qLeft + 'px';
+  quizPanelEl.style.top     = qTop  + 'px';
+  quizPanelEl.style.display = 'block';
+  updateBadge(LAYER.QUIZ);
+  setTimeout(() => quizInputEl.focus(), 60);
+}
+
+function dismissQuiz(stepBack) {
+  const idx = quizIdx;
+  quizPanelEl.style.display = 'none';
+  quizFbEl.textContent = '';
+  quizIdx = -1;
+  if (stepBack && idx >= 0) {
+    closedIdx = idx;
+    tbLayer[idx] = LAYER.TL;
+    applyLayer(idx, LAYER.TL);
+    updateBadge(LAYER.TL);
+    setTimeout(() => { closedIdx = -1; }, 400);
+  }
+}
+
+function checkAnswer() {
+  if (quizIdx < 0) return;
+  const idx  = quizIdx;
+  const m    = MONTHS[idx];
+  if (m.vocabIdx === null) return;
+  const answer = quizInputEl.value.trim();
+  if (!answer) return;
+  const item = vocab[m.vocabIdx];
+
+  if (AnswerUtils.match(answer, item.tl)) {
+    quizFbEl.textContent = 'QUIZ_CORRECT_LABEL';
+    quizFbEl.style.color = '#1a5e35';
+    learnedS[idx] = true;
+    tbLayer[idx]  = LAYER.TL;
+    applyLayer(idx, LAYER.TL);
+    updateBadge(LAYER.TL);
+    addToStatesVocabArray(idx);
+    setTimeout(() => {
+      if (quizIdx === idx || quizIdx === -1) {
+        quizPanelEl.style.display = 'none';
+        quizIdx = -1;
+      }
+    }, 1500);
+  } else {
+    quizFbEl.textContent = 'QUIZ_WRONG_LABEL';
+    quizFbEl.style.color = '#b03030';
+    quizInputEl.value    = '';
+    quizInputEl.focus();
+  }
+}
+
+/* ================================================================
+   TRANSITIONS MODE — sliding text
+================================================================ */
+let _lastTransMIdx = -1;
+
+function updateSlideText(angleDeg) {
+  const mIdx   = nearestSeg(angleDeg);
+
+  // Reset display layer when month changes
+  if (mIdx !== _lastTransMIdx) {
+    transDispLayer = LAYER.TL;
+    _lastTransMIdx = mIdx;
+  }
+
+  // Clamp startOffset so text stays within the visible ring arc
+  const rawPct = (angleDeg / 360) * 100;
+  const offset = Math.min(Math.max(rawPct, 0), 85).toFixed(1) + '%';
+  slideTPEl.setAttribute('startOffset', offset);
+
+  const item = transVocab[mIdx];
+  const layer = (transDispLayer === LAYER.QUIZ) ? LAYER.TL : transDispLayer;
+  let text = '';
+  switch (layer) {
+    case LAYER.TL:  text = item.tl;  break;
+    case LAYER.SL:  text = item.sl;  break;
+  }
+  slideTextEl.setAttribute('fill', BADGE_COL[layer]);
+  slideTextEl.setAttribute('font-size', FONT_SZ[layer]);
+  slideTPEl.textContent = text;
+
+  // Keep display window in sync
+  updateTransDisplay(mIdx);
+}
+
+slideTextEl.addEventListener('click', () => {
+  if (isStatesMode) return;
+  handleTransDisplayClick();
+});
+
+/* ================================================================
+   DRAG HANDLERS
+================================================================ */
+function startDrag(e) {
+  e.preventDefault();
+  isDragging = true;
+  dragRingEl.style.cursor = 'grabbing';
+  if (dragHintEl) dragHintEl.style.opacity = '0';
+}
+function onDrag(e) {
+  if (!isDragging) return;
+  e.preventDefault();
+  const pt    = svgPt(e);
+  const angle = toAngle(pt.x, pt.y);
+  setFrame(angle);
+  if (isStatesMode) {
+    const mIdx = nearestSeg(angle);
+    showOnlyBox(mIdx);
+    highlightSeg(mIdx);
+  } else {
+    updateSlideText(angle);
+  }
+}
+function endDrag() {
+  if (!isDragging) return;
+  isDragging = false;
+  dragRingEl.style.cursor = 'grab';
+  const mIdx = snapFrame();
+  if (isStatesMode) {
+    showOnlyBox(mIdx);
+    highlightSeg(mIdx);
+  } else {
+    updateSlideText(MONTHS[mIdx].angle);
+  }
+}
+
+dragRingEl.addEventListener('mousedown',  e => startDrag(e));
+dragRingEl.addEventListener('touchstart', e => startDrag(e), {passive:false});
+document.addEventListener('mousemove',    e => onDrag(e));
+document.addEventListener('touchmove',    e => onDrag(e), {passive:false});
+document.addEventListener('mouseup',      endDrag);
+document.addEventListener('touchend',     endDrag);
+
+/* ================================================================
+   MODE TOGGLE
+================================================================ */
+modeBtnEl.addEventListener('click', () => {
+  isStatesMode = !isStatesMode;
+  modeBtnEl.textContent = isStatesMode ? 'TRANS_MODE_LABEL' : 'STATES_MODE_LABEL';
+  dismissQuiz(false);
+
+  if (isStatesMode) {
+    slideTextEl.style.display  = 'none';
+    transDispEl.style.display  = 'none';
+    vocabArrayEl.style.display = 'none';
+    dragHintEl.style.opacity   = '1';
+    displayAllBtnEl.style.display = 'block';
+    displayAllBtnEl.textContent   = 'DISPLAY_ALL_TL_LABEL';
+    displayAllBtnEl.className     = '';
+    if (statesVocabListEl.children.length > 0) statesVocabArrEl.style.display = 'block';
+    const mIdx = nearestSeg(frameAngle);
+    showOnlyBox(mIdx);
+    highlightSeg(mIdx);
+    updateBadge(tbLayer[mIdx] ?? LAYER.TL);
+  } else {
+    foEls.forEach(fo => { if (fo) fo.style.display = 'none'; });
+    statesVocabArrEl.style.display = 'none';
+    displayAllBtnEl.style.display  = 'none';
+    displayAllLayer = -1;
+    document.querySelectorAll('.seg').forEach(el => {
+      el.style.filter = '';
+      el.setAttribute('stroke-width', '0.5');
+    });
+    transDispLayer       = LAYER.TL;
+    _lastTransMIdx       = -1;
+    transLayer           = LAYER.TL;
+    slideTextEl.style.display  = 'block';
+    transDispEl.style.display  = 'block';
+    // Only show vocab array if there are learned items
+    if (vocabListEl.children.length > 0) vocabArrayEl.style.display = 'block';
+    updateSlideText(frameAngle);
+    updateBadge(LAYER.TL);
+  }
+});
+
+/* ================================================================
+   TEXTBOX CLICK HANDLERS
+================================================================ */
+foEls.forEach((fo, i) => {
+  if (!fo) return;
+  fo.addEventListener('click', e => {
+    e.stopPropagation();
+    handleBoxClick(i);
+  });
+});
+
+/* ── Transitions display window click ── */
+transDispEl.addEventListener('click', e => {
+  if (e.target === tdInputEl || e.target.id === 'tdCheckBtn') return;
+  if (!isStatesMode) handleTransDisplayClick();
+});
+document.getElementById('tdCheckBtn').addEventListener('click', e => {
+  e.stopPropagation(); checkTransAnswer();
+});
+tdInputEl.addEventListener('keydown', e => { if (e.key === 'Enter') checkTransAnswer(); });
+tdInputEl.addEventListener('click',   e => e.stopPropagation());
+
+/* ── States Mode vocab array toggle ── */
+document.getElementById('statesVocabToggle').addEventListener('click', () => {
+  const list = statesVocabListEl;
+  const btn  = document.getElementById('statesVocabToggle');
+  if (list.style.display === 'none' || list.style.display === '') {
+    list.style.display = 'block';
+    btn.textContent = '▲  Vocabulary learned';
+  } else {
+    list.style.display = 'none';
+    btn.textContent = '▼  Vocabulary learned';
+  }
+});
+
+/* ── Transitions Mode vocab array toggle ── */
+document.getElementById('vocabToggle').addEventListener('click', () => {
+  const list = vocabListEl;
+  const btn  = document.getElementById('vocabToggle');
+  if (list.style.display === 'none' || list.style.display === '') {
+    list.style.display = 'block';
+    btn.textContent = '▲  Vocabulary learned';
+  } else {
+    list.style.display = 'none';
+    btn.textContent = '▼  Vocabulary learned';
+  }
+});
+
+/* ================================================================
+   QUIZ PANEL — click, grab, drag and move anywhere on the page
+================================================================ */
+function makeQuizDraggable() {
+  const qp   = quizPanelEl;
+  const page = pageEl;
+  let qDragging = false, offsetX = 0, offsetY = 0;
+
+  function qStart(e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+    e.stopPropagation();
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+    const qpRect  = qp.getBoundingClientRect();
+    offsetX = clientX - qpRect.left;
+    offsetY = clientY - qpRect.top;
+    qDragging = true;
+    qp.classList.add('dragging');
+    e.preventDefault();
+  }
+  function qMove(e) {
+    if (!qDragging) return;
+    e.stopPropagation();
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+    const pageRect = page.getBoundingClientRect();
+    // quizPanel is position:absolute relative to #page (same coordinate
+    // space showQuiz() already computes qLeft/qTop in) — keep drag in
+    // that same space so a later showQuiz() call still behaves.
+    qp.style.left = (clientX - pageRect.left - offsetX) + 'px';
+    qp.style.top  = (clientY - pageRect.top  - offsetY) + 'px';
+    e.preventDefault();
+  }
+  function qEnd(e) {
+    if (!qDragging) return;
+    qDragging = false;
+    qp.classList.remove('dragging');
+    // A drag-release (mouseup) synthesizes a click event immediately
+    // afterward, targeted at whatever's under the cursor at that exact
+    // pixel — which, on a fast or slightly imprecise drag, can easily
+    // land just outside the panel's own bounds even though the user was
+    // clearly still interacting with it. Without this guard, that
+    // synthetic click gets misread by the outside-click handler below as
+    // "user clicked away," dismissing the quiz immediately after every
+    // drag. Swallow exactly one click event here; quizJustDragged is
+    // consumed and reset by the outside-click handler itself.
+    quizJustDragged = true;
+    if (e) e.stopPropagation();
+  }
+
+  qp.addEventListener('mousedown', qStart);
+  qp.addEventListener('touchstart', qStart, { passive: false });
+  document.addEventListener('mousemove', qMove);
+  document.addEventListener('touchmove', qMove, { passive: false });
+  document.addEventListener('mouseup', qEnd);
+  document.addEventListener('touchend', qEnd);
+}
+let quizJustDragged = false;
+makeQuizDraggable();
+
+/* ================================================================
+   QUIZ CONTROLS (States Mode)
+================================================================ */
+document.getElementById('quizCheck').addEventListener('click', checkAnswer);
+document.getElementById('quizClose').addEventListener('click', () => dismissQuiz(true));
+quizInputEl.addEventListener('keydown', e => { if (e.key === 'Enter') checkAnswer(); });
+
+/* ================================================================
+   OUTSIDE CLICK — dismiss quiz, step back to TL
+================================================================ */
+document.addEventListener('click', e => {
+  // Swallow exactly one click: the synthetic one generated right after
+  // a quiz-panel drag-release ends (see makeQuizDraggable / qEnd above).
+  if (quizJustDragged) {
+    quizJustDragged = false;
+    return;
+  }
+  // States Mode quiz dismiss
+  if (quizPanelEl.style.display !== 'none') {
+    if (!quizPanelEl.contains(e.target) && !e.target.closest('foreignObject')) {
+      dismissQuiz(true);
+    }
+  }
+  // Transitions Mode quiz dismiss — click outside transDisplay
+  if (!isStatesMode && transDispLayer === LAYER.QUIZ) {
+    if (!transDispEl.contains(e.target)) {
+      transDispLayer = LAYER.TL;
+      const mIdx = nearestSeg(frameAngle);
+      updateTransDisplay(mIdx);
+      updateSlideText(frameAngle);
+    }
+  }
+});
+
+/* ================================================================
+   SEGMENT TOOLTIPS
+================================================================ */
+document.querySelectorAll('.seg').forEach(seg => {
+  const idx = parseInt(seg.dataset.seg);
+  seg.addEventListener('mouseover', () => {
+    const d = segTipData[idx];
+    tooltipEl.innerHTML =
+      `<span class="tt-month">${d.month}</span>&nbsp;&nbsp;<span class="tt-season">${d.season}</span>`;
+    tooltipEl.style.display = 'block';
+  });
+  seg.addEventListener('mousemove', e => {
+    const pr  = pageEl.getBoundingClientRect();
+    let left  = e.clientX - pr.left + 12;
+    let top   = e.clientY - pr.top  + 14;
+    const ttW = tooltipEl.offsetWidth  || 220;
+    const ttH = tooltipEl.offsetHeight || 36;
+    if (left + ttW > pr.width  - 8) left = e.clientX - pr.left - ttW - 8;
+    if (top  + ttH > pr.height - 8) top  = e.clientY - pr.top  - ttH - 8;
+    tooltipEl.style.left = left + 'px';
+    tooltipEl.style.top  = top  + 'px';
+  });
+  seg.addEventListener('mouseout', () => { tooltipEl.style.display = 'none'; });
+});
+
+/* ================================================================
+   INIT — start at March (segment 2, midpoint 75°)
+================================================================ */
+setFrame(75);
+updateBadge(LAYER.TL);
+highlightSeg(2);
+showOnlyBox(2);
+</script>
+</body>
+</html>

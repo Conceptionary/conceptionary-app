@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GT5L+11TB Phonographic Generic Template</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f9f9f9;
+            overflow: hidden;
+        }
+
+        .a4-page {
+            width: 90vw;
+            height: 70vh;
+            border: 5px solid black;
+            background-color: white;
+            box-sizing: border-box;
+            position: relative;
+            touch-action: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .watermark {
+            position: absolute;
+            bottom: 5px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            pointer-events: none;
+            user-select: none;
+            z-index: 0;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .path-line {
+            stroke: black;
+            stroke-width: 0.15;
+            fill: none;
+        }
+
+        /* Continuation path lines - dashed and cyan */
+        .continuation-path {
+            stroke: #00CED1;
+            stroke-width: 0.2;
+            stroke-dasharray: 1.5, 1;
+            fill: none;
+            opacity: 0.5;
+            cursor: pointer;
+        }
+
+        .continuation-path:hover {
+            stroke: #00FFFF;
+            opacity: 0.9;
+            stroke-width: 0.3;
+        }
+
+        #conceptBackground {
+            fill: url(#conceptGradient);
+            opacity: 0.2;
+        }
+
+        /* States Template Elements */
+        .textBox {
+            cursor: pointer;
+            font-size: 1.4px;
+            fill: black;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transform: scale(0.5);
+            text-anchor: middle;
+        }
+
+        .textBox.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .textBox.learned {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            fill: green;
+        }
+
+        /* Continuation text boxes */
+        .textBox.continuation {
+            fill: #008B8B;
+            font-style: italic;
+        }
+
+        #draggableFrame {
+            cursor: grab;
+            fill: rgba(255, 255, 0, 0.6);
+            stroke: #ccaa00;
+            stroke-width: 0.1;
+            pointer-events: all;
+            opacity: 1;
+            z-index: 10000;
+            filter: drop-shadow(0 0.3px 0.5px rgba(0,0,0,0.3));
+            transition: fill 0.2s ease, stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
+        }
+
+        #draggableFrame:hover {
+            fill: rgba(255, 255, 0, 0.8);
+            stroke: #ffcc00;
+            stroke-width: 0.15;
+            cursor: grab;
+            filter: drop-shadow(0 0.5px 1px rgba(204, 170, 0, 0.6)) drop-shadow(0 0 2px rgba(255, 255, 100, 0.8));
+        }
+
+        #draggableFrame.dragging {
+            cursor: grabbing;
+            fill: transparent;
+            stroke: #ffaa00;
+            stroke-width: 0.1;
+            filter: drop-shadow(0 0.5px 1px rgba(255, 170, 0, 0.6)) drop-shadow(0 0 2px rgba(255, 220, 0, 0.8));
+        }
+
+        /* Transitions Template Elements */
+        .sliding-text {
+            font-size: 1.6px;
+            font-weight: bold;
+            fill: blue;
+            cursor: grab;
+        }
+        
+        .sliding-text.dragging {
+            cursor: grabbing;
+            fill: darkorange;
+        }
+        
+        .sliding-text.learned {
+            fill: green;
+        }
+
+        /* Common Title Box Styling */
+        .title-box {
+            position: absolute;
+            top: 2%;
+            left: 2.5%;
+            width: 95%;
+            font-size: 1em;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid black;
+            padding: 10px;
+            background-color: white;
+            z-index: 2;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .title-box.hidden {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        
+        .mode-toggle {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            padding: 8px 16px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 3;
+        }
+        
+        .mode-indicator {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9em;
+            font-weight: bold;
+            padding: 8px 16px;
+            background-color: white;
+            border: 2px solid #3366cc;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 3;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .mode-indicator.hidden {
+            opacity: 0;
+            transform: translateX(-50%) scale(0.9);
+        }
+        
+        
+        .concept-indicator {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1em;
+            padding: 5px 10px;
+            background-color: white;
+            border: 1px solid #555;
+            border-radius: 4px;
+            z-index: 3;
+            display: none;
+        }
+        
+        .level-indicator {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            padding: 5px 10px;
+            background-color: white;
+            border: 1px solid #555;
+            border-radius: 4px;
+            z-index: 3;
+            display: none;
+        }
+
+        .drag-instruction {
+            position: absolute;
+            top: 20%;
+            left: 5%;
+            font-size: 0.9em;
+            padding: 5px 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            z-index: 3;
+            opacity: 1;
+            transition: opacity 2s ease;
+            max-width: 30%;
+            line-height: 1.4;
+            cursor: pointer;
+        }
+        
+        .drag-instruction.fade {
+            opacity: 0;
+        }
+
+        .quiz-container {
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 3px solid #3366cc;
+            border-radius: 4px;
+            padding: 12px;
+            z-index: 9999;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            min-width: 280px;
+            max-width: 600px;
+            width: auto;
+            cursor: move;
+            user-select: none;
+        }
+        
+        .quiz-container input {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .quiz-container button {
+            width: 100%;
+            padding: 8px;
+            background-color: #3366cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .quiz-container button:hover {
+            background-color: #254e9c;
+        }
+        
+        #quizFeedback {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 8px;
+            min-height: 20px;
+        }
+
+        .tools-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 8px 12px;
+            font-size: 0.8em;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 4;
+            display: none;
+        }
+
+        .tools-dropdown {
+            position: absolute;
+            top: 45px;
+            right: 10px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 4;
+            display: none;
+            min-width: 180px;
+        }
+
+        .tools-dropdown.active {
+            display: block;
+        }
+
+        .tools-dropdown button {
+            display: block;
+            width: 100%;
+            padding: 10px 15px;
+            font-size: 0.75em;
+            background-color: white;
+            border: none;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .tools-dropdown button:hover {
+            background-color: #f0f0f0;
+        }
+
+        .tools-dropdown button:last-child {
+            border-bottom: none;
+        }
+
+        .vocabulary-array {
+            position: absolute;
+            top: 70px;
+            width: 20%;
+            max-height: 40vh;
+            overflow-y: auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 8px;
+            z-index: 4;
+            display: none;
+        }
+
+        #increasing-array {
+            left: 10px;
+        }
+
+        #decreasing-array {
+            right: 10px;
+        }
+
+        .array-title {
+            font-size: 0.85em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 8px;
+            padding: 5px;
+            background-color: #e8f4fd;
+            border-radius: 3px;
+        }
+
+        .vocabulary-item {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.75em;
+            margin: 5px 0;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background-color: white;
+        }
+
+        .vocabulary-item .target-language {
+            font-weight: bold;
+            color: #2c5aa0;
+            margin-bottom: 2px;
+            cursor: pointer;
+        }
+
+        .vocabulary-item .source-language {
+            color: #666;
+            cursor: pointer;
+        }
+
+        .vocabulary-item .target-language.hidden,
+        .vocabulary-item .source-language.hidden {
+            color: transparent;
+            user-select: none;
+            background-color: #f0f0f0;
+        }
+
+        .toggle-visibility {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 0.65em;
+            padding: 3px 8px;
+            background-color: #e0e0e0;
+            border: 1px solid #999;
+            border-radius: 3px;
+            cursor: pointer;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+    <div class="a4-page">
+        <div id="title-box" class="title-box">(Target Language Title)</div>
+        <div id="concept-indicator" class="concept-indicator">Position 1</div>
+        <div id="level-indicator" class="level-indicator">TL</div>
+        <div id="drag-instruction" class="drag-instruction">Source Language Instructions</div>
+        
+        <button class="tools-button">🛠️ Tools</button>
+        <div class="tools-dropdown">
+            <button id="loadConcept">📥 Load Concept</button>
+            <button id="startQuiz">🎯 Start Quiz</button>
+            <button id="toggleArrays">👁️ Toggle Arrays</button>
+        </div>
+        
+        <div id="increasing-array" class="vocabulary-array">
+            <div class="array-title">Lines 1, 1+, 2, 3</div>
+            <button class="toggle-visibility" id="toggle-increasing">Hide All</button>
+            <div id="increasing-items"></div>
+        </div>
+        
+        <div id="decreasing-array" class="vocabulary-array">
+            <div class="array-title">Lines 3+, 4, 5</div>
+            <button class="toggle-visibility" id="toggle-decreasing">Hide All</button>
+            <div id="decreasing-items"></div>
+        </div>
+        
+        <svg id="svgCanvas" viewBox="0 0 100 43.6" preserveAspectRatio="none">
+            <defs>
+                <linearGradient id="conceptGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#4a4a4a;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#87ceeb;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#4a4a4a;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+            
+            <path id="gradualChangePath" class="path-line"></path>
+            <path id="conceptBackground"></path>
+            
+            <!-- Continuation paths (horizontal extensions) -->
+            <path id="continuationPath1" class="continuation-path"></path>
+            <path id="continuationPath3" class="continuation-path"></path>
+            
+            <text id="interactiveText" class="sliding-text">
+                <textPath id="slidingText" href="#gradualChangePath" startOffset="0%" dy="-1">
+                    Here
+                </textPath>
+            </text>
+            
+            <!-- Circular draggable frame (50% smaller than original rectangle) -->
+            <circle id="draggableFrame" cx="1.5" cy="32.4" r="1.5" 
+                  style="z-index: 10000; pointer-events: all; cursor: grab;"/>
+        </svg>
+        <div id="mode-indicator" class="mode-indicator">States Mode - TL</div>
+        <button id="modeToggle" class="mode-toggle">Toggle Mode</button>
+        <div class="watermark">
+            &copy; 2025 Alan William Preston - GT5L+11TB Phonographic Generic
+        </div>
+    </div>
+
+    <div id="quizContainer" class="quiz-container">
+        <input type="text" id="quizInput" placeholder="Enter the TL">
+        <button id="quizCheck">Check</button>
+        <div id="quizFeedback"></div>
+    </div>
+
+    <script>
+        // ========================================================================
+        // GRADUAL TEMPORARY 5 LINES - 13 TEXTBOXES (11 + 2 Continuations)
+        // PHONOGRAPHIC VERSION - 3-LEVEL PROGRESSION (TL → SL → Quiz)
+        // ========================================================================
+        // 
+        // GEOMETRIC LAYOUT (viewBox: 0 0 100 43.6):
+        // 11 main textboxes: left-end + midpoint of each 5 lines + final at 100%
+        // 2 continuation textboxes: midpoint of Line 1+ and Line 3+
+        // 
+        // Line 1: (0, 32.4) → (25, 32.4)
+        //   Textbox 1: (0, 32.4) - Line 1 start
+        //   Textbox 2: (12.5, 32.4) - Line 1 midpoint
+        // 
+        // Line 2: (25, 32.4) → (37.5, 21.6)
+        //   Textbox 3: (25, 32.4) - Line 2 start
+        //   Textbox 4: (31.25, 27) - Line 2 midpoint
+        // 
+        // Line 3: (37.5, 21.6) → (62.5, 21.6)
+        //   Textbox 5: (37.5, 21.6) - Line 3 start
+        //   Textbox 6: (50, 21.6) - Line 3 midpoint
+        // 
+        // Line 4: (62.5, 21.6) → (75, 32.4)
+        //   Textbox 7: (62.5, 21.6) - Line 4 start
+        //   Textbox 8: (68.75, 27) - Line 4 midpoint
+        // 
+        // Line 5: (75, 32.4) → (100, 32.4)
+        //   Textbox 9: (75, 32.4) - Line 5 start
+        //   Textbox 10: (87.5, 32.4) - Line 5 midpoint
+        //   Textbox 11: (100, 32.4) - Line 5 end / Final position
+        //
+        // CONTINUATION LINES (within viewBox 0-100):
+        // Line 1+: (25, 32.4) → (75, 32.4)
+        //   Textbox 12: (50, 32.4) - Line 1+ midpoint (TL2+)
+        // 
+        // Line 3+: (62.5, 21.6) → (100, 21.6)
+        //   Textbox 13: (81.25, 21.6) - Line 3+ midpoint (TL6+)
+        // ========================================================================
+        
+        // GENERIC PLACEHOLDER DATA - 11 textboxes (PHONOGRAPHIC: TL, SL only)
+        // Format: [TL, SL, Quiz Question, Position Label]
+        
+        const conceptData = [
+            ["TL1", "SL1", "What is the TL for 'SL1'?", "Line 1 Start"],      // Line 1 start
+            ["TL2", "SL2", "What is the TL for 'SL2'?", "Line 1 Mid"],      // Line 1 mid
+            ["TL3", "SL3", "What is the TL for 'SL3'?", "Line 2 Start"],      // Line 2 start
+            ["TL4", "SL4", "What is the TL for 'SL4'?", "Line 2 Mid"],      // Line 2 mid
+            ["TL5", "SL5", "What is the TL for 'SL5'?", "Line 3 Start"],      // Line 3 start
+            ["TL6", "SL6", "What is the TL for 'SL6'?", "Line 3 Mid"],      // Line 3 mid
+            ["TL7", "SL7", "What is the TL for 'SL7'?", "Line 4 Start"],      // Line 4 start
+            ["TL8", "SL8", "What is the TL for 'SL8'?", "Line 4 Mid"],      // Line 4 mid
+            ["TL9", "SL9", "What is the TL for 'SL9'?", "Line 5 Start"],      // Line 5 start
+            ["TL10", "SL10", "What is the TL for 'SL10'?", "Line 5 Mid"], // Line 5 mid
+            ["TL11", "SL11", "What is the TL for 'SL11'?", "Line 5 End"]  // Line 5 end (100%)
+        ];
+
+
+        // Continuation data for Lines 1+ and 3+ (PHONOGRAPHIC: TL, SL only)
+        const continuationData = [
+            ["TL1+", "SL1+", "What is the TL for 'SL1+'?"],  // Line 1+ midpoint: x=50, y=32.4
+            ["TL3+", "SL3+", "What is the TL for 'SL3+'?"]   // Line 3+ midpoint: x=81.25, y=21.6
+        ];
+
+
+        // Transitions data - organized by LINE (PHONOGRAPHIC: TL, SL only)
+        const transitionsData = [
+            ["TL-T1", "SL-T1", "What is the TL for 'SL-T1'?", "line1"],
+            ["TL-T1+", "SL-T1+", "What is the TL for 'SL-T1+'?", "line1plus"],
+            ["TL-T2", "SL-T2", "What is the TL for 'SL-T2'?", "line2"],
+            ["TL-T3", "SL-T3", "What is the TL for 'SL-T3'?", "line3"],
+            ["TL-T3+", "SL-T3+", "What is the TL for 'SL-T3+'?", "line3plus"],
+            ["TL-T4", "SL-T4", "What is the TL for 'SL-T4'?", "line4"],
+            ["TL-T5", "SL-T5", "What is the TL for 'SL-T5'?", "line5"]
+        ];
+
+        // 5-line zigzag path coordinates
+        const pathPoints = [
+            `0,32.4`,          // Start Line 1
+            `25,32.4`,         // End Line 1
+            `37.5,21.6`,       // End Line 2
+            `62.5,21.6`,       // End Line 3
+            `75,32.4`,         // End Line 4
+            `100,32.4`         // End Line 5
+        ];
+
+        // Continuation paths - staying within viewBox 0-100
+        const continuation1Points = [`25,32.4`, `75,32.4`];     // Line 1+: from Line1-Line2 intersection to Line4-Line5 intersection
+        const continuation3Points = [`62.5,21.6`, `100,21.6`];  // Line 3+: from end of Line 3 to 100%
+
+        // Global variables
+        let svg, pathLine, conceptBackground, titleBox, conceptIndicator, levelIndicator, modeIndicator;
+        let modeToggleBtn, frame, quizContainer, quizInput, quizCheck, quizFeedback;
+        let increasingArray, decreasingArray, increasingItems, decreasingItems;
+        let toggleIncreasingBtn, toggleDecreasingBtn;
+        let interactiveText, slidingText;
+        let cont1Path, cont3Path;
+        
+        let isStatesMode = true;
+        let pathLength = 0;
+        let currentQuizIndex = -1;
+        
+        // Quiz container dragging variables
+        let isQuizDragging = false;
+        let quizDragOffset = { x: 0, y: 0 };
+        let quizPosition = { x: null, y: null }; // null = use default centered position
+        let slidingTextMode = 0; // 0: TL, 1: SL, 2: Quiz (PHONOGRAPHIC: 3 levels instead of 4)
+        
+        // CRITICAL: Separate learned items arrays
+        let learnedItemsStates = [];
+        let learnedItemsTransitions = [];
+        let textBoxElements = [];
+        let continuationTextBoxes = [];
+        let addedIncreasingItems = [];
+        let addedDecreasingItems = [];
+        
+        let currentTextIndex = 0;
+        const titleTexts = {
+            states: [
+                "(Target Language Title)",
+                "(Source Language Title)"
+            ],
+            transitions: [
+                "(Target Language Title)",
+                "(Source Language Title)"
+            ]
+        };
+        
+        let currentInstructionIndex = 0;
+        const instructionTexts = [
+            "Source Language Instructions",  // Generic placeholder (SL)
+            "1. Click and drag the yellow circle to activate the text<br>2: Click on the text to see the translation into your language.<br>3: Click again to test your memory.<br><br>This template is best viewed on a large screen in Full Screen mode."  // English (TL)
+        ];
+        
+        let currentModeIndicatorIndex = 0;
+        const modeIndicatorTexts = {
+            states: ["States Mode - TL", "States Mode - SL"],
+            transitions: ["Transitions Mode - TL", "Transitions Mode - SL"]
+        };
+        
+        const activationDistance = 11.4;
+        let isDragging = false;
+        let currentPathPosition = 0;
+        let currentPath = 'main';
+        
+        let isTextDragging = false;
+        let hasMovedDuringDrag = false;
+        let startPercent = 0;
+
+        // HELPER FUNCTIONS
+        function bringFrameToFront() {
+            if (frame && frame.parentNode) {
+                frame.parentNode.appendChild(frame);
+            }
+        }
+
+        function updateLevelIndicator() {
+            if (isStatesMode) {
+                levelIndicator.style.display = 'none';
+                return;
+            }
+            
+            levelIndicator.style.display = 'none';
+            
+            switch (slidingTextMode) {
+                case 0:
+                    levelIndicator.textContent = 'TL';
+                    break;
+                case 1:
+                    levelIndicator.textContent = 'SL';
+                    break;
+                case 2:
+                    levelIndicator.textContent = 'Quiz Mode';
+                    break;
+            }
+        }
+
+        function updateConceptIndicator(text) {
+            if (conceptIndicator) {
+                conceptIndicator.textContent = text || 'Position';
+            }
+        }
+
+        function toggleArrayVisibility(arrayType) {
+            try {
+                const container = document.getElementById(arrayType + "-items");
+                const button = document.getElementById("toggle-" + arrayType);
+                if (!container || !button) return;
+                
+                const spans = container.querySelectorAll('.vocabulary-item .target-language, .vocabulary-item .source-language');
+                
+                let visibleCount = 0;
+                spans.forEach(span => {
+                    if (!span.classList.contains('hidden')) visibleCount++;
+                });
+                
+                const mostlyVisible = visibleCount > spans.length / 2;
+                
+                spans.forEach(span => {
+                    if (mostlyVisible) {
+                        span.classList.add('hidden');
+                    } else {
+                        span.classList.remove('hidden');
+                    }
+                });
+                
+                button.textContent = mostlyVisible ? 'Show All' : 'Hide All';
+            } catch (error) {
+                console.error("Error in toggleArrayVisibility:", error);
+            }
+        }
+
+        function addToVocabularyArray(index, isIncreasing) {
+            try {
+                if (index >= transitionsData.length) return;
+                
+                const sourceLanguage = transitionsData[index][1];
+                const targetLanguage = transitionsData[index][0];
+                
+                const itemElement = document.createElement('div');
+                itemElement.className = 'vocabulary-item';
+                
+                const targetLangSpan = document.createElement('span');
+                targetLangSpan.className = 'target-language';
+                targetLangSpan.textContent = targetLanguage;
+                
+                const sourceLangSpan = document.createElement('span');
+                sourceLangSpan.className = 'source-language';
+                sourceLangSpan.textContent = sourceLanguage;
+                
+                [targetLangSpan, sourceLangSpan].forEach(span => {
+                    span.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        this.classList.toggle('hidden');
+                    });
+                });
+                
+                itemElement.appendChild(targetLangSpan);
+                itemElement.appendChild(sourceLangSpan);
+                
+                if (isIncreasing) {
+                    increasingItems.appendChild(itemElement);
+                    addedIncreasingItems[index] = true;
+                } else {
+                    decreasingItems.appendChild(itemElement);
+                    addedDecreasingItems[index] = true;
+                }
+            } catch (error) {
+                console.error("Error adding vocabulary item:", error);
+            }
+        }
+
+        // STATES MODE FUNCTIONS
+
+        // Dynamic font sizing based on text length
+        function calculateFontSize(text) {
+            const length = text.length;
+            if (length <= 10) return 2.1;
+            if (length <= 20) return 1.8;
+            if (length <= 40) return 1.5;
+            if (length <= 60) return 1.2;
+            if (length <= 80) return 1.05;
+            if (length <= 100) return 0.9;
+            return 0.75;
+        }
+
+        function createTextBoxes() {
+            if (!isStatesMode) return;
+            
+            document.querySelectorAll('.textBox').forEach(box => {
+                if (box && box.parentNode) box.parentNode.removeChild(box);
+            });
+            textBoxElements = [];
+            
+            // 11 textbox positions: left-end + midpoint of each 5 lines + final at 100%
+            const textboxPositions = [
+                { x: 3, y: 30.22 },       // 1. Line 1 start (raised 5% to prevent overlap)
+                { x: 12.5, y: 32.4 },     // 2. Line 1 midpoint (at line level)
+                { x: 25, y: 35.89 },      // 3. Line 2 start (dropped 8% to prevent overlap)
+                { x: 31.25, y: 27 },      // 4. Line 2 midpoint
+                { x: 37.5, y: 19.42 },    // 5. Line 3 start (raised 5% to prevent overlap)
+                { x: 50, y: 21.6 },       // 6. Line 3 midpoint (at line level)
+                { x: 62.5, y: 25.09 },    // 7. Line 4 start (dropped 8% to prevent overlap)
+                { x: 68.75, y: 27 },      // 8. Line 4 midpoint
+                { x: 75, y: 30.22 },      // 9. Line 5 start (raised 5% to prevent overlap)
+                { x: 87.5, y: 32.4 },     // 10. Line 5 midpoint (at line level)
+                { x: 97, y: 35.89 }       // 11. Line 5 end (dropped 8% to prevent overlap)
+            ];
+            
+            for (let i = 0; i < conceptData.length; i++) {
+                const point = textboxPositions[i];
+                
+                const textBox = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                textBox.setAttribute("x", point.x);
+                textBox.setAttribute("y", point.y - 1);
+                textBox.setAttribute("class", "textBox");
+                textBox.setAttribute("data-index", i);
+                // Set text-anchor to keep text within 3% to 97% bounds
+                // TL1, TL2: "start" anchor, TL10, TL11: "end" anchor, others: "middle"
+                if (i === 0 || i === 1) {
+                    textBox.style.textAnchor = "start";
+                } else if (i === 9 || i === 10) {
+                    textBox.style.textAnchor = "end";
+                } else {
+                    textBox.style.textAnchor = "middle";
+                }
+                textBox.textContent = conceptData[i][0]; // Start with TL
+                textBox.style.fontSize = calculateFontSize(conceptData[i][0]) + 'px';
+                
+                if (learnedItemsStates[i]) {
+                    textBox.classList.add('learned');
+                }
+                
+                // PHONOGRAPHIC: TL → SL → Quiz (3-level progression)
+                textBox.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    
+                    if (learnedItemsStates[index]) {
+                        // Learned items: cycle TL ↔ SL
+                        if (this.textContent === conceptData[index][0]) {
+                            this.textContent = conceptData[index][1]; // TL→SL
+                            this.style.fontSize = calculateFontSize(conceptData[index][1]) + 'px';
+                        } else {
+                            this.textContent = conceptData[index][0]; // SL→TL
+                            this.style.fontSize = calculateFontSize(conceptData[index][0]) + 'px';
+                        }
+                    } else {
+                        // Unlearned items: TL → SL → Quiz
+                        if (this.textContent === conceptData[index][0]) {
+                            this.textContent = conceptData[index][1]; // TL→SL
+                            this.style.fontSize = calculateFontSize(conceptData[index][1]) + 'px';
+                        } else if (this.textContent === conceptData[index][1]) {
+                            showQuiz(index, this); // SL→Quiz
+                        }
+                    }
+                });
+                
+                const draggableFrame = document.getElementById('draggableFrame');
+                if (draggableFrame && draggableFrame.parentNode) {
+                    draggableFrame.parentNode.insertBefore(textBox, draggableFrame);
+                } else {
+                    svg.appendChild(textBox);
+                }
+                
+                textBoxElements.push(textBox);
+            }
+            
+            bringFrameToFront();
+            console.log("Created 11 text boxes at specified positions");
+        }
+
+        function createContinuationTextBoxes() {
+            if (!isStatesMode) return;
+            
+            document.querySelectorAll('.textBox.continuation').forEach(box => {
+                if (box && box.parentNode) box.parentNode.removeChild(box);
+            });
+            continuationTextBoxes = [];
+            
+            // Line 1+ continuation: from (25, 32.4) to (75, 32.4)
+            // Geometric midpoint: x = 50, y = 32.4
+            const cont1Point = { x: 50, y: 32.4 };
+            const textBox1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            textBox1.setAttribute("x", cont1Point.x);
+            textBox1.setAttribute("y", cont1Point.y - 1);
+            textBox1.setAttribute("class", "textBox continuation");
+            textBox1.setAttribute("data-index", conceptData.length + 0);
+            textBox1.setAttribute("data-continuation", "cont1");
+            textBox1.style.textAnchor = "middle";
+            textBox1.textContent = continuationData[0][0]; // TL2+
+            textBox1.style.fontSize = calculateFontSize(continuationData[0][0]) + 'px';
+            
+            if (learnedItemsStates[conceptData.length + 0]) {
+                textBox1.classList.add('learned');
+            }
+            
+            // PHONOGRAPHIC: TL → SL → Quiz
+            textBox1.addEventListener('click', function() {
+                const index = parseInt(this.getAttribute('data-index'));
+                const contIndex = index - conceptData.length;
+                
+                if (learnedItemsStates[index]) {
+                    if (this.textContent === continuationData[contIndex][0]) {
+                        this.textContent = continuationData[contIndex][1]; // TL→SL
+                        this.style.fontSize = calculateFontSize(continuationData[contIndex][1]) + 'px';
+                    } else {
+                        this.textContent = continuationData[contIndex][0]; // SL→TL
+                        this.style.fontSize = calculateFontSize(continuationData[contIndex][0]) + 'px';
+                    }
+                } else {
+                    if (this.textContent === continuationData[contIndex][0]) {
+                        this.textContent = continuationData[contIndex][1]; // TL→SL
+                        this.style.fontSize = calculateFontSize(continuationData[contIndex][1]) + 'px';
+                    } else if (this.textContent === continuationData[contIndex][1]) {
+                        showQuiz(index, this); // SL→Quiz
+                    }
+                }
+            });
+            
+            svg.appendChild(textBox1);
+            continuationTextBoxes.push(textBox1);
+            
+            // Line 3+ continuation: from (62.5, 21.6) to (100, 21.6)
+            // Geometric midpoint: x = 81.25, y = 21.6
+            const cont3Point = { x: 81.25, y: 21.6 };
+            const textBox3 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            textBox3.setAttribute("x", cont3Point.x);
+            textBox3.setAttribute("y", cont3Point.y - 1);
+            textBox3.setAttribute("class", "textBox continuation");
+            textBox3.setAttribute("data-index", conceptData.length + 1);
+            textBox3.setAttribute("data-continuation", "cont3");
+            textBox3.style.textAnchor = "middle";
+            textBox3.textContent = continuationData[1][0]; // TL6+
+            textBox3.style.fontSize = calculateFontSize(continuationData[1][0]) + 'px';
+            
+            if (learnedItemsStates[conceptData.length + 1]) {
+                textBox3.classList.add('learned');
+            }
+            
+            // PHONOGRAPHIC: TL → SL → Quiz
+            textBox3.addEventListener('click', function() {
+                const index = parseInt(this.getAttribute('data-index'));
+                const contIndex = index - conceptData.length;
+                
+                if (learnedItemsStates[index]) {
+                    if (this.textContent === continuationData[contIndex][0]) {
+                        this.textContent = continuationData[contIndex][1];
+                    } else {
+                        this.textContent = continuationData[contIndex][0];
+                    }
+                } else {
+                    if (this.textContent === continuationData[contIndex][0]) {
+                        this.textContent = continuationData[contIndex][1];
+                    } else if (this.textContent === continuationData[contIndex][1]) {
+                        showQuiz(index, this);
+                    }
+                }
+            });
+            
+            svg.appendChild(textBox3);
+            continuationTextBoxes.push(textBox3);
+            
+            bringFrameToFront();
+            console.log("Created continuation textboxes at geometric midpoints: Line 1+ at (50, 32.4), Line 3+ at (81.25, 21.6)");
+        }
+
+        function initializeFramePosition() {
+            currentPathPosition = 0;
+            currentPath = 'main';
+            
+            // Get the starting point on the path
+            const point = pathLine.getPointAtLength(0);
+            
+            // Circle radius is 1.5 units
+            const radius = 1.5;
+            
+            // Constrain x position: left edge should not go below 0
+            const minX = radius;  // 1.5 units (so left edge is at 0)
+            const constrainedX = Math.max(point.x, minX);
+            
+            // Position circle centered on the path
+            frame.setAttribute('cx', constrainedX);
+            frame.setAttribute('cy', point.y);
+            
+            updateVisibleTextBoxes({ x: constrainedX, y: point.y });
+            updateConceptIndicator("Pos 1");
+            
+            bringFrameToFront();
+            frame.style.pointerEvents = 'all';
+            frame.style.cursor = 'grab';
+            
+            console.log("Circle frame initialized at left boundary");
+        }
+
+        function updateVisibleTextBoxes(point) {
+            if (!isStatesMode) return;
+            
+            let closestIndex = -1;
+            let minDistance = Infinity;
+            let closestIsExtension = false;
+            let closestExtIndex = -1;
+            
+            // Check main textboxes
+            textBoxElements.forEach((textBox, index) => {
+                if (!textBox) return;
+                
+                const x = parseFloat(textBox.getAttribute('x'));
+                const y = parseFloat(textBox.getAttribute('y'));
+                
+                const distance = Math.sqrt(Math.pow(point.x - x, 2) + Math.pow(point.y - y, 2));
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestIndex = index;
+                    closestIsExtension = false;
+                }
+            });
+            
+            // Check continuation textboxes
+            continuationTextBoxes.forEach((textBox, extIndex) => {
+                if (!textBox) return;
+                
+                const x = parseFloat(textBox.getAttribute('x'));
+                const y = parseFloat(textBox.getAttribute('y'));
+                
+                const distance = Math.sqrt(Math.pow(point.x - x, 2) + Math.pow(point.y - y, 2));
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestIndex = extIndex;
+                    closestExtIndex = extIndex;
+                    closestIsExtension = true;
+                }
+            });
+            
+            // Update main textboxes
+            textBoxElements.forEach((textBox, index) => {
+                if (!textBox) return;
+                
+                if (!closestIsExtension && index === closestIndex && minDistance < activationDistance) {
+                    textBox.classList.add('active');
+                    updateConceptIndicator(conceptData[index][3]);
+                } else if (learnedItemsStates[index]) {
+                    textBox.classList.remove('active');
+                } else {
+                    textBox.classList.remove('active');
+                }
+            });
+            
+            // Update continuation textboxes
+            continuationTextBoxes.forEach((textBox, extIndex) => {
+                if (!textBox) return;
+                
+                const dataIndex = extIndex + conceptData.length;
+                
+                if (closestIsExtension && extIndex === closestExtIndex && minDistance < activationDistance) {
+                    textBox.classList.add('active');
+                    const lineName = ["Line 1+", "Line 3+"][extIndex];
+                    updateConceptIndicator(lineName);
+                } else if (learnedItemsStates[dataIndex]) {
+                    textBox.classList.remove('active');
+                } else {
+                    textBox.classList.remove('active');
+                }
+            });
+        }
+
+        // FRAME DRAGGING
+        function startDrag(e) {
+            if (!isStatesMode) return;
+            
+            isDragging = true;
+            frame.classList.add('dragging');
+            frame.style.cursor = 'grabbing';
+            
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function dragMove(e) {
+            if (!isDragging || !isStatesMode) return;
+            
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            try {
+                const svgRect = svg.getBoundingClientRect();
+                const svgX = ((clientX - svgRect.left) / svgRect.width) * 100;
+                const svgY = ((clientY - svgRect.top) / svgRect.height) * 43.6;
+                
+                let closestPoint = null;
+                let minDistance = Infinity;
+                let closestPathName = 'main';
+                const sampleRate = 0.5;
+                
+                // Check main path
+                for (let i = 0; i < pathLength; i += sampleRate) {
+                    const point = pathLine.getPointAtLength(i);
+                    const distance = Math.sqrt(Math.pow(point.x - svgX, 2) + Math.pow(point.y - svgY, 2));
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestPoint = point;
+                        closestPathName = 'main';
+                    }
+                }
+                
+                // Check continuation path 1
+                const cont1Length = cont1Path.getTotalLength();
+                for (let i = 0; i < cont1Length; i += sampleRate) {
+                    const point = cont1Path.getPointAtLength(i);
+                    const distance = Math.sqrt(Math.pow(point.x - svgX, 2) + Math.pow(point.y - svgY, 2));
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestPoint = point;
+                        closestPathName = 'cont1';
+                    }
+                }
+                
+                // Check continuation path 3
+                const cont3Length = cont3Path.getTotalLength();
+                for (let i = 0; i < cont3Length; i += sampleRate) {
+                    const point = cont3Path.getPointAtLength(i);
+                    const distance = Math.sqrt(Math.pow(point.x - svgX, 2) + Math.pow(point.y - svgY, 2));
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestPoint = point;
+                        closestPathName = 'cont3';
+                    }
+                }
+                
+                if (closestPoint) {
+                    // Circle radius is 1.5 units
+                    const radius = 1.5;
+                    
+                    // Constrain circle to stay within viewBox (0 to 100 on x-axis)
+                    const minX = radius;           // 1.5 units (left edge at 0)
+                    const maxX = 100 - radius;     // 98.5 units (right edge at 100)
+                    
+                    const constrainedX = Math.max(minX, Math.min(maxX, closestPoint.x));
+                    
+                    // Position circle centered on the path
+                    frame.setAttribute('cx', constrainedX);
+                    frame.setAttribute('cy', closestPoint.y);
+                    
+                    // Use constrained position for textbox updates
+                    updateVisibleTextBoxes({ x: constrainedX, y: closestPoint.y });
+                    currentPath = closestPathName;
+                }
+                
+            } catch (error) {
+                console.error("Error during drag:", error);
+            }
+            
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function endDrag(e) {
+            if (isDragging) {
+                isDragging = false;
+                frame.classList.remove('dragging');
+                frame.style.cursor = 'grab';
+                
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+        }
+
+        // TRANSITIONS MODE FUNCTIONS
+        function getCurrentLineIndex() {
+            // Determine which line we're on based on currentPath and startPercent
+            if (currentPath === 'cont1') {
+                return 1; // Line 1+ (TL-T1+)
+            } else if (currentPath === 'cont3') {
+                return 4; // Line 3+ (TL-T3+)
+            } else {
+                // On main path - determine by position percentage
+                const position = (startPercent / 100) * pathLength;
+                const point = pathLine.getPointAtLength(position);
+                
+                if (point.x < 25) {
+                    return 0; // Line 1
+                } else if (point.x < 37.5) {
+                    return 2; // Line 2
+                } else if (point.x < 62.5) {
+                    return 3; // Line 3
+                } else if (point.x < 75) {
+                    return 5; // Line 4
+                } else {
+                    return 6; // Line 5
+                }
+            }
+        }
+        
+        function updateTextContent() {
+            if (isStatesMode) return;
+            
+            const lineIndex = getCurrentLineIndex();
+            const data = transitionsData[lineIndex];
+            
+            if (learnedItemsTransitions[lineIndex]) {
+                // Learned: cycle TL ↔ SL
+                slidingText.textContent = slidingTextMode === 0 ? data[0] : data[1];
+                interactiveText.classList.add('learned');
+            } else {
+                interactiveText.classList.remove('learned');
+                
+                // Unlearned: TL → SL
+                if (slidingTextMode === 0) {
+                    slidingText.textContent = data[0]; // TL
+                } else if (slidingTextMode === 1) {
+                    slidingText.textContent = data[1]; // SL
+                }
+            }
+            
+            updateLevelIndicator();
+        }
+
+        function updateTextPosition(percent) {
+            slidingText.setAttribute('startOffset', `${percent}%`);
+            startPercent = percent;
+            updateTextContent();
+        }
+
+        function startTextDrag(e) {
+            if (isStatesMode) return;
+            
+            isTextDragging = true;
+            hasMovedDuringDrag = false;
+            interactiveText.classList.add('dragging');
+            e.preventDefault();
+        }
+
+        function dragText(e) {
+            if (!isTextDragging || isStatesMode) return;
+            
+            hasMovedDuringDrag = true;
+            
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            const svgRect = svg.getBoundingClientRect();
+            const svgX = ((clientX - svgRect.left) / svgRect.width) * 100;
+            const svgY = ((clientY - svgRect.top) / svgRect.height) * 43.6;
+            
+            let closestPoint = null;
+            let minDistance = Infinity;
+            let closestPathName = 'main';
+            let closestPathElement = pathLine;
+            const sampleRate = 0.5;
+            
+            // Check main path
+            for (let i = 0; i < pathLength; i += sampleRate) {
+                const point = pathLine.getPointAtLength(i);
+                const distance = Math.sqrt(Math.pow(point.x - svgX, 2) + Math.pow(point.y - svgY, 2));
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestPoint = point;
+                    closestPathName = 'main';
+                    closestPathElement = pathLine;
+                }
+            }
+            
+            // Check continuation path 1
+            const cont1Length = cont1Path.getTotalLength();
+            for (let i = 0; i < cont1Length; i += sampleRate) {
+                const point = cont1Path.getPointAtLength(i);
+                const distance = Math.sqrt(Math.pow(point.x - svgX, 2) + Math.pow(point.y - svgY, 2));
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestPoint = point;
+                    closestPathName = 'cont1';
+                    closestPathElement = cont1Path;
+                }
+            }
+            
+            // Check continuation path 3
+            const cont3Length = cont3Path.getTotalLength();
+            for (let i = 0; i < cont3Length; i += sampleRate) {
+                const point = cont3Path.getPointAtLength(i);
+                const distance = Math.sqrt(Math.pow(point.x - svgX, 2) + Math.pow(point.y - svgY, 2));
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestPoint = point;
+                    closestPathName = 'cont3';
+                    closestPathElement = cont3Path;
+                }
+            }
+            
+            if (closestPoint && closestPathElement) {
+                // Switch the textPath to reference the appropriate path
+                const pathId = closestPathName === 'main' ? 'gradualChangePath' : 
+                               closestPathName === 'cont1' ? 'continuationPath1' : 'continuationPath3';
+                slidingText.setAttribute('href', `#${pathId}`);
+                
+                // Apply text-anchor alignment based on path position to keep text visible
+                if (closestPathName === 'cont3') {
+                    // Line 3+ continuation goes to right edge - right-align to keep text visible
+                    interactiveText.style.textAnchor = 'end';
+                } else if (closestPathName === 'main' && closestPoint.x > 75) {
+                    // Line 5 on main path (x > 75 to x = 100) - right-align to keep text visible
+                    interactiveText.style.textAnchor = 'end';
+                } else {
+                    // Line 1-4 on main path and Line 1+ continuation - left-align
+                    interactiveText.style.textAnchor = 'start';
+                }
+                
+                // Calculate percentage along the specific path
+                const currentPathLength = closestPathElement.getTotalLength();
+                let bestOffset = 0;
+                let minDist = Infinity;
+                
+                for (let i = 0; i <= 100; i++) {
+                    const testLength = (i / 100) * currentPathLength;
+                    const testPoint = closestPathElement.getPointAtLength(testLength);
+                    const dist = Math.sqrt(Math.pow(testPoint.x - closestPoint.x, 2) + Math.pow(testPoint.y - closestPoint.y, 2));
+                    if (dist < minDist) {
+                        minDist = dist;
+                        bestOffset = i;
+                    }
+                }
+                
+                // Limit offset to 99% for right-edge paths to keep text visible
+                if (closestPathName === 'cont3' || (closestPathName === 'main' && closestPoint.x > 75)) {
+                    bestOffset = Math.min(bestOffset, 99);
+                }
+                
+                updateTextPosition(bestOffset);
+                currentPath = closestPathName;
+            }
+            
+            e.preventDefault();
+        }
+
+        function endTextDrag() {
+            if (isTextDragging) {
+                isTextDragging = false;
+                interactiveText.classList.remove('dragging');
+            }
+        }
+
+        function toggleTextFormat(e) {
+            if (isStatesMode || hasMovedDuringDrag) {
+                hasMovedDuringDrag = false;
+                return;
+            }
+            
+            const lineIndex = getCurrentLineIndex();
+            
+            if (learnedItemsTransitions[lineIndex]) {
+                // Learned: toggle TL ↔ SL
+                slidingTextMode = slidingTextMode === 0 ? 1 : 0;
+                updateTextContent();
+            } else {
+                // Unlearned: TL → SL → Quiz
+                if (slidingTextMode === 0) {
+                    slidingTextMode = 1;  // TL → SL
+                    updateTextContent();
+                } else if (slidingTextMode === 1) {
+                    slidingTextMode = 2;  // SL → Quiz
+                    updateLevelIndicator();
+                    showQuiz(lineIndex, interactiveText);
+                } else {
+                    slidingTextMode = 0;  // Reset
+                    updateTextContent();
+                }
+            }
+        }
+
+        // QUIZ FUNCTIONS
+        function showQuiz(index, element) {
+            console.log("Showing quiz for index:", index);
+            
+            let currentData;
+            if (isStatesMode) {
+                if (index < conceptData.length) {
+                    currentData = conceptData;
+                } else {
+                    currentData = continuationData;
+                    index = index - conceptData.length;
+                }
+            } else {
+                currentData = transitionsData;
+            }
+            
+            currentQuizIndex = isStatesMode ? 
+                (element && element.getAttribute('data-continuation') ? conceptData.length + index : index) : 
+                index;
+            
+            quizInput.placeholder = currentData[index][2];
+            quizInput.value = '';
+            quizFeedback.textContent = '';
+            
+            // Dynamic width based on question length
+            const questionLength = quizInput.placeholder.length;
+            let calculatedWidth;
+            if (questionLength < 30) {
+                calculatedWidth = 280;
+            } else if (questionLength < 50) {
+                calculatedWidth = 360;
+            } else if (questionLength < 70) {
+                calculatedWidth = 450;
+            } else {
+                calculatedWidth = 600;
+            }
+            quizContainer.style.width = calculatedWidth + 'px';
+            
+            // Position quiz container (custom position or default centered)
+            if (quizPosition.x !== null && quizPosition.y !== null) {
+                // Use saved custom position
+                quizContainer.style.left = quizPosition.x + 'px';
+                quizContainer.style.top = quizPosition.y + 'px';
+                quizContainer.style.transform = 'none'; // Disable centering transform
+            } else {
+                // Use default centered position
+                quizContainer.style.left = '50%';
+                quizContainer.style.top = '40%';
+                quizContainer.style.transform = 'translate(-50%, -50%)';
+            }
+            
+            quizContainer.style.display = 'block';
+            
+            setTimeout(() => {
+                try {
+                    quizInput.focus();
+                } catch (e) {
+                    console.error("Error focusing quiz input:", e);
+                }
+            }, 100);
+        }
+
+        // Quiz container drag-and-drop functions
+        function startQuizDrag(e) {
+            // Don't drag if clicking on input or button
+            if (e.target === quizInput || e.target === quizCheck) {
+                return;
+            }
+            
+            isQuizDragging = true;
+            quizContainer.style.cursor = 'grabbing';
+            
+            // Get current position
+            const rect = quizContainer.getBoundingClientRect();
+            
+            // Calculate offset from mouse to top-left corner
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            quizDragOffset.x = clientX - rect.left;
+            quizDragOffset.y = clientY - rect.top;
+            
+            e.preventDefault();
+        }
+        
+        function dragQuiz(e) {
+            if (!isQuizDragging) return;
+            
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            // Calculate new position
+            let newX = clientX - quizDragOffset.x;
+            let newY = clientY - quizDragOffset.y;
+            
+            // Get quiz container dimensions
+            const rect = quizContainer.getBoundingClientRect();
+            const width = rect.width;
+            const height = rect.height;
+            
+            // Constrain to viewport
+            newX = Math.max(0, Math.min(newX, window.innerWidth - width));
+            newY = Math.max(0, Math.min(newY, window.innerHeight - height));
+            
+            // Save position and apply
+            quizPosition.x = newX;
+            quizPosition.y = newY;
+            
+            quizContainer.style.left = newX + 'px';
+            quizContainer.style.top = newY + 'px';
+            quizContainer.style.transform = 'none'; // Disable centering
+            
+            e.preventDefault();
+        }
+        
+        function endQuizDrag(e) {
+            if (isQuizDragging) {
+                isQuizDragging = false;
+                quizContainer.style.cursor = 'move';
+                e.preventDefault();
+            }
+        }
+
+        function checkQuizAnswer() {
+            if (currentQuizIndex < 0) return;
+            
+            let currentData;
+            let dataIndex = currentQuizIndex;
+            
+            if (isStatesMode) {
+                if (currentQuizIndex < conceptData.length) {
+                    currentData = conceptData;
+                } else {
+                    currentData = continuationData;
+                    dataIndex = currentQuizIndex - conceptData.length;
+                }
+            } else {
+                currentData = transitionsData;
+            }
+            
+            const userAnswer = quizInput.value.trim();
+            const correctAnswerTL = currentData[dataIndex][0]; // PHONOGRAPHIC: Quiz asks for TL
+            
+            if (userAnswer.toLowerCase() === correctAnswerTL.toLowerCase()) {
+                quizFeedback.textContent = 'Correct!';
+                quizFeedback.style.color = 'green';
+                
+                if (isStatesMode) {
+                    learnedItemsStates[currentQuizIndex] = true;
+                    const textBox = textBoxElements[currentQuizIndex] || 
+                                   continuationTextBoxes[currentQuizIndex - conceptData.length] ||
+                                   document.querySelector(`[data-index="${currentQuizIndex}"]`);
+                    if (textBox) {
+                        textBox.classList.add('learned');
+                        textBox.textContent = currentData[dataIndex][0]; // Show TL
+                        textBox.style.fontSize = calculateFontSize(currentData[dataIndex][0]) + 'px';
+                    }
+                } else {
+                    learnedItemsTransitions[currentQuizIndex] = true;
+                    slidingTextMode = 0;
+                    updateTextContent();
+                    
+                    // Add to appropriate array (first 4 lines left, last 3 lines right)
+                    if (currentQuizIndex <= 3) {
+                        if (!addedIncreasingItems[currentQuizIndex]) {
+                            addToVocabularyArray(currentQuizIndex, true);
+                        }
+                    } else {
+                        if (!addedDecreasingItems[currentQuizIndex]) {
+                            addToVocabularyArray(currentQuizIndex, false);
+                        }
+                    }
+                }
+                
+                setTimeout(() => { quizContainer.style.display = 'none'; }, 1500);
+            } else {
+                quizFeedback.textContent = 'Try again';
+                quizFeedback.style.color = 'red';
+            }
+        }
+
+        // MODE TOGGLE
+        function toggleMode() {
+            console.log("Toggling mode");
+            isStatesMode = !isStatesMode;
+            
+            const dragInstruction = document.getElementById('drag-instruction');
+            
+            if (isStatesMode) {
+                frame.style.display = 'block';
+                interactiveText.style.display = 'none';
+                titleBox.textContent = titleTexts.states[currentTextIndex];
+                const modeIndicator = document.getElementById("mode-indicator");
+                if (modeIndicator) modeIndicator.textContent = modeIndicatorTexts.states[currentModeIndicatorIndex];
+                levelIndicator.style.display = 'none';
+                if (dragInstruction) dragInstruction.style.display = 'block';
+                
+                createTextBoxes();
+                createContinuationTextBoxes();
+                initializeFramePosition();
+                
+                setTimeout(() => {
+                    bringFrameToFront();
+                    frame.style.pointerEvents = 'all';
+                    frame.style.cursor = 'grab';
+                }, 100);
+                
+                increasingArray.style.display = 'none';
+                decreasingArray.style.display = 'none';
+            } else {
+                frame.style.display = 'none';
+                interactiveText.style.display = 'block';
+                titleBox.textContent = titleTexts.transitions[currentTextIndex];
+                if (dragInstruction) dragInstruction.style.display = 'none';
+                
+                const modeIndicator = document.getElementById("mode-indicator");
+                if (modeIndicator) modeIndicator.textContent = modeIndicatorTexts.transitions[currentModeIndicatorIndex];
+                slidingTextMode = 0;
+                updateLevelIndicator();
+                
+                slidingText.setAttribute('href', '#gradualChangePath');
+                interactiveText.style.textAnchor = 'start'; // Initialize with left-align for main path
+                currentPath = 'main';
+                
+                document.querySelectorAll('.textBox').forEach(box => {
+                    if (box && box.parentNode) box.parentNode.removeChild(box);
+                });
+                textBoxElements = [];
+                continuationTextBoxes = [];
+                
+                startPercent = 0;
+                updateTextPosition(startPercent);
+                
+                increasingArray.style.display = 'block';
+                decreasingArray.style.display = 'block';
+                
+                setTimeout(() => {
+                    interactiveText.style.display = 'block';
+                }, 50);
+            }
+            
+            quizContainer.style.display = 'none';
+        }
+
+        function switchTitleText() {
+            titleBox.classList.add('hidden');
+            setTimeout(() => {
+                currentTextIndex = (currentTextIndex + 1) % 2;
+                const modeKey = isStatesMode ? 'states' : 'transitions';
+                titleBox.textContent = titleTexts[modeKey][currentTextIndex];
+                titleBox.classList.remove('hidden');
+            }, 500);
+        }
+
+        function switchModeIndicatorText() {
+            const modeIndicator = document.getElementById('mode-indicator');
+            if (!modeIndicator) return;
+            
+            modeIndicator.classList.add('hidden');
+            setTimeout(() => {
+                currentModeIndicatorIndex = (currentModeIndicatorIndex + 1) % 2;
+                const modeKey = isStatesMode ? 'states' : 'transitions';
+                modeIndicator.textContent = modeIndicatorTexts[modeKey][currentModeIndicatorIndex];
+                modeIndicator.classList.remove('hidden');
+            }, 500);
+        }
+
+        function toggleInstructionText() {
+            const dragInstruction = document.getElementById('drag-instruction');
+            if (dragInstruction) {
+                currentInstructionIndex = (currentInstructionIndex + 1) % 2;
+                dragInstruction.innerHTML = instructionTexts[currentInstructionIndex];
+            }
+        }
+
+        // EVENT LISTENERS SETUP
+        function setupEventListeners() {
+            console.log("Setting up event listeners...");
+            
+            frame.addEventListener('mousedown', startDrag);
+            frame.addEventListener('touchstart', startDrag, { passive: false });
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('touchmove', dragMove, { passive: false });
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+            
+            titleBox.addEventListener('click', switchTitleText);
+            
+            if (modeIndicator) {
+                modeIndicator.addEventListener('click', switchModeIndicatorText);
+            }
+            
+            const dragInstruction = document.getElementById('drag-instruction');
+            if (dragInstruction) {
+                dragInstruction.addEventListener('click', toggleInstructionText);
+            }
+            
+            modeToggleBtn.addEventListener('click', toggleMode);
+            quizCheck.addEventListener('click', checkQuizAnswer);
+            quizInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    checkQuizAnswer();
+                } else if (e.key === 'Escape') {
+                    // Same behavior as clicking outside - reset to TL
+                    if (isStatesMode && currentQuizIndex >= 0) {
+                        let textBox;
+                        let currentData;
+                        let dataIndex;
+                        
+                        if (currentQuizIndex < conceptData.length) {
+                            textBox = textBoxElements[currentQuizIndex];
+                            currentData = conceptData;
+                            dataIndex = currentQuizIndex;
+                        } else {
+                            textBox = continuationTextBoxes[currentQuizIndex - conceptData.length];
+                            currentData = continuationData;
+                            dataIndex = currentQuizIndex - conceptData.length;
+                        }
+                        
+                        if (textBox && currentData && dataIndex >= 0) {
+                            textBox.textContent = currentData[dataIndex][0]; // Reset to TL
+                            textBox.style.fontSize = calculateFontSize(currentData[dataIndex][0]) + 'px';
+                        }
+                    }
+                    
+                    quizInput.value = '';
+                    quizFeedback.textContent = '';
+                    quizContainer.style.display = 'none';
+                    currentQuizIndex = -1;
+                    
+                    if (!isStatesMode && slidingTextMode === 2) {
+                        slidingTextMode = 0;
+                        updateLevelIndicator();
+                        updateTextContent();
+                    }
+                }
+            });
+            
+            // Quiz container drag events
+            quizContainer.addEventListener('mousedown', startQuizDrag);
+            document.addEventListener('mousemove', dragQuiz);
+            document.addEventListener('mouseup', endQuizDrag);
+            quizContainer.addEventListener('touchstart', startQuizDrag, { passive: false });
+            document.addEventListener('touchmove', dragQuiz, { passive: false });
+            document.addEventListener('touchend', endQuizDrag);
+            
+            interactiveText.addEventListener("mousedown", startTextDrag);
+            document.addEventListener("mousemove", dragText);
+            document.addEventListener("mouseup", endTextDrag);
+            
+            interactiveText.addEventListener("click", function(e) {
+                setTimeout(() => {
+                    if (!hasMovedDuringDrag) {
+                        toggleTextFormat(e);
+                    }
+                }, 100);
+            });
+            
+            interactiveText.addEventListener("touchstart", startTextDrag, { passive: false });
+            document.addEventListener("touchmove", dragText, { passive: false });
+            document.addEventListener("touchend", endTextDrag);
+            
+            interactiveText.addEventListener("touchend", function(e) {
+                setTimeout(() => {
+                    if (!hasMovedDuringDrag && !isStatesMode) {
+                        toggleTextFormat(e);
+                    }
+                }, 100);
+            });
+            
+            // Tools menu
+            const toolsButton = document.querySelector('.tools-button');
+            const toolsDropdown = document.querySelector('.tools-dropdown');
+            const loadConceptBtn = document.getElementById("loadConcept");
+            const startQuizBtn = document.getElementById("startQuiz");
+            const toggleArraysBtn = document.getElementById("toggleArrays");
+            
+            let dropdownOpen = false;
+            
+            if (toolsButton) {
+                toolsButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownOpen = !dropdownOpen;
+                    toolsDropdown.classList.toggle('active', dropdownOpen);
+                });
+            }
+            
+            document.addEventListener('click', function(e) {
+                if (toolsButton && toolsDropdown && 
+                    !toolsButton.contains(e.target) && !toolsDropdown.contains(e.target)) {
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                }
+            });
+            
+            if (loadConceptBtn) {
+                loadConceptBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                    alert("Load Concept feature will integrate with API.");
+                });
+            }
+            
+            if (startQuizBtn) {
+                startQuizBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                    
+                    const currentData = isStatesMode ? conceptData : transitionsData;
+                    const randomIndex = Math.floor(Math.random() * currentData.length);
+                    showQuiz(randomIndex, null);
+                });
+            }
+            
+            if (toggleArraysBtn) {
+                toggleArraysBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                    
+                    const visibility = increasingArray.style.display === 'none' || increasingArray.style.display === '';
+                    increasingArray.style.display = visibility ? 'block' : 'none';
+                    decreasingArray.style.display = visibility ? 'block' : 'none';
+                });
+            }
+            
+            const toggleIncreasingBtn = document.getElementById("toggle-increasing");
+            const toggleDecreasingBtn = document.getElementById("toggle-decreasing");
+            
+            if (toggleIncreasingBtn) {
+                toggleIncreasingBtn.addEventListener('click', function() {
+                    toggleArrayVisibility('increasing');
+                });
+            }
+            
+            if (toggleDecreasingBtn) {
+                toggleDecreasingBtn.addEventListener('click', function() {
+                    toggleArrayVisibility('decreasing');
+                });
+            }
+            
+            document.addEventListener('click', function(e) {
+                if (quizContainer.style.display !== 'none' && 
+                    !quizContainer.contains(e.target) &&
+                    !e.target.classList.contains('textBox') &&
+                    !e.target.classList.contains('sliding-text')) {
+                    
+                    // Reset textbox to TL in States Mode
+                    if (isStatesMode && currentQuizIndex >= 0) {
+                        let textBox;
+                        let currentData;
+                        let dataIndex;
+                        
+                        if (currentQuizIndex < conceptData.length) {
+                            // Regular textbox
+                            textBox = textBoxElements[currentQuizIndex];
+                            currentData = conceptData;
+                            dataIndex = currentQuizIndex;
+                        } else {
+                            // Continuation textbox
+                            textBox = continuationTextBoxes[currentQuizIndex - conceptData.length];
+                            currentData = continuationData;
+                            dataIndex = currentQuizIndex - conceptData.length;
+                        }
+                        
+                        if (textBox && currentData && dataIndex >= 0) {
+                            textBox.textContent = currentData[dataIndex][0]; // Reset to TL
+                            textBox.style.fontSize = calculateFontSize(currentData[dataIndex][0]) + 'px';
+                        }
+                    }
+                    
+                    // Clear quiz interface
+                    quizInput.value = '';
+                    quizFeedback.textContent = '';
+                    quizContainer.style.display = 'none';
+                    currentQuizIndex = -1;
+                    
+                    if (!isStatesMode && slidingTextMode === 2) {
+                        slidingTextMode = 0;
+                        updateLevelIndicator();
+                        updateTextContent();
+                    }
+                }
+            });
+        }
+
+        // INITIALIZATION
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                console.log("Initializing GT5L 13 Textboxes Phonographic Template...");
+                
+                svg = document.getElementById("svgCanvas");
+                pathLine = document.getElementById("gradualChangePath");
+                conceptBackground = document.getElementById("conceptBackground");
+                titleBox = document.getElementById("title-box");
+                conceptIndicator = document.getElementById("concept-indicator");
+                levelIndicator = document.getElementById("level-indicator");
+                modeIndicator = document.getElementById("mode-indicator");
+                modeToggleBtn = document.getElementById("modeToggle");
+                frame = document.getElementById("draggableFrame");
+                quizContainer = document.getElementById("quizContainer");
+                quizInput = document.getElementById("quizInput");
+                quizCheck = document.getElementById("quizCheck");
+                quizFeedback = document.getElementById("quizFeedback");
+                increasingArray = document.getElementById("increasing-array");
+                decreasingArray = document.getElementById("decreasing-array");
+                increasingItems = document.getElementById("increasing-items");
+                decreasingItems = document.getElementById("decreasing-items");
+                interactiveText = document.getElementById("interactiveText");
+                slidingText = document.getElementById("slidingText");
+                cont1Path = document.getElementById("continuationPath1");
+                cont3Path = document.getElementById("continuationPath3");
+                
+                if (!svg || !pathLine || !frame) {
+                    console.error("Critical SVG elements missing");
+                    return;
+                }
+                
+                learnedItemsStates = new Array(conceptData.length + continuationData.length).fill(false);
+                learnedItemsTransitions = new Array(transitionsData.length).fill(false);
+                addedIncreasingItems = new Array(transitionsData.length).fill(false);
+                addedDecreasingItems = new Array(transitionsData.length).fill(false);
+                
+                const pathD = `M ${pathPoints.join(' L ')}`;
+                pathLine.setAttribute('d', pathD);
+                
+                const backgroundPath = `${pathD} L 100,43.6 L 0,43.6 Z`;
+                conceptBackground.setAttribute('d', backgroundPath);
+                
+                // Create continuation paths
+                const cont1D = `M ${continuation1Points.join(' L ')}`;
+                cont1Path.setAttribute('d', cont1D);
+                
+                const cont3D = `M ${continuation3Points.join(' L ')}`;
+                cont3Path.setAttribute('d', cont3D);
+                
+                pathLength = pathLine.getTotalLength();
+                console.log("Path length:", pathLength);
+                
+                setupEventListeners();
+                
+                createTextBoxes();
+                createContinuationTextBoxes();
+                initializeFramePosition();
+                
+                interactiveText.style.display = 'none';
+                levelIndicator.style.display = 'none';
+                quizContainer.style.display = 'none';
+                increasingArray.style.display = 'none';
+                decreasingArray.style.display = 'none';
+                
+                setTimeout(() => {
+                    const dragInstruction = document.getElementById('drag-instruction');
+                    if (dragInstruction) {
+                        dragInstruction.classList.add('fade');
+                        setTimeout(() => {
+                            dragInstruction.style.display = 'none';
+                        }, 2000);
+                    }
+                }, 12000);
+                
+                setTimeout(() => {
+                    bringFrameToFront();
+                    frame.style.pointerEvents = 'all';
+                    frame.style.cursor = 'grab';
+                    console.log("GT5L 13 Textboxes Phonographic initialized");
+                }, 500);
+                
+            } catch (error) {
+                console.error("Error initializing:", error);
+            }
+        });
+
+    </script>
+</body>
+</html>

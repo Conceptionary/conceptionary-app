@@ -1,0 +1,243 @@
+{
+  "id": "CC-0011",
+  "version": "1.1",
+  "created": "2026-07-06",
+  "last_updated": "2026-07-06",
+  "status": "active",
+  "concept": {
+    "name": "Hunger",
+    "description": "The gradual temporary process of hunger building from satisfied through hungry to starving, then subsiding as food is consumed and satiety returns. A full bell curve — both ascending (growing hunger) and descending (eating and becoming full) sides populated.",
+    "taxonomy_ref": "10.1",
+    "taxonomy_path": "Bodily / Physiological → Hunger and thirst → Hunger",
+    "shape": "gradual_temporary_curve",
+    "template_family": "GTCV",
+    "template_id": "ROM-GTCV",
+    "modes_used": [
+      "states",
+      "transitions"
+    ],
+    "notes": "ROM-GTCV selected — hunger is a dynamic temporary process, not a static position. It builds to a peak (starving) then subsides through eating to satisfaction. Full bell curve: ascending = growing hunger, peak = most hungry, descending = eating/satisfaction. Distinct from CC-0001 Appetite (archilexeme/static spectrum) — this card focuses on the hunger process specifically."
+  },
+  "template": {
+    "phonographic": {
+      "id": "ROM-GTCV",
+      "file": "templates/phonographic/ROM-GTCV-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-GTCV",
+      "file": "templates/logographic/LOG-GTCV-Generic.html",
+      "track": "logographic"
+    }
+  },
+  "language_pairs": {
+    "EN-ID": {
+      "source_language": "English",
+      "target_language": "Bahasa Indonesia",
+      "track": "phonographic",
+      "generated_by": "claude-sonnet-4-6",
+      "generated_date": "2026-07-06",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "lang_config": {
+        "titles": {
+          "states": [
+            "Hunger / Rasa Lapar",
+            "Rasa Lapar",
+            "Hunger"
+          ],
+          "transitions": [
+            "Proses Lapar / The Hunger Process",
+            "Bahasa Indonesia",
+            "English"
+          ]
+        },
+        "ui": {
+          "quiz_placeholder": "Type in Bahasa Indonesia…",
+          "quiz_button": "Check",
+          "quiz_correct": "Correct! ✓",
+          "quiz_wrong": "Try again"
+        },
+        "conceptData": [
+          [
+            "Kenyang",
+            "Satisfied",
+            "How do you say 'satisfied' in Bahasa Indonesia?",
+            0
+          ],
+          [
+            "Agak kenyang",
+            "Slightly full",
+            "How do you say 'slightly full' in Bahasa Indonesia?",
+            5.56
+          ],
+          [
+            "Tidak lapar tidak kenyang",
+            "Neither hungry nor full",
+            "How do you say 'neither hungry nor full'?",
+            11.11
+          ],
+          [
+            "Sedikit lapar",
+            "Slightly hungry",
+            "How do you say 'slightly hungry' in Bahasa Indonesia?",
+            16.67
+          ],
+          [
+            "Mulai lapar",
+            "Getting hungry",
+            "How do you say 'getting hungry' in Bahasa Indonesia?",
+            22.22
+          ],
+          [
+            "Lapar",
+            "Hungry",
+            "How do you say 'hungry' in Bahasa Indonesia?",
+            27.78
+          ],
+          [
+            "Sangat lapar",
+            "Very hungry",
+            "How do you say 'very hungry' in Bahasa Indonesia?",
+            33.33
+          ],
+          [
+            "Kelaparan",
+            "Extremely hungry",
+            "How do you say 'extremely hungry' in Bahasa Indonesia?",
+            38.89
+          ],
+          [
+            "Hampir mati lapar",
+            "Nearly starving",
+            "How do you say 'nearly starving' in Bahasa Indonesia?",
+            44.44
+          ],
+          [
+            "Mati kelaparan",
+            "Starving",
+            "How do you say 'starving' in Bahasa Indonesia?",
+            50
+          ],
+          [
+            "Mulai makan",
+            "Starting to eat",
+            "How do you say 'starting to eat' in Bahasa Indonesia?",
+            55.56
+          ],
+          [
+            "Sedang makan",
+            "Eating",
+            "How do you say 'eating' in Bahasa Indonesia?",
+            61.11
+          ],
+          [
+            "Mulai kenyang",
+            "Feeling better",
+            "How do you say 'feeling better' in Bahasa Indonesia?",
+            66.67
+          ],
+          [
+            "Semakin kenyang",
+            "Getting full",
+            "How do you say 'getting full' in Bahasa Indonesia?",
+            72.22
+          ],
+          [
+            "Hampir kenyang",
+            "Almost full",
+            "How do you say 'almost full' in Bahasa Indonesia?",
+            77.78
+          ],
+          [
+            "Kenyang",
+            "Full",
+            "How do you say 'full' in Bahasa Indonesia?",
+            83.33
+          ],
+          [
+            "Sangat kenyang",
+            "Very full",
+            "How do you say 'very full' in Bahasa Indonesia?",
+            88.89
+          ],
+          [
+            "Kekenyangan",
+            "Stuffed",
+            "How do you say 'stuffed' in Bahasa Indonesia?",
+            94.44
+          ],
+          [
+            "Puas",
+            "Satisfied again",
+            "How do you say 'satisfied again' in Bahasa Indonesia?",
+            100
+          ]
+        ],
+        "transitionsData": [
+          [
+            "Saya mulai lapar",
+            "I'm starting to get hungry",
+            "How do you say 'I'm starting to get hungry'?",
+            8
+          ],
+          [
+            "Saya semakin lapar",
+            "I'm getting hungrier",
+            "How do you say 'I'm getting hungrier'?",
+            20
+          ],
+          [
+            "Saya sangat lapar",
+            "I'm very hungry",
+            "How do you say 'I'm very hungry'?",
+            33
+          ],
+          [
+            "Saya harus makan sekarang",
+            "I need to eat now",
+            "How do you say 'I need to eat now'?",
+            44
+          ],
+          [
+            "Saya mati kelaparan",
+            "I'm starving",
+            "How do you say 'I'm starving'?",
+            50
+          ],
+          [
+            "Saya mulai makan",
+            "I'm starting to eat",
+            "How do you say 'I'm starting to eat'?",
+            58
+          ],
+          [
+            "Saya sedang makan",
+            "I'm eating",
+            "How do you say 'I'm eating'?",
+            67
+          ],
+          [
+            "Saya mulai kenyang",
+            "I'm getting full",
+            "How do you say 'I'm getting full'?",
+            78
+          ],
+          [
+            "Saya sudah cukup makan",
+            "I've eaten enough",
+            "How do you say 'I've eaten enough'?",
+            88
+          ],
+          [
+            "Saya kenyang",
+            "I'm full",
+            "How do you say 'I'm full'?",
+            96
+          ]
+        ]
+      }
+    }
+  }
+}
