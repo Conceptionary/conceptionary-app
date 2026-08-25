@@ -1,3 +1,10 @@
+<!-- Last updated: 2026-08-25 (Mangawhai, NZ) — bugfix: textPath was
+     anchored to an SVG <line>, which is a newer SVG2 addition with
+     inconsistent browser support (silently fails in Firefox). Now
+     anchored to a dedicated invisible <path> instead, universally
+     supported since SVG's earliest implementations. Same fix already
+     applied to ROM-HL-BI-Generic.html — see
+     Conceptionary_Template_Decision_Log.md for the discovery context. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -159,6 +166,10 @@
         <line id="horizontalLine" class="path-line" x1="5" y1="25" x2="155" y2="25"
               style="pointer-events:none;"/>
 
+        <!-- Invisible path with identical geometry, for textPath to anchor
+             to. See top-of-file comment for why. -->
+        <path id="horizontalPath" d="M 5,25 L 155,25" style="display:none;" />
+
         <!-- Pole end markers -->
         <circle cx="5"   cy="25" r="1.2" fill="#8b0000" opacity="0.6" style="pointer-events:none;"/>
         <circle cx="155" cy="25" r="1.2" fill="#00008b" opacity="0.6" style="pointer-events:none;"/>
@@ -176,7 +187,7 @@
 
         <!-- Sliding text path (transitions mode) -->
         <text id="interactiveText" class="sliding-text" style="display:none;">
-            <textPath id="slidingText" href="#horizontalLine" startOffset="0%">
+            <textPath id="slidingText" href="#horizontalPath" startOffset="0%">
                 TL-T-NEG4
             </textPath>
         </text>
