@@ -1,0 +1,78 @@
+{
+  "id": "CC-0014",
+  "version": "1.0",
+  "created": "2026-08-25",
+  "last_updated": "2026-08-25",
+  "status": "active",
+  "concept": {
+    "name": "Political Spectrum",
+    "description": "The left-right political spectrum as a symmetric bipolar scale with a meaningful neutral centre (centrist/moderate). Nine states run from far-left through centre to far-right; nine transitions describe movement along the spectrum, including the semantically distinct act of crossing the centre point itself. Deliberately built against HL-BI rather than the taxonomy's own suggested 'Diagonal' for this shape — see notes.",
+    "taxonomy_ref": "8.x (new)",
+    "taxonomy_path": "Mental -> Opinion/Belief -> Political orientation (new entry; the existing taxonomy 'Left/right' entry at 13.2 is the unrelated spatial/directional sense)",
+    "shape": "bidirectional_spectrum_around_centre",
+    "template_family": "HL-BI",
+    "template_id": "ROM-HL-BI",
+    "modes_used": ["states", "transitions"],
+    "notes": "Built as a deliberate worked example resolving the open HL-BI question flagged in Conceptionary_Aspectual_Template_Selection_Framework.md (2026-08-24) -- Political Spectrum has a genuine, meaningful neutral zero-point (centrist) with two symmetric extremes, exactly HL-BI's signature shape. The transitions ('shifting left', 'leaning further right', 'crossing the centre') read as atelic/incremental (gradual, no absolute finish line) -- supporting ATSF's tentative hypothesis that HL-BI's transitions are a special case of Degree Achievement organised around a meaningful zero, rather than sitting entirely outside the aspectual framework. Also surfaced a separate, larger finding while building this: 32 of 33 entries in GPCV_Master_Concept_Taxonomy_v2.md labelled 'Spectrum around centre' point to 'Diagonal' as the suggested template family -- but Diagonal is a single-direction line with no true return/centre, the opposite shape from what 'spectrum around centre' actually describes. This card was built against HL-BI in spite of that labelling, not in agreement with it. Flagged for a full taxonomy audit, not corrected in bulk here. Colour scheme deliberately avoids real-world political party colours (red/blue), since which party maps to which colour is itself contested and reverses between countries -- used a neutral grayscale instead.",
+    "template_selection_flags": {
+      "deviates_from_taxonomy_suggestion": true,
+      "taxonomy_suggested": "Diagonal",
+      "actual_family_used": "HL-BI",
+      "reason": "See notes -- taxonomy's 'Spectrum around centre' label systematically points to the wrong family across 32 entries"
+    }
+  },
+  "template": {
+    "phonographic": {
+      "id": "ROM-HL-BI",
+      "file": "templates/phonographic/ROM-HL-BI-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-HL-BI",
+      "file": "templates/logographic/LOG-HL-BI-Generic.html",
+      "track": "logographic"
+    }
+  },
+  "location": null,
+  "language_pairs": {
+    "EN-ID": {
+      "source_language": "English",
+      "target_language": "Bahasa Indonesia",
+      "track": "phonographic",
+      "generated_by": "claude-sonnet-4-6",
+      "generated_date": "2026-08-25",
+      "validated": false,
+      "lang_config": {
+        "titles": [
+          "Political Spectrum / Spektrum Politik",
+          "Spektrum Politik",
+          "Political Spectrum"
+        ],
+        "neg_pole_label": "\u2190 Left",
+        "pos_pole_label": "Right \u2192",
+        "conceptData": [
+          ["kiri ekstrem", "far-left", "How do you say 'far-left' in Indonesian?", 5],
+          ["sayap kiri", "left-wing", "How do you say 'left-wing' in Indonesian?", 25],
+          ["tengah-kiri", "centre-left", "How do you say 'centre-left' in Indonesian?", 45],
+          ["condong kiri", "left-leaning", "How do you say 'left-leaning' in Indonesian?", 65],
+          ["moderat", "centrist", "How do you say 'centrist' in Indonesian?", 80],
+          ["condong kanan", "right-leaning", "How do you say 'right-leaning' in Indonesian?", 95],
+          ["tengah-kanan", "centre-right", "How do you say 'centre-right' in Indonesian?", 115],
+          ["sayap kanan", "right-wing", "How do you say 'right-wing' in Indonesian?", 135],
+          ["kanan ekstrem", "far-right", "How do you say 'far-right' in Indonesian?", 155]
+        ],
+        "transitionsData": [
+          ["semakin ke kiri", "becoming more left-wing", "How do you say 'becoming more left-wing' in Indonesian?", 15],
+          ["terus bergerak ke kiri", "steadily becoming more left-wing", "How do you say 'steadily becoming more left-wing' in Indonesian?", 35],
+          ["perlahan condong ke kiri", "gradually leaning left", "How do you say 'gradually leaning left' in Indonesian?", 55],
+          ["sedikit bergeser ke kiri", "drifting slightly left", "How do you say 'drifting slightly left' in Indonesian?", 72],
+          ["melintasi tengah", "crossing the centre", "How do you say 'crossing the centre' in Indonesian?", 80],
+          ["sedikit bergeser ke kanan", "drifting slightly right", "How do you say 'drifting slightly right' in Indonesian?", 87],
+          ["perlahan condong ke kanan", "gradually leaning right", "How do you say 'gradually leaning right' in Indonesian?", 105],
+          ["terus bergerak ke kanan", "steadily becoming more right-wing", "How do you say 'steadily becoming more right-wing' in Indonesian?", 125],
+          ["semakin ke kanan", "becoming more right-wing", "How do you say 'becoming more right-wing' in Indonesian?", 145]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "id": "CC-0015",
+  "version": "1.0",
+  "created": "2026-08-25",
+  "last_updated": "2026-08-25",
+  "status": "active",
+  "concept": {
+    "name": "Bipolar Disorder",
+    "description": "The clinical mood spectrum of bipolar disorder, mapped as a symmetric bipolar scale: euthymia (stable mood) at the neutral centre, depression across the negative pole (mild to severe), mania across the positive pole (elevated mood through hypomania to severe mania). This is genuine clinical/health vocabulary -- the condition's own name reflects the two-pole structure -- not a diagnostic or self-assessment tool. Uses accurate clinical terminology throughout (euthymic, hypomania) rather than casual/colloquial usage of 'bipolar', which can be trivialising and doesn't reflect the actual clinical picture.",
+    "taxonomy_ref": "TBD",
+    "taxonomy_path": "Physical/Mental health -> Mood and mental state -> Bipolar disorder (new entry -- no existing taxonomy section for clinical mental health conditions specifically; worth a dedicated pass if more health-condition concepts like this are built)",
+    "shape": "bidirectional_spectrum_around_centre",
+    "template_family": "HL-BI",
+    "template_id": "ROM-HL-BI",
+    "modes_used": ["states", "transitions"],
+    "notes": "Second HL-BI worked example after Political Spectrum (CC-0014), continuing to test the ATSF hypothesis that HL-BI transitions are Degree Achievements organised around a meaningful zero. The centre-cross transition ('stabilizing') is clinically meaningful here in a way that reinforces the template's own design emphasis on that position -- mood stabilisation is a real, significant clinical event, not just a geometric midpoint. Content built with care given the sensitive subject matter: uses accurate clinical terms (euthymic, hypomania) rather than colloquial/trivialising usage of 'bipolar' as slang for ordinary mood swings; colour scheme deliberately muted (blue/grey-green/amber) rather than bright or cartoonish, following common psychoeducational convention. This card teaches vocabulary for discussing a real health condition -- comparable to any other health/anatomy vocabulary in the project -- not diagnostic or self-assessment content."
+  },
+  "template": {
+    "phonographic": {
+      "id": "ROM-HL-BI",
+      "file": "templates/phonographic/ROM-HL-BI-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-HL-BI",
+      "file": "templates/logographic/LOG-HL-BI-Generic.html",
+      "track": "logographic"
+    }
+  },
+  "location": null,
+  "language_pairs": {
+    "EN-ID": {
+      "source_language": "English",
+      "target_language": "Bahasa Indonesia",
+      "track": "phonographic",
+      "generated_by": "claude-sonnet-4-6",
+      "generated_date": "2026-08-25",
+      "validated": false,
+      "lang_config": {
+        "titles": [
+          "Bipolar Disorder / Gangguan Bipolar",
+          "Gangguan Bipolar",
+          "Bipolar Disorder"
+        ],
+        "neg_pole_label": "\u2190 Depression",
+        "pos_pole_label": "Mania \u2192",
+        "conceptData": [
+          ["depresi berat", "severe depression", "How do you say 'severe depression' in Indonesian?", 5],
+          ["depresi sedang", "moderate depression", "How do you say 'moderate depression' in Indonesian?", 25],
+          ["depresi ringan", "mild depression", "How do you say 'mild depression' in Indonesian?", 45],
+          ["suasana hati rendah", "low mood", "How do you say 'low mood' in Indonesian?", 65],
+          ["suasana hati stabil", "stable mood (euthymic)", "How do you say 'stable mood' in Indonesian?", 80],
+          ["suasana hati meningkat", "elevated mood", "How do you say 'elevated mood' in Indonesian?", 95],
+          ["hipomania", "hypomania", "How do you say 'hypomania' in Indonesian?", 115],
+          ["mania", "mania", "How do you say 'mania' in Indonesian?", 135],
+          ["mania berat", "severe mania", "How do you say 'severe mania' in Indonesian?", 155]
+        ],
+        "transitionsData": [
+          ["semakin depresi", "becoming more depressed", "How do you say 'becoming more depressed' in Indonesian?", 15],
+          ["terus semakin depresi", "steadily becoming more depressed", "How do you say 'steadily becoming more depressed' in Indonesian?", 35],
+          ["perlahan menurun", "gradually sinking in mood", "How do you say 'gradually sinking in mood' in Indonesian?", 55],
+          ["sedikit menurun", "dipping slightly low", "How do you say 'dipping slightly low' in Indonesian?", 72],
+          ["menstabil", "stabilizing", "How do you say 'stabilizing' in Indonesian?", 80],
+          ["sedikit meningkat", "lifting slightly", "How do you say 'lifting slightly' in Indonesian?", 87],
+          ["perlahan meningkat", "gradually becoming elevated", "How do you say 'gradually becoming elevated' in Indonesian?", 105],
+          ["terus semakin manik", "steadily becoming more manic", "How do you say 'steadily becoming more manic' in Indonesian?", 125],
+          ["semakin manik", "becoming more manic", "How do you say 'becoming more manic' in Indonesian?", 145]
+        ]
+      }
+    }
+  }
+}

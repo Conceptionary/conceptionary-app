@@ -1,8 +1,8 @@
 {
-  "next_cc_id": 14,
+  "next_cc_id": 16,
   "next_mc_id": 1,
-  "last_updated": "2026-08-21",
-  "note": "Increment next_cc_id each time a new CC-XXXX card is generated. card_files is the explicit manifest the fetch-based loader (loadRegistryViaFetch, added 2026-08-21) uses to know which cards exist -- fetch() cannot list a folder's contents the way the folder-picker can, so this list must be kept in sync manually: add the new filename here whenever a card is saved. Missing an entry means that card silently never loads for a visitor who hasn't clicked Load.",
+  "last_updated": "2026-08-25",
+  "note": "Increment next_cc_id each time a new CC-XXXX card is generated. card_files is the explicit manifest the fetch-based loader (loadRegistryViaFetch, added 2026-08-21) uses to know which cards exist -- fetch() cannot list a folder's contents the way the folder-picker can, so this list must be kept in sync manually: add the new filename here whenever a card is saved. Missing an entry means that card silently never loads for a visitor who hasn't clicked Load. CC-0014 was missed at the time it was built (2026-08-25) and only caught while building CC-0015 -- worth double-checking this list against the actual concept_cards folder periodically, not just trusting it stays current.",
   "card_files": [
     "CC-0001.json",
     "CC-0002.json",
@@ -16,6 +16,8 @@
     "CC-0010.json",
     "CC-0011.json",
     "CC-0012.json",
-    "CC-0013.json"
+    "CC-0013.json",
+    "CC-0014.json",
+    "CC-0015.json"
   ]
 }
