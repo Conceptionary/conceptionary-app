@@ -1,3 +1,13 @@
+<!-- Last updated: 2026-08-25 (Mangawhai, NZ) — bugfix: textPath was
+     anchored to an SVG <line>, which is a newer SVG2 addition with
+     inconsistent browser support (silently fails in Firefox). Now
+     anchored to a dedicated invisible <path> instead, universally
+     supported since SVG's earliest implementations. Same bug found and
+     fixed across the HL family (ROM-HL-BI, LOG-HL-BI, LOG-HL-10TB,
+     LOG-HL-5TB) — see Conceptionary_Template_Decision_Log.md for the
+     discovery context. ROM-DD, ROM-DU, and ROM-VL checked and confirmed
+     unaffected — different transition mechanisms, no textPath-on-line
+     construction present. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -425,6 +435,9 @@
             </defs>
             
             <line id="horizontalLine" class="path-line" x1="0" y1="25" x2="160" y2="25"/>
+            <!-- Invisible path with identical geometry, for textPath to
+                 anchor to. See top-of-file comment for why. -->
+            <path id="horizontalPath" d="M 0,25 L 160,25" style="display:none;" />
             <rect id="conceptBackground" x="0" y="22" width="160" height="6"/>
             
             <!-- States Mode Elements -->
@@ -432,7 +445,7 @@
             
             <!-- Transitions Mode Elements - Single Draggable Text -->
             <text id="interactiveText" class="sliding-text">
-                <textPath id="slidingText" href="#horizontalLine" startOffset="0%">
+                <textPath id="slidingText" href="#horizontalPath" startOffset="0%">
                     TL-T1
                 </textPath>
             </text>
