@@ -1,0 +1,1782 @@
+{
+  "meta": {
+    "project": "Conceptionary",
+    "description": "Master registry of all GPCV (General Purpose Conceptionary Vocabulary) templates. Each entry maps a template file to its path type, learning track, supported language pairs, and pedagogical metadata.",
+    "version": "1.1.0",
+    "last_updated": "2026-08-26",
+    "author": "Alan William Preston",
+    "total_templates": 72,
+    "tracks": {
+      "phonographic": {
+        "description": "Templates for phonographic / romanized-alphabet languages (English, German, Spanish, French, Bahasa Indonesia, Te Reo Māori, etc.)",
+        "prefix": "ROM",
+        "cycle_levels": 3,
+        "cycle_sequence": [
+          "TL",
+          "SL",
+          "Quiz"
+        ],
+        "quiz_tests": "TL",
+        "count": 35
+      },
+      "logographic": {
+        "description": "Templates for logographic / non-romanized languages (Japanese, Mandarin Chinese, Korean, etc.)",
+        "prefix": "LOG",
+        "cycle_levels": 4,
+        "cycle_sequence": [
+          "TLR",
+          "TL",
+          "SL",
+          "Quiz"
+        ],
+        "quiz_tests": "TLR",
+        "default_display": "TLR",
+        "count": 37
+      }
+    },
+    "path_families": [
+      "single_line",
+      "instant_change",
+      "gradual_change",
+      "bell_curve",
+      "circular_cyclical",
+      "bidirectional"
+    ]
+  },
+  "templates": [
+    {
+      "id": "ROM-VL",
+      "file": "ROM-VL-Generic.html",
+      "path": "templates/phonographic/ROM-VL-Generic.html",
+      "track": "phonographic",
+      "family": "single_line",
+      "path_type": "Vertical Line",
+      "description": "A single vertical line representing a stable, unchanging state. Vocabulary items positioned along the line.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 5,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "static states",
+        "characteristics",
+        "qualities",
+        "persistent conditions"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-HL-5TB",
+      "file": "ROM-HL-5TB-Generic.html",
+      "path": "templates/phonographic/ROM-HL-5TB-Generic.html",
+      "track": "phonographic",
+      "family": "single_line",
+      "path_type": "Horizontal Line (5 textboxes)",
+      "description": "A single horizontal line with 5 vocabulary positions.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 5,
+        "transitions": 5
+      },
+      "notes": "Added to templates/phonographic/ 2026-08-26, closing the gap this entry had been deliberately flagging since it was the only registry entry carrying a status field at all. Built with the textPath-on-line bugfix already applied (see Conceptionary_Template_Decision_Log.md), matching its LOG-HL-5TB sibling and the rest of the HL family fix sweep.",
+      "suitable_for": [
+        "spectrums",
+        "scales",
+        "continua"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-HL-10TB",
+      "file": "ROM-HL-10TB-Generic.html",
+      "path": "templates/phonographic/ROM-HL-10TB-Generic.html",
+      "track": "phonographic",
+      "family": "single_line",
+      "path_type": "Horizontal Line (10 textboxes)",
+      "description": "A single horizontal line with 10 evenly-spaced vocabulary positions. Represents a continuum or spectrum.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 10,
+        "transitions": 10
+      },
+      "notes": "The only horizontal line template currently in the phonographic track. A 5TB variant (ROM-HL-5TB-Generic.html) is planned but not yet created.",
+      "suitable_for": [
+        "spectrums",
+        "scales",
+        "continua",
+        "ranges"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-DU",
+      "file": "ROM-DU-Generic.html",
+      "path": "templates/phonographic/ROM-DU-Generic.html",
+      "track": "phonographic",
+      "family": "single_line",
+      "path_type": "Diagonal Line Upward",
+      "description": "A diagonal line rising left to right, representing gradual increase or improvement.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 5,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "improvement",
+        "growth",
+        "increase",
+        "progress"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-DD",
+      "file": "ROM-DD-Generic.html",
+      "path": "templates/phonographic/ROM-DD-Generic.html",
+      "track": "phonographic",
+      "family": "single_line",
+      "path_type": "Diagonal Line Downward",
+      "description": "A diagonal line falling left to right, representing gradual decrease or decline.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 5,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "decline",
+        "decrease",
+        "deterioration",
+        "reduction"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-IT5L",
+      "file": "ROM-IT5L-Generic.html",
+      "path": "templates/phonographic/ROM-IT5L-Generic.html",
+      "track": "phonographic",
+      "family": "instant_change",
+      "path_type": "Instant Temporary 5 Lines",
+      "description": "Five horizontal lines with instant (vertical) transitions between them. Change is sudden; the state is temporary (returns to baseline).",
+      "modes": [
+        "states",
+        "transitions",
+        "extensions"
+      ],
+      "textbox_count": {
+        "states": 7,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "sudden temporary changes",
+        "reactions",
+        "emotional responses",
+        "short-term states"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-IT5LI",
+      "file": "ROM-IT5LI-Generic.html",
+      "path": "templates/phonographic/ROM-IT5LI-Generic.html",
+      "track": "phonographic",
+      "family": "instant_change",
+      "path_type": "Instant Temporary 5 Lines Inverted",
+      "description": "Inverted version of IT5L — five lines descending then returning. Represents a sudden temporary drop.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 7,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "sudden temporary decline",
+        "dips",
+        "temporary setbacks"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-IP3LP",
+      "file": "ROM-IP3LP-Generic.html",
+      "path": "templates/phonographic/ROM-IP3LP-Generic.html",
+      "track": "phonographic",
+      "family": "instant_change",
+      "path_type": "Instant Permanent 3 Lines Positive",
+      "description": "Three lines with instant upward transitions that are permanent — the level does not return to baseline.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 3,
+        "transitions": 3
+      },
+      "suitable_for": [
+        "sudden permanent improvements",
+        "step changes",
+        "promotions",
+        "breakthroughs"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-IP3LN",
+      "file": "ROM-IP3LN-Generic.html",
+      "path": "templates/phonographic/ROM-IP3LN-Generic.html",
+      "track": "phonographic",
+      "family": "instant_change",
+      "path_type": "Instant Permanent 3 Lines Negative",
+      "description": "Three lines with instant downward transitions that are permanent.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 3,
+        "transitions": 3
+      },
+      "suitable_for": [
+        "sudden permanent decline",
+        "irreversible losses",
+        "permanent reductions"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-GT5L-7TB",
+      "file": "ROM-GT5L-7TB-Generic.html",
+      "path": "templates/phonographic/ROM-GT5L-7TB-Generic.html",
+      "track": "phonographic",
+      "family": "gradual_change",
+      "path_type": "Gradual Temporary 5 Lines (7 textboxes)",
+      "description": "Five lines with gradual (diagonal) transitions and continuation paths on Lines 1 and 3. 7 vocabulary positions including continuations.",
+      "modes": [
+        "states",
+        "transitions",
+        "continuations"
+      ],
+      "textbox_count": {
+        "states": 7,
+        "transitions": 5
+      },
+      "notes": "'+' = with continuations of Lines 1 and 3",
+      "suitable_for": [
+        "gradual temporary changes",
+        "fluctuations",
+        "cycles returning to baseline"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-GT5L-11TB",
+      "file": "ROM-GT5L-11TB-Generic.html",
+      "path": "templates/phonographic/ROM-GT5L-11TB-Generic.html",
+      "track": "phonographic",
+      "family": "gradual_change",
+      "path_type": "Gradual Temporary 5 Lines (11 textboxes)",
+      "description": "Expanded version of GT5L with 11 vocabulary positions for more detailed annotation.",
+      "modes": [
+        "states",
+        "transitions",
+        "continuations"
+      ],
+      "textbox_count": {
+        "states": 11,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "gradual temporary changes with detailed vocabulary"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-GT5LI",
+      "file": "ROM-GT5LI-Generic.html",
+      "path": "templates/phonographic/ROM-GT5LI-Generic.html",
+      "track": "phonographic",
+      "family": "gradual_change",
+      "path_type": "Gradual Temporary 5 Lines Inverted",
+      "description": "Inverted version of GT5L — gradual descent and return. Represents a temporary dip or trough.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 11,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "gradual temporary decline",
+        "troughs",
+        "temporary setbacks with recovery"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-GP3LP-7TB",
+      "file": "ROM-GP3LP-7TB-Generic.html",
+      "path": "templates/phonographic/ROM-GP3LP-7TB-Generic.html",
+      "track": "phonographic",
+      "family": "gradual_change",
+      "path_type": "Gradual Permanent 3 Lines Positive (7 textboxes)",
+      "description": "Three lines with gradual upward transitions. Each new level is permanent.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 7,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "gradual permanent improvement",
+        "learning",
+        "skill development",
+        "recovery"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-GP3LN-7TB",
+      "file": "ROM-GP3LN-7TB-Generic.html",
+      "path": "templates/phonographic/ROM-GP3LN-7TB-Generic.html",
+      "track": "phonographic",
+      "family": "gradual_change",
+      "path_type": "Gradual Permanent 3 Lines Negative (7 textboxes)",
+      "description": "Three lines with gradual downward transitions. Each new level is permanently lower.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 7,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "gradual permanent decline",
+        "aging",
+        "erosion",
+        "cumulative loss"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-GTCV",
+      "file": "ROM-GTCV-Generic.html",
+      "path": "templates/phonographic/ROM-GTCV-Generic.html",
+      "track": "phonographic",
+      "family": "bell_curve",
+      "path_type": "Gradual Temporary Curve (Bell Curve)",
+      "description": "A bell-shaped curve — rises to a peak then returns to baseline. 19 states along the curve plus 10 transition positions.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 19,
+        "transitions": 10
+      },
+      "suitable_for": [
+        "lifecycle concepts",
+        "seasons",
+        "illness and recovery",
+        "projects",
+        "relationships"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-GTCVI-Wide",
+      "file": "ROM-GTCVI-Wide-Generic.html",
+      "path": "templates/phonographic/ROM-GTCVI-Wide-Generic.html",
+      "track": "phonographic",
+      "family": "bell_curve",
+      "path_type": "Gradual Temporary Curve Inverted — Wide",
+      "description": "An inverted bell curve with a wide trough — descends gradually to a broad low point then returns to baseline. Both phonographic GTCVI variants (Wide and Shallow) now exist, matching the logographic track.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 19,
+        "transitions": 10
+      },
+      "notes": "Fixed 2026-07-10: mode-separated learned-item tracking (learnedItemsStates/learnedItemsTransitions) to stop Transitions-mode quiz answers bleeding into States-mode display; fixed a drag-reachability bug where an unconditional alternating vertical offset made every 'below'-positioned unlearned item permanently unreachable (exceeded activationDistance); learned items now alternate above/below the curve — matching the pattern used in ROM-DU-Generic — only once already learned. User-tested and confirmed working by Alan.",
+      "suitable_for": [
+        "dips",
+        "crises",
+        "depression",
+        "recessions",
+        "wide trough patterns",
+        "valleys"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-GTCVI-Shallow",
+      "file": "ROM-GTCVI-Shallow-Generic.html",
+      "path": "templates/phonographic/ROM-GTCVI-Shallow-Generic.html",
+      "track": "phonographic",
+      "family": "bell_curve",
+      "path_type": "Gradual Temporary Curve Inverted — Shallow",
+      "description": "An inverted bell curve with a shallow trough — a minor dip that returns quickly to baseline. Built 2026-07-09 from ROM-GTCVI-Wide's scaffolding, combined with LOG-GTCVI-Shallow's curve geometry (half the dip depth, higher baseline, same width). Logographic equivalent: LOG-GTCVI-Shallow-Generic.html.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 19,
+        "transitions": 10
+      },
+      "notes": "Same fixes applied as ROM-GTCVI-Wide (mode-separated learned arrays, drag-reachability fix). User-tested and confirmed working by Alan.",
+      "suitable_for": [
+        "minor setbacks",
+        "dips",
+        "shallow trough patterns",
+        "temporary minor decline"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-GPCVP",
+      "file": "ROM-GPCVP-Generic.html",
+      "path": "templates/phonographic/ROM-GPCVP-Generic.html",
+      "track": "phonographic",
+      "family": "bell_curve",
+      "path_type": "Gradual Permanent Curve Positive",
+      "description": "A curve that rises to a new permanently-higher baseline. Represents permanent improvement after a peak.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 19,
+        "transitions": 10
+      },
+      "suitable_for": [
+        "permanent improvement",
+        "transformation",
+        "rehabilitation",
+        "paradigm shifts"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-GPCVN",
+      "file": "ROM-GPCVN-Generic.html",
+      "path": "templates/phonographic/ROM-GPCVN-Generic.html",
+      "track": "phonographic",
+      "family": "bell_curve",
+      "path_type": "Gradual Permanent Curve Negative",
+      "description": "A curve that descends to a new permanently-lower baseline.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 19,
+        "transitions": 10
+      },
+      "suitable_for": [
+        "permanent decline",
+        "chronic illness",
+        "irreversible change"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-HL-BI",
+      "file": "ROM-HL-BI-Generic.html",
+      "path": "templates/phonographic/ROM-HL-BI-Generic.html",
+      "track": "phonographic",
+      "family": "bidirectional",
+      "path_type": "Bidirectional Horizontal Line",
+      "description": "A horizontal line with a visually distinct neutral centre point and two opposing poles. The draggable circle starts at neutral and moves left (negative pole) or right (positive pole), with its fill colour interpolating along a configurable three-colour spectrum (negative → neutral → positive). 4+1+4 = 9 textbox positions arranged in a cosine arc (extremes high, centre near the line) to prevent overlap. This is the default template for ARCHILEXEME concepts — concepts whose natural structure is a neutral zero-point flanked by two opposite extremes (e.g. Temperature, Weight, Appetite, Mood).",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 9,
+        "transitions": 9
+      },
+      "architecture": "bidirectional_neutral_centre",
+      "notes": "Archilexeme default template. Always confirm the concept card is named after the archilexeme (the neutral parent term), not one pole — e.g. 'Appetite' not 'Hunger'. The centre-cross transition item marks the semantic moment of passing through the normal/neutral state. Frame colour spectrum is configurable per-instance (frame_colour_neg / frame_colour_neutral / frame_colour_pos in LANG block) — four suggested natural spectrums are documented in the template comments (Acoustic/Light, Humidity, Psych/Energy, Material).",
+      "suitable_for": [
+        "archilexeme concepts",
+        "bidirectional scales",
+        "temperature",
+        "weight",
+        "appetite",
+        "mood",
+        "speed",
+        "wealth",
+        "any concept with a neutral midpoint and two opposing extremes"
+      ],
+      "language_pairs_available": [
+        {
+          "sl": "English",
+          "tl": "Bahasa Indonesia",
+          "file": "populated_instances/phonographic/ROM-HL-BI-Appetite-EN-ID.html"
+        }
+      ]
+    },
+    {
+      "id": "ROM-CV-BI",
+      "file": "ROM-CV-BI-Generic.html",
+      "path": "templates/phonographic/ROM-CV-BI-Generic.html",
+      "track": "phonographic",
+      "family": "bidirectional",
+      "path_type": "Bidirectional Valley Curve",
+      "description": "An inverted bell-curve shape with flat shoulders at the top (entry/exit points), descending smoothly through a full-width dashed normal-state line at 50% page height, to a nadir at the bottom centre representing the most intense state. Mirrors back up symmetrically to the opposite top corner. Unlike ROM-HL-BI, this template visually implies the journey/process of intensifying and returning to normal — the curve shape itself carries pedagogical meaning (continuation, cyclicality) that a straight line does not. 4 textboxes down the left side, 1 at the bottom (most intense), 4 up the right side.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 9,
+        "transitions": 8
+      },
+      "architecture": "bidirectional_valley_curve",
+      "notes": "Use when the concept has a clear single most-intense state reached via a gradual process (not a static bidirectional spectrum) — e.g. illness severity, hunger/satiety cycling, emotional intensity peaking and subsiding. The bottom point is always the MOST INTENSE/negative state by convention. Sliding text in Transitions mode is directly draggable (no separate hit-area rectangle) — click-and-drag the text itself, following the pattern established in GTCV.html. Frame colour spectrum (frame_colour_top / frame_colour_bottom) is configurable per-instance.",
+      "suitable_for": [
+        "illness progression",
+        "fever",
+        "appetite/hunger cycling",
+        "emotional intensity",
+        "crisis and recovery",
+        "any concept with one clear most-intense state reached via a process"
+      ],
+      "language_pairs_available": [
+        {
+          "sl": "English",
+          "tl": "Bahasa Indonesia",
+          "file": "populated_instances/phonographic/ROM-CV-BI-Appetite-EN-ID.html"
+        }
+      ]
+    },
+    {
+      "id": "ROM-CR-CLK",
+      "file": "ROM-CR-CLK-Generic.html",
+      "path": "templates/phonographic/ROM-CR-CLK-Generic.html",
+      "track": "phonographic",
+      "family": "circular_cyclical",
+      "path_type": "Clock + Arrays",
+      "description": "An analogue clock face with dynamic text arrays for greetings, approximate time, exact time, and part of day. Time-based sentence generation driven by grammar rules.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 4
+      },
+      "architecture": "grammar_plugin",
+      "notes": "Requires grammar-rule functions (formatExact, formatApprox) — not a simple vocabulary array. See LANG config block.",
+      "suitable_for": [
+        "telling the time",
+        "greetings by time of day",
+        "parts of the day"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-CR-TTT",
+      "file": "ROM-CR-TTT-Generic.html",
+      "path": "templates/phonographic/ROM-CR-TTT-Generic.html",
+      "track": "phonographic",
+      "family": "circular_cyclical",
+      "path_type": "Telling the Time (clock ring)",
+      "description": "A colour-coded 60-segment clock ring. Each minute segment is clickable and launches a quiz on the corresponding time expression. Covers exact minutes, quarter/half past, approaching/just-gone landmarks.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 60
+      },
+      "suitable_for": [
+        "telling the time",
+        "minute expressions",
+        "past/to vocabulary"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-CR-TDL",
+      "file": "ROM-CR-TDL-Generic.html",
+      "path": "templates/phonographic/ROM-CR-TDL-Generic.html",
+      "track": "phonographic",
+      "family": "circular_cyclical",
+      "path_type": "Daily Tidal Cycle",
+      "description": "A circular dial representing the 24-hour tidal cycle with states and transitions modes.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 8,
+        "transitions": 8
+      },
+      "suitable_for": [
+        "tidal vocabulary",
+        "marine environments",
+        "daily cycles"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-CR-DAY",
+      "file": "ROM-CR-DAY-Generic.html",
+      "path": "templates/phonographic/ROM-CR-DAY-Generic.html",
+      "track": "phonographic",
+      "family": "circular_cyclical",
+      "path_type": "Parts of the Day",
+      "description": "A circular dial with 8 segments representing the named parts of the 24-hour day (dawn, morning, midday, afternoon, evening, night etc.).",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 8,
+        "transitions": 8
+      },
+      "suitable_for": [
+        "parts of the day",
+        "daily schedule",
+        "time expressions"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-CR-DOW",
+      "file": "ROM-CR-DOW-Generic.html",
+      "path": "templates/phonographic/ROM-CR-DOW-Generic.html",
+      "track": "phonographic",
+      "family": "circular_cyclical",
+      "path_type": "Days of the Week",
+      "description": "A circular dial with 7 segments for days of the week. Sun-cycle arc decoration toggleable. Draggable sun frame.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 7
+      },
+      "suitable_for": [
+        "days of the week",
+        "weekly schedule"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-CR-MOY",
+      "file": "ROM-CR-MOY-Generic.html",
+      "path": "templates/phonographic/ROM-CR-MOY-Generic.html",
+      "track": "phonographic",
+      "family": "circular_cyclical",
+      "path_type": "Months of the Year",
+      "description": "A 12-segment circular calendar with optional seasons overlay. Supports 2-season (tropical) and 4-season (temperate) overlays via configurable seasonsData.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 12
+      },
+      "suitable_for": [
+        "months of the year",
+        "calendar vocabulary",
+        "seasonal vocabulary"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-CR-SEA-WET",
+      "file": "ROM-CR-SEA-WET-Generic.html",
+      "path": "templates/phonographic/ROM-CR-SEA-WET-Generic.html",
+      "track": "phonographic",
+      "family": "circular_cyclical",
+      "path_type": "Seasons — Wet/Dry Tropics",
+      "description": "A two-segment circular template for climates with a wet season and a dry season. 8 vocabulary positions. Suitable for tropical monsoon climates worldwide.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 8
+      },
+      "suitable_for": [
+        "tropical seasons",
+        "wet/dry season vocabulary",
+        "monsoon climates"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-CR-SEA-TEMP-S",
+      "file": "ROM-CR-SEA-TEMP-S-Generic.html",
+      "path": "templates/phonographic/ROM-CR-SEA-TEMP-S-Generic.html",
+      "track": "phonographic",
+      "family": "circular_cyclical",
+      "path_type": "Seasons — Temperate (Southern Hemisphere)",
+      "description": "Four-quadrant seasonal template aligned to the Southern Hemisphere calendar: Dec-Feb=Summer, Mar-May=Autumn, Jun-Aug=Winter, Sep-Nov=Spring. Includes significant dates/events category.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 13
+      },
+      "hemisphere": "southern",
+      "suitable_for": [
+        "four seasons",
+        "temperate climate",
+        "solstices/equinoxes",
+        "cultural seasonal events"
+      ],
+      "language_pairs_available": [
+        {
+          "sl": "English",
+          "tl": "Te Reo Māori",
+          "file": "populated_instances/phonographic/ROM-CR-SEA-TEMP-S-EN-MI.html"
+        }
+      ]
+    },
+    {
+      "id": "ROM-CR-SEA-TEMP-N",
+      "file": "ROM-CR-SEA-TEMP-N-Generic.html",
+      "path": "templates/phonographic/ROM-CR-SEA-TEMP-N-Generic.html",
+      "track": "phonographic",
+      "family": "circular_cyclical",
+      "path_type": "Seasons — Temperate (Northern Hemisphere)",
+      "description": "Four-quadrant seasonal template aligned to the Northern Hemisphere calendar: Dec-Feb=Winter, Mar-May=Spring, Jun-Aug=Summer, Sep-Nov=Autumn.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 13
+      },
+      "hemisphere": "northern",
+      "suitable_for": [
+        "four seasons",
+        "temperate climate",
+        "solstices/equinoxes",
+        "cultural seasonal events"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "ROM-CR-TML",
+      "file": "ROM-CR-TML-Generic.html",
+      "path": "templates/phonographic/ROM-CR-TML-Generic.html",
+      "track": "phonographic",
+      "family": "circular_cyclical",
+      "path_type": "Monthly Tidal Cycle",
+      "description": "A 29.5-day spring/neap tidal cycle on a circular dial. Four alternating quadrants (spring/neap). 12 states + 12 transitions distributed at 30° intervals.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 12,
+        "transitions": 12
+      },
+      "suitable_for": [
+        "tidal vocabulary",
+        "lunar-tidal cycles",
+        "spring/neap tides",
+        "marine environments"
+      ],
+      "language_pairs_available": [
+        {
+          "sl": "German",
+          "tl": "English",
+          "file": "populated_instances/phonographic/ROM-CR-TML-DE-EN.html"
+        }
+      ]
+    },
+    {
+      "id": "ROM-CR-LUN",
+      "file": "ROM-CR-LUN-Generic.html",
+      "path": "templates/phonographic/ROM-CR-LUN-Generic.html",
+      "track": "phonographic",
+      "family": "circular_cyclical",
+      "path_type": "Lunar Cycle",
+      "description": "A 28-day lunar phase cycle. 28 moon-phase icons (rendered via SVG clip-paths) around the ring; 8 vocabulary positions for the named phases.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 8
+      },
+      "suitable_for": [
+        "moon phases",
+        "lunar vocabulary",
+        "astronomy",
+        "calendar systems"
+      ],
+      "language_pairs_available": [
+        {
+          "sl": "German",
+          "tl": "English",
+          "file": "populated_instances/phonographic/ROM-CR-LUN-DE-EN.html"
+        }
+      ]
+    },
+    {
+      "id": "ROM-CR-MEN",
+      "file": "ROM-CR-MEN-Generic.html",
+      "path": "templates/phonographic/ROM-CR-MEN-Generic.html",
+      "track": "phonographic",
+      "family": "circular_cyclical",
+      "path_type": "28-Day Cycle",
+      "description": "A general-purpose 28-position circular cycle template, originally designed for the menstrual cycle. Colour-banded marker ring with Display All toggle. 8 vocabulary positions.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 8
+      },
+      "notes": "General-purpose 28-day cycle — not limited to menstrual cycle. Suitable for any 28-day/28-stage recurring concept.",
+      "suitable_for": [
+        "menstrual cycle",
+        "28-day cycles",
+        "hormonal vocabulary",
+        "reproductive health"
+      ],
+      "language_pairs_available": [
+        {
+          "sl": "German",
+          "tl": "English",
+          "file": "populated_instances/phonographic/ROM-CR-MEN-DE-EN.html"
+        }
+      ]
+    },
+    {
+      "id": "ROM-CR-CMP",
+      "file": "ROM-CR-CMP-Generic.html",
+      "path": "templates/phonographic/ROM-CR-CMP-Generic.html",
+      "track": "phonographic",
+      "family": "circular_cyclical",
+      "path_type": "Navigational Compass",
+      "description": "A 16-point compass rose on a circular dial. 360 degree markers on the rim. Four colour-coded quadrants. Draggable compass arrow.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 16
+      },
+      "suitable_for": [
+        "compass directions",
+        "navigation vocabulary",
+        "cardinal/ordinal/intermediate points"
+      ],
+      "language_pairs_available": [
+        {
+          "sl": "German",
+          "tl": "English",
+          "file": "populated_instances/phonographic/ROM-CR-CMP-DE-EN.html"
+        }
+      ]
+    },
+    {
+      "id": "ROM-CR-SW",
+      "file": "ROM-CR-SW-Generic.html",
+      "path": "templates/phonographic/ROM-CR-SW-Generic.html",
+      "track": "phonographic",
+      "family": "circular_cyclical",
+      "path_type": "Steering Wheel — Directions",
+      "description": "A rotating SVG steering wheel. 20 directional phrases activated as the wheel turns. 3-level click cycle per phrase (TL → SL → Quiz). Display-all toggle cycles through 3 states.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 20
+      },
+      "architecture": "rotating_wheel",
+      "notes": "2026-07-11: Added App.html injection support (whole-LANG-object replacement, same strategy as HL-BI/CV-BI but with CR-SW's own field set and block-comment /* ... */ end-of-config marker, not HL-BI/CV-BI's line-comment style). Fixed instructions panel defaulting to TL instead of SL — a beginner can't read target-language instructions before learning the target language, unlike vocabulary which is meant to be revealed progressively. Both fixes are at the generic-template level, apply to any future concept using this template. Vocabulary items are stored as an array of OBJECTS (not arrays), keyed by angle {a, tl, sl, py, posA, dy} — py/posA/dy are template-tuned label-placement offsets that must be preserved from the generic template's own V array when building a concept card, not regenerated.",
+      "suitable_for": [
+        "driving directions",
+        "directional vocabulary",
+        "navigation instructions"
+      ],
+      "language_pairs_available": [
+        {
+          "sl": "English",
+          "tl": "Bahasa Indonesia",
+          "card": "CC-0012",
+          "note": "Vocabulary reused verbatim from the pre-existing populated_instances/phonographic/ROM-CR-SW-EN-ID.html, now delivered via the JSON concept-card architecture instead"
+        }
+      ]
+    },
+    {
+      "id": "LOG-VL",
+      "file": "LOG-VL-Generic.html",
+      "path": "templates/logographic/LOG-VL-Generic.html",
+      "track": "logographic",
+      "family": "single_line",
+      "path_type": "Vertical Line",
+      "description": "Logographic variant of ROM-VL. TLR default display; foreignObject textboxes for non-Latin script.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 5,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "static states",
+        "characteristics",
+        "persistent conditions"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-HL-5TB",
+      "file": "LOG-HL-5TB-Generic.html",
+      "path": "templates/logographic/LOG-HL-5TB-Generic.html",
+      "track": "logographic",
+      "family": "single_line",
+      "path_type": "Horizontal Line (5 textboxes)",
+      "description": "Logographic variant of ROM-HL with 5 textboxes.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 5,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "spectrums",
+        "scales",
+        "continua"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-HL-10TB",
+      "file": "LOG-HL-10TB-Generic.html",
+      "path": "templates/logographic/LOG-HL-10TB-Generic.html",
+      "track": "logographic",
+      "family": "single_line",
+      "path_type": "Horizontal Line (10 textboxes)",
+      "description": "Logographic variant of ROM-HL with 10 textboxes.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 10,
+        "transitions": 10
+      },
+      "suitable_for": [
+        "spectrums",
+        "scales",
+        "continua",
+        "ranges"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-DU",
+      "file": "LOG-DU-Generic.html",
+      "path": "templates/logographic/LOG-DU-Generic.html",
+      "track": "logographic",
+      "family": "single_line",
+      "path_type": "Diagonal Line Upward",
+      "description": "Logographic variant of ROM-DU.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 5,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "improvement",
+        "growth",
+        "increase"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-DD",
+      "file": "LOG-DD-Generic.html",
+      "path": "templates/logographic/LOG-DD-Generic.html",
+      "track": "logographic",
+      "family": "single_line",
+      "path_type": "Diagonal Line Downward",
+      "description": "Logographic variant of ROM-DD.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 5,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "decline",
+        "decrease",
+        "reduction"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-IT5L-7TB",
+      "file": "LOG-IT5L-7TB-Generic.html",
+      "path": "templates/logographic/LOG-IT5L-7TB-Generic.html",
+      "track": "logographic",
+      "family": "instant_change",
+      "path_type": "Instant Temporary 5 Lines (7 textboxes)",
+      "description": "Logographic variant of ROM-IT5L with 7 textbox positions.",
+      "modes": [
+        "states",
+        "transitions",
+        "extensions"
+      ],
+      "textbox_count": {
+        "states": 7,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "sudden temporary changes",
+        "reactions",
+        "emotional responses"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-IT5L-11TB",
+      "file": "LOG-IT5L-11TB-Generic.html",
+      "path": "templates/logographic/LOG-IT5L-11TB-Generic.html",
+      "track": "logographic",
+      "family": "instant_change",
+      "path_type": "Instant Temporary 5 Lines (11 textboxes)",
+      "description": "Logographic variant of ROM-IT5L with 11 textbox positions.",
+      "modes": [
+        "states",
+        "transitions",
+        "extensions"
+      ],
+      "textbox_count": {
+        "states": 11,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "sudden temporary changes with detailed vocabulary"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-IT5LI-5TB",
+      "file": "LOG-IT5LI-5TB-Generic.html",
+      "path": "templates/logographic/LOG-IT5LI-5TB-Generic.html",
+      "track": "logographic",
+      "family": "instant_change",
+      "path_type": "Instant Temporary 5 Lines Inverted (5 textboxes)",
+      "description": "Logographic inverted IT5L with 5 textboxes.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 5,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "sudden temporary decline",
+        "dips",
+        "temporary setbacks"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-IT5LI-11TB",
+      "file": "LOG-IT5LI-11TB-Generic.html",
+      "path": "templates/logographic/LOG-IT5LI-11TB-Generic.html",
+      "track": "logographic",
+      "family": "instant_change",
+      "path_type": "Instant Temporary 5 Lines Inverted (11 textboxes)",
+      "description": "Logographic inverted IT5L with 11 textboxes.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 11,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "sudden temporary decline with detailed vocabulary"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-IP3LP",
+      "file": "LOG-IP3LP-Generic.html",
+      "path": "templates/logographic/LOG-IP3LP-Generic.html",
+      "track": "logographic",
+      "family": "instant_change",
+      "path_type": "Instant Permanent 3 Lines Positive",
+      "description": "Logographic variant of ROM-IP3LP.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 3,
+        "transitions": 3
+      },
+      "suitable_for": [
+        "sudden permanent improvements",
+        "breakthroughs"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-IP3LN",
+      "file": "LOG-IP3LN-Generic.html",
+      "path": "templates/logographic/LOG-IP3LN-Generic.html",
+      "track": "logographic",
+      "family": "instant_change",
+      "path_type": "Instant Permanent 3 Lines Negative",
+      "description": "Logographic variant of ROM-IP3LN.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 3,
+        "transitions": 3
+      },
+      "suitable_for": [
+        "sudden permanent decline",
+        "irreversible losses"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-GT5L-7TB",
+      "file": "LOG-GT5L-7TB-Generic.html",
+      "path": "templates/logographic/LOG-GT5L-7TB-Generic.html",
+      "track": "logographic",
+      "family": "gradual_change",
+      "path_type": "Gradual Temporary 5 Lines (7 textboxes)",
+      "description": "Logographic variant of ROM-GT5L-7TB with continuation paths.",
+      "modes": [
+        "states",
+        "transitions",
+        "continuations"
+      ],
+      "textbox_count": {
+        "states": 7,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "gradual temporary changes",
+        "fluctuations"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-GT5L-11TB",
+      "file": "LOG-GT5L-11TB-Generic.html",
+      "path": "templates/logographic/LOG-GT5L-11TB-Generic.html",
+      "track": "logographic",
+      "family": "gradual_change",
+      "path_type": "Gradual Temporary 5 Lines (11 textboxes)",
+      "description": "Logographic variant of ROM-GT5L-11TB.",
+      "modes": [
+        "states",
+        "transitions",
+        "continuations"
+      ],
+      "textbox_count": {
+        "states": 11,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "gradual temporary changes with detailed vocabulary"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-GT5LI-11TB",
+      "file": "LOG-GT5LI-11TB-Generic.html",
+      "path": "templates/logographic/LOG-GT5LI-11TB-Generic.html",
+      "track": "logographic",
+      "family": "gradual_change",
+      "path_type": "Gradual Temporary 5 Lines Inverted (11 textboxes)",
+      "description": "Logographic inverted GT5L.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 11,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "gradual temporary decline",
+        "troughs",
+        "recovery"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-GP3LP-7TB",
+      "file": "LOG-GP3LP-7TB-Generic.html",
+      "path": "templates/logographic/LOG-GP3LP-7TB-Generic.html",
+      "track": "logographic",
+      "family": "gradual_change",
+      "path_type": "Gradual Permanent 3 Lines Positive (7 textboxes)",
+      "description": "Logographic variant of ROM-GP3LP-7TB.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 7,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "gradual permanent improvement",
+        "learning",
+        "skill development"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-GP3LN-7TB",
+      "file": "LOG-GP3LN-7TB-Generic.html",
+      "path": "templates/logographic/LOG-GP3LN-7TB-Generic.html",
+      "track": "logographic",
+      "family": "gradual_change",
+      "path_type": "Gradual Permanent 3 Lines Negative (7 textboxes)",
+      "description": "Logographic variant of ROM-GP3LN-7TB.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 7,
+        "transitions": 5
+      },
+      "suitable_for": [
+        "gradual permanent decline",
+        "aging",
+        "erosion"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-GTCV",
+      "file": "LOG-GTCV-Generic.html",
+      "path": "templates/logographic/LOG-GTCV-Generic.html",
+      "track": "logographic",
+      "family": "bell_curve",
+      "path_type": "Gradual Temporary Curve (Bell Curve)",
+      "description": "Logographic bell curve. Includes audio-playback hook (stubbed) for future TTS integration.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 19,
+        "transitions": 10
+      },
+      "architecture": "display_level_toggle",
+      "suitable_for": [
+        "lifecycle concepts",
+        "illness and recovery",
+        "projects",
+        "seasons"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-GTCVI-Wide",
+      "file": "LOG-GTCVI-Wide-Generic.html",
+      "path": "templates/logographic/LOG-GTCVI-Wide-Generic.html",
+      "track": "logographic",
+      "family": "bell_curve",
+      "path_type": "Gradual Temporary Curve Inverted — Wide",
+      "description": "Wide inverted bell curve variant for logographic languages.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 19,
+        "transitions": 10
+      },
+      "suitable_for": [
+        "dips",
+        "crises",
+        "recessions",
+        "wide trough patterns"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-GTCVI-Shallow",
+      "file": "LOG-GTCVI-Shallow-Generic.html",
+      "path": "templates/logographic/LOG-GTCVI-Shallow-Generic.html",
+      "track": "logographic",
+      "family": "bell_curve",
+      "path_type": "Gradual Temporary Curve Inverted — Shallow",
+      "description": "Shallow inverted bell curve variant for logographic languages.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 19,
+        "transitions": 10
+      },
+      "suitable_for": [
+        "dips",
+        "minor setbacks",
+        "shallow trough patterns"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-GPCVP",
+      "file": "LOG-GPCVP-Generic.html",
+      "path": "templates/logographic/LOG-GPCVP-Generic.html",
+      "track": "logographic",
+      "family": "bell_curve",
+      "path_type": "Gradual Permanent Curve Positive",
+      "description": "Logographic variant of ROM-GPCVP.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 19,
+        "transitions": 10
+      },
+      "suitable_for": [
+        "permanent improvement",
+        "transformation",
+        "rehabilitation"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-GPCVN",
+      "file": "LOG-GPCVN-Generic.html",
+      "path": "templates/logographic/LOG-GPCVN-Generic.html",
+      "track": "logographic",
+      "family": "bell_curve",
+      "path_type": "Gradual Permanent Curve Negative",
+      "description": "Logographic variant of ROM-GPCVN.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 19,
+        "transitions": 10
+      },
+      "suitable_for": [
+        "permanent decline",
+        "chronic illness",
+        "irreversible change"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-HL-BI",
+      "file": "LOG-HL-BI-Generic.html",
+      "path": "templates/logographic/LOG-HL-BI-Generic.html",
+      "track": "logographic",
+      "family": "bidirectional",
+      "path_type": "Bidirectional Horizontal Line",
+      "description": "Logographic variant of ROM-HL-BI. Same neutral-centre bidirectional structure, with the 4-level click cycle (TLR default → TL script → SL → Quiz) used throughout the logographic track. Quiz tests TLR (romanized) input with diacritic-tolerant normalization via AnswerUtils, since learners cannot type logographic characters directly.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 9,
+        "transitions": 9
+      },
+      "architecture": "bidirectional_neutral_centre",
+      "notes": "Archilexeme default template for logographic languages. Same design principles as ROM-HL-BI — concept cards must be named after the archilexeme, not a pole. Each conceptData/transitionsData item carries an additional TLR field (5th array element for states, 5th for transitions) holding the romanized reading.",
+      "suitable_for": [
+        "archilexeme concepts",
+        "bidirectional scales",
+        "temperature",
+        "weight",
+        "appetite",
+        "mood",
+        "speed",
+        "wealth",
+        "any concept with a neutral midpoint and two opposing extremes"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-CV-BI",
+      "file": "LOG-CV-BI-Generic.html",
+      "path": "templates/logographic/LOG-CV-BI-Generic.html",
+      "track": "logographic",
+      "family": "bidirectional",
+      "path_type": "Bidirectional Valley Curve",
+      "description": "Logographic variant of ROM-CV-BI. Same inverted-bell-curve geometry with flat shoulders, normal-state line at 50% page height, and bottom-centre nadir for the most intense state. Uses the 4-level click cycle (TLR default → TL script → SL → Quiz) on both States textboxes and the directly-draggable Transitions sliding text.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 9,
+        "transitions": 8
+      },
+      "architecture": "bidirectional_valley_curve",
+      "notes": "Same usage principles as ROM-CV-BI — bottom point is always the most intense/negative state. Each conceptData/transitionsData item carries an additional TLR field (6th array element for states, 5th for transitions) holding the romanized reading. Sliding text drag is direct (no hit-area rectangle), matching the GTCV.html pattern.",
+      "suitable_for": [
+        "illness progression",
+        "fever",
+        "appetite/hunger cycling",
+        "emotional intensity",
+        "crisis and recovery",
+        "any concept with one clear most-intense state reached via a process"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-CR-CLK",
+      "file": "LOG-CR-CLK-Generic.html",
+      "path": "templates/logographic/LOG-CR-CLK-Generic.html",
+      "track": "logographic",
+      "family": "circular_cyclical",
+      "path_type": "Clock + Arrays",
+      "description": "Logographic clock template with grammar-plugin architecture. SL and TL each supply their own time-expression grammar functions (formatExact, formatApprox). TL boxes show TLR by default; click toggles to TL script.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 4
+      },
+      "architecture": "grammar_plugin",
+      "notes": "Most complex template — requires grammar function authoring, not just vocabulary substitution. See LANG config block for full documentation.",
+      "suitable_for": [
+        "telling the time",
+        "greetings by time of day",
+        "parts of the day"
+      ],
+      "language_pairs_available": [
+        {
+          "sl": "English",
+          "tl": "Japanese",
+          "file": "populated_instances/logographic/LOG-CR-CLK-JA-EN.html"
+        }
+      ]
+    },
+    {
+      "id": "LOG-CR-TTT",
+      "file": "LOG-CR-TTT-Generic.html",
+      "path": "templates/logographic/LOG-CR-TTT-Generic.html",
+      "track": "logographic",
+      "family": "circular_cyclical",
+      "path_type": "Telling the Time (clock ring)",
+      "description": "Logographic variant of ROM-CR-TTT. TLR is the primary tooltip display; quiz tests TLR reproduction with diacritic normalization via AnswerUtils. Parallel TLR phrase builders alongside TL.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 60
+      },
+      "suitable_for": [
+        "telling the time",
+        "minute expressions",
+        "past/to vocabulary"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-CR-TDL",
+      "file": "LOG-CR-TDL-Generic.html",
+      "path": "templates/logographic/LOG-CR-TDL-Generic.html",
+      "track": "logographic",
+      "family": "circular_cyclical",
+      "path_type": "Daily Tidal Cycle",
+      "description": "Logographic variant of ROM-CR-TDL.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 8,
+        "transitions": 8
+      },
+      "suitable_for": [
+        "tidal vocabulary",
+        "marine environments",
+        "daily cycles"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-CR-DAY",
+      "file": "LOG-CR-DAY-Generic.html",
+      "path": "templates/logographic/LOG-CR-DAY-Generic.html",
+      "track": "logographic",
+      "family": "circular_cyclical",
+      "path_type": "Parts of the Day",
+      "description": "Logographic variant of ROM-CR-DAY.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 8,
+        "transitions": 8
+      },
+      "suitable_for": [
+        "parts of the day",
+        "daily schedule",
+        "time expressions"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-CR-DOW",
+      "file": "LOG-CR-DOW-Generic.html",
+      "path": "templates/logographic/LOG-CR-DOW-Generic.html",
+      "track": "logographic",
+      "family": "circular_cyclical",
+      "path_type": "Days of the Week",
+      "description": "Logographic variant of ROM-CR-DOW. Uses foreignObject for TL script rendering. Draggable sun frame.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 7
+      },
+      "suitable_for": [
+        "days of the week",
+        "weekly schedule"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-CR-MOY",
+      "file": "LOG-CR-MOY-Generic.html",
+      "path": "templates/logographic/LOG-CR-MOY-Generic.html",
+      "track": "logographic",
+      "family": "circular_cyclical",
+      "path_type": "Months of the Year",
+      "description": "Logographic variant of ROM-CR-MOY with optional seasons overlay.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 12
+      },
+      "suitable_for": [
+        "months of the year",
+        "calendar vocabulary",
+        "seasonal vocabulary"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-CR-SEA-WET",
+      "file": "LOG-CR-SEA-WET-Generic.html",
+      "path": "templates/logographic/LOG-CR-SEA-WET-Generic.html",
+      "track": "logographic",
+      "family": "circular_cyclical",
+      "path_type": "Seasons — Wet/Dry Tropics",
+      "description": "Logographic variant of ROM-CR-SEA-WET.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 8
+      },
+      "suitable_for": [
+        "tropical seasons",
+        "wet/dry season vocabulary"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-CR-SEA-TEMP-S",
+      "file": "LOG-CR-SEA-TEMP-S-Generic.html",
+      "path": "templates/logographic/LOG-CR-SEA-TEMP-S-Generic.html",
+      "track": "logographic",
+      "family": "circular_cyclical",
+      "path_type": "Seasons — Temperate (Southern Hemisphere)",
+      "description": "Logographic Southern Hemisphere seasonal template.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 13
+      },
+      "hemisphere": "southern",
+      "suitable_for": [
+        "four seasons",
+        "temperate climate",
+        "solstices/equinoxes"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-CR-SEA-TEMP-N",
+      "file": "LOG-CR-SEA-TEMP-N-Generic.html",
+      "path": "templates/logographic/LOG-CR-SEA-TEMP-N-Generic.html",
+      "track": "logographic",
+      "family": "circular_cyclical",
+      "path_type": "Seasons — Temperate (Northern Hemisphere)",
+      "description": "Logographic Northern Hemisphere seasonal template.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 13
+      },
+      "hemisphere": "northern",
+      "suitable_for": [
+        "four seasons",
+        "temperate climate",
+        "solstices/equinoxes"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-CR-TML",
+      "file": "LOG-CR-TML-Generic.html",
+      "path": "templates/logographic/LOG-CR-TML-Generic.html",
+      "track": "logographic",
+      "family": "circular_cyclical",
+      "path_type": "Monthly Tidal Cycle",
+      "description": "Logographic variant of ROM-CR-TML.",
+      "modes": [
+        "states",
+        "transitions"
+      ],
+      "textbox_count": {
+        "states": 12,
+        "transitions": 12
+      },
+      "suitable_for": [
+        "tidal vocabulary",
+        "spring/neap tides",
+        "marine environments"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-CR-LUN",
+      "file": "LOG-CR-LUN-Generic.html",
+      "path": "templates/logographic/LOG-CR-LUN-Generic.html",
+      "track": "logographic",
+      "family": "circular_cyclical",
+      "path_type": "Lunar Cycle",
+      "description": "Logographic variant of ROM-CR-LUN. 28 moon-phase icons around the ring.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 8
+      },
+      "suitable_for": [
+        "moon phases",
+        "lunar vocabulary",
+        "astronomy"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-CR-MEN",
+      "file": "LOG-CR-MEN-Generic.html",
+      "path": "templates/logographic/LOG-CR-MEN-Generic.html",
+      "track": "logographic",
+      "family": "circular_cyclical",
+      "path_type": "28-Day Cycle",
+      "description": "Logographic general-purpose 28-day cycle template.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 8
+      },
+      "suitable_for": [
+        "menstrual cycle",
+        "28-day cycles",
+        "hormonal vocabulary"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-CR-CMP",
+      "file": "LOG-CR-CMP-Generic.html",
+      "path": "templates/logographic/LOG-CR-CMP-Generic.html",
+      "track": "logographic",
+      "family": "circular_cyclical",
+      "path_type": "Navigational Compass",
+      "description": "Logographic variant of ROM-CR-CMP. 16-point compass rose.",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 16
+      },
+      "suitable_for": [
+        "compass directions",
+        "navigation vocabulary"
+      ],
+      "language_pairs_available": []
+    },
+    {
+      "id": "LOG-CR-SW",
+      "file": "LOG-CR-SW-Generic.html",
+      "path": "templates/logographic/LOG-CR-SW-Generic.html",
+      "track": "logographic",
+      "family": "circular_cyclical",
+      "path_type": "Steering Wheel — Directions",
+      "description": "Logographic rotating steering wheel. 4-level cycle (TLR→TL→SL→Quiz). 4 progress dots per item. Display-all cycles through 4 states (TLR/TL/SL/Normal).",
+      "modes": [
+        "states"
+      ],
+      "textbox_count": {
+        "states": 20
+      },
+      "architecture": "rotating_wheel",
+      "notes": "2026-07-11: Same App.html injection support and instructions-panel default fix as ROM-CR-SW (see that entry for details). LOG-specific: instr_body_tl/title_tl hold kanji/kana script directly, no separate romanized instruction field — only vocabulary items carry a tlr field.",
+      "suitable_for": [
+        "driving directions",
+        "directional vocabulary",
+        "navigation instructions"
+      ],
+      "language_pairs_available": [
+        {
+          "sl": "English",
+          "tl": "Japanese",
+          "card": "CC-0012",
+          "note": "Vocabulary newly generated 2026-07-11, not yet validated by Alan"
+        }
+      ]
+    }
+  ]
+}
