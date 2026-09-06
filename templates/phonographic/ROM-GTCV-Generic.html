@@ -1,3 +1,4 @@
+<!-- Last updated: 2026-09-04 @ 1:15 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -227,6 +228,29 @@
             min-height: 20px;
         }
 
+        /* Applied via JS (visualViewport) when the on-screen keyboard is open.
+           Pins the quiz box near the top of whatever space is actually still
+           visible above the keyboard, instead of staying vertically centred
+           on the full (keyboard-covered) window height. */
+        .quiz-container.keyboard-open {
+            top: 8px;
+            transform: translate(-50%, 0);
+            max-width: 90vw;
+            width: 320px;
+            padding: 8px;
+        }
+
+        .quiz-container.keyboard-open input {
+            font-size: 13px;
+            padding: 6px;
+            margin-bottom: 6px;
+        }
+
+        .quiz-container.keyboard-open #quizFeedback {
+            min-height: 14px;
+            margin-top: 4px;
+        }
+
         /* Vocabulary Arrays Styles */
         .vocabulary-array {
             position: absolute;
@@ -388,6 +412,7 @@
                 <div class="tool-item" id="loadConcept">Load Concept</div>
                 <div class="tool-item" id="startQuiz">Quick Quiz</div>
                 <div class="tool-item" id="toggleArrays">Toggle Arrays</div>
+                <div class="tool-item" id="toggleFullscreen">Full Screen</div>
             </div>
         </div>
         
@@ -962,9 +987,17 @@
                     
                     const clientX = e.clientX || (e.touches && e.touches[0].clientX);
                     
-                    // Get SVG bounding rectangle for coordinate conversion
-                    const svgRect = svg.getBoundingClientRect();
-                    const svgX = ((clientX - svgRect.left) / svgRect.width) * 160 - 30; // Map to viewBox coordinates
+                    // Convert screen coordinates to SVG viewBox coordinates using the
+                    // live transform matrix — robust against letterboxing/pillarboxing
+                    // from preserveAspectRatio, which getBoundingClientRect ratio math
+                    // does not account for (this is what broke dragging on phone
+                    // screens, whose aspect ratios differ far more from the viewBox
+                    // than desktop windows typically do). Matches textDragMove below.
+                    const svgPointFrame = svg.createSVGPoint();
+                    svgPointFrame.x = clientX;
+                    svgPointFrame.y = 0;
+                    const transformedFramePoint = svgPointFrame.matrixTransform(svg.getScreenCTM().inverse());
+                    const svgX = transformedFramePoint.x;
                     
                     // Find closest point on curve by testing positions along the path
                     let bestPosition = 0;
@@ -1297,6 +1330,66 @@
                 quizCheck.addEventListener('click', checkQuizAnswer);
                 quizInput.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter') checkQuizAnswer();
+                });
+
+                // ── Keyboard-avoidance for the Quiz box ──────────────────
+                // On phones, the on-screen keyboard can cover more than half
+                // the screen. window.innerHeight does NOT change when the
+                // keyboard opens, but visualViewport does — its height
+                // shrinks to whatever is actually still visible above the
+                // keyboard. When that happens we add .keyboard-open, which
+                // repositions the quiz box to the top of the remaining
+                // visible space and shrinks it, instead of staying centred
+                // on the full (partly hidden) window.
+                if (window.visualViewport) {
+                    const KEYBOARD_HEIGHT_THRESHOLD = 150; // px shrink = keyboard almost certainly open
+                    function handleViewportResize() {
+                        const heightDiff = window.innerHeight - window.visualViewport.height;
+                        if (heightDiff > KEYBOARD_HEIGHT_THRESHOLD) {
+                            quizContainer.classList.add('keyboard-open');
+                        } else {
+                            quizContainer.classList.remove('keyboard-open');
+                        }
+                    }
+                    window.visualViewport.addEventListener('resize', handleViewportResize);
+                }
+
+                // ── Full Screen toggle ────────────────────────────────────
+                // requestFullscreen hides the browser's address bar on
+                // Android Chrome. NOTE: iOS Safari does not implement the
+                // Fullscreen API at all (Apple restricts it) — on iPhone
+                // this control will have no effect. The PWA build (Add to
+                // Home Screen, display:standalone) is the real fix for
+                // iOS; this button is a same-session convenience for
+                // testing and for Android/desktop browsers meanwhile.
+                const fullscreenToggle = document.getElementById('toggleFullscreen');
+                if (fullscreenToggle) {
+                    fullscreenToggle.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        if (!document.fullscreenElement) {
+                            if (document.documentElement.requestFullscreen) {
+                                document.documentElement.requestFullscreen().catch(function(err) {
+                                    console.log('Full screen request failed or unsupported:', err);
+                                });
+                            }
+                            fullscreenToggle.textContent = 'Exit Full Screen';
+                        } else {
+                            if (document.exitFullscreen) {
+                                document.exitFullscreen();
+                            }
+                            fullscreenToggle.textContent = 'Full Screen';
+                        }
+                        dropdownOpen = false;
+                        if (toolsDropdown) toolsDropdown.classList.remove('active');
+                    });
+                }
+                // Keep the button label correct if fullscreen is exited via
+                // the browser's own UI (e.g. Android back gesture) rather
+                // than this button.
+                document.addEventListener('fullscreenchange', function() {
+                    if (fullscreenToggle) {
+                        fullscreenToggle.textContent = document.fullscreenElement ? 'Exit Full Screen' : 'Full Screen';
+                    }
                 });
                 
                 // Tools menu interaction
