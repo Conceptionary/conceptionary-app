@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-09-07 @ 5:07 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-09-07 @ 7:50 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -439,6 +439,25 @@
         .tool-item:hover {
             background-color: #f5f5f5;
         }
+        /* ── Mobile sizing: double the drag circle and text ──────────
+           Targets touch-primary devices (phones/tablets) via
+           pointer:coarse rather than screen width, since the actual
+           problem is finger-sized targets on a touchscreen, not window
+           size per se. Doubles both the yellow circle's radius and the
+           font-size of both vocabulary text types, per Alan's mobile
+           testing (2026-09-07) showing both were too small to use
+           comfortably on a Samsung Galaxy S20. */
+        @media (pointer: coarse) {
+            #draggableFrame {
+                r: 3;
+            }
+            .textBox {
+                font-size: 0.4em;
+            }
+            .sliding-text {
+                font-size: 7px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -472,7 +491,7 @@
             <div id="decreasing-items"></div>
         </div>
         
-        <svg id="svgCanvas" viewBox="-30 0 160 50" preserveAspectRatio="xMidYMid meet">
+        <svg id="svgCanvas" viewBox="-30 0 160 60" preserveAspectRatio="xMidYMid meet">
             <!-- Concept Gradient -->
             <defs>
                 <linearGradient id="conceptGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -575,8 +594,15 @@
         };
         let currentTextIndex = 0;
         
-        // Activation distance for text boxes
-        const activationDistance = 5;
+        // Activation distance for text boxes. Increased from the original
+        // 5 to account for the anti-overlap offset table's larger
+        // y-offsets (up to 11 units for TL1/TL-1) — matches the value
+        // used in the archival original where this offset table came
+        // from. At 5, TL1/TL2/TL-2/TL-1 could never register as the
+        // closest item to the frame (their rendered position is further
+        // from the frame's on-curve position than the threshold allowed),
+        // so they never became visible no matter where the frame was.
+        const activationDistance = 13;
 
         // Global function to toggle vocabulary array visibility
         function toggleArrayVisibility(arrayType) {
@@ -692,7 +718,7 @@
                 // Set the bell curve path
                 const bellCurvePath = `M ${curvePoints.join(' L ')}`;
                 bellCurve.setAttribute('d', bellCurvePath);
-                conceptBackground.setAttribute('d', `${bellCurvePath} L 130,50 L -30,50 Z`);
+                conceptBackground.setAttribute('d', `${bellCurvePath} L 130,60 L -30,60 Z`);
                 
                 pathLength = bellCurve.getTotalLength();
                 
@@ -880,6 +906,17 @@
                         svg.appendChild(textBox);
                         textBoxElements.push(textBox);
                     }
+                    
+                    // Re-parent the drag frame to the end of the SVG's
+                    // children so it always renders — and receives
+                    // pointer/touch events — above every text box. SVG
+                    // has no independent z-index for plain shapes; stacking
+                    // is purely document order, and the loop above just
+                    // appended 20 text elements after the frame's original
+                    // position, which was silently stealing touches from
+                    // the frame wherever a text box happened to overlap it
+                    // (e.g. the on-curve "-4" positions).
+                    svg.appendChild(frame);
                     
                     console.log("Created", textBoxElements.length, "text boxes");
                 }
@@ -1413,14 +1450,25 @@
                 document.addEventListener('mouseup', endTextDrag);
                 document.addEventListener('touchend', endTextDrag);
                 
-                // Text clicking
-                interactiveText.addEventListener('click', handleSlidingTextClick);
-                slidingText.addEventListener('click', handleSlidingTextClick);
-                interactiveText.addEventListener('touchend', function(e) {
-                    if (!isTextDragging && !isStatesMode && !hasMoved) {
+                // Mobile tap-to-cycle for Transitions mode. Registered on
+                // document, AFTER endTextDrag above, so it runs after
+                // isTextDragging has already been reset — a listener on
+                // interactiveText itself fires at the target phase, which
+                // happens BEFORE the event bubbles up to this document
+                // listener, so it was always reading the stale pre-reset
+                // value and silently doing nothing on every tap. This
+                // replaces the desktop 'click' event, which never fires on
+                // touch here because startTextDrag's preventDefault()
+                // suppresses the browser's synthetic click.
+                document.addEventListener('touchend', function(e) {
+                    if (!isTextDragging && !isStatesMode && !hasMoved && interactiveText.contains(e.target)) {
                         handleSlidingTextClick(e);
                     }
                 });
+                
+                // Text clicking
+                interactiveText.addEventListener('click', handleSlidingTextClick);
+                slidingText.addEventListener('click', handleSlidingTextClick);
                 
                 // Other UI controls
                 titleBox.addEventListener('click', switchTitleText);
