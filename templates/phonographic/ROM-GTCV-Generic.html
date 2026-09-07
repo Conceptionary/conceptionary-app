@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-09-07 @ 7:50 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-09-07 @ 8:20 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -439,23 +439,28 @@
         .tool-item:hover {
             background-color: #f5f5f5;
         }
-        /* ── Mobile sizing: double the drag circle and text ──────────
+        /* ── Mobile sizing: enlarge the drag circle, tune text sizes ──
            Targets touch-primary devices (phones/tablets) via
            pointer:coarse rather than screen width, since the actual
            problem is finger-sized targets on a touchscreen, not window
-           size per se. Doubles both the yellow circle's radius and the
-           font-size of both vocabulary text types, per Alan's mobile
-           testing (2026-09-07) showing both were too small to use
-           comfortably on a Samsung Galaxy S20. */
+           size per se.
+           - Circle: doubled (r 1.5 -> 3), unchanged since 2026-09-07.
+           - States-mode text (.textBox): originally doubled to 0.4em,
+             but that caused overlapping labels in user testing — reduced
+             to 75% of that (0.3em), still larger than the 0.2em desktop
+             default but no longer colliding.
+           - Sliding text (.sliding-text): doubling to 7px made it too
+             large in Transitions mode on a phone screen — reverted to
+             the original 3.5px, same as desktop. */
         @media (pointer: coarse) {
             #draggableFrame {
                 r: 3;
             }
             .textBox {
-                font-size: 0.4em;
+                font-size: 0.3em;
             }
             .sliding-text {
-                font-size: 7px;
+                font-size: 3.5px;
             }
         }
     </style>
@@ -1197,12 +1202,14 @@
                 // Text dragging variables
                 let isTextDragging = false;
                 let hasMoved = false;
+                let textDragStartX = 0;
                 
                 // Text drag start handler
                 function startTextDrag(e) {
                     if (isStatesMode) return;
                     isTextDragging = true;
                     hasMoved = false;
+                    textDragStartX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
                     console.log("Text drag started");
                     e.preventDefault();
                 }
@@ -1211,9 +1218,21 @@
                 function textDragMove(e) {
                     if (!isTextDragging || isStatesMode) return;
                     
-                    hasMoved = true;
-                    
                     const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                    
+                    // Only count this as an actual drag once movement
+                    // exceeds a small real-world threshold. Real touchscreens
+                    // register a few pixels of sensor jitter even on a
+                    // completely stationary tap — a mouse click never has
+                    // this problem (zero pixel movement between down/up at
+                    // the same point), which is why this only broke tapping
+                    // on phones, never on desktop. Without this threshold,
+                    // that jitter alone was enough to misclassify every
+                    // single tap as a drag before the finger even lifted.
+                    const TAP_MOVEMENT_THRESHOLD = 8; // screen pixels
+                    if (Math.abs(clientX - textDragStartX) > TAP_MOVEMENT_THRESHOLD) {
+                        hasMoved = true;
+                    }
                     
                     const svgPoint = svg.createSVGPoint();
                     svgPoint.x = clientX;
