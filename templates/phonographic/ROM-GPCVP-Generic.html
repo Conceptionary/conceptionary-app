@@ -1,3 +1,4 @@
+<!-- Last updated: 2026-09-08 @ 2:05 a.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -79,15 +80,50 @@
 
         #draggableFrame {
             cursor: grab;
-            fill: rgba(100, 150, 255, 0.2);
-            stroke: black;
-            stroke-width: 0.1px;
+            fill: rgba(255, 255, 0, 0.6);
+            stroke: #ccaa00;
+            stroke-width: 0.1;
             pointer-events: all;
-            opacity: 0.8;
+            opacity: 1;
+            filter: drop-shadow(0 0.3px 0.5px rgba(0,0,0,0.3));
+            transition: fill 0.2s ease, stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
+        }
+
+        #draggableFrame:hover {
+            fill: rgba(255, 255, 0, 0.8);
+            stroke: #ffcc00;
+            stroke-width: 0.15;
+            cursor: grab;
+            filter: drop-shadow(0 0.5px 1px rgba(204, 170, 0, 0.6)) drop-shadow(0 0 2px rgba(255, 255, 100, 0.8));
         }
 
         #draggableFrame.dragging {
             cursor: grabbing;
+            fill: transparent;
+            stroke-width: 0.1;
+            filter: drop-shadow(0 0.5px 1px rgba(255, 170, 0, 0.6)) drop-shadow(0 0 2px rgba(255, 220, 0, 0.8));
+            stroke: #ffaa00;
+        }
+
+        .drag-instruction {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 0.85em;
+            padding: 6px 12px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            z-index: 3;
+            opacity: 1;
+            transition: opacity 2s ease;
+            text-align: left;
+            max-width: 400px;
+        }
+
+        .drag-instruction.fade {
+            opacity: 0;
+            pointer-events: none;
         }
 
         /* Background gradient */
@@ -150,6 +186,7 @@
         
         /* Concept Indicator */
         .concept-indicator {
+            display: none;
             position: absolute;
             bottom: 60px;
             left: 50%;
@@ -194,6 +231,30 @@
             pointer-events: auto;
             visibility: visible;
             opacity: 1;
+            cursor: grab;
+        }
+
+        .quiz-container.dragging {
+            cursor: grabbing;
+        }
+
+        .quiz-container.keyboard-open {
+            top: 8px;
+            transform: translate(-50%, 0);
+            max-width: 90vw;
+            width: 320px;
+            padding: 8px;
+        }
+
+        .quiz-container.keyboard-open input {
+            font-size: 13px;
+            padding: 6px;
+            margin-bottom: 6px;
+        }
+
+        .quiz-container.keyboard-open #quizFeedback {
+            min-height: 14px;
+            margin-top: 4px;
         }
         
         .quiz-container input {
@@ -203,6 +264,7 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             margin-bottom: 10px;
+            cursor: text;
         }
         
         .quiz-container button {
@@ -230,7 +292,7 @@
         /* Vocabulary Arrays Styles */
         .vocabulary-array {
             position: absolute;
-            top: 175px;
+            top: 50%;
             width: 25%;
             max-height: 40vh;
             overflow-y: auto;
@@ -373,11 +435,28 @@
         .tool-item:hover {
             background-color: #f5f5f5;
         }
+
+        /* ── Mobile sizing: circle and text ───────────────────────────
+           Starting values ported from GTCV's tested end-state, not yet
+           re-confirmed on this shape — treat as a starting point, per
+           the GTCV Mobile Fixes Checklist, item 14. */
+        @media (pointer: coarse) {
+            #draggableFrame {
+                r: 3;
+            }
+            .textBox {
+                font-size: 0.3em;
+            }
+            .sliding-text {
+                font-size: 3.5px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="a4-page">
         <div id="title-box" class="title-box">Gradual Permanent Positive Progress</div>
+        <div id="drag-instruction" class="drag-instruction">Mobile Phone users click on 'Full Screen' in the Tools menu.<br><br>1. Click and drag the yellow circle to activate the text<br>2: Click on the text to see the translation into your language.<br>3: Click again to test your memory.<br><br>This template is best viewed on a large screen in Full Screen mode.</div>
         <div id="concept-indicator" class="concept-indicator">Progress Position</div>
         <div id="level-indicator" class="level-indicator">Target Language</div>
         
@@ -385,9 +464,10 @@
         <div class="tools-menu">
             <div class="tools-button">Tools</div>
             <div class="tools-dropdown">
+                <div class="tool-item" id="toggleFullscreen">Full Screen</div>
                 <div class="tool-item" id="loadConcept">Load Concept</div>
                 <div class="tool-item" id="startQuiz">Quick Quiz</div>
-                <div class="tool-item" id="toggleArrays">Toggle Arrays</div>
+                <div class="tool-item" id="toggleArrays">Hide/Show Arrays</div>
             </div>
         </div>
         
@@ -419,7 +499,7 @@
             <path id="conceptBackground"></path>
             
             <!-- States Mode Elements -->
-            <rect id="draggableFrame" x="40" y="20" width="10" height="5"/>
+            <circle id="draggableFrame" cx="45" cy="22.5" r="1.5"/>
             
             <!-- Transitions Mode Elements -->
             <text id="interactiveText" class="sliding-text">
@@ -566,6 +646,7 @@
                 const levelIndicator = document.getElementById("level-indicator");
                 const modeToggleBtn = document.getElementById("modeToggle");
                 const frame = document.getElementById("draggableFrame");
+                const dragInstruction = document.getElementById("drag-instruction");
                 const interactiveText = document.getElementById("interactiveText");
                 const slidingText = document.getElementById("slidingText");
                 const quizContainer = document.getElementById("quizContainer");
@@ -749,6 +830,11 @@
                         textBoxElements.push(textBox);
                     }
                     
+                    // Re-parent the drag frame to the end of the SVG's
+                    // children so it always renders — and receives
+                    // pointer/touch events — above every text box.
+                    svg.appendChild(frame);
+                    
                     console.log("Created", textBoxElements.length, "text boxes");
                 }
                 
@@ -792,9 +878,11 @@
                         if (isIncreasing) {
                             increasingItems.appendChild(itemElement);
                             addedIncreasingItems[index] = true;
+                            increasingArray.style.display = 'block';
                         } else {
                             decreasingItems.appendChild(itemElement);
                             addedDecreasingItems[index] = true;
+                            decreasingArray.style.display = 'block';
                         }
                         
                         console.log("Added vocabulary item:", targetLanguage, sourceLanguage);
@@ -808,8 +896,8 @@
                     // Start at TL1 position (5% of the path, which corresponds to conceptData[0])
                     const tl1Position = (conceptData[0][3] / 100) * pathLength; // 5% position
                     const tl1Point = combinedPath.getPointAtLength(tl1Position);
-                    frame.setAttribute('x', tl1Point.x - parseFloat(frame.getAttribute('width'))/2);
-                    frame.setAttribute('y', tl1Point.y - parseFloat(frame.getAttribute('height'))/2);
+                    frame.setAttribute('cx', tl1Point.x);
+                    frame.setAttribute('cy', tl1Point.y);
                     updateVisibleTextBoxes(tl1Point);
                 }
                 
@@ -955,6 +1043,11 @@
                     isDragging = true;
                     frame.classList.add('dragging');
                     
+                    // Fade out instruction on first interaction
+                    if (dragInstruction && !dragInstruction.classList.contains('fade')) {
+                        dragInstruction.classList.add('fade');
+                    }
+                    
                     e.preventDefault();
                 }
                 
@@ -964,9 +1057,14 @@
                     
                     const clientX = e.clientX || (e.touches && e.touches[0].clientX);
                     
-                    // Get SVG bounding rectangle for coordinate conversion
-                    const svgRect = svg.getBoundingClientRect();
-                    const svgX = ((clientX - svgRect.left) / svgRect.width) * 160 - 30; // Map to viewBox coordinates
+                    // Convert screen coordinates to SVG viewBox coordinates
+                    // using the live transform matrix — robust against
+                    // letterboxing/pillarboxing from preserveAspectRatio.
+                    const svgPointFrame = svg.createSVGPoint();
+                    svgPointFrame.x = clientX;
+                    svgPointFrame.y = 0;
+                    const transformedFramePoint = svgPointFrame.matrixTransform(svg.getScreenCTM().inverse());
+                    const svgX = transformedFramePoint.x;
                     
                     // Find closest point on path
                     let bestPosition = 0;
@@ -987,20 +1085,12 @@
                     // Get the actual point on the path
                     const pathPoint = combinedPath.getPointAtLength(bestPosition * pathLength);
                     
-                    // Position the frame
-                    const frameWidth = parseFloat(frame.getAttribute('width'));
-                    const frameHeight = parseFloat(frame.getAttribute('height'));
-                    
-                    frame.setAttribute('x', pathPoint.x - frameWidth/2);
-                    frame.setAttribute('y', pathPoint.y - frameHeight/2);
+                    // Position the circle frame directly at the path point
+                    frame.setAttribute('cx', pathPoint.x);
+                    frame.setAttribute('cy', pathPoint.y);
                     
                     // Update visible text boxes
-                    const frameCenter = {
-                        x: pathPoint.x,
-                        y: pathPoint.y
-                    };
-                    
-                    updateVisibleTextBoxes(frameCenter);
+                    updateVisibleTextBoxes({x: pathPoint.x, y: pathPoint.y});
                     
                     e.preventDefault();
                     e.stopPropagation();
@@ -1022,12 +1112,14 @@
                 // Text dragging variables
                 let isTextDragging = false;
                 let hasMoved = false;
+                let textDragStartX = 0;
                 
                 // Text drag start handler
                 function startTextDrag(e) {
                     if (isStatesMode) return;
                     isTextDragging = true;
                     hasMoved = false;
+                    textDragStartX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
                     console.log("Text drag started");
                     e.preventDefault();
                 }
@@ -1036,9 +1128,15 @@
                 function textDragMove(e) {
                     if (!isTextDragging || isStatesMode) return;
                     
-                    hasMoved = true;
-                    
                     const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                    
+                    // Only count as a real drag once movement exceeds a
+                    // small threshold — real touchscreens register a few
+                    // pixels of sensor jitter even on a stationary tap.
+                    const TAP_MOVEMENT_THRESHOLD = 8; // screen pixels
+                    if (Math.abs(clientX - textDragStartX) > TAP_MOVEMENT_THRESHOLD) {
+                        hasMoved = true;
+                    }
                     
                     const svgPoint = svg.createSVGPoint();
                     svgPoint.x = clientX;
@@ -1171,9 +1269,10 @@
                         const dataPoint = getDataPointAtPosition(position);
                         updateSlidingText(dataPoint);
                         
-                        // Show vocabulary arrays
-                        increasingArray.style.display = 'block';
-                        decreasingArray.style.display = 'block';
+                        // Show vocabulary arrays only if they already hold
+                        // learned items from earlier in this session.
+                        if (increasingItems.children.length > 0) increasingArray.style.display = 'block';
+                        if (decreasingItems.children.length > 0) decreasingArray.style.display = 'block';
                         
                         // Ensure text is visible and re-attach events
                         setTimeout(() => {
@@ -1256,14 +1355,18 @@
                 document.addEventListener('mouseup', endTextDrag);
                 document.addEventListener('touchend', endTextDrag);
                 
-                // Text clicking
-                interactiveText.addEventListener('click', handleSlidingTextClick);
-                slidingText.addEventListener('click', handleSlidingTextClick);
-                interactiveText.addEventListener('touchend', function(e) {
-                    if (!isTextDragging && !isStatesMode && !hasMoved) {
+                // Mobile tap-to-cycle. Registered on document, AFTER
+                // endTextDrag above, so isTextDragging has already been
+                // reset by the time this runs.
+                document.addEventListener('touchend', function(e) {
+                    if (!isTextDragging && !isStatesMode && !hasMoved && interactiveText.contains(e.target)) {
                         handleSlidingTextClick(e);
                     }
                 });
+                
+                // Text clicking
+                interactiveText.addEventListener('click', handleSlidingTextClick);
+                slidingText.addEventListener('click', handleSlidingTextClick);
                 
                 // Other UI controls
                 titleBox.addEventListener('click', switchTitleText);
@@ -1272,6 +1375,96 @@
                 quizInput.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter') checkQuizAnswer();
                 });
+
+                // ── Keyboard-avoidance for the Quiz box ──────────────────
+                if (window.visualViewport) {
+                    const KEYBOARD_HEIGHT_THRESHOLD = 150;
+                    function handleViewportResize() {
+                        const heightDiff = window.innerHeight - window.visualViewport.height;
+                        if (heightDiff > KEYBOARD_HEIGHT_THRESHOLD) {
+                            quizContainer.classList.add('keyboard-open');
+                        } else {
+                            quizContainer.classList.remove('keyboard-open');
+                        }
+                    }
+                    window.visualViewport.addEventListener('resize', handleViewportResize);
+                }
+
+                // ── Full Screen toggle ────────────────────────────────────
+                const fullscreenToggle = document.getElementById('toggleFullscreen');
+                if (fullscreenToggle) {
+                    fullscreenToggle.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        if (!document.fullscreenElement) {
+                            if (document.documentElement.requestFullscreen) {
+                                document.documentElement.requestFullscreen().catch(function(err) {
+                                    console.log('Full screen request failed or unsupported:', err);
+                                });
+                            }
+                            fullscreenToggle.textContent = 'Exit Full Screen';
+                        } else {
+                            if (document.exitFullscreen) {
+                                document.exitFullscreen();
+                            }
+                            fullscreenToggle.textContent = 'Full Screen';
+                        }
+                        dropdownOpen = false;
+                        if (toolsDropdown) toolsDropdown.classList.remove('active');
+                    });
+                }
+                document.addEventListener('fullscreenchange', function() {
+                    if (fullscreenToggle) {
+                        fullscreenToggle.textContent = document.fullscreenElement ? 'Exit Full Screen' : 'Full Screen';
+                    }
+                });
+
+                // ── Quiz box: drag to reposition anywhere on screen ──────
+                (function setupQuizDrag() {
+                    let isDraggingQuiz = false;
+                    let quizDragOffsetX = 0;
+                    let quizDragOffsetY = 0;
+
+                    function quizDragStart(e) {
+                        if (e.target === quizInput || e.target === quizCheck) return;
+                        isDraggingQuiz = true;
+                        const rect = quizContainer.getBoundingClientRect();
+                        const point = e.touches ? e.touches[0] : e;
+                        quizDragOffsetX = point.clientX - rect.left;
+                        quizDragOffsetY = point.clientY - rect.top;
+                        quizContainer.style.left = rect.left + 'px';
+                        quizContainer.style.top = rect.top + 'px';
+                        quizContainer.style.transform = 'none';
+                        quizContainer.classList.add('dragging');
+                        if (e.touches) e.preventDefault();
+                    }
+
+                    function quizDragMove(e) {
+                        if (!isDraggingQuiz) return;
+                        const point = e.touches ? e.touches[0] : e;
+                        let newLeft = point.clientX - quizDragOffsetX;
+                        let newTop = point.clientY - quizDragOffsetY;
+                        const maxLeft = window.innerWidth - quizContainer.offsetWidth;
+                        const maxTop = window.innerHeight - quizContainer.offsetHeight;
+                        newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                        newTop = Math.max(0, Math.min(newTop, maxTop));
+                        quizContainer.style.left = newLeft + 'px';
+                        quizContainer.style.top = newTop + 'px';
+                        if (e.touches) e.preventDefault();
+                    }
+
+                    function quizDragEnd() {
+                        isDraggingQuiz = false;
+                        quizContainer.classList.remove('dragging');
+                    }
+
+                    quizContainer.addEventListener('mousedown', quizDragStart);
+                    document.addEventListener('mousemove', quizDragMove);
+                    document.addEventListener('mouseup', quizDragEnd);
+
+                    quizContainer.addEventListener('touchstart', quizDragStart, { passive: false });
+                    document.addEventListener('touchmove', quizDragMove, { passive: false });
+                    document.addEventListener('touchend', quizDragEnd);
+                })();
                 
                 // Tools menu interaction
                 const toolsButton = document.querySelector('.tools-button');
@@ -1366,6 +1559,14 @@
                 
                 // Set sliding text starting position
                 slidingText.setAttribute('startOffset', '5%');
+                
+                // Fade out drag instruction after 8 seconds if not already
+                // dismissed by interaction.
+                if (dragInstruction) {
+                    setTimeout(() => {
+                        dragInstruction.classList.add('fade');
+                    }, 8000);
+                }
                 
                 console.log("Gradual Permanent Positive Progress Template initialized successfully");
                 console.log("States Mode: 14 textboxes (TL1-TL11 on curve, TL12-TL14 on horizontal line)");
