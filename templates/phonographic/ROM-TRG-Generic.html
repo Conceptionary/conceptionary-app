@@ -1,0 +1,215 @@
+<!-- Last updated: 2026-08-29 (Mangawhai, NZ) — first build of the TRG
+     (Temporal Reference Grid) family, resolving the Activities gap in
+     Conceptionary_Aspectual_Template_Selection_Framework.md. Direct
+     structural basis: Alan's own "What is it like?" template (Microsoft
+     Word / early HTML, c.2002) — a genuinely atelic case (no goal, no
+     scalar degree), distinct from the "Progress toward a goal" family
+     of templates (telic, Accomplishment-class, belongs with GT5L
+     instead — see Conceptionary_Template_Decision_Log.md). -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Temporal Reference Grid — Phonographic — Generic</title>
+<style>
+    * { box-sizing: border-box; }
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0; padding: 0;
+        display: flex; justify-content: center; align-items: center;
+        min-height: 100vh; background: #f2f2f2;
+    }
+    .trg-frame {
+        width: 90vw; max-width: 900px; height: 70vh; max-height: 560px;
+        border: 3px solid #1a1a1a; background: #ffffff;
+        display: flex; flex-direction: column; position: relative;
+    }
+    .trg-topic {
+        border-bottom: 2px solid #1a1a1a;
+        padding: 14px 20px;
+        text-align: center;
+        font-size: 20px;
+        cursor: pointer;
+        user-select: none;
+    }
+    .trg-topic .tl { color: #1a5276; font-weight: bold; }
+    .trg-back-link {
+        position: absolute; top: 10px; right: 16px;
+        font-size: 12px; color: #8e44ad; text-decoration: underline;
+        cursor: default;
+    }
+    .trg-grid {
+        flex: 1;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 1px;
+        background: #1a1a1a;
+    }
+    .trg-cell {
+        background: #ffffff;
+        display: flex; align-items: center; justify-content: center;
+        text-align: center;
+        padding: 14px;
+        cursor: pointer;
+        font-size: 17px;
+        line-height: 1.4;
+        user-select: none;
+        transition: background 0.15s ease;
+    }
+    .trg-cell:hover { background: #f5f9fc; }
+    .trg-cell.tl-showing { color: #1a5276; font-weight: 600; }
+    .trg-cell.quiz-showing { background: #fdf6e3; }
+    .cell-past      { grid-column: 1; grid-row: 1; }
+    .cell-present   { grid-column: 2; grid-row: 1; }
+    .cell-future    { grid-column: 3; grid-row: 1 / span 2; }
+    .cell-perfect   { grid-column: 1 / span 2; grid-row: 2; }
+    .trg-quiz-box {
+        display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .trg-quiz-box input {
+        font-size: 15px; padding: 6px 10px;
+        border: 1px solid #999; border-radius: 4px;
+        width: 80%; text-align: center;
+    }
+    .trg-quiz-box button {
+        font-size: 13px; padding: 5px 14px;
+        border: none; border-radius: 4px;
+        background: #1a5276; color: #fff; cursor: pointer;
+    }
+    .trg-quiz-feedback { font-size: 13px; font-weight: bold; min-height: 16px; }
+    .trg-quiz-feedback.correct { color: #1e8449; }
+    .trg-quiz-feedback.wrong   { color: #c0392b; }
+    .trg-watermark {
+        text-align: center; font-size: 10px; color: #999;
+        padding: 4px; border-top: 1px solid #ddd;
+    }
+</style>
+</head>
+<body>
+
+<div class="trg-frame">
+    <span class="trg-back-link">Back</span>
+
+    <!-- Topic header — click to cycle SL / TL, same convention used by
+         every other Conceptionary template's title box -->
+    <div class="trg-topic" id="topicBox" onclick="cycleTopic()">
+        <span id="topicText">SL_TOPIC</span>
+    </div>
+
+    <div class="trg-grid">
+        <div class="trg-cell cell-past" id="cell-past" data-id="past" onclick="cycleCell('past')">
+            <span class="cell-text">SL_PAST</span>
+        </div>
+        <div class="trg-cell cell-present" id="cell-present" data-id="present" onclick="cycleCell('present')">
+            <span class="cell-text">SL_PRESENT</span>
+        </div>
+        <div class="trg-cell cell-future" id="cell-future" data-id="future" onclick="cycleCell('future')">
+            <span class="cell-text">SL_FUTURE</span>
+        </div>
+        <div class="trg-cell cell-perfect" id="cell-perfect" data-id="perfect" onclick="cycleCell('perfect')">
+            <span class="cell-text">SL_PERFECT</span>
+        </div>
+    </div>
+
+    <div class="trg-watermark">© 2026 Alan William Preston</div>
+</div>
+
+<script>
+/* ── Generic placeholder data ─────────────────────────────────────────
+   Format for the topic and each cell: {sl, tl, quiz}
+   sl/tl are plain question-frame text (no [ ] tokens needed beyond
+   the placeholder strings themselves — real content replaces these
+   directly when a concept card is injected).
+   quiz is the question shown once a cell reaches quiz mode. */
+const LANG = {
+    topic: { sl: "SL_TOPIC", tl: "TL_TOPIC" },
+
+    // Past Simple — "How was it?"
+    past: {
+        sl: "How was it?",
+        tl: "TL_PAST",
+        quiz: "How do you say 'How was it?' in TL_LANGUAGE_NAME?"
+    },
+    // Present Simple — "How is it?"
+    present: {
+        sl: "How is it?",
+        tl: "TL_PRESENT",
+        quiz: "How do you say 'How is it?' in TL_LANGUAGE_NAME?"
+    },
+    // Future — "How will it be? / How's it going to be?" (both
+    // register variants live in one cell, matching the original
+    // layout's tall right-hand column)
+    future: {
+        sl: "How will it be? / How's it going to be?",
+        tl: "TL_FUTURE",
+        quiz: "How do you say 'How will it be?' in TL_LANGUAGE_NAME?"
+    },
+    // Present Perfect — "How has it been? / How's it been?"
+    perfect: {
+        sl: "How has it been? / How's it been?",
+        tl: "TL_PERFECT",
+        quiz: "How do you say 'How has it been?' in TL_LANGUAGE_NAME?"
+    }
+};
+
+/* ── State: each cell independently cycles SL -> TL -> Quiz -> SL ──── */
+const cellState = { past: 0, present: 0, future: 0, perfect: 0 };
+let topicShowingTL = false;
+
+function cycleTopic() {
+    topicShowingTL = !topicShowingTL;
+    const el = document.getElementById('topicText');
+    el.textContent = topicShowingTL ? LANG.topic.tl : LANG.topic.sl;
+    el.className = topicShowingTL ? 'tl' : '';
+}
+
+function cycleCell(id) {
+    cellState[id] = (cellState[id] + 1) % 3;
+    renderCell(id);
+}
+
+function renderCell(id) {
+    const data = LANG[id];
+    const el = document.getElementById('cell-' + id);
+    const state = cellState[id];
+    el.classList.remove('tl-showing', 'quiz-showing');
+
+    if (state === 0) {
+        el.innerHTML = `<span class="cell-text">${data.sl}</span>`;
+    } else if (state === 1) {
+        el.classList.add('tl-showing');
+        el.innerHTML = `<span class="cell-text">${data.tl}</span>`;
+    } else {
+        el.classList.add('quiz-showing');
+        el.innerHTML = `
+            <div class="trg-quiz-box" onclick="event.stopPropagation()">
+                <div style="font-size:13px;">${data.quiz}</div>
+                <input type="text" id="quizInput-${id}" autocomplete="off">
+                <button onclick="checkQuiz('${id}')">Check</button>
+                <div class="trg-quiz-feedback" id="quizFeedback-${id}"></div>
+            </div>`;
+    }
+}
+
+function checkQuiz(id) {
+    const input = document.getElementById('quizInput-' + id);
+    const feedback = document.getElementById('quizFeedback-' + id);
+    const answer = input.value.trim().toLowerCase();
+    const correct = LANG[id].tl.trim().toLowerCase();
+    if (answer === correct) {
+        feedback.textContent = 'Correct!';
+        feedback.className = 'trg-quiz-feedback correct';
+    } else {
+        feedback.textContent = 'Try again';
+        feedback.className = 'trg-quiz-feedback wrong';
+    }
+}
+
+console.log('TRG (Temporal Reference Grid) Template initialized successfully');
+console.log('4 time-reference cells: past, present, future, perfect');
+console.log('Each cell cycles independently: SL -> TL -> Quiz -> SL');
+</script>
+</body>
+</html>
