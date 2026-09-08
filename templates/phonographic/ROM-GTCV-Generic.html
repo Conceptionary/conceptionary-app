@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-09-08 @ 11:35 a.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-09-08 @ 7:20 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,11 +19,21 @@
         }
 
         .a4-page {
-            width: 90vw;
-            height: 70vh;
+            /* Locked to the SVG viewBox's exact 160:60 ratio so the curve
+               always reaches the frame edges — fitting within the 90vw/70vh
+               box on whichever axis is the tighter constraint, rather than
+               relying on preserveAspectRatio's letterboxing (which left a
+               visible gap in non-fullscreen browser windows whose shape
+               didn't happen to match 160:60). content-box (not border-box)
+               is deliberate here: these width/height values need to apply
+               to the content area the SVG actually fills, not the
+               border-inclusive outer box — border-box was distorting the
+               ratio by a small but real amount, leaving a residual gap. */
+            width: min(90vw, 70vh * 160 / 60);
+            height: min(70vh, 90vw * 60 / 160);
             border: 5px solid black;
             background-color: white;
-            box-sizing: border-box;
+            box-sizing: content-box;
             position: relative;
             touch-action: none;
             z-index: 1;
@@ -105,10 +115,22 @@
             stroke: #ffaa00;
         }
 
+        @keyframes pulsateAttention {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
         .drag-instruction {
+            /* Centred directly below the title box's default landing
+               position: 25% on x (halfway between the screen's left edge
+               and the curve's centreline/peak, same reasoning as the
+               title box's own 25% position), with enough top clearance
+               to clear the title box's own height before the curve's
+               peak becomes visually prominent. */
             position: absolute;
-            top: 10px;
-            left: 10px;
+            top: 13%;
+            left: 25%;
+            transform: translateX(-50%);
             font-size: 0.85em;
             padding: 6px 12px;
             background-color: rgba(255, 255, 255, 0.95);
@@ -119,6 +141,7 @@
             transition: opacity 2s ease;
             text-align: left;
             max-width: 400px;
+            animation: pulsateAttention 0.6s ease-in-out 3;
         }
 
         .drag-instruction.fade {
@@ -151,17 +174,22 @@
         .title-box {
             position: absolute;
             top: 2%;
-            left: 50%;
+            left: 25%;
             transform: translateX(-50%);
             font-size: 1em;
             font-weight: bold;
             text-align: center;
-            cursor: pointer;
+            cursor: grab;
             border: 1px solid black;
             padding: 10px;
             background-color: white;
             z-index: 2;
             transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .title-box.dragging {
+            cursor: grabbing;
+            transition: none;
         }
         
         .title-box.hidden {
@@ -201,6 +229,7 @@
         
         /* Level indicator for transitions mode */
         .level-indicator {
+            display: none !important; /* Redundant now that TL-/SL- prefixes are built into the sliding text itself */
             position: absolute;
             top: 60px;
             left: 50%;
@@ -215,6 +244,7 @@
 
         /* Quiz container styles */
         .quiz-container {
+            box-sizing: border-box;
             position: fixed;
             top: 40%;
             left: 50%;
@@ -239,6 +269,7 @@
         }
         
         .quiz-container input {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
             font-size: 14px;
@@ -249,6 +280,7 @@
         }
         
         .quiz-container button {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
             background-color: #3366cc;
@@ -564,21 +596,21 @@
 
         // Transitions data for dynamic changes between states
         const transitionsData = [
-            // Improving transitions (1% to 45%)
-            ["Starting to increase", "T-Starting to increase", "What's the target language for 'Starting to increase'?", 1],
-            ["Getting stronger", "T-Getting stronger", "What's the target language for 'Getting stronger'?", 15],
-            ["Continuing to grow", "T-Continuing to grow", "What's the target language for 'Continuing to grow'?", 25],
-            ["Approaching maximum", "T-Approaching maximum", "What's the target language for 'Approaching maximum'?", 35],
-            ["Nearly at peak", "T-Nearly at peak", "What's the target language for 'Nearly at peak'?", 45],
+            // Increasing amount (1% to 45%)
+            ["SL1 Starting to pick up", "TL1 Starting to pick up", "What's the target language for 'Starting to pick up'?", 1],
+            ["SL2 Picking up", "TL2 Picking up", "What's the target language for 'Picking up'?", 15],
+            ["SL3 Increasing", "TL3 Increasing", "What's the target language for 'Increasing'?", 25],
+            ["SL4 Growing", "TL4 Growing", "What's the target language for 'Growing'?", 35],
+            ["SL5 Peaking", "TL5 Peaking", "What's the target language for 'Peaking'?", 45],
             
             // Peak transition (50%)
-            ["Reaching peak", "T-Reaching peak", "What's the target language for 'Reaching peak'?", 50],
+            ["SL-Peak Exceeding the peak", "TL-Peak Exceeding the peak", "What's the target language for 'Exceeding the peak'?", 50],
             
-            // Declining transitions (55% to 78%)
-            ["Starting to decline", "T-Starting to decline", "What's the target language for 'Starting to decline'?", 55],
-            ["Getting weaker", "T-Getting weaker", "What's the target language for 'Getting weaker'?", 65],
-            ["Continuing to decrease", "T-Continuing to decrease", "What's the target language for 'Continuing to decrease'?", 75],
-            ["Reaching minimum", "T-Reaching minimum", "What's the target language for 'Reaching minimum'?", 78]
+            // Decreasing amount (55% to 78%)
+            ["SL-5 Starting to drop off", "TL-5 Starting to drop off", "What's the target language for 'Starting to drop off'?", 55],
+            ["SL-4 Dropping off", "TL-4 Dropping off", "What's the target language for 'Dropping off'?", 65],
+            ["SL-3 Decreasing", "TL-3 Decreasing", "What's the target language for 'Decreasing'?", 75],
+            ["SL-2 Running out", "TL-2 Running out", "What's the target language for 'Running out'?", 78]
         ];
 
         // Define global variables
@@ -1258,11 +1290,16 @@
                     // Apply boundary constraints to keep text visible within transitions area
                     let visualOffset = bestPosition;
                     
-                    // Constrain text position to visible range
+                    // Constrain text position to visible range. Upper bound
+                    // matches the suite-wide convention (0-85%, last
+                    // segment aligning with the right frame edge) rather
+                    // than the last data item's own position (78) — that
+                    // coincidence was capping the visual reach short of
+                    // the actual edge.
                     if (visualOffset < 1) {        
                         visualOffset = 1;
-                    } else if (visualOffset > 78) { 
-                        visualOffset = 78;
+                    } else if (visualOffset > 85) { 
+                        visualOffset = 85;
                     }
                     
                     slidingText.setAttribute('startOffset', `${visualOffset}%`);
@@ -1613,6 +1650,82 @@
                     document.addEventListener('touchmove', quizDragMove, { passive: false });
                     document.addEventListener('touchend', quizDragEnd);
                 })();
+
+                // ── Title box: drag to reposition anywhere on screen ────
+                // Defaults to 25% on the x-axis, but a user can drag it
+                // out of the way if it crowds the peak. Uses a movement
+                // threshold so a short tap still cycles the title text via
+                // switchTitleText, while a real drag repositions it and
+                // suppresses that click.
+                (function setupTitleDrag() {
+                    const tb = document.getElementById('title-box');
+                    let isDraggingTitle = false;
+                    let titleHasMoved = false;
+                    let titleDragStartX = 0;
+                    let titleDragStartY = 0;
+                    let titleDragOffsetX = 0;
+                    let titleDragOffsetY = 0;
+                    const TITLE_DRAG_THRESHOLD = 8; // screen pixels
+
+                    function titleDragStart(e) {
+                        const point = e.touches ? e.touches[0] : e;
+                        titleDragStartX = point.clientX;
+                        titleDragStartY = point.clientY;
+                        titleHasMoved = false;
+                        isDraggingTitle = true;
+                        const rect = tb.getBoundingClientRect();
+                        titleDragOffsetX = point.clientX - rect.left;
+                        titleDragOffsetY = point.clientY - rect.top;
+                    }
+
+                    function titleDragMove(e) {
+                        if (!isDraggingTitle) return;
+                        const point = e.touches ? e.touches[0] : e;
+                        const dx = point.clientX - titleDragStartX;
+                        const dy = point.clientY - titleDragStartY;
+
+                        if (!titleHasMoved && Math.hypot(dx, dy) > TITLE_DRAG_THRESHOLD) {
+                            titleHasMoved = true;
+                            tb.style.position = 'fixed';
+                            tb.style.transform = 'none';
+                            tb.classList.add('dragging');
+                        }
+
+                        if (titleHasMoved) {
+                            let newLeft = point.clientX - titleDragOffsetX;
+                            let newTop = point.clientY - titleDragOffsetY;
+                            const maxLeft = window.innerWidth - tb.offsetWidth;
+                            const maxTop = window.innerHeight - tb.offsetHeight;
+                            newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                            newTop = Math.max(0, Math.min(newTop, maxTop));
+                            tb.style.left = newLeft + 'px';
+                            tb.style.top = newTop + 'px';
+                            if (e.touches) e.preventDefault();
+                        }
+                    }
+
+                    function titleDragEnd() {
+                        isDraggingTitle = false;
+                        tb.classList.remove('dragging');
+                    }
+
+                    tb.addEventListener('mousedown', titleDragStart);
+                    document.addEventListener('mousemove', titleDragMove);
+                    document.addEventListener('mouseup', titleDragEnd);
+
+                    tb.addEventListener('touchstart', titleDragStart, { passive: true });
+                    document.addEventListener('touchmove', titleDragMove, { passive: false });
+                    document.addEventListener('touchend', titleDragEnd);
+
+                    // Capture phase, so this runs before switchTitleText's
+                    // own (bubble-phase) click listener and can stop it.
+                    tb.addEventListener('click', function(e) {
+                        if (titleHasMoved) {
+                            e.stopImmediatePropagation();
+                            e.preventDefault();
+                        }
+                    }, true);
+                })();
                 
                 // Tools menu interaction
                 const toolsButton = document.querySelector('.tools-button');
@@ -1709,13 +1822,11 @@
                 slidingText.setAttribute('startOffset', '1%');
                 
                 // Fade out drag instruction after 8 seconds if not already
-                // dismissed by interaction (2s CSS transition on top of this
-                // means it's fully gone by ~10 seconds, matching the
-                // archival original's behaviour).
+                // dismissed by interaction.
                 if (dragInstruction) {
                     setTimeout(() => {
                         dragInstruction.classList.add('fade');
-                    }, 8000);
+                    }, 20000);
                 }
                 
                 console.log("Generic Phonographic Languages Template initialized successfully");

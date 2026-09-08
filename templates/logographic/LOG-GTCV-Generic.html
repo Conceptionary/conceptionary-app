@@ -1,3 +1,4 @@
+<!-- Last updated: 2026-09-08 @ 6:35 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,11 +19,21 @@
         }
 
         .a4-page {
-            width: 90vw;
-            height: 70vh;
+            /* Locked to the SVG viewBox's exact 160:60 ratio so the curve
+               always reaches the frame edges — fitting within the 90vw/70vh
+               box on whichever axis is the tighter constraint, rather than
+               relying on preserveAspectRatio's letterboxing (which left a
+               visible gap in non-fullscreen browser windows whose shape
+               didn't happen to match 160:60). content-box (not border-box)
+               is deliberate here: these width/height values need to apply
+               to the content area the SVG actually fills, not the
+               border-inclusive outer box — border-box was distorting the
+               ratio by a small but real amount, leaving a residual gap. */
+            width: min(90vw, 70vh * 160 / 60);
+            height: min(70vh, 90vw * 60 / 160);
             border: 5px solid #007bff;
             background-color: white;
-            box-sizing: border-box;
+            box-sizing: content-box;
             position: relative;
             touch-action: none;
             z-index: 1;
@@ -68,8 +79,8 @@
             font-size: 0.2em;
             fill: black;
             opacity: 0;
-            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-            transform: scale(0.5);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            transform: translate(var(--fly-x, 0), var(--fly-y, 0)) scale(0.5);
             text-anchor: middle;
             font-family: "Noto Sans CJK", "Hiragino Sans", "Yu Gothic", "SimSun", "KaiTi", "Noto Sans Arabic", "Noto Sans Devanagari", "Noto Serif", "Meiryo", sans-serif;
             font-feature-settings: "palt" 0;
@@ -79,32 +90,79 @@
 
         .textBox.active {
             opacity: 1;
-            transform: scale(1) translateY(0);
+            transform: translate(0, 0) scale(1);
         }
 
         .textBox.learned {
             opacity: 1;
-            transform: scale(1) translateY(0);
+            transform: translate(0, 0) scale(1);
             fill: green;
         }
 
         .textBox.hidden {
             opacity: 0;
-            display: none;
         }
 
         /* Enhanced draggable frame */
         #draggableFrame {
             cursor: grab;
-            fill: rgba(100, 150, 255, 0.2);
-            stroke: black;
-            stroke-width: 0.1px;
+            fill: rgba(255, 255, 0, 0.6);
+            stroke: #ccaa00;
+            stroke-width: 0.1;
             pointer-events: all;
-            opacity: 0.8;
+            opacity: 1;
+            filter: drop-shadow(0 0.3px 0.5px rgba(0,0,0,0.3));
+            transition: fill 0.2s ease, stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
+        }
+
+        #draggableFrame:hover {
+            fill: rgba(255, 255, 0, 0.8);
+            stroke: #ffcc00;
+            stroke-width: 0.15;
+            cursor: grab;
+            filter: drop-shadow(0 0.5px 1px rgba(204, 170, 0, 0.6)) drop-shadow(0 0 2px rgba(255, 255, 100, 0.8));
         }
 
         #draggableFrame.dragging {
             cursor: grabbing;
+            fill: transparent;
+            stroke-width: 0.1;
+            filter: drop-shadow(0 0.5px 1px rgba(255, 170, 0, 0.6)) drop-shadow(0 0 2px rgba(255, 220, 0, 0.8));
+            stroke: #ffaa00;
+        }
+
+        @keyframes pulsateAttention {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        .drag-instruction {
+            /* Centred directly below the title box's default landing
+               position: 25% on x (halfway between the screen's left edge
+               and the curve's centreline/peak, same reasoning as the
+               title box's own 25% position), with enough top clearance
+               to clear the title box's own height before the curve's
+               peak becomes visually prominent. */
+            position: absolute;
+            top: 13%;
+            left: 25%;
+            transform: translateX(-50%);
+            font-size: 0.85em;
+            padding: 6px 12px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            z-index: 3;
+            opacity: 1;
+            transition: opacity 2s ease;
+            text-align: left;
+            max-width: 400px;
+            animation: pulsateAttention 0.6s ease-in-out 3;
+        }
+
+        .drag-instruction.fade {
+            opacity: 0;
+            pointer-events: none;
         }
 
         /* Background gradient */
@@ -155,12 +213,12 @@
         .title-box {
             position: absolute;
             top: 2%;
-            left: 50%;
+            left: 25%;
             transform: translateX(-50%);
             font-size: 1em;
             font-weight: bold;
             text-align: center;
-            cursor: pointer;
+            cursor: grab;
             border: 1px solid #007bff;
             padding: 10px;
             background-color: white;
@@ -168,6 +226,11 @@
             transition: opacity 0.5s ease, transform 0.5s ease;
             font-family: "Noto Sans CJK", "Hiragino Sans", "Yu Gothic", "SimSun", "KaiTi", "Noto Sans Arabic", "Noto Sans Devanagari", "Noto Serif", "Meiryo", sans-serif;
             color: #007bff;
+        }
+
+        .title-box.dragging {
+            cursor: grabbing;
+            transition: none;
         }
         
         .title-box.hidden {
@@ -193,6 +256,7 @@
         
         /* Concept Indicator */
         .concept-indicator {
+            display: none;
             position: absolute;
             bottom: 60px;
             left: 50%;
@@ -208,6 +272,7 @@
 
         /* Level indicator for transitions mode */
         .level-indicator {
+            display: none !important; /* Redundant now that TL-/TLR-/SL- prefixes are built into the sliding text itself */
             position: absolute;
             top: 60px;
             left: 50%;
@@ -262,31 +327,9 @@
         }
 
         /* Instructions */
-        .instructions {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 0.8em;
-            padding: 6px 10px;
-            background-color: rgba(255, 255, 255, 0.95);
-            border: 2px solid #007bff;
-            border-radius: 6px;
-            z-index: 3;
-            color: #007bff;
-            font-weight: bold;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            max-width: 200px;
-            opacity: 1;
-            transition: opacity 2s ease;
-        }
-        
-        .instructions.fade {
-            opacity: 0;
-        }
-
         /* Quiz container styles */
         .quiz-container {
+            box-sizing: border-box;
             position: fixed;
             top: 60%;
             left: 50%;
@@ -316,16 +359,38 @@
         }
         
         .quiz-container input {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
             font-size: 14px;
             border: 1px solid #007bff;
             border-radius: 4px;
             margin-bottom: 10px;
+            cursor: text;
             font-family: "Noto Sans CJK", "Hiragino Sans", "Yu Gothic", "SimSun", "KaiTi", "Noto Sans Arabic", "Noto Sans Devanagari", "Noto Serif", "Meiryo", sans-serif;
+        }
+
+        .quiz-container.keyboard-open {
+            top: 8px;
+            transform: translate(-50%, 0);
+            max-width: 90vw;
+            width: 320px;
+            padding: 8px;
+        }
+
+        .quiz-container.keyboard-open input {
+            font-size: 13px;
+            padding: 6px;
+            margin-bottom: 6px;
+        }
+
+        .quiz-container.keyboard-open #quizFeedback {
+            min-height: 14px;
+            margin-top: 4px;
         }
         
         .quiz-container button {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
             background-color: #007bff;
@@ -523,24 +588,41 @@
         .tool-item:hover {
             background-color: #f5f5f5;
         }
+
+        /* ── Mobile sizing: circle and text ───────────────────────────
+           Starting values ported from GTCV's tested end-state, not yet
+           re-confirmed on this file — treat as a starting point, per
+           the GTCV Mobile Fixes Checklist, item 14. */
+        @media (pointer: coarse) {
+            #draggableFrame {
+                r: 3;
+            }
+            .textBox {
+                font-size: 0.3em;
+            }
+            .sliding-text {
+                font-size: 3.5px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="a4-page">
         <div id="title-box" class="title-box"></div>
+        <div id="drag-instruction" class="drag-instruction">Mobile Phone users: click 'Tools' then 'Full Screen'.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again.</div>
         <div id="concept-indicator" class="concept-indicator">Concept Position</div>
         <div id="level-indicator" class="level-indicator">Target Language</div>
         <div id="display-mode-toggle" class="display-mode-toggle">Show: TL</div>
         <div id="audio-button" class="audio-button">🔊 Audio</div>
-        <div id="instructions" class="instructions">🎯 Drag the blue frame to explore positions!</div>
         
         <!-- Tools Menu -->
         <div class="tools-menu">
             <div class="tools-button">Tools</div>
             <div class="tools-dropdown">
+                <div class="tool-item" id="toggleFullscreen">Full Screen</div>
                 <div class="tool-item" id="loadConcept">Load Concept</div>
                 <div class="tool-item" id="startQuiz">Quick Quiz</div>
-                <div class="tool-item" id="toggleArrays">Toggle Arrays</div>
+                <div class="tool-item" id="toggleArrays">Hide/Show Arrays</div>
             </div>
         </div>
         
@@ -558,7 +640,7 @@
             <div id="decreasing-items"></div>
         </div>
         
-        <svg id="svgCanvas" viewBox="-30 0 160 50" preserveAspectRatio="xMidYMid meet">
+        <svg id="svgCanvas" viewBox="-30 0 160 60" preserveAspectRatio="xMidYMid meet">
             <defs>
                 <linearGradient id="conceptGradient" x1="0%" y1="100%" x2="0%" y2="0%">
                     <stop offset="0%" style="stop-color:#28a745;stop-opacity:1" />
@@ -580,7 +662,7 @@
             </text>
             
             <!-- States Mode Elements -->
-            <rect id="draggableFrame" x="40" y="20" width="10" height="5" rx="1"/>
+            <circle id="draggableFrame" cx="45" cy="22.5" r="1.5"/>
         </svg>
         
         <button id="modeToggle" class="mode-toggle">Toggle Mode</button>
@@ -604,117 +686,117 @@
         // Format: [Source Language, Target Language, Target Language Romanized, Quiz Question, Position %]
         const conceptData = [
             // Ascending phase (TL1 to TL10) - positions 5% to 45%
-            ["SL1", "TL1", "TLR1", "What's the target language for 'SL1'?", 5],
-            ["SL2", "TL2", "TLR2", "What's the target language for 'SL2'?", 9.44],
-            ["SL3", "TL3", "TLR3", "What's the target language for 'SL3'?", 13.89],
-            ["SL4", "TL4", "TLR4", "What's the target language for 'SL4'?", 18.33],
-            ["SL5", "TL5", "TLR5", "What's the target language for 'SL5'?", 22.78],
-            ["SL6", "TL6", "TLR6", "What's the target language for 'SL6'?", 27.22],
-            ["SL7", "TL7", "TLR7", "What's the target language for 'SL7'?", 31.67],
-            ["SL8", "TL8", "TLR8", "What's the target language for 'SL8'?", 36.11],
-            ["SL9", "TL9", "TLR9", "What's the target language for 'SL9'?", 40.56],
-            ["SL10", "TL10", "TLR10", "What's the target language for 'SL10'?", 45],
+            ["SL1", "TL1", "TLR1", "What's the romanized (TLR) form of 'SL1'?", 5],
+            ["SL2", "TL2", "TLR2", "What's the romanized (TLR) form of 'SL2'?", 9.44],
+            ["SL3", "TL3", "TLR3", "What's the romanized (TLR) form of 'SL3'?", 13.89],
+            ["SL4", "TL4", "TLR4", "What's the romanized (TLR) form of 'SL4'?", 18.33],
+            ["SL5", "TL5", "TLR5", "What's the romanized (TLR) form of 'SL5'?", 22.78],
+            ["SL6", "TL6", "TLR6", "What's the romanized (TLR) form of 'SL6'?", 27.22],
+            ["SL7", "TL7", "TLR7", "What's the romanized (TLR) form of 'SL7'?", 31.67],
+            ["SL8", "TL8", "TLR8", "What's the romanized (TLR) form of 'SL8'?", 36.11],
+            ["SL9", "TL9", "TLR9", "What's the romanized (TLR) form of 'SL9'?", 40.56],
+            ["SL10", "TL10", "TLR10", "What's the romanized (TLR) form of 'SL10'?", 45],
             
             // Peak position (50%)
             ["SL-Peak", "TL-Peak", "TLR-Peak", "What's the target language for the peak concept?", 50],
             
             // Descending phase (TL-9 to TL-1) - positions 55% to 95%
-            ["SL-9", "TL-9", "TLR-9", "What's the target language for 'SL-9'?", 55],
-            ["SL-8", "TL-8", "TLR-8", "What's the target language for 'SL-8'?", 60],
-            ["SL-7", "TL-7", "TLR-7", "What's the target language for 'SL-7'?", 65],
-            ["SL-6", "TL-6", "TLR-6", "What's the target language for 'SL-6'?", 70],
-            ["SL-5", "TL-5", "TLR-5", "What's the target language for 'SL-5'?", 75],
-            ["SL-4", "TL-4", "TLR-4", "What's the target language for 'SL-4'?", 80],
-            ["SL-3", "TL-3", "TLR-3", "What's the target language for 'SL-3'?", 85],
-            ["SL-2", "TL-2", "TLR-2", "What's the target language for 'SL-2'?", 90],
-            ["SL-1", "TL-1", "TLR-1", "What's the target language for 'SL-1'?", 95]
+            ["SL-9", "TL-9", "TLR-9", "What's the romanized (TLR) form of 'SL-9'?", 55],
+            ["SL-8", "TL-8", "TLR-8", "What's the romanized (TLR) form of 'SL-8'?", 60],
+            ["SL-7", "TL-7", "TLR-7", "What's the romanized (TLR) form of 'SL-7'?", 65],
+            ["SL-6", "TL-6", "TLR-6", "What's the romanized (TLR) form of 'SL-6'?", 70],
+            ["SL-5", "TL-5", "TLR-5", "What's the romanized (TLR) form of 'SL-5'?", 75],
+            ["SL-4", "TL-4", "TLR-4", "What's the romanized (TLR) form of 'SL-4'?", 80],
+            ["SL-3", "TL-3", "TLR-3", "What's the romanized (TLR) form of 'SL-3'?", 85],
+            ["SL-2", "TL-2", "TLR-2", "What's the romanized (TLR) form of 'SL-2'?", 90],
+            ["SL-1", "TL-1", "TLR-1", "What's the romanized (TLR) form of 'SL-1'?", 95]
         ];
 
         // Transitions data for dynamic changes between states
         const transitionsData = [
-            // Improving transitions (1% to 45%)
+            // Increasing amount (1% to 45%)
             {
-                process: "Starting to increase",
-                targetLanguage: "T-Starting to increase",
-                romanized: "T-Starting-rom",
-                sourceLanguage: "Starting to increase",
-                question: "What's the target language for 'Starting to increase'?",
+                process: "Starting to pick up",
+                targetLanguage: "TL1 Starting to pick up",
+                romanized: "TLR1 Starting to pick up",
+                sourceLanguage: "SL1 Starting to pick up",
+                question: "What's the romanized (TLR) form of 'Starting to pick up'?",
                 positionPercent: 1
             },
             {
-                process: "Getting stronger", 
-                targetLanguage: "T-Getting stronger",
-                romanized: "T-Getting-rom",
-                sourceLanguage: "Getting stronger",
-                question: "What's the target language for 'Getting stronger'?",
+                process: "Picking up",
+                targetLanguage: "TL2 Picking up",
+                romanized: "TLR2 Picking up",
+                sourceLanguage: "SL2 Picking up",
+                question: "What's the romanized (TLR) form of 'Picking up'?",
                 positionPercent: 15
             },
             {
-                process: "Continuing to grow",
-                targetLanguage: "T-Continuing to grow", 
-                romanized: "T-Continuing-rom",
-                sourceLanguage: "Continuing to grow",
-                question: "What's the target language for 'Continuing to grow'?",
+                process: "Increasing",
+                targetLanguage: "TL3 Increasing",
+                romanized: "TLR3 Increasing",
+                sourceLanguage: "SL3 Increasing",
+                question: "What's the romanized (TLR) form of 'Increasing'?",
                 positionPercent: 25
             },
             {
-                process: "Approaching maximum",
-                targetLanguage: "T-Approaching maximum",
-                romanized: "T-Approaching-rom", 
-                sourceLanguage: "Approaching maximum",
-                question: "What's the target language for 'Approaching maximum'?",
+                process: "Growing",
+                targetLanguage: "TL4 Growing",
+                romanized: "TLR4 Growing",
+                sourceLanguage: "SL4 Growing",
+                question: "What's the romanized (TLR) form of 'Growing'?",
                 positionPercent: 35
             },
             {
-                process: "Nearly at peak",
-                targetLanguage: "T-Nearly at peak",
-                romanized: "T-Nearly-rom",
-                sourceLanguage: "Nearly at peak", 
-                question: "What's the target language for 'Nearly at peak'?",
+                process: "Peaking",
+                targetLanguage: "TL5 Peaking",
+                romanized: "TLR5 Peaking",
+                sourceLanguage: "SL5 Peaking",
+                question: "What's the romanized (TLR) form of 'Peaking'?",
                 positionPercent: 45
             },
             
             // Peak transition (50%)
             {
-                process: "Reaching peak",
-                targetLanguage: "T-Reaching peak",
-                romanized: "T-Reaching-rom",
-                sourceLanguage: "Reaching peak",
-                question: "What's the target language for 'Reaching peak'?",
+                process: "Exceeding the peak",
+                targetLanguage: "TL-Peak Exceeding the peak",
+                romanized: "TLR-Peak Exceeding the peak",
+                sourceLanguage: "SL-Peak Exceeding the peak",
+                question: "What's the romanized (TLR) form of 'Exceeding the peak'?",
                 positionPercent: 50
             },
             
-            // Declining transitions (55% to 82%)
+            // Decreasing amount (55% to 82%)
             {
-                process: "Starting to decline",
-                targetLanguage: "T-Starting to decline", 
-                romanized: "T-Starting-decline-rom",
-                sourceLanguage: "Starting to decline",
-                question: "What's the target language for 'Starting to decline'?",
+                process: "Starting to drop off",
+                targetLanguage: "TL-5 Starting to drop off",
+                romanized: "TLR-5 Starting to drop off",
+                sourceLanguage: "SL-5 Starting to drop off",
+                question: "What's the romanized (TLR) form of 'Starting to drop off'?",
                 positionPercent: 55
             },
             {
-                process: "Getting weaker",
-                targetLanguage: "T-Getting weaker",
-                romanized: "T-Getting-weaker-rom",
-                sourceLanguage: "Getting weaker",
-                question: "What's the target language for 'Getting weaker'?",
+                process: "Dropping off",
+                targetLanguage: "TL-4 Dropping off",
+                romanized: "TLR-4 Dropping off",
+                sourceLanguage: "SL-4 Dropping off",
+                question: "What's the romanized (TLR) form of 'Dropping off'?",
                 positionPercent: 65
             },
             {
-                process: "Continuing to decrease",
-                targetLanguage: "T-Continuing to decrease",
-                romanized: "T-Continuing-decrease-rom", 
-                sourceLanguage: "Continuing to decrease",
-                question: "What's the target language for 'Continuing to decrease'?",
+                process: "Decreasing",
+                targetLanguage: "TL-3 Decreasing",
+                romanized: "TLR-3 Decreasing",
+                sourceLanguage: "SL-3 Decreasing",
+                question: "What's the romanized (TLR) form of 'Decreasing'?",
                 positionPercent: 75
             },
             {
-                process: "Reaching minimum",
-                targetLanguage: "T-Reaching minimum",
-                romanized: "T-Reaching-minimum-rom",
-                sourceLanguage: "Reaching minimum",
-                question: "What's the target language for 'Reaching minimum'?",
+                process: "Running out",
+                targetLanguage: "TL-2 Running out",
+                romanized: "TLR-2 Running out",
+                sourceLanguage: "SL-2 Running out",
+                question: "What's the romanized (TLR) form of 'Running out'?",
                 positionPercent: 82
             }
         ];
@@ -745,7 +827,7 @@
         let currentTextIndex = 0;
         
         // Activation distance for text boxes
-        const activationDistance = 8;
+        const activationDistance = 13; // Raised to accommodate the ported anti-overlap table's largest offset (11 units), matching ROM-GTCV
 
         // Audio functionality placeholder
         function playAudio(text, language = 'auto') {
@@ -754,22 +836,6 @@
         }
 
         // Helper functions
-        function adjustTextPositioning(textElement, curvePosition) {
-            const positionPercent = (curvePosition / pathLength) * 100;
-            
-            if (positionPercent < 15) {
-                textElement.setAttribute("text-anchor", "start");
-            } else if (positionPercent > 85) {
-                textElement.setAttribute("text-anchor", "end");
-            } else if (positionPercent < 35) {
-                textElement.setAttribute("text-anchor", "start");
-            } else if (positionPercent > 65) {
-                textElement.setAttribute("text-anchor", "end");
-            } else {
-                textElement.setAttribute("text-anchor", "middle");
-            }
-        }
-
         function getPositionFromPercent(positionPercent) {
             return (positionPercent / 100) * pathLength;
         }
@@ -890,8 +956,10 @@
                     interactiveText.classList.add('level-3');
                     levelIndicator.textContent = 'Source Language';
                     break;
-                case 4: // Quiz Mode
-                    slidingText.textContent = "QUIZ READY - Click to start!";
+                case 4: // Quiz Mode — no separate message needed here;
+                        // progressLevel() opens the quiz automatically
+                        // ~200ms after reaching this level, so the text
+                        // just stays as it was at level 3 until then.
                     interactiveText.classList.add('level-4');
                     levelIndicator.textContent = 'Quiz Mode';
                     break;
@@ -977,6 +1045,7 @@
                 addedIncreasingItems[currentDataIndex] = true;
                 
                 const container = document.getElementById("increasing-array");
+                container.style.display = 'block';
                 const title = container.querySelector('.array-title');
                 const count = increasingItems.children.length;
                 title.textContent = `Increasing Progression (${count} learned)`;
@@ -986,6 +1055,7 @@
                 addedDecreasingItems[currentDataIndex] = true;
                 
                 const container = document.getElementById("decreasing-array");
+                container.style.display = 'block';
                 const title = container.querySelector('.array-title');
                 const count = decreasingItems.children.length;
                 title.textContent = `Decreasing Progression (${count} learned)`;
@@ -1015,21 +1085,80 @@
                 textBox.setAttribute("class", "textBox");
                 textBox.setAttribute("data-index", i);
                 
-                // Enhanced positioning for edge cases
-                if (positionPercent <= 5) {
-                    const leftEdgePoint = bellCurve.getPointAtLength(0);
-                    textBox.setAttribute("x", leftEdgePoint.x + 8);
-                    textBox.setAttribute("y", leftEdgePoint.y - 2);
-                    textBox.setAttribute("text-anchor", "start");
-                } else if (positionPercent >= 95) {
-                    textBox.setAttribute("x", point.x - 2);
-                    textBox.setAttribute("y", point.y - 2);
-                    textBox.setAttribute("text-anchor", "end");
-                } else {
-                    textBox.setAttribute("x", point.x);
-                    textBox.setAttribute("y", point.y - 2);
-                    adjustTextPositioning(textBox, position);
+                // Per-index y-offset and text-anchor, ported directly from
+                // ROM-GTCV-Generic.html (2026-09-08) — this file has the
+                // identical curve geometry (a=30, b=50, c=15, same 20-item
+                // conceptData), so the same anti-overlap table applies
+                // directly rather than needing its own derivation.
+                let yOffset = -2; // Default offset above curve
+                let textAnchor = "middle"; // Default alignment
+                
+                if (i === 0) {
+                    yOffset = 11 - 2;         // TLR1: 20% below curve
+                    textAnchor = "middle";
+                } else if (i === 1) {
+                    yOffset = 8.25 - 2;       // TLR2: 15% below curve
+                    textAnchor = "middle";
+                } else if (i === 2) {
+                    yOffset = 5.5 - 2;        // TLR3: 10% below curve
+                    textAnchor = "middle";
+                } else if (i === 3) {
+                    yOffset = 2.75 - 2;       // TLR4: 5% below curve
+                    textAnchor = "middle";
+                } else if (i === 4) {
+                    yOffset = 0 - 2;          // TLR5: ON the curve
+                    textAnchor = "middle";
                 }
+                else if (i >= 5 && i <= 9) {
+                    yOffset = -4;             // TLR6-TLR10: rising section
+                    textAnchor = "end";
+                }
+                else if (i === 10) {
+                    yOffset = -4;             // Peak
+                    textAnchor = "middle";
+                }
+                else if (i >= 11 && i <= 14) {
+                    yOffset = -4;             // TLR-9 to TLR-6: falling section
+                    textAnchor = "start";
+                }
+                else if (i === 15) {
+                    yOffset = 0 - 2;          // TLR-5: mirrors TLR5
+                    textAnchor = "middle";
+                } else if (i === 16) {
+                    yOffset = 2.75 - 2;       // TLR-4: mirrors TLR4
+                    textAnchor = "middle";
+                } else if (i === 17) {
+                    yOffset = 5.5 - 2;        // TLR-3: mirrors TLR3
+                    textAnchor = "middle";
+                } else if (i === 18) {
+                    yOffset = 8.25 - 2;       // TLR-2: mirrors TLR2
+                    textAnchor = "middle";
+                } else if (i === 19) {
+                    yOffset = 11 - 2;         // TLR-1: mirrors TLR1
+                    textAnchor = "middle";
+                }
+                
+                textBox.setAttribute("x", point.x);
+                textBox.setAttribute("y", point.y + yOffset);
+                textBox.setAttribute("text-anchor", textAnchor);
+                
+                // Fly-in entrance direction, grouped by curve section so
+                // labels arrive from a coherent fan of angles converging
+                // toward the peak, rather than one uniform direction.
+                let flyX = 0, flyY = 0;
+                if (i >= 0 && i <= 4) {
+                    flyX = -15; flyY = 10;   // TLR1-5: lower-left
+                } else if (i >= 5 && i <= 9) {
+                    flyX = 12; flyY = -15;   // TLR6-10: upper-right
+                } else if (i === 10) {
+                    flyX = 0; flyY = -20;    // Peak: directly above
+                } else if (i >= 11 && i <= 14) {
+                    flyX = -12; flyY = -15;  // TLR-9 to TLR-6: upper-left
+                } else if (i >= 15 && i <= 19) {
+                    flyX = 15; flyY = 10;    // TLR-5 to TLR-1: lower-right
+                }
+                textBox.style.setProperty('--fly-x', flyX + 'px');
+                textBox.style.setProperty('--fly-y', flyY + 'px');
                 
                 // Set initial text based on display level
                 switch(displayLevel) {
@@ -1092,6 +1221,12 @@
                 textBoxElements.push(textBox);
             }
             
+            // Re-parent the drag frame to the end of the SVG's children
+            // so it always renders — and receives pointer/touch events —
+            // above every text box (SVG stacking is document-order only).
+            const frame = document.getElementById('draggableFrame');
+            if (frame) svg.appendChild(frame);
+            
         }
 
         function updateVisibleTextBoxes(point) {
@@ -1128,15 +1263,9 @@
                     if (isLearned) {
                         textBox.classList.add('learned');
                     }
-                    const positionPercent = conceptData[index][4];
-                    const position = getPositionFromPercent(positionPercent);
-                    adjustTextPositioning(textBox, position);
                 } else if (isLearned) {
                     textBox.classList.remove('active', 'hidden');
                     textBox.classList.add('learned');
-                    const positionPercent = conceptData[index][4];
-                    const position = getPositionFromPercent(positionPercent);
-                    adjustTextPositioning(textBox, position);
                 } else {
                     textBox.classList.remove('active', 'learned');
                     textBox.classList.add('hidden');
@@ -1305,6 +1434,11 @@
             const frame = document.getElementById('draggableFrame');
             frame.classList.add('dragging');
             
+            const dragInstruction = document.getElementById('drag-instruction');
+            if (dragInstruction && !dragInstruction.classList.contains('fade')) {
+                dragInstruction.classList.add('fade');
+            }
+            
             e.preventDefault();
         }
         
@@ -1315,9 +1449,15 @@
             const svg = document.getElementById('svgCanvas');
             const bellCurve = document.getElementById('bellCurve');
             
-            // Get SVG bounding rectangle for coordinate conversion
-            const svgRect = svg.getBoundingClientRect();
-            const svgX = ((clientX - svgRect.left) / svgRect.width) * 160 - 30; // Map to viewBox coordinates
+            // Convert screen coordinates to SVG viewBox coordinates using
+            // the live transform matrix — robust against
+            // letterboxing/pillarboxing from preserveAspectRatio, which
+            // getBoundingClientRect ratio math does not account for.
+            const svgPointFrame = svg.createSVGPoint();
+            svgPointFrame.x = clientX;
+            svgPointFrame.y = 0;
+            const transformedFramePoint = svgPointFrame.matrixTransform(svg.getScreenCTM().inverse());
+            const svgX = transformedFramePoint.x;
             
             // Find closest point on curve
             let bestPosition = 0;
@@ -1337,35 +1477,13 @@
             // Get the actual point on the curve
             const curvePoint = bellCurve.getPointAtLength(bestPosition * pathLength);
             
-            // Position the frame
+            // Position the circle frame directly at the curve point
             const frame = document.getElementById('draggableFrame');
-            const frameWidth = parseFloat(frame.getAttribute('width'));
-            const frameHeight = parseFloat(frame.getAttribute('height'));
-            
-            let frameX = curvePoint.x - frameWidth/2;
-            let frameY = curvePoint.y - frameHeight/2;
-            
-            // Apply boundary constraints
-            const leftEdgePoint = bellCurve.getPointAtLength(0);
-            const rightEdgePoint = bellCurve.getPointAtLength(pathLength);
-            
-            if (frameX < leftEdgePoint.x) {
-                frameX = leftEdgePoint.x;
-            }
-            if (frameX > rightEdgePoint.x - frameWidth) {
-                frameX = rightEdgePoint.x - frameWidth;
-            }
-            
-            frame.setAttribute('x', frameX);
-            frame.setAttribute('y', frameY);
+            frame.setAttribute('cx', curvePoint.x);
+            frame.setAttribute('cy', curvePoint.y);
             
             // Update visible text boxes
-            const frameCenter = {
-                x: frameX + frameWidth/2,
-                y: frameY + frameHeight/2
-            };
-            
-            updateVisibleTextBoxes(frameCenter);
+            updateVisibleTextBoxes({x: curvePoint.x, y: curvePoint.y});
             
             e.preventDefault();
             e.stopPropagation();
@@ -1387,20 +1505,31 @@
         // Text dragging for Transitions mode
         let isTextDragging = false;
         let hasMoved = false;
+        let textDragStartX = 0;
         
         function startTextDrag(e) {
             if (isStatesMode) return;
             isTextDragging = true;
             hasMoved = false;
+            textDragStartX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
             e.preventDefault();
         }
         
         function textDragMove(e) {
             if (!isTextDragging || isStatesMode) return;
             
-            hasMoved = true;
-            
             const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            
+            // Only count as a real drag once movement exceeds a small
+            // threshold — real touchscreens register a few pixels of
+            // sensor jitter even on a stationary tap, which without this
+            // check gets misread as a drag and silently blocks
+            // tap-to-cycle.
+            const TAP_MOVEMENT_THRESHOLD = 8; // screen pixels
+            if (Math.abs(clientX - textDragStartX) > TAP_MOVEMENT_THRESHOLD) {
+                hasMoved = true;
+            }
+            
             const svg = document.getElementById('svgCanvas');
             const bellCurve = document.getElementById('bellCurve');
             
@@ -1471,7 +1600,6 @@
                 document.getElementById('level-indicator').style.display = 'none';
                 document.getElementById('increasing-array').style.display = 'none';
                 document.getElementById('decreasing-array').style.display = 'none';
-                document.getElementById('instructions').textContent = '🎯 Drag the blue frame to explore positions!';
                 
                 createTextBoxes();
                 
@@ -1482,15 +1610,11 @@
                 const startPosition = getPositionFromPercent(startPercent);
                 const startPoint = bellCurve.getPointAtLength(startPosition);
                 
-                frame.setAttribute('x', startPoint.x);
-                frame.setAttribute('y', startPoint.y - parseFloat(frame.getAttribute('height'))/2);
+                frame.setAttribute('cx', startPoint.x);
+                frame.setAttribute('cy', startPoint.y);
                 
                 setTimeout(() => {
-                    const frameCenter = {
-                        x: startPoint.x + parseFloat(frame.getAttribute('width'))/2,
-                        y: startPoint.y
-                    };
-                    updateVisibleTextBoxes(frameCenter);
+                    updateVisibleTextBoxes({x: startPoint.x, y: startPoint.y});
                     document.getElementById('concept-indicator').textContent = conceptData[0][0];
                 }, 100);
             } else {
@@ -1499,9 +1623,16 @@
                 document.getElementById('interactiveText').style.display = 'block';
                 document.getElementById('display-mode-toggle').style.display = 'none';
                 document.getElementById('level-indicator').style.display = 'block';
-                document.getElementById('increasing-array').style.display = 'block';
-                document.getElementById('decreasing-array').style.display = 'block';
-                document.getElementById('instructions').textContent = '🎯 Click or drag the text to learn concepts!';
+                // Show vocabulary arrays only if they already hold learned
+                // items from earlier in this session — they start hidden
+                // and are revealed per-array the first time a correct
+                // Quiz answer adds an item (see addLearnedToArray).
+                if (document.getElementById('increasing-items').children.length > 0) {
+                    document.getElementById('increasing-array').style.display = 'block';
+                }
+                if (document.getElementById('decreasing-items').children.length > 0) {
+                    document.getElementById('decreasing-array').style.display = 'block';
+                }
                 
                 // Remove text boxes
                 document.querySelectorAll('.textBox').forEach(box => {
@@ -1606,7 +1737,7 @@
                 
                 const bellCurvePath = `M ${curvePoints.join(' L ')}`;
                 bellCurve.setAttribute('d', bellCurvePath);
-                conceptBackground.setAttribute('d', `${bellCurvePath} L 130,50 L -30,50 Z`);
+                conceptBackground.setAttribute('d', `${bellCurvePath} L 130,60 L -30,60 Z`);
                 pathLength = bellCurve.getTotalLength();
 
                 // Event listeners for frame dragging
@@ -1624,6 +1755,18 @@
                 document.addEventListener('touchmove', textDragMove, { passive: false });
                 document.addEventListener('mouseup', endTextDrag);
                 document.addEventListener('touchend', endTextDrag);
+                
+                // Mobile tap-to-cycle for Transitions mode. Registered on
+                // document, AFTER endTextDrag above, so isTextDragging is
+                // already reset by the time this runs. Native 'click'
+                // below never fires reliably on touch here, because
+                // startTextDrag's preventDefault() on touchstart
+                // suppresses the browser's synthetic click event.
+                document.addEventListener('touchend', function(e) {
+                    if (!isTextDragging && !isStatesMode && !hasMoved && interactiveText.contains(e.target)) {
+                        handleSlidingTextClick(e);
+                    }
+                });
                 
                 // Text clicking (Transitions mode)
                 interactiveText.addEventListener('click', handleSlidingTextClick);
@@ -1688,6 +1831,180 @@
                 document.getElementById('toggle-decreasing').addEventListener('click', function() {
                     toggleArrayVisibility('decreasing');
                 });
+
+                // ── Keyboard-avoidance for the Quiz box ──────────────────
+                if (window.visualViewport) {
+                    const KEYBOARD_HEIGHT_THRESHOLD = 150;
+                    function handleViewportResize() {
+                        const qc = document.getElementById('quizContainer');
+                        const heightDiff = window.innerHeight - window.visualViewport.height;
+                        if (heightDiff > KEYBOARD_HEIGHT_THRESHOLD) {
+                            qc.classList.add('keyboard-open');
+                        } else {
+                            qc.classList.remove('keyboard-open');
+                        }
+                    }
+                    window.visualViewport.addEventListener('resize', handleViewportResize);
+                }
+
+                // ── Full Screen toggle ────────────────────────────────────
+                const fullscreenToggle = document.getElementById('toggleFullscreen');
+                if (fullscreenToggle) {
+                    fullscreenToggle.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        if (!document.fullscreenElement) {
+                            if (document.documentElement.requestFullscreen) {
+                                document.documentElement.requestFullscreen().catch(function(err) {
+                                    console.log('Full screen request failed or unsupported:', err);
+                                });
+                            }
+                            fullscreenToggle.textContent = 'Exit Full Screen';
+                        } else {
+                            if (document.exitFullscreen) {
+                                document.exitFullscreen();
+                            }
+                            fullscreenToggle.textContent = 'Full Screen';
+                        }
+                        const td = document.querySelector('.tools-dropdown');
+                        if (td) td.classList.remove('active');
+                    });
+                }
+                document.addEventListener('fullscreenchange', function() {
+                    if (fullscreenToggle) {
+                        fullscreenToggle.textContent = document.fullscreenElement ? 'Exit Full Screen' : 'Full Screen';
+                    }
+                });
+
+                // ── Quiz box: drag to reposition anywhere on screen ──────
+                // This file already had cursor:move and a .dragging CSS
+                // class hinting at this feature, but no JS implementing
+                // it — wiring it up properly here.
+                (function setupQuizDrag() {
+                    const qc = document.getElementById('quizContainer');
+                    let isDraggingQuiz = false;
+                    let quizDragOffsetX = 0;
+                    let quizDragOffsetY = 0;
+
+                    function quizDragStart(e) {
+                        if (e.target === quizInput || e.target === quizCheck) return;
+                        isDraggingQuiz = true;
+                        const rect = qc.getBoundingClientRect();
+                        const point = e.touches ? e.touches[0] : e;
+                        quizDragOffsetX = point.clientX - rect.left;
+                        quizDragOffsetY = point.clientY - rect.top;
+                        qc.style.left = rect.left + 'px';
+                        qc.style.top = rect.top + 'px';
+                        qc.style.transform = 'none';
+                        qc.classList.add('dragging');
+                        if (e.touches) e.preventDefault();
+                    }
+
+                    function quizDragMove(e) {
+                        if (!isDraggingQuiz) return;
+                        const point = e.touches ? e.touches[0] : e;
+                        let newLeft = point.clientX - quizDragOffsetX;
+                        let newTop = point.clientY - quizDragOffsetY;
+                        const maxLeft = window.innerWidth - qc.offsetWidth;
+                        const maxTop = window.innerHeight - qc.offsetHeight;
+                        newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                        newTop = Math.max(0, Math.min(newTop, maxTop));
+                        qc.style.left = newLeft + 'px';
+                        qc.style.top = newTop + 'px';
+                        if (e.touches) e.preventDefault();
+                    }
+
+                    function quizDragEnd() {
+                        isDraggingQuiz = false;
+                        qc.classList.remove('dragging');
+                    }
+
+                    qc.addEventListener('mousedown', quizDragStart);
+                    document.addEventListener('mousemove', quizDragMove);
+                    document.addEventListener('mouseup', quizDragEnd);
+
+                    qc.addEventListener('touchstart', quizDragStart, { passive: false });
+                    document.addEventListener('touchmove', quizDragMove, { passive: false });
+                    document.addEventListener('touchend', quizDragEnd);
+                })();
+
+                // ── Title box: drag to reposition anywhere on screen ────
+                // Defaults to 25% on the x-axis, but a user can drag it
+                // out of the way if it crowds the peak or, in Transitions
+                // mode, the vocabulary arrays. Uses a movement threshold
+                // (matching the same pattern used for text-drag/tap
+                // elsewhere in this file) so a short tap still cycles the
+                // title text via switchTitleText, while a real drag
+                // repositions it and suppresses that click.
+                (function setupTitleDrag() {
+                    const tb = document.getElementById('title-box');
+                    let isDraggingTitle = false;
+                    let titleHasMoved = false;
+                    let titleDragStartX = 0;
+                    let titleDragStartY = 0;
+                    let titleDragOffsetX = 0;
+                    let titleDragOffsetY = 0;
+                    const TITLE_DRAG_THRESHOLD = 8; // screen pixels
+
+                    function titleDragStart(e) {
+                        const point = e.touches ? e.touches[0] : e;
+                        titleDragStartX = point.clientX;
+                        titleDragStartY = point.clientY;
+                        titleHasMoved = false;
+                        isDraggingTitle = true;
+                        const rect = tb.getBoundingClientRect();
+                        titleDragOffsetX = point.clientX - rect.left;
+                        titleDragOffsetY = point.clientY - rect.top;
+                    }
+
+                    function titleDragMove(e) {
+                        if (!isDraggingTitle) return;
+                        const point = e.touches ? e.touches[0] : e;
+                        const dx = point.clientX - titleDragStartX;
+                        const dy = point.clientY - titleDragStartY;
+
+                        if (!titleHasMoved && Math.hypot(dx, dy) > TITLE_DRAG_THRESHOLD) {
+                            titleHasMoved = true;
+                            tb.style.position = 'fixed';
+                            tb.style.transform = 'none';
+                            tb.classList.add('dragging');
+                        }
+
+                        if (titleHasMoved) {
+                            let newLeft = point.clientX - titleDragOffsetX;
+                            let newTop = point.clientY - titleDragOffsetY;
+                            const maxLeft = window.innerWidth - tb.offsetWidth;
+                            const maxTop = window.innerHeight - tb.offsetHeight;
+                            newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                            newTop = Math.max(0, Math.min(newTop, maxTop));
+                            tb.style.left = newLeft + 'px';
+                            tb.style.top = newTop + 'px';
+                            if (e.touches) e.preventDefault();
+                        }
+                    }
+
+                    function titleDragEnd() {
+                        isDraggingTitle = false;
+                        tb.classList.remove('dragging');
+                    }
+
+                    tb.addEventListener('mousedown', titleDragStart);
+                    document.addEventListener('mousemove', titleDragMove);
+                    document.addEventListener('mouseup', titleDragEnd);
+
+                    tb.addEventListener('touchstart', titleDragStart, { passive: true });
+                    document.addEventListener('touchmove', titleDragMove, { passive: false });
+                    document.addEventListener('touchend', titleDragEnd);
+
+                    // Capture phase, so this runs before switchTitleText's
+                    // own (bubble-phase) click listener and can stop it —
+                    // a real drag shouldn't also trigger a title-text cycle.
+                    tb.addEventListener('click', function(e) {
+                        if (titleHasMoved) {
+                            e.stopImmediatePropagation();
+                            e.preventDefault();
+                        }
+                    }, true);
+                })();
 
                 // Tools menu interaction
                 const toolsButton = document.querySelector('.tools-button');
@@ -1779,16 +2096,12 @@
                 const startPosition = getPositionFromPercent(startPercent);
                 const startPoint = bellCurve.getPointAtLength(startPosition);
                 
-                frame.setAttribute('x', startPoint.x);
-                frame.setAttribute('y', startPoint.y - parseFloat(frame.getAttribute('height'))/2);
+                frame.setAttribute('cx', startPoint.x);
+                frame.setAttribute('cy', startPoint.y);
                 
                 // Initialize first text box visibility
                 setTimeout(() => {
-                    const frameCenter = {
-                        x: startPoint.x + parseFloat(frame.getAttribute('width'))/2,
-                        y: startPoint.y
-                    };
-                    updateVisibleTextBoxes(frameCenter);
+                    updateVisibleTextBoxes({x: startPoint.x, y: startPoint.y});
                     document.getElementById('concept-indicator').textContent = conceptData[0][0];
                 }, 100);
                 
@@ -1799,16 +2112,14 @@
                 document.getElementById('increasing-array').style.display = 'none';
                 document.getElementById('decreasing-array').style.display = 'none';
                 
-                // Hide instruction message after 7 seconds
-                setTimeout(() => {
-                    const instructions = document.getElementById('instructions');
-                    if (instructions) {
-                        instructions.classList.add('fade');
-                        setTimeout(() => {
-                            instructions.style.display = 'none';
-                        }, 2000);
-                    }
-                }, 7000);
+                // Fade out drag instruction after 20 seconds if not already
+                // dismissed by interaction.
+                const dragInstruction = document.getElementById('drag-instruction');
+                if (dragInstruction) {
+                    setTimeout(() => {
+                        dragInstruction.classList.add('fade');
+                    }, 20000);
+                }
                 
                 
             } catch (error) {
