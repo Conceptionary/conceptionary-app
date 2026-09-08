@@ -2,7 +2,7 @@
   "id": "CC-0013",
   "version": "1.0",
   "created": "2026-08-17",
-  "last_updated": "2026-08-17",
+  "last_updated": "2026-09-08",
   "status": "active",
   "concept": {
     "name": "Freshness of Dairy Products",
@@ -31,9 +31,19 @@
     }
   },
   "location": {
-    "primary": ["LOC-0004"],
-    "secondary": ["LOC-0003", "LOC-0013"],
-    "transitional": ["LOC-0084", "LOC-0106", "LOC-0013", "LOC-0003"]
+    "primary": [
+      "LOC-0004"
+    ],
+    "secondary": [
+      "LOC-0003",
+      "LOC-0013"
+    ],
+    "transitional": [
+      "LOC-0084",
+      "LOC-0106",
+      "LOC-0013",
+      "LOC-0003"
+    ]
   },
   "language_pairs": {
     "EN-ID": {
@@ -58,18 +68,66 @@
           "Freshness of Dairy Products — Transitions"
         ],
         "conceptData": [
-          ["still fresh", "masih segar", "How do you say 'still fresh' in Indonesian?", 10],
-          ["curdled", "menggumpal", "How do you say 'curdled' in Indonesian?", 40],
-          ["rancid", "tengik", "How do you say 'rancid' in Indonesian?", 60],
-          ["off", "basi", "How do you say 'off' (spoiled) in Indonesian?", 70],
-          ["gone", "busuk", "How do you say 'gone' (completely spoiled) in Indonesian?", 80]
+          [
+            "still fresh",
+            "masih segar",
+            "How do you say 'still fresh' in Indonesian?",
+            10
+          ],
+          [
+            "curdled",
+            "menggumpal",
+            "How do you say 'curdled' in Indonesian?",
+            40
+          ],
+          [
+            "rancid",
+            "tengik",
+            "How do you say 'rancid' in Indonesian?",
+            60
+          ],
+          [
+            "off",
+            "basi",
+            "How do you say 'off' (spoiled) in Indonesian?",
+            70
+          ],
+          [
+            "gone",
+            "busuk",
+            "How do you say 'gone' (completely spoiled) in Indonesian?",
+            80
+          ]
         ],
         "transitionsData": [
-          ["starting to go off", "mulai basi", "How do you say 'starting to go off' in Indonesian?", 10],
-          ["curdling", "mulai menggumpal", "How do you say 'curdling' in Indonesian?", 40],
-          ["turning rancid", "menjadi tengik", "How do you say 'turning rancid' in Indonesian?", 50],
-          ["spoiling completely", "membusuk sepenuhnya", "How do you say 'spoiling completely' in Indonesian?", 80]
-        ]
+          [
+            "starting to go off",
+            "mulai basi",
+            "How do you say 'starting to go off' in Indonesian?",
+            10
+          ],
+          [
+            "curdling",
+            "mulai menggumpal",
+            "How do you say 'curdling' in Indonesian?",
+            40
+          ],
+          [
+            "turning rancid",
+            "menjadi tengik",
+            "How do you say 'turning rancid' in Indonesian?",
+            50
+          ],
+          [
+            "spoiling completely",
+            "membusuk sepenuhnya",
+            "How do you say 'spoiling completely' in Indonesian?",
+            80
+          ]
+        ],
+        "ui": {
+          "drag_instructions": "Mobile Phone users: click 'Tools' then 'Full Screen'.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again."
+        }
       }
     }
   }

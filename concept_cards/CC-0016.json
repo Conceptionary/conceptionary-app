@@ -2,7 +2,7 @@
   "id": "CC-0016",
   "version": "1.0",
   "created": "2026-08-29",
-  "last_updated": "2026-08-29",
+  "last_updated": "2026-09-08",
   "status": "active",
   "concept": {
     "name": "How's life?",
@@ -12,7 +12,9 @@
     "shape": "temporal_reference_no_scalar_degree",
     "template_family": "TRG",
     "template_id": "ROM-TRG",
-    "modes_used": ["states"],
+    "modes_used": [
+      "states"
+    ],
     "notes": "Direct structural basis: Alan's own 'What is it like?' template, built in Microsoft Word / early HTML c.2002 -- the practical design and the theoretical Activities gap turned out to be the same problem, solved independently, decades apart. First real content built for the brand-new TRG family; the shape itself (static 4-cell grid, no drag, each cell independently cycling SL->TL->Quiz) is still a first draft and worth revisiting once more TRG concepts exist to compare against. Caught and fixed one small defect in the generic template while populating this instance: a stray leftover placeholder ('SL_PAST_EXTRA') in the Past cell that didn't correspond to anything in the original source material -- corrected at the source, not just worked around here."
   },
   "template": {
@@ -38,7 +40,10 @@
       "generated_date": "2026-08-29",
       "validated": false,
       "lang_config": {
-        "topic": { "sl": "life", "tl": "das Leben" },
+        "topic": {
+          "sl": "life",
+          "tl": "das Leben"
+        },
         "past": {
           "sl": "How was it?",
           "tl": "Wie war es?",
@@ -58,6 +63,9 @@
           "sl": "How has it been? / How's it been?",
           "tl": "Wie ist es gewesen?",
           "quiz": "How do you say 'How has it been?' in German?"
+        },
+        "ui": {
+          "drag_instructions": "Mobile Phone users: click 'Tools' then 'Full Screen'.<br><br>Click on the words - and click again."
         }
       }
     }

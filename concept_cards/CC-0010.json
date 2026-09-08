@@ -2,7 +2,7 @@
   "id": "CC-0010",
   "version": "2.2",
   "created": "2026-07-06",
-  "last_updated": "2026-07-12",
+  "last_updated": "2026-09-08",
   "status": "active",
   "concept": {
     "name": "Brightness",
@@ -63,7 +63,8 @@
           "quiz_wrong": "もう一度",
           "frame_colour_neg": "#1a1a2e",
           "frame_colour_neutral": "#87CEEB",
-          "frame_colour_pos": "#FFFACD"
+          "frame_colour_pos": "#FFFACD",
+          "drag_instructions": "Mobile Phone users: click 'Tools' then 'Full Screen'.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again."
         },
         "diacritic_map": [
           [

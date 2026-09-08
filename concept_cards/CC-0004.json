@@ -2,7 +2,7 @@
   "id": "CC-0004",
   "version": "1.1",
   "created": "2026-06-27",
-  "last_updated": "2026-07-01",
+  "last_updated": "2026-09-08",
   "status": "active",
   "concept": {
     "name": "Difficulty",
@@ -73,7 +73,8 @@
           "quiz_button": "確認",
           "quiz_correct": "正解！ ✓",
           "quiz_wrong": "もう一度",
-          "diacritic_instructions": "Tip: long vowels — ō = o or oo, ū = u or uu"
+          "diacritic_instructions": "Tip: long vowels — ō = o or oo, ū = u or uu",
+          "drag_instructions": "Mobile Phone users: click 'Tools' then 'Full Screen'.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again."
         },
         "diacritic_map": [
           [

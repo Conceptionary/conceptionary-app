@@ -2,7 +2,7 @@
   "id": "CC-0012",
   "version": "1.2",
   "created": "2026-07-11",
-  "last_updated": "2026-07-12",
+  "last_updated": "2026-09-08",
   "status": "active",
   "concept": {
     "name": "Driving Directions",
@@ -162,7 +162,10 @@
             "sl": "Reverse!",
             "py": 365
           }
-        ]
+        ],
+        "ui": {
+          "drag_instructions": "Mobile Phone users: click 'Tools' then 'Full Screen'.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again."
+        }
       }
     },
     "EN-JA": {
@@ -345,7 +348,10 @@
         ],
         "title_tlr": "Michi o oshiete",
         "instr_disappear_tlr": "(15-byō de kiemasu)",
-        "instr_body_tlr": "Shiroi maru no dochira ka o tsukande handoru o mawasu to, tango ga hyōji saremasu. Kaku tango o kurikku suru to rōmaji → kanji → eigo no jun ni kirikawari, saigo ni kuizu ga hajimarimasu."
+        "instr_body_tlr": "Shiroi maru no dochira ka o tsukande handoru o mawasu to, tango ga hyōji saremasu. Kaku tango o kurikku suru to rōmaji → kanji → eigo no jun ni kirikawari, saigo ni kuizu ga hajimarimasu.",
+        "ui": {
+          "drag_instructions": "Mobile Phone users: click 'Tools' then 'Full Screen'.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again."
+        }
       }
     }
   }

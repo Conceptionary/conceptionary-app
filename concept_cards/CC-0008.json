@@ -2,7 +2,7 @@
   "id": "CC-0008",
   "version": "2.0",
   "created": "2026-07-06",
-  "last_updated": "2026-07-07",
+  "last_updated": "2026-09-08",
   "status": "active",
   "concept": {
     "name": "Wealth",
@@ -62,7 +62,8 @@
           "quiz_wrong": "Try again",
           "frame_colour_neg": "#8B4513",
           "frame_colour_neutral": "#808080",
-          "frame_colour_pos": "#FFD700"
+          "frame_colour_pos": "#FFD700",
+          "drag_instructions": "Mobile Phone users: click 'Tools' then 'Full Screen'.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again."
         },
         "conceptData": [
           [

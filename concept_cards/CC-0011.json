@@ -2,7 +2,7 @@
   "id": "CC-0011",
   "version": "1.1",
   "created": "2026-07-06",
-  "last_updated": "2026-07-06",
+  "last_updated": "2026-09-08",
   "status": "active",
   "concept": {
     "name": "Hunger",
@@ -57,7 +57,8 @@
           "quiz_placeholder": "Type in Bahasa Indonesia…",
           "quiz_button": "Check",
           "quiz_correct": "Correct! ✓",
-          "quiz_wrong": "Try again"
+          "quiz_wrong": "Try again",
+          "drag_instructions": "Mobile Phone users: click 'Tools' then 'Full Screen'.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again."
         },
         "conceptData": [
           [
