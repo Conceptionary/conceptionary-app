@@ -3,7 +3,7 @@
     "project": "Conceptionary",
     "description": "Master registry of all GPCV (General Purpose Conceptionary Vocabulary) templates. Each entry maps a template file to its path type, learning track, supported language pairs, and pedagogical metadata.",
     "version": "1.1.0",
-    "last_updated": "2026-09-10",
+    "last_updated": "2026-09-10 @11am",
     "author": "Alan William Preston",
     "total_templates": 72,
     "tracks": {
