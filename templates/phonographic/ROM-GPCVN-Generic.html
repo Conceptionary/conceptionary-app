@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-09-08 @ 11:35 a.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-09-08 @ 8:15 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,11 +19,19 @@
         }
 
         .a4-page {
-            width: 90vw;
-            height: 70vh;
+            /* Locked to the SVG viewBox's exact 160:50 ratio (NOT 160:60 —
+               this file's own viewBox, confirmed before applying) so the
+               curve always reaches the frame edges — fitting within the
+               90vw/70vh box on whichever axis is the tighter constraint,
+               rather than relying on preserveAspectRatio's letterboxing.
+               content-box (not border-box) is deliberate: these values
+               need to apply to the content area the SVG fills, not the
+               border-inclusive outer box. */
+            width: min(90vw, 70vh * 160 / 50);
+            height: min(70vh, 90vw * 50 / 160);
             border: 5px solid black;
             background-color: white;
-            box-sizing: border-box;
+            box-sizing: content-box;
             position: relative;
             touch-action: none;
             z-index: 1;
@@ -105,10 +113,16 @@
             stroke: #ffaa00;
         }
 
+        @keyframes pulsateAttention {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
         .drag-instruction {
             position: absolute;
-            top: 10px;
-            left: 10px;
+            top: 50%;
+            left: 25%;
+            transform: translateX(-50%);
             font-size: 0.85em;
             padding: 6px 12px;
             background-color: rgba(255, 255, 255, 0.95);
@@ -119,6 +133,7 @@
             transition: opacity 2s ease;
             text-align: left;
             max-width: 400px;
+            animation: pulsateAttention 0.6s ease-in-out 3;
         }
 
         .drag-instruction.fade {
@@ -151,17 +166,22 @@
         .title-box {
             position: absolute;
             top: 2%;
-            left: 50%;
+            left: 75%;
             transform: translateX(-50%);
             font-size: 1em;
             font-weight: bold;
             text-align: center;
-            cursor: pointer;
+            cursor: grab;
             border: 1px solid black;
             padding: 10px;
             background-color: white;
             z-index: 2;
             transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .title-box.dragging {
+            cursor: grabbing;
+            transition: none;
         }
         
         .title-box.hidden {
@@ -201,6 +221,7 @@
         
         /* Level indicator for transitions mode */
         .level-indicator {
+            display: none !important; /* Redundant now that TL-/SL- prefixes are built into the sliding text itself */
             position: absolute;
             top: 60px;
             left: 50%;
@@ -215,6 +236,7 @@
 
         /* Quiz container styles */
         .quiz-container {
+            box-sizing: border-box;
             position: fixed;
             top: 40%;
             left: 50%;
@@ -258,6 +280,7 @@
         }
         
         .quiz-container input {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
             font-size: 14px;
@@ -268,6 +291,7 @@
         }
         
         .quiz-container button {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
             background-color: #3366cc;
@@ -292,7 +316,7 @@
         /* Vocabulary Arrays Styles */
         .vocabulary-array {
             position: absolute;
-            top: 50%;
+            top: 30%;
             width: 25%;
             max-height: 40vh;
             overflow-y: auto;
@@ -305,11 +329,11 @@
         }
 
         #increasing-array {
-            left: 5px;
+            left: 20%;
         }
 
         #decreasing-array {
-            right: 5px;
+            right: 20%;
         }
 
         .array-title {
@@ -1147,8 +1171,10 @@
                     if (visualOffset > 100) visualOffset = 100;
                     
                     // Further constrain to prevent sliding beyond visible area  
-                    // Limit the rightmost position to 82% to create a "train station stop" effect
-                    if (visualOffset > 82) visualOffset = 82;
+                    // Extended from 82 to 85, matching the suite-wide
+                    // convention (0-85%, last segment aligning with the
+                    // right frame edge) already applied elsewhere.
+                    if (visualOffset > 85) visualOffset = 85;
                     
                     slidingText.setAttribute('startOffset', `${visualOffset}%`);
                     
@@ -1439,6 +1465,75 @@
                     document.addEventListener('touchmove', quizDragMove, { passive: false });
                     document.addEventListener('touchend', quizDragEnd);
                 })();
+
+                // ── Title box: drag to reposition anywhere on screen ────
+                (function setupTitleDrag() {
+                    const tb = document.getElementById('title-box');
+                    let isDraggingTitle = false;
+                    let titleHasMoved = false;
+                    let titleDragStartX = 0;
+                    let titleDragStartY = 0;
+                    let titleDragOffsetX = 0;
+                    let titleDragOffsetY = 0;
+                    const TITLE_DRAG_THRESHOLD = 8; // screen pixels
+
+                    function titleDragStart(e) {
+                        const point = e.touches ? e.touches[0] : e;
+                        titleDragStartX = point.clientX;
+                        titleDragStartY = point.clientY;
+                        titleHasMoved = false;
+                        isDraggingTitle = true;
+                        const rect = tb.getBoundingClientRect();
+                        titleDragOffsetX = point.clientX - rect.left;
+                        titleDragOffsetY = point.clientY - rect.top;
+                    }
+
+                    function titleDragMove(e) {
+                        if (!isDraggingTitle) return;
+                        const point = e.touches ? e.touches[0] : e;
+                        const dx = point.clientX - titleDragStartX;
+                        const dy = point.clientY - titleDragStartY;
+
+                        if (!titleHasMoved && Math.hypot(dx, dy) > TITLE_DRAG_THRESHOLD) {
+                            titleHasMoved = true;
+                            tb.style.position = 'fixed';
+                            tb.style.transform = 'none';
+                            tb.classList.add('dragging');
+                        }
+
+                        if (titleHasMoved) {
+                            let newLeft = point.clientX - titleDragOffsetX;
+                            let newTop = point.clientY - titleDragOffsetY;
+                            const maxLeft = window.innerWidth - tb.offsetWidth;
+                            const maxTop = window.innerHeight - tb.offsetHeight;
+                            newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                            newTop = Math.max(0, Math.min(newTop, maxTop));
+                            tb.style.left = newLeft + 'px';
+                            tb.style.top = newTop + 'px';
+                            if (e.touches) e.preventDefault();
+                        }
+                    }
+
+                    function titleDragEnd() {
+                        isDraggingTitle = false;
+                        tb.classList.remove('dragging');
+                    }
+
+                    tb.addEventListener('mousedown', titleDragStart);
+                    document.addEventListener('mousemove', titleDragMove);
+                    document.addEventListener('mouseup', titleDragEnd);
+
+                    tb.addEventListener('touchstart', titleDragStart, { passive: true });
+                    document.addEventListener('touchmove', titleDragMove, { passive: false });
+                    document.addEventListener('touchend', titleDragEnd);
+
+                    tb.addEventListener('click', function(e) {
+                        if (titleHasMoved) {
+                            e.stopImmediatePropagation();
+                            e.preventDefault();
+                        }
+                    }, true);
+                })();
                 
                 // Tools menu interaction
                 const toolsButton = document.querySelector('.tools-button');
@@ -1530,7 +1625,7 @@
                 if (dragInstruction) {
                     setTimeout(() => {
                         dragInstruction.classList.add('fade');
-                    }, 8000);
+                    }, 20000);
                 }
                 
                 console.log("Gradual Permanent Negative Decline Template initialized successfully");

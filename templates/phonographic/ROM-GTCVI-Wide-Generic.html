@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-09-08 @ 7:10 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-09-09 @ 10:55 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -626,8 +626,14 @@
         };
         let currentTextIndex = 0;
         
-        // Activation distance for text boxes
-        const activationDistance = 5;
+        // Activation distance for text boxes. Widened from 5 to 13,
+        // matching ROM-GTCV-Generic.html (2026-09-09) — the ported
+        // anti-overlap offset table pushes some labels up to 11 units
+        // from their true curve point, and offsets now apply
+        // unconditionally at creation (not just once learned), so the
+        // old small threshold would make the largest-offset items
+        // permanently unreachable via drag.
+        const activationDistance = 13;
 
         // Global function to toggle vocabulary array visibility
         function toggleArrayVisibility(arrayType) {
@@ -839,24 +845,72 @@
                         const position = (positionPercent / 100) * pathLength;
                         const point = invertedCurve.getPointAtLength(position);
 
-                        // IMPORTANT: unlearned items are positioned at their
-                        // TRUE curve point (no offset). The drag frame tracks
-                        // the true curve, and activationDistance is small (5
-                        // units) — an unconditional alternating offset here
-                        // (as an earlier version of this file had) pushes
-                        // "below" items ~7 units from the frame's actual
-                        // path, permanently exceeding activationDistance and
-                        // making them impossible to reach via drag at all.
-                        // The alternating above/below offset is applied ONLY
-                        // to items that are already learned, by
-                        // restaggerLearnedTextBoxes() — at that point they no
-                        // longer need to be drag-reachable, since learned
-                        // items stay visible unconditionally.
+                        // Per-index y-offset and text-anchor, ported directly
+                        // from ROM-GTCV-Generic.html (2026-09-09) — this file
+                        // shares the identical curve formula (a=30, b=50,
+                        // c=15) and the identical 20 position values, just
+                        // mirrored vertically (dip instead of peak), so the
+                        // same relative offsets ("push away from the nearby
+                        // curve into open space") apply correctly without
+                        // adjustment. Offsets are now baked in for every
+                        // item at creation time — the old "no offset until
+                        // learned" approach (needed because activationDistance
+                        // was too small to reach an offset position) is
+                        // retired in favour of GTCV's fix: activationDistance
+                        // widened instead (see below), matching GTCV exactly.
+                        let yOffset = -2;
+                        let textAnchor = "middle";
+
+                        if (i === 0) {
+                            yOffset = 11 - 2;
+                            textAnchor = "middle";
+                        } else if (i === 1) {
+                            yOffset = 8.25 - 2;
+                            textAnchor = "middle";
+                        } else if (i === 2) {
+                            yOffset = 5.5 - 2;
+                            textAnchor = "middle";
+                        } else if (i === 3) {
+                            yOffset = 2.75 - 2;
+                            textAnchor = "middle";
+                        } else if (i === 4) {
+                            yOffset = 0 - 2;
+                            textAnchor = "middle";
+                        }
+                        else if (i >= 5 && i <= 9) {
+                            yOffset = -4;
+                            textAnchor = "end";
+                        }
+                        else if (i === 10) {
+                            yOffset = -4;
+                            textAnchor = "middle";
+                        }
+                        else if (i >= 11 && i <= 14) {
+                            yOffset = -4;
+                            textAnchor = "start";
+                        }
+                        else if (i === 15) {
+                            yOffset = 0 - 2;
+                            textAnchor = "middle";
+                        } else if (i === 16) {
+                            yOffset = 2.75 - 2;
+                            textAnchor = "middle";
+                        } else if (i === 17) {
+                            yOffset = 5.5 - 2;
+                            textAnchor = "middle";
+                        } else if (i === 18) {
+                            yOffset = 8.25 - 2;
+                            textAnchor = "middle";
+                        } else if (i === 19) {
+                            yOffset = 11 - 2;
+                            textAnchor = "middle";
+                        }
+
                         const textBox = document.createElementNS("http://www.w3.org/2000/svg", "text");
                         textBox.setAttribute("class", "textBox");
                         textBox.setAttribute("x", point.x);
-                        textBox.setAttribute("y", point.y + 3);
-                        textBox.setAttribute("text-anchor", "middle");
+                        textBox.setAttribute("y", point.y + yOffset);
+                        textBox.setAttribute("text-anchor", textAnchor);
                         textBox.setAttribute("data-index", i);
                         textBox.textContent = conceptData[i][1]; // Start with TL (Target Language)
                         
@@ -893,45 +947,6 @@
                     // stacking is document-order only). Same fix as
                     // ROM-GTCV-Generic.html / ROM-GTCVI-Shallow-Generic.html.
                     svg.appendChild(frame);
-
-                    // Learned items stay permanently visible along the curve
-                    // (see the proximity-visibility logic below), so if more
-                    // than one is learned they can end up close enough on the
-                    // curve to overlap — worst along the flatter baseline
-                    // sections either side of the dip. Nudge them apart on
-                    // creation in case any were already learned when the
-                    // mode was (re)built.
-                    restaggerLearnedTextBoxes();
-                }
-
-                // Alternate learned items above/below the curve, matching
-                // the pattern already proven in ROM-DU-Generic: each item's
-                // vertical offset is based on its OWN fixed conceptData
-                // index (even = above, odd = below), not on its rank among
-                // currently-learned items. This keeps every item's true
-                // horizontal position on the curve completely untouched
-                // (position still encodes meaning) and keeps an item's
-                // vertical placement stable — it never jumps around as
-                // other items get learned or not, unlike a rank-based
-                // approach would.
-                function restaggerLearnedTextBoxes() {
-                    if (!textBoxElements || textBoxElements.length === 0) return;
-
-                    const verticalOffset = 8; // px, above/below the default position
-
-                    for (let i = 0; i < conceptData.length; i++) {
-                        if (!learnedItemsStates[i]) continue;
-                        const box = textBoxElements[i];
-                        if (!box) continue;
-
-                        const positionPercent = conceptData[i][3];
-                        const position = (positionPercent / 100) * pathLength;
-                        const point = invertedCurve.getPointAtLength(position);
-                        const offsetY = (i % 2 === 0) ? -verticalOffset : verticalOffset;
-
-                        box.setAttribute('x', point.x);
-                        box.setAttribute('y', (point.y + 3) + offsetY);
-                    }
                 }
                 
                 // Add a word to vocabulary array
@@ -1103,10 +1118,6 @@
                                 textBox.classList.add('learned');
                                 textBox.textContent = currentData[currentQuizIndex][1];
                             }
-                            // This box's position was set at creation time,
-                            // before it was known to be learned — apply the
-                            // alternating above/below offset now that it is.
-                            restaggerLearnedTextBoxes();
                         } else {
                             // In transitions mode
                             slidingTextMode = 0;
