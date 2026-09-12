@@ -1,9 +1,10 @@
+<!-- Last updated: 2026-09-10 @ 4:35 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LOG-GTCVI-Wide Generic</title>
+    <title>Inverted Bell Curve - Sudden Dip Template</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,16 +14,23 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f0f8ff;
+            background-color: #f9f9f9;
             overflow: hidden;
         }
 
         .a4-page {
-            width: 90vw;
-            height: 70vh;
-            border: 5px solid #007bff;
+            /* Locked to the SVG viewBox's exact 160:60 ratio so the curve
+               always reaches the frame edges — fitting within the 90vw/70vh
+               box on whichever axis is the tighter constraint, rather than
+               relying on preserveAspectRatio's letterboxing. content-box
+               (not border-box) is deliberate: these values need to apply
+               to the content area the SVG fills, not the border-inclusive
+               outer box. */
+            width: min(90vw, 70vh * 160 / 60);
+            height: min(70vh, 90vw * 60 / 160);
+            border: 5px solid black;
             background-color: white;
-            box-sizing: border-box;
+            box-sizing: content-box;
             position: relative;
             touch-action: none;
             z-index: 1;
@@ -35,7 +43,7 @@
             width: 100%;
             text-align: center;
             font-size: 12px;
-            color: rgba(0, 123, 255, 0.4);
+            color: rgba(0, 0, 0, 0.3);
             font-weight: bold;
             pointer-events: none;
             user-select: none;
@@ -48,21 +56,13 @@
             overflow: hidden;
         }
 
-        .bell-curve {
-            stroke: #007bff;
+        .inverted-curve {
+            stroke: black;
             stroke-width: 0.25;
             fill: none;
         }
 
-        /* Enhanced font support for logographic scripts */
-        .logographic-text {
-            font-family: "Noto Sans CJK", "Hiragino Sans", "Yu Gothic", "SimSun", "KaiTi", "Noto Sans Arabic", "Noto Sans Devanagari", "Noto Serif", "Meiryo", sans-serif;
-            font-feature-settings: "palt" 0;
-            text-rendering: geometricPrecision;
-            font-variant-east-asian: proportional-width;
-        }
-
-        /* States Mode Elements */
+        /* States Template Elements */
         .textBox {
             cursor: pointer;
             font-size: 0.2em;
@@ -82,38 +82,75 @@
             transform: scale(1) translateY(0);
         }
 
+        /* Make learned items visible */
         .textBox.learned {
             opacity: 1;
             transform: scale(1) translateY(0);
             fill: green;
         }
 
-        .textBox.hidden {
-            opacity: 0;
-            display: none;
-        }
-
-        /* Enhanced draggable frame */
         #draggableFrame {
             cursor: grab;
-            fill: rgba(100, 150, 255, 0.2);
-            stroke: black;
-            stroke-width: 0.1px;
+            fill: rgba(255, 255, 0, 0.6);
+            stroke: #ccaa00;
+            stroke-width: 0.1;
             pointer-events: all;
-            opacity: 0.8;
+            opacity: 1;
+            filter: drop-shadow(0 0.3px 0.5px rgba(0,0,0,0.3));
+            transition: fill 0.2s ease, stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
+        }
+
+        #draggableFrame:hover {
+            fill: rgba(255, 255, 0, 0.8);
+            stroke: #ffcc00;
+            stroke-width: 0.15;
+            cursor: grab;
+            filter: drop-shadow(0 0.5px 1px rgba(204, 170, 0, 0.6)) drop-shadow(0 0 2px rgba(255, 255, 100, 0.8));
         }
 
         #draggableFrame.dragging {
             cursor: grabbing;
+            fill: transparent;
+            stroke-width: 0.1;
+            filter: drop-shadow(0 0.5px 1px rgba(255, 170, 0, 0.6)) drop-shadow(0 0 2px rgba(255, 220, 0, 0.8));
+            stroke: #ffaa00;
         }
 
-        /* Background gradient */
+        @keyframes pulsateAttention {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        .drag-instruction {
+            position: absolute;
+            top: 50%;
+            left: 25%;
+            transform: translateX(-50%);
+            font-size: 0.85em;
+            padding: 6px 12px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            z-index: 3;
+            opacity: 1;
+            transition: opacity 2s ease;
+            text-align: left;
+            max-width: 400px;
+            animation: pulsateAttention 0.6s ease-in-out 3;
+        }
+
+        .drag-instruction.fade {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Background gradient for inverted concept */
         #conceptBackground {
-            fill: url(#conceptGradient);
+            fill: url(#invertedConceptGradient);
             opacity: 0.2;
         }
 
-        /* Transitions Mode Elements */
+        /* Transitions Template Elements */
         .sliding-text {
             font-size: 3.5px;
             font-weight: bold;
@@ -124,31 +161,9 @@
             font-family: "Noto Sans CJK", "Hiragino Sans", "Yu Gothic", "SimSun", "KaiTi", "Noto Sans Arabic", "Noto Sans Devanagari", "Noto Serif", "Meiryo", sans-serif;
         }
         
+        /* Learned items styling for sliding text */
         .sliding-text.learned {
             fill: green;
-        }
-
-        /* Level indicators with distinct colors */
-        .sliding-text.level-1 {
-            fill: #007bff; /* Target Language - Blue */
-        }
-        
-        .sliding-text.level-2 {
-            fill: #28a745; /* Target Language Romanized - Green */
-        }
-        
-        .sliding-text.level-3 {
-            fill: #fd7e14; /* Source Language - Orange */
-        }
-        
-        .sliding-text.level-4 {
-            fill: #dc3545; /* Quiz Mode - Red */
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
         }
 
         /* Common Title Box Styling */
@@ -160,14 +175,18 @@
             font-size: 1em;
             font-weight: bold;
             text-align: center;
-            cursor: pointer;
-            border: 1px solid #007bff;
+            cursor: grab;
+            border: 1px solid black;
             padding: 10px;
             background-color: white;
             z-index: 2;
             transition: opacity 0.5s ease, transform 0.5s ease;
             font-family: "Noto Sans CJK", "Hiragino Sans", "Yu Gothic", "SimSun", "KaiTi", "Noto Sans Arabic", "Noto Sans Devanagari", "Noto Serif", "Meiryo", sans-serif;
-            color: #007bff;
+        }
+
+        .title-box.dragging {
+            cursor: grabbing;
+            transition: none;
         }
         
         .title-box.hidden {
@@ -179,35 +198,37 @@
         .mode-toggle {
             position: absolute;
             bottom: 30px;
-            left: 50%;
+            left: 35%;   /* moved 10% toward centre from 25%, to stay clear
+                           of the Descending Progression panel when it grows
+                           tall after several transitions are learned */
             transform: translateX(-50%);
             font-size: 0.8em;
             padding: 8px 16px;
-            background-color: #e3f2fd;
-            border: 1px solid #007bff;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
             border-radius: 4px;
             cursor: pointer;
-            z-index: 1000;
-            color: #007bff;
+            z-index: 3;
         }
         
         /* Concept Indicator */
         .concept-indicator {
+            display: none;
             position: absolute;
             bottom: 60px;
-            left: 50%;
+            left: 25%;
             transform: translateX(-50%);
             font-size: 1em;
             padding: 5px 10px;
             background-color: white;
-            border: 1px solid #007bff;
+            border: 1px solid #555;
             border-radius: 4px;
             z-index: 3;
-            color: #007bff;
         }
-
+        
         /* Level indicator for transitions mode */
         .level-indicator {
+            display: none !important; /* Redundant now that TL-/SL- prefixes are built into the sliding text itself */
             position: absolute;
             top: 60px;
             left: 50%;
@@ -215,120 +236,54 @@
             font-size: 0.8em;
             padding: 5px 10px;
             background-color: white;
-            border: 1px solid #007bff;
+            border: 1px solid #555;
             border-radius: 4px;
             z-index: 3;
-            color: #007bff;
-        }
-
-        /* Display mode toggle for states */
-        .display-mode-toggle {
-            position: absolute;
-            top: 60px;
-            right: 10px;
-            font-size: 0.7em;
-            padding: 5px 10px;
-            background-color: #e3f2fd;
-            border: 1px solid #007bff;
-            border-radius: 4px;
-            cursor: pointer;
-            z-index: 3;
-            color: #007bff;
-        }
-
-        /* Audio button for pronunciation */
-        .audio-button {
-            position: absolute;
-            top: 10px;
-            right: 70px;
-            font-size: 0.7em;
-            padding: 5px 10px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            z-index: 3;
-            transition: background-color 0.3s ease;
-        }
-        
-        .audio-button:hover {
-            background-color: #218838;
-        }
-
-        .audio-button:disabled {
-            background-color: #6c757d;
-            cursor: not-allowed;
-        }
-
-        /* Instructions */
-        .instructions {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 0.8em;
-            padding: 6px 10px;
-            background-color: rgba(255, 255, 255, 0.95);
-            border: 2px solid #007bff;
-            border-radius: 6px;
-            z-index: 3;
-            color: #007bff;
-            font-weight: bold;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            max-width: 200px;
-            opacity: 1;
-            transition: opacity 2s ease;
-        }
-        
-        .instructions.fade {
-            opacity: 0;
         }
 
         /* Quiz container styles */
         .quiz-container {
+            box-sizing: border-box;
             position: fixed;
-            top: 60%;
+            top: 40%;
             left: 50%;
             transform: translate(-50%, -50%);
             background-color: white;
-            border: 3px solid #007bff;
+            border: 3px solid #3366cc;
             border-radius: 4px;
             padding: 12px;
             z-index: 9999;
             display: none;
-            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
             max-width: 360px;
             width: 360px;
             pointer-events: auto;
             visibility: visible;
             opacity: 1;
-            cursor: move;
-            transition: opacity 0.2s ease;
+            cursor: grab;
         }
-        
+
         .quiz-container.dragging {
             cursor: grabbing;
         }
         
-        .quiz-container:hover {
-            box-shadow: 0 6px 12px rgba(0, 123, 255, 0.4);
-        }
-        
         .quiz-container input {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
             font-size: 14px;
-            border: 1px solid #007bff;
+            border: 1px solid #ccc;
             border-radius: 4px;
             margin-bottom: 10px;
+            cursor: text;
             font-family: "Noto Sans CJK", "Hiragino Sans", "Yu Gothic", "SimSun", "KaiTi", "Noto Sans Arabic", "Noto Sans Devanagari", "Noto Serif", "Meiryo", sans-serif;
         }
         
         .quiz-container button {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
-            background-color: #007bff;
+            background-color: #3366cc;
             color: white;
             border: none;
             border-radius: 4px;
@@ -337,7 +292,26 @@
         }
         
         .quiz-container button:hover {
-            background-color: #0056b3;
+            background-color: #254e9c;
+        }
+
+        .quiz-container.keyboard-open {
+            top: 8px;
+            transform: translate(-50%, 0);
+            max-width: 90vw;
+            width: 320px;
+            padding: 8px;
+        }
+
+        .quiz-container.keyboard-open input {
+            font-size: 13px;
+            padding: 6px;
+            margin-bottom: 6px;
+        }
+
+        .quiz-container.keyboard-open #quizFeedback {
+            min-height: 14px;
+            margin-top: 4px;
         }
         
         #quizFeedback {
@@ -350,8 +324,13 @@
         /* Vocabulary Arrays Styles */
         .vocabulary-array {
             position: absolute;
+            top: 45%;
             width: 25%;
-            max-height: 40vh;
+            max-height: 45vh;   /* increased from 17vh (2026-09-10 user
+                                   testing) — the panel was being cut off
+                                   as new items were learned, well short of
+                                   the room mode-toggle's own positioning
+                                   comment already assumed it would need */
             overflow-y: auto;
             background-color: rgba(255, 255, 255, 0.9);
             border: 1px solid #ccc;
@@ -363,12 +342,16 @@
 
         #increasing-array {
             left: 5px;
-            top: 5px;
+            top: 25%;   /* Descending Progression — Wide's curve baseline
+                           sits much higher in the canvas than Shallow's
+                           (offset 10 vs 25), so the sliding text is close
+                           to the top here; top:20% clears it, sitting just
+                           below the curve line instead */
         }
 
         #decreasing-array {
             right: 5px;
-            top: 35px;
+            top: 25%;   /* Ascending Progression — moved to match */
         }
 
         .array-title {
@@ -383,7 +366,6 @@
 
         .vocabulary-item {
             display: flex;
-            flex-direction: column;
             font-size: 0.8em;
             margin: 3px 0;
             padding: 5px;
@@ -397,34 +379,26 @@
             background-color: #eaf2ff;
         }
 
-        .learned-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
-        }
-
-        .target-language-learned {
-            flex: 1;
-            font-weight: bold;
-            color: #007bff;
-            cursor: pointer;
-            padding: 2px 5px;
-            border-radius: 3px;
-            font-family: "Noto Sans CJK", "Hiragino Sans", "Yu Gothic", "SimSun", "KaiTi", "Noto Sans Arabic", "Noto Sans Devanagari", "Noto Serif", "Meiryo", sans-serif;
-        }
-
-        .romanized-learned {
+        .vocabulary-item .target-language {
             flex: 1;
             font-weight: bold;
             color: green;
             cursor: pointer;
             padding: 2px 5px;
             border-radius: 3px;
-            text-align: center;
         }
 
-        .source-language-learned {
+        .vocabulary-item .romanized-language {
+            flex: 1;
+            font-style: italic;
+            color: #007bff;
+            text-align: center;
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .vocabulary-item .source-language {
             flex: 1;
             color: #555;
             text-align: right;
@@ -433,30 +407,21 @@
             border-radius: 3px;
         }
         
-        .target-language-learned.hidden,
-        .romanized-learned.hidden,
-        .source-language-learned.hidden {
+        .vocabulary-item .target-language.hidden,
+        .vocabulary-item .source-language.hidden {
             color: transparent;
             user-select: none;
             background-color: #f0f0f0;
         }
         
-        .vocabulary-item.hidden .target-language-learned,
-        .vocabulary-item.hidden .romanized-learned,
-        .vocabulary-item.hidden .source-language-learned {
+        .vocabulary-item.hidden .target-language,
+        .vocabulary-item.hidden .source-language {
             color: transparent;
             user-select: none;
         }
         
         .vocabulary-item.hidden {
             background-color: #f0f0f0;
-        }
-
-        .concept-ref {
-            font-size: 0.7em;
-            color: #666;
-            text-align: center;
-            margin-bottom: 6px;
         }
         
         /* Toggle visibility button */
@@ -482,13 +447,12 @@
         }
 
         .tools-button {
-            background-color: #e3f2fd;
-            border: 1px solid #007bff;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
             border-radius: 4px;
             padding: 5px 10px;
             font-size: 0.8em;
             cursor: pointer;
-            color: #007bff;
         }
 
         .tools-dropdown {
@@ -523,66 +487,78 @@
         .tool-item:hover {
             background-color: #f5f5f5;
         }
+
+        /* ── Mobile sizing: circle and text ───────────────────────────
+           Starting values ported from GTCV's tested end-state, not yet
+           re-confirmed on this curve shape — treat as a starting point,
+           per the GTCV Mobile Fixes Checklist, item 14. */
+        @media (pointer: coarse) {
+            #draggableFrame {
+                r: 3;
+            }
+            .textBox {
+                font-size: 0.3em;
+            }
+            .sliding-text {
+                font-size: 3.5px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="a4-page">
-        <div id="title-box" class="title-box"></div>
+        <div id="title-box" class="title-box">Inverted Concept Spectrum</div>
+        <div id="drag-instruction" class="drag-instruction">Mobile Phone users: click 'Tools' then 'Full Screen'.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again.</div>
         <div id="concept-indicator" class="concept-indicator">Concept Position</div>
         <div id="level-indicator" class="level-indicator">Target Language</div>
-        <div id="display-mode-toggle" class="display-mode-toggle">Show: TL</div>
-        <div id="audio-button" class="audio-button">🔊 Audio</div>
-        <div id="instructions" class="instructions">🎯 Drag the blue frame to explore positions!</div>
         
         <!-- Tools Menu -->
         <div class="tools-menu">
             <div class="tools-button">Tools</div>
             <div class="tools-dropdown">
+                <div class="tool-item" id="toggleFullscreen">Full Screen</div>
                 <div class="tool-item" id="loadConcept">Load Concept</div>
                 <div class="tool-item" id="startQuiz">Quick Quiz</div>
-                <div class="tool-item" id="toggleArrays">Toggle Arrays</div>
+                <div class="tool-item" id="toggleArrays">Hide/Show Arrays</div>
             </div>
         </div>
         
-        
         <!-- Vocabulary Arrays -->
         <div id="increasing-array" class="vocabulary-array">
-            <div class="array-title">Increasing Progression</div>
+            <div class="array-title">Descending Progression</div>
             <button class="toggle-visibility" id="toggle-increasing">Hide All</button>
             <div id="increasing-items"></div>
         </div>
         
         <div id="decreasing-array" class="vocabulary-array">
-            <div class="array-title">Decreasing Progression</div>
+            <div class="array-title">Ascending Progression</div>
             <button class="toggle-visibility" id="toggle-decreasing">Hide All</button>
             <div id="decreasing-items"></div>
         </div>
         
-        <svg id="svgCanvas" viewBox="-30 0 160 50" preserveAspectRatio="xMidYMid meet">
+        <svg id="svgCanvas" viewBox="-30 0 160 60" preserveAspectRatio="xMidYMid meet">
+            <!-- Inverted Concept Gradient -->
             <defs>
-                <linearGradient id="conceptGradient" x1="0%" y1="100%" x2="0%" y2="0%">
-                    <stop offset="0%" style="stop-color:#28a745;stop-opacity:1" />
-                    <stop offset="25%" style="stop-color:#007bff;stop-opacity:1" />
-                    <stop offset="50%" style="stop-color:#6f42c1;stop-opacity:1" />
-                    <stop offset="75%" style="stop-color:#fd7e14;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#dc3545;stop-opacity:1" />
+                <linearGradient id="invertedConceptGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#4a4a4a;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#ff4444;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#4a4a4a;stop-opacity:1" />
                 </linearGradient>
             </defs>
             
-            <path id="bellCurve" class="bell-curve"></path>
+            <path id="invertedCurve" class="inverted-curve"></path>
             <path id="conceptBackground"></path>
             
+            <!-- States Mode Elements -->
+            <circle id="draggableFrame" cx="45" cy="37.5" r="1.5"/>
+            
             <!-- Transitions Mode Elements -->
-            <text id="interactiveText" class="sliding-text level-1">
-                <textPath id="slidingText" href="#bellCurve" startOffset="10%" dy="-5">
-                    Click me to learn!
+            <text id="interactiveText" class="sliding-text">
+                <textPath id="slidingText" href="#invertedCurve" startOffset="1%" dy="-5">
+                    Click and drag this
                 </textPath>
             </text>
-            
-            <!-- States Mode Elements -->
-            <rect id="draggableFrame" x="40" y="20" width="10" height="5" rx="1"/>
         </svg>
-        
         <button id="modeToggle" class="mode-toggle">Toggle Mode</button>
         <div class="watermark">
             &copy; 2026 Alan William Preston
@@ -590,209 +566,103 @@
     </div>
 
     <!-- Quiz Container -->
-    <div id="quizContainer" class="quiz-container" title="Click and drag to move - Double-click outside or press Escape to close">
-        <input type="text" id="quizInput" placeholder="Enter the target language">
+    <div id="quizContainer" class="quiz-container">
+        <input type="text" id="quizInput" placeholder="Enter the target language word">
         <button id="quizCheck">Check</button>
         <div id="quizFeedback"></div>
-        <div style="font-size: 0.7em; color: #666; text-align: center; margin-top: 5px;">
-            💡 Double-click outside or press Escape to close
-        </div>
     </div>
 
     <script>
-        // Generic placeholder data - 19 positions total (10 ascending + peak + 8 descending)
-        // Format: [Source Language, Target Language, Target Language Romanized, Quiz Question, Position %]
+        // Generic placeholder data for inverted curve - 21 positions total (10 descending + dip + 10 ascending)
+        // NATIVE COLUMN ORDER: [SL, TL, Quiz, Position] — column[0]=SL, column[1]=TL.
+        // (Confirmed against this template's own display logic, which reads
+        //  column[1] as the default/Target Language display.)
         const conceptData = [
-            // Descending phase (toward the wide dip) - positions 5% to 45%
-            ["SL1", "TL1", "TLR1", "What's the target language for 'SL1'?", 5],
-            ["SL2", "TL2", "TLR2", "What's the target language for 'SL2'?", 9.44],
-            ["SL3", "TL3", "TLR3", "What's the target language for 'SL3'?", 13.89],
-            ["SL4", "TL4", "TLR4", "What's the target language for 'SL4'?", 18.33],
-            ["SL5", "TL5", "TLR5", "What's the target language for 'SL5'?", 22.78],
-            ["SL6", "TL6", "TLR6", "What's the target language for 'SL6'?", 27.22],
-            ["SL7", "TL7", "TLR7", "What's the target language for 'SL7'?", 31.67],
-            ["SL8", "TL8", "TLR8", "What's the target language for 'SL8'?", 36.11],
-            ["SL9", "TL9", "TLR9", "What's the target language for 'SL9'?", 40.56],
-            ["SL10", "TL10", "TLR10", "What's the target language for 'SL10'?", 45],
+            // Descending phase (normal to lower) - positions 5% to 45%
+            ["SL1", "TL1", "TLR1", "What is the romanized TL word for 'SL1'?", 5],
+            ["SL2", "TL2", "TLR2", "What is the romanized TL word for 'SL2'?", 9.44],
+            ["SL3", "TL3", "TLR3", "What is the romanized TL word for 'SL3'?", 13.89],
+            ["SL4", "TL4", "TLR4", "What is the romanized TL word for 'SL4'?", 18.33],
+            ["SL5", "TL5", "TLR5", "What is the romanized TL word for 'SL5'?", 22.78],
+            ["SL6", "TL6", "TLR6", "What is the romanized TL word for 'SL6'?", 27.22],
+            ["SL7", "TL7", "TLR7", "What is the romanized TL word for 'SL7'?", 31.67],
+            ["SL8", "TL8", "TLR8", "What is the romanized TL word for 'SL8'?", 36.11],
+            ["SL9", "TL9", "TLR9", "What is the romanized TL word for 'SL9'?", 40.56],
+            ["SL10", "TL10", "TLR10", "What is the romanized TL word for 'SL10'?", 45],
             
-            // Wide dip — lowest point, sustained negative state (50%)
-            ["SL-Dip", "TL-Dip", "TLR-Dip", "What's the target language for the dip concept?", 50],
+            // Lowest point (50%)
+            ["SL-Lowest", "TL-Lowest", "TLR-Lowest", "What is the romanized TL word for 'SL-Lowest'?", 50],
             
-            // Ascending phase (recovering from the wide dip) - positions 55% to 95%
-            ["SL-9", "TL-9", "TLR-9", "What's the target language for 'SL-9'?", 55],
-            ["SL-8", "TL-8", "TLR-8", "What's the target language for 'SL-8'?", 60],
-            ["SL-7", "TL-7", "TLR-7", "What's the target language for 'SL-7'?", 65],
-            ["SL-6", "TL-6", "TLR-6", "What's the target language for 'SL-6'?", 70],
-            ["SL-5", "TL-5", "TLR-5", "What's the target language for 'SL-5'?", 75],
-            ["SL-4", "TL-4", "TLR-4", "What's the target language for 'SL-4'?", 80],
-            ["SL-3", "TL-3", "TLR-3", "What's the target language for 'SL-3'?", 85],
-            ["SL-2", "TL-2", "TLR-2", "What's the target language for 'SL-2'?", 90],
-            ["SL-1", "TL-1", "TLR-1", "What's the target language for 'SL-1'?", 95]
+            // Ascending phase (lower back to normal) - positions 55% to 95%
+            ["SL-9", "TL-9", "TLR-9", "What is the romanized TL word for 'SL-9'?", 55],
+            ["SL-8", "TL-8", "TLR-8", "What is the romanized TL word for 'SL-8'?", 60],
+            ["SL-7", "TL-7", "TLR-7", "What is the romanized TL word for 'SL-7'?", 65],
+            ["SL-6", "TL-6", "TLR-6", "What is the romanized TL word for 'SL-6'?", 70],
+            ["SL-5", "TL-5", "TLR-5", "What is the romanized TL word for 'SL-5'?", 75],
+            ["SL-4", "TL-4", "TLR-4", "What is the romanized TL word for 'SL-4'?", 80],
+            ["SL-3", "TL-3", "TLR-3", "What is the romanized TL word for 'SL-3'?", 85],
+            ["SL-2", "TL-2", "TLR-2", "What is the romanized TL word for 'SL-2'?", 90],
+            ["SL-1", "TL-1", "TLR-1", "What is the romanized TL word for 'SL-1'?", 95]
         ];
 
-        // Transitions data for dynamic changes between states
+        // Transitions data for dynamic changes between states - inverted pattern
+        // Same native column order: [SL, TL, Quiz, Position]
         const transitionsData = [
-            // Improving transitions (1% to 45%)
-            {
-                process: "Starting to increase",
-                targetLanguage: "T-Starting to increase",
-                romanized: "T-Starting-rom",
-                sourceLanguage: "Starting to increase",
-                question: "What's the target language for 'Starting to increase'?",
-                positionPercent: 1
-            },
-            {
-                process: "Getting stronger", 
-                targetLanguage: "T-Getting stronger",
-                romanized: "T-Getting-rom",
-                sourceLanguage: "Getting stronger",
-                question: "What's the target language for 'Getting stronger'?",
-                positionPercent: 15
-            },
-            {
-                process: "Continuing to grow",
-                targetLanguage: "T-Continuing to grow", 
-                romanized: "T-Continuing-rom",
-                sourceLanguage: "Continuing to grow",
-                question: "What's the target language for 'Continuing to grow'?",
-                positionPercent: 25
-            },
-            {
-                process: "Approaching maximum",
-                targetLanguage: "T-Approaching maximum",
-                romanized: "T-Approaching-rom", 
-                sourceLanguage: "Approaching maximum",
-                question: "What's the target language for 'Approaching maximum'?",
-                positionPercent: 35
-            },
-            {
-                process: "Nearly at peak",
-                targetLanguage: "T-Nearly at peak",
-                romanized: "T-Nearly-rom",
-                sourceLanguage: "Nearly at peak", 
-                question: "What's the target language for 'Nearly at peak'?",
-                positionPercent: 45
-            },
+            // Descending transitions (1% to 45%)
+            ["SL-T1", "TL-T1", "TLR-T1", "What is the romanized TL word for 'SL-T1'?", 1],
+            ["SL-T2", "TL-T2", "TLR-T2", "What is the romanized TL word for 'SL-T2'?", 15],
+            ["SL-T3", "TL-T3", "TLR-T3", "What is the romanized TL word for 'SL-T3'?", 25],
+            ["SL-T4", "TL-T4", "TLR-T4", "What is the romanized TL word for 'SL-T4'?", 35],
+            ["SL-T5", "TL-T5", "TLR-T5", "What is the romanized TL word for 'SL-T5'?", 45],
             
-            // Peak transition (50%)
-            {
-                process: "Reaching peak",
-                targetLanguage: "T-Reaching peak",
-                romanized: "T-Reaching-rom",
-                sourceLanguage: "Reaching peak",
-                question: "What's the target language for 'Reaching peak'?",
-                positionPercent: 50
-            },
+            // Lowest transition (50%)
+            ["SL-T-Lowest", "TL-T-Lowest", "TLR-T-Lowest", "What is the romanized TL word for 'SL-T-Lowest'?", 50],
             
-            // Declining transitions (55% to 82%)
-            {
-                process: "Starting to decline",
-                targetLanguage: "T-Starting to decline", 
-                romanized: "T-Starting-decline-rom",
-                sourceLanguage: "Starting to decline",
-                question: "What's the target language for 'Starting to decline'?",
-                positionPercent: 55
-            },
-            {
-                process: "Getting weaker",
-                targetLanguage: "T-Getting weaker",
-                romanized: "T-Getting-weaker-rom",
-                sourceLanguage: "Getting weaker",
-                question: "What's the target language for 'Getting weaker'?",
-                positionPercent: 65
-            },
-            {
-                process: "Continuing to decrease",
-                targetLanguage: "T-Continuing to decrease",
-                romanized: "T-Continuing-decrease-rom", 
-                sourceLanguage: "Continuing to decrease",
-                question: "What's the target language for 'Continuing to decrease'?",
-                positionPercent: 75
-            },
-            {
-                process: "Reaching minimum",
-                targetLanguage: "T-Reaching minimum",
-                romanized: "T-Reaching-minimum-rom",
-                sourceLanguage: "Reaching minimum",
-                question: "What's the target language for 'Reaching minimum'?",
-                positionPercent: 82
-            }
+            // Recovery transitions (55% to 78%)
+            ["SL-T6", "TL-T6", "TLR-T6", "What is the romanized TL word for 'SL-T6'?", 55],
+            ["SL-T7", "TL-T7", "TLR-T7", "What is the romanized TL word for 'SL-T7'?", 65],
+            ["SL-T8", "TL-T8", "TLR-T8", "What is the romanized TL word for 'SL-T8'?", 75],
+            ["SL-T9", "TL-T9", "TLR-T9", "What is the romanized TL word for 'SL-T9'?", 78]
         ];
 
         // Define global variables
         let isStatesMode = true;
         let pathLength = 0;
         let currentQuizIndex = -1;
-        let currentLevel = 1; // For transitions mode (1-4 levels)
-        let currentDataIndex = 0; // For transitions mode
-        let displayLevel = 0; // For states mode (0-3 levels)
-        let learnedItems = new Set();
+        let slidingTextMode = 0; // 0: TLR (default), 1: Target Language, 2: Source Language, 3: Quiz
+        let learnedItemsStates = [];
+        let learnedItemsTransitions = [];
         let textBoxElements = [];
         let addedIncreasingItems = [];
         let addedDecreasingItems = [];
         
         // Title text options
-        // Title cycle: TLR (default) → TL → SL → TLR, per mode. See
-        // "Logographic UI Conventions" in Conceptionary_Template_Definitions.md.
         const titleTexts = {
-            states: ["TLR_TITLE_STATES", "TL_TITLE_STATES", "SL_TITLE_STATES"],
-            transitions: ["TLR_TITLE_TRANSITIONS", "TL_TITLE_TRANSITIONS", "SL_TITLE_TRANSITIONS"]
+            states: ["Inverted Concept Spectrum", "Target Language View", "Source Language View"],
+            transitions: ["Inverted Transitions", "Decline & Recovery", "Temporal Dips"]
         };
         let currentTextIndex = 0;
         
-        // Activation distance for text boxes
-        const activationDistance = 8;
-
-        // Audio functionality placeholder
-        function playAudio(text, language = 'auto') {
-            // Placeholder for audio API integration
-            alert(`Audio API would pronounce: "${text}"\n(Feature ready for API integration)`);
-        }
-
-        // Helper functions
-        function adjustTextPositioning(textElement, curvePosition) {
-            const positionPercent = (curvePosition / pathLength) * 100;
-            
-            if (positionPercent < 15) {
-                textElement.setAttribute("text-anchor", "start");
-            } else if (positionPercent > 85) {
-                textElement.setAttribute("text-anchor", "end");
-            } else if (positionPercent < 35) {
-                textElement.setAttribute("text-anchor", "start");
-            } else if (positionPercent > 65) {
-                textElement.setAttribute("text-anchor", "end");
-            } else {
-                textElement.setAttribute("text-anchor", "middle");
-            }
-        }
-
-        function getPositionFromPercent(positionPercent) {
-            return (positionPercent / 100) * pathLength;
-        }
-
-        function getDataIndexAtPosition(positionPercent) {
-            let closestIndex = 0;
-            let minDistance = Infinity;
-            
-            for (let i = 0; i < transitionsData.length; i++) {
-                const distance = Math.abs(transitionsData[i].positionPercent - positionPercent);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestIndex = i;
-                }
-            }
-            
-            return closestIndex;
-        }
+        // Activation distance for text boxes. Widened from 5 to 13,
+        // matching ROM-GTCV-Generic.html (2026-09-09) — the ported
+        // anti-overlap offset table pushes some labels up to 11 units
+        // from their true curve point, and offsets now apply
+        // unconditionally at creation (not just once learned), so the
+        // old small threshold would make the largest-offset items
+        // permanently unreachable via drag.
+        const activationDistance = 13;
 
         // Global function to toggle vocabulary array visibility
         function toggleArrayVisibility(arrayType) {
             try {
                 const container = document.getElementById(arrayType + "-items");
                 const button = document.getElementById("toggle-" + arrayType);
-                if (!container || !button) return;
+                if (!container || !button) {
+                    console.error("Container or button not found for " + arrayType);
+                    return;
+                }
                 
-                const spans = container.querySelectorAll('.vocabulary-item .target-language-learned, .vocabulary-item .romanized-learned, .vocabulary-item .source-language-learned');
+                const spans = container.querySelectorAll('.vocabulary-item .target-language, .vocabulary-item .source-language');
                 
                 let visibleCount = 0;
                 spans.forEach(span => {
@@ -817,808 +687,837 @@
             }
         }
 
-        // Function to cycle through display levels for States mode
-        function cycleDisplayLevel() {
-            displayLevel = (displayLevel + 1) % 4;
-            const button = document.getElementById("display-mode-toggle");
-            
-            switch(displayLevel) {
-                case 0: button.textContent = "Show: TL"; break;      // Target Language
-                case 1: button.textContent = "Show: TLR"; break;     // Target Language Romanized
-                case 2: button.textContent = "Show: SL"; break;      // Source Language
-                case 3: button.textContent = "Show: TLQ"; break;     // Target Language Quiz
-            }
-            
-            if (isStatesMode) {
-                updateAllTextBoxes();
-            }
-        }
 
         // Function to update all text boxes based on current display level
+        // Resets every UNLEARNED textbox back to its TLR display (default level).
+        // Called when the drag frame moves to a different textbox.
         function updateAllTextBoxes() {
             textBoxElements.forEach((textBox, index) => {
-                if (textBox && conceptData[index] && !textBox.classList.contains('active')) {
-                    switch(displayLevel) {
-                        case 0: // Target Language
-                            textBox.textContent = conceptData[index][1];
-                            break;
-                        case 1: // Target Language Romanized
-                            textBox.textContent = conceptData[index][2];
-                            break;
-                        case 2: // Source Language  
-                            textBox.textContent = conceptData[index][0];
-                            break;
-                        case 3: // Target Language Quiz mode
-                            textBox.textContent = "TLQ" + (index < 10 ? (index + 1) : 
-                                                  index === 10 ? "-Dip" : 
-                                                  "-" + (20 - index));
-                            break;
-                    }
+                if (textBox && conceptData[index] && !learnedItemsStates[index]) {
+                    textBox.textContent = conceptData[index][2]; // TLR
                 }
             });
         }
 
-        // TRANSITIONS MODE FUNCTIONS
-        function setLevel(newLevel) {
-            currentLevel = newLevel;
-            const currentData = transitionsData[currentDataIndex];
-            const slidingText = document.getElementById('slidingText');
-            const interactiveText = document.getElementById('interactiveText');
-            const conceptIndicator = document.getElementById('concept-indicator');
-            const levelIndicator = document.getElementById('level-indicator');
-
-            conceptIndicator.textContent = currentData.process;
-            interactiveText.className = 'sliding-text';
-
-            // LOG convention: TLR default (1) → TL script (2) → SL (3) → Quiz (4)
-            switch(newLevel) {
-                case 1: // Target Language Romanized — ALWAYS the logographic default
-                    slidingText.textContent = currentData.romanized;
-                    interactiveText.classList.add('level-1');
-                    levelIndicator.textContent = 'Romanized (TLR)';
-                    break;
-                case 2: // Target Language script
-                    slidingText.textContent = currentData.targetLanguage;
-                    interactiveText.classList.add('level-2');
-                    levelIndicator.textContent = 'Target Language';
-                    break;
-                case 3: // Source Language
-                    slidingText.textContent = currentData.sourceLanguage;
-                    interactiveText.classList.add('level-3');
-                    levelIndicator.textContent = 'Source Language';
-                    break;
-                case 4: // Quiz Mode — tests TLR spelling
-                    slidingText.textContent = "QUIZ READY - Click to start!";
-                    interactiveText.classList.add('level-4');
-                    levelIndicator.textContent = 'Quiz Mode';
-                    break;
-            }
-
-            slidingText.setAttribute('href', '#bellCurve');
-            slidingText.setAttribute('dy', '-5');
-        }
-
-        function progressLevel() {
-            const isLearned = learnedItems.has(currentDataIndex);
-
-            if (isLearned) {
-                // Cycle through levels 1-3 for learned items
-                const nextLevel = (currentLevel % 3) + 1;
-                setLevel(nextLevel);
-            } else {
-                // Progress through all 4 levels for unlearned items
-                if (currentLevel < 4) {
-                    setLevel(currentLevel + 1);
-                } else {
-                    setLevel(1);
-                }
-            }
-
-            if (currentLevel === 4 && !isLearned) {
-                setTimeout(() => showQuiz(), 200);
-            }
-        }
-
-        function addLearnedToArray(index, isIncreasing) {
-            const currentData = transitionsData[index];
-            const itemElement = document.createElement('div');
-            itemElement.className = 'vocabulary-item';
-            
-            const processDiv = document.createElement('div');
-            processDiv.className = 'concept-ref';
-            processDiv.textContent = currentData.process;
-            
-            const rowDiv = document.createElement('div');
-            rowDiv.className = 'learned-row';
-            
-            // Target Language
-            const targetDiv = document.createElement('div');
-            targetDiv.className = 'target-language-learned';
-            targetDiv.textContent = currentData.targetLanguage;
-            
-            // Target Language Romanized
-            const romanizedDiv = document.createElement('div');
-            romanizedDiv.className = 'romanized-learned';
-            romanizedDiv.textContent = currentData.romanized;
-            
-            // Source Language
-            const sourceDiv = document.createElement('div');
-            sourceDiv.className = 'source-language-learned';
-            sourceDiv.textContent = currentData.sourceLanguage;
-            
-            // Add click handlers to individual spans
-            targetDiv.addEventListener('click', function(e) {
-                e.stopPropagation();
-                this.classList.toggle('hidden');
-            });
-            
-            romanizedDiv.addEventListener('click', function(e) {
-                e.stopPropagation();
-                this.classList.toggle('hidden');
-            });
-            
-            sourceDiv.addEventListener('click', function(e) {
-                e.stopPropagation();
-                this.classList.toggle('hidden');
-            });
-            
-            rowDiv.appendChild(targetDiv);
-            rowDiv.appendChild(romanizedDiv);
-            rowDiv.appendChild(sourceDiv);
-            itemElement.appendChild(processDiv);
-            itemElement.appendChild(rowDiv);
-            
-            if (isIncreasing) {
-                const increasingItems = document.getElementById("increasing-items");
-                increasingItems.appendChild(itemElement);
-                addedIncreasingItems[currentDataIndex] = true;
-                
-                const container = document.getElementById("increasing-array");
-                const title = container.querySelector('.array-title');
-                const count = increasingItems.children.length;
-                title.textContent = `Increasing Progression (${count} learned)`;
-            } else {
-                const decreasingItems = document.getElementById("decreasing-items");
-                decreasingItems.appendChild(itemElement);
-                addedDecreasingItems[currentDataIndex] = true;
-                
-                const container = document.getElementById("decreasing-array");
-                const title = container.querySelector('.array-title');
-                const count = decreasingItems.children.length;
-                title.textContent = `Decreasing Progression (${count} learned)`;
-            }
-        }
-
-        // STATES MODE FUNCTIONS
-        function createTextBoxes() {
-            if (!isStatesMode) return;
-            
-            const svg = document.getElementById("svgCanvas");
-            const bellCurve = document.getElementById("bellCurve");
-            
-            // Clear existing text boxes
-            document.querySelectorAll('.textBox').forEach(box => {
-                if (box && box.parentNode) box.parentNode.removeChild(box);
-            });
-            textBoxElements = [];
-            
-            // Create new text boxes
-            for (let i = 0; i < conceptData.length; i++) {
-                const positionPercent = conceptData[i][4];
-                const position = getPositionFromPercent(positionPercent);
-                const point = bellCurve.getPointAtLength(position);
-                
-                const textBox = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                textBox.setAttribute("class", "textBox");
-                textBox.setAttribute("data-index", i);
-                
-                // Enhanced positioning for edge cases
-                if (positionPercent <= 5) {
-                    const leftEdgePoint = bellCurve.getPointAtLength(0);
-                    textBox.setAttribute("x", leftEdgePoint.x + 8);
-                    textBox.setAttribute("y", leftEdgePoint.y - 2);
-                    textBox.setAttribute("text-anchor", "start");
-                } else if (positionPercent >= 95) {
-                    textBox.setAttribute("x", point.x - 2);
-                    textBox.setAttribute("y", point.y - 2);
-                    textBox.setAttribute("text-anchor", "end");
-                } else {
-                    textBox.setAttribute("x", point.x);
-                    textBox.setAttribute("y", point.y - 2);
-                    adjustTextPositioning(textBox, position);
-                }
-                
-                // Set initial text based on display level
-                switch(displayLevel) {
-                    case 0: // Target Language
-                        textBox.textContent = conceptData[i][1];
-                        break;
-                    case 1: // Target Language Romanized
-                        textBox.textContent = conceptData[i][2];
-                        break;
-                    case 2: // Source Language
-                        textBox.textContent = conceptData[i][0];
-                        break;
-                    case 3: // Target Language Quiz
-                        textBox.textContent = "TLQ" + (i < 10 ? (i + 1) : 
-                                                      i === 10 ? "-Dip" : 
-                                                      "-" + (20 - i));
-                        break;
-                }
-                // LOGOGRAPHIC CONVENTION: individual textboxes always start
-                // showing TLR (Target Language Romanized), regardless of the
-                // global "Show All" display level, to support pronunciation
-                // guidance / future text-to-speech integration.
-                textBox.textContent = conceptData[i][2];
-                
-                if (learnedItems.has(`state_${i}`)) textBox.classList.add('learned');
-                
-                textBox.addEventListener('click', function() {
-                    const index = parseInt(this.getAttribute('data-index'));
-                    
-                    if (learnedItems.has(`state_${index}`)) {
-                        // For learned items, cycle through all display modes on THIS textbox only
-                        if (this.textContent === conceptData[index][2]) { // Currently showing TLR
-                            this.textContent = conceptData[index][1]; // Show TL
-                        } else if (this.textContent === conceptData[index][1]) { // Currently showing TL
-                            this.textContent = conceptData[index][0]; // Show SL
-                        } else if (this.textContent === conceptData[index][0]) { // Currently showing SL
-                            this.textContent = "TLQ" + (index < 10 ? (index + 1) :
-                                                      index === 10 ? "-Dip" :
-                                                      "-" + (20 - index)); // Show TLQ
-                        } else { // Currently showing TLQ - back to TLR
-                            this.textContent = conceptData[index][2];
-                        }
-                    } else {
-                        // For unlearned items, progress through learning sequence on THIS textbox only
-                        if (this.textContent === conceptData[index][2]) { // Currently showing TLR
-                            this.textContent = conceptData[index][1]; // Show TL
-                        } else if (this.textContent === conceptData[index][1]) { // Currently showing TL
-                            this.textContent = conceptData[index][0]; // Show SL
-                        } else if (this.textContent === conceptData[index][0]) { // Currently showing SL
-                            showQuizForStates(index, this); // SL -> Quiz
-                        } else { // Currently showing TLQ - reset to TLR
-                            this.textContent = conceptData[index][2];
-                        }
-                    }
-                });
-                
-                svg.appendChild(textBox);
-                textBoxElements.push(textBox);
-            }
-            
-        }
-
-        function updateVisibleTextBoxes(point) {
-            if (!isStatesMode) return;
-            
-            let closestIndex = -1;
-            let minDistance = Infinity;
-            
-            // Find closest text box
-            textBoxElements.forEach((textBox, index) => {
-                if (!textBox) return;
-                
-                const x = parseFloat(textBox.getAttribute('x'));
-                const y = parseFloat(textBox.getAttribute('y'));
-                
-                const distance = Math.sqrt(Math.pow(point.x - x, 2) + Math.pow(point.y - y, 2));
-                
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestIndex = index;
-                }
-            });
-            
-            // Update visibility - only one active at a time
-            textBoxElements.forEach((textBox, index) => {
-                if (!textBox) return;
-                
-                const isLearned = learnedItems.has(`state_${index}`);
-                const isClosest = (index === closestIndex && minDistance < activationDistance);
-                
-                if (isClosest) {
-                    textBox.classList.add('active');
-                    textBox.classList.remove('hidden');
-                    if (isLearned) {
-                        textBox.classList.add('learned');
-                    }
-                    const positionPercent = conceptData[index][4];
-                    const position = getPositionFromPercent(positionPercent);
-                    adjustTextPositioning(textBox, position);
-                } else if (isLearned) {
-                    textBox.classList.remove('active', 'hidden');
-                    textBox.classList.add('learned');
-                    const positionPercent = conceptData[index][4];
-                    const position = getPositionFromPercent(positionPercent);
-                    adjustTextPositioning(textBox, position);
-                } else {
-                    textBox.classList.remove('active', 'learned');
-                    textBox.classList.add('hidden');
-                }
-            });
-            
-            if (closestIndex !== -1 && minDistance < activationDistance && conceptData[closestIndex]) {
-                document.getElementById('concept-indicator').textContent = conceptData[closestIndex][0];
-            }
-        }
-
-        // QUIZ FUNCTIONS
-        function showQuiz() {
-            const currentData = transitionsData[currentDataIndex];
-            const quizInput = document.getElementById("quizInput");
-            const quizFeedback = document.getElementById("quizFeedback");
-            const quizContainer = document.getElementById("quizContainer");
-
-            currentQuizIndex = currentDataIndex;
-            
-            quizInput.placeholder = currentData.question;
-            quizInput.value = '';
-            quizFeedback.textContent = '';
-            
-            quizContainer.style.left = '50%';
-            quizContainer.style.top = '60%';
-            quizContainer.style.transform = 'translate(-50%, -50%)';
-            quizContainer.style.display = 'block';
-            quizContainer.style.opacity = '1';
-            
-            setTimeout(() => quizInput.focus(), 100);
-        }
-
-        function showQuizForStates(index, element) {
-            currentQuizIndex = index;
-            
-            const questionText = conceptData[index][3];
-            const quizInput = document.getElementById("quizInput");
-            const quizFeedback = document.getElementById("quizFeedback");
-            const quizContainer = document.getElementById("quizContainer");
-            
-            quizInput.placeholder = questionText;
-            quizInput.value = '';
-            quizFeedback.textContent = '';
-            
-            quizContainer.style.left = '50%';
-            quizContainer.style.top = '60%';
-            quizContainer.style.transform = 'translate(-50%, -50%)';
-            quizContainer.style.display = 'block';
-            quizContainer.style.opacity = '1';
-            
-            setTimeout(() => quizInput.focus(), 100);
-        }
-
-        function hideQuiz() {
-            const quizContainer = document.getElementById('quizContainer');
-            const quizInput = document.getElementById('quizInput');
-            const quizFeedback = document.getElementById('quizFeedback');
-            
-            quizContainer.style.display = 'none';
-            quizContainer.style.left = '50%';
-            quizContainer.style.top = '60%';
-            quizContainer.style.transform = 'translate(-50%, -50%)';
-            
-            if (quizInput) quizInput.value = '';
-            if (quizFeedback) quizFeedback.textContent = '';
-            
-            currentQuizIndex = -1;
-        }
-
-        function checkQuizAnswer() {
-            if (currentQuizIndex < 0) return;
-            
-            const quizInput = document.getElementById("quizInput");
-            const quizFeedback = document.getElementById("quizFeedback");
-            const quizContainer = document.getElementById("quizContainer");
-            
-            const userAnswer = quizInput.value.trim().toLowerCase();
-            let correctAnswer;
-            
-            if (isStatesMode) {
-                correctAnswer = conceptData[currentQuizIndex][2].toLowerCase(); // Target Language Romanized
-            } else {
-                const currentData = transitionsData[currentQuizIndex];
-                correctAnswer = currentData.romanized.toLowerCase();
-            }
-
-            if (userAnswer === correctAnswer) {
-                quizFeedback.innerHTML = 'Correct! ✓<br><small>Concept mastered!</small>';
-                quizFeedback.style.color = 'green';
-                
-                if (isStatesMode) {
-                    const stateKey = `state_${currentQuizIndex}`;
-                    learnedItems.add(stateKey);
-                    
-                    const textBox = textBoxElements[currentQuizIndex];
-                    if (textBox) {
-                        textBox.classList.add('learned');
-                        textBox.textContent = conceptData[currentQuizIndex][2]; // Show TLR
-                    }
-                    
-                    setTimeout(() => { quizContainer.style.display = 'none'; }, 1500);
-                } else {
-                    learnedItems.add(currentQuizIndex);
-                    
-                    const positionPercent = transitionsData[currentQuizIndex].positionPercent;
-                    const isIncreasing = positionPercent < 50;
-                    
-                    if (isIncreasing && !addedIncreasingItems[currentQuizIndex]) {
-                        addLearnedToArray(currentQuizIndex, true);
-                    } else if (!isIncreasing && !addedDecreasingItems[currentQuizIndex]) {
-                        addLearnedToArray(currentQuizIndex, false);
-                    }
-                    
-                    const slidingText = document.getElementById('slidingText');
-                    const interactiveText = document.getElementById('interactiveText');
-                    slidingText.textContent = "✓ Learned! Added to progression list";
-                    interactiveText.classList.add('learned');
-                    
-                    setTimeout(() => {
-                        quizContainer.style.display = 'none';
-                        
-                        // Find next unlearned item
-                        let nextIndex = currentDataIndex;
-                        let attempts = 0;
-                        do {
-                            nextIndex = (nextIndex + 1) % transitionsData.length;
-                            attempts++;
-                        } while (learnedItems.has(nextIndex) && attempts < transitionsData.length);
-                        
-                        if (attempts < transitionsData.length) {
-                            currentDataIndex = nextIndex;
-                            const newPositionPercent = transitionsData[nextIndex].positionPercent;
-                            const newPosition = getPositionFromPercent(newPositionPercent);
-                            let newOffset = Math.max(5, Math.min(95, (newPosition / pathLength) * 100));
-                            slidingText.setAttribute('startOffset', `${newOffset}%`);
-                            interactiveText.classList.remove('learned');
-                            setLevel(1);
-                        } else {
-                            slidingText.textContent = "🎉 Concept spectrum complete! All transitions mastered!";
-                            interactiveText.classList.remove('learned');
-                        }
-                    }, 2000);
-                }
-            } else {
-                quizFeedback.textContent = 'Try again';
-                quizFeedback.style.color = 'red';
-            }
-        }
-
-        // EVENT HANDLERS
-        function handleSlidingTextClick(e) {
-            if (isStatesMode || hasMoved) return;
-            e.preventDefault();
-            e.stopPropagation();
-            progressLevel();
-        }
-
-        // Frame dragging for States mode
-        let isDragging = false;
-        
-        function startDrag(e) {
-            if (!isStatesMode) return;
-            
-            isDragging = true;
-            const frame = document.getElementById('draggableFrame');
-            frame.classList.add('dragging');
-            
-            e.preventDefault();
-        }
-        
-        function dragMove(e) {
-            if (!isDragging || !isStatesMode) return;
-            
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            const svg = document.getElementById('svgCanvas');
-            const bellCurve = document.getElementById('bellCurve');
-            
-            // Robust SVG coordinate conversion via getScreenCTM
-            const svgPoint = svg.createSVGPoint();
-            svgPoint.x = clientX;
-            svgPoint.y = 0;
-            const transformedPoint = svgPoint.matrixTransform(svg.getScreenCTM().inverse());
-            const svgX = transformedPoint.x;
-            
-            // Find closest point on curve
-            let bestPosition = 0;
-            let minDistance = Infinity;
-            
-            for (let i = 0; i <= 100; i++) {
-                const testLength = (i / 100) * pathLength;
-                const testPoint = bellCurve.getPointAtLength(testLength);
-                const distance = Math.abs(testPoint.x - svgX);
-                
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    bestPosition = i / 100;
-                }
-            }
-            
-            // Get the actual point on the curve
-            const curvePoint = bellCurve.getPointAtLength(bestPosition * pathLength);
-            
-            // Position the frame
-            const frame = document.getElementById('draggableFrame');
-            const frameWidth = parseFloat(frame.getAttribute('width'));
-            const frameHeight = parseFloat(frame.getAttribute('height'));
-            
-            let frameX = curvePoint.x - frameWidth/2;
-            let frameY = curvePoint.y - frameHeight/2;
-            
-            // Apply boundary constraints
-            const leftEdgePoint = bellCurve.getPointAtLength(0);
-            const rightEdgePoint = bellCurve.getPointAtLength(pathLength);
-            
-            if (frameX < leftEdgePoint.x) {
-                frameX = leftEdgePoint.x;
-            }
-            if (frameX > rightEdgePoint.x - frameWidth) {
-                frameX = rightEdgePoint.x - frameWidth;
-            }
-            
-            frame.setAttribute('x', frameX);
-            frame.setAttribute('y', frameY);
-            
-            // Update visible text boxes
-            const frameCenter = {
-                x: frameX + frameWidth/2,
-                y: frameY + frameHeight/2
-            };
-            
-            updateVisibleTextBoxes(frameCenter);
-            
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        function endDrag(e) {
-            if (isDragging) {
-                isDragging = false;
-                const frame = document.getElementById('draggableFrame');
-                frame.classList.remove('dragging');
-                
-                if (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            }
-        }
-
-        // Text dragging for Transitions mode
-        let isTextDragging = false;
-        let hasMoved = false;
-        
-        function startTextDrag(e) {
-            if (isStatesMode) return;
-            isTextDragging = true;
-            hasMoved = false;
-            e.preventDefault();
-        }
-        
-        function textDragMove(e) {
-            if (!isTextDragging || isStatesMode) return;
-            
-            hasMoved = true;
-            
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            const svg = document.getElementById('svgCanvas');
-            const bellCurve = document.getElementById('bellCurve');
-            
-            const svgPoint = svg.createSVGPoint();
-            svgPoint.x = clientX;
-            svgPoint.y = 0;
-            const transformedPoint = svgPoint.matrixTransform(svg.getScreenCTM().inverse());
-            const cursorX = transformedPoint.x;
-            
-            let bestPosition = 0;
-            let minDistance = Infinity;
-            
-            for (let i = 0; i <= 1000; i++) {
-                const testPosition = i / 10;
-                const testLength = (testPosition / 100) * pathLength;
-                const testPoint = bellCurve.getPointAtLength(testLength);
-                const distance = Math.abs(testPoint.x - cursorX);
-                
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    bestPosition = testPosition;
-                }
-            }
-            
-            // Apply boundary constraints for transitions mode
-            let visualOffset = bestPosition;
-            
-            if (visualOffset < 1) {        
-                visualOffset = 1;
-            } else if (visualOffset > 82) { 
-                visualOffset = 82;
-            }
-            
-            const slidingText = document.getElementById('slidingText');
-            slidingText.setAttribute('startOffset', `${visualOffset}%`);
-            
-            const newDataIndex = getDataIndexAtPosition(visualOffset);
-            if (newDataIndex !== currentDataIndex) {
-                currentDataIndex = newDataIndex;
-                currentLevel = 1;
-                setLevel(1);
-            }
-            
-            e.preventDefault();
-        }
-        
-        function endTextDrag() {
-            isTextDragging = false;
-            setTimeout(() => { hasMoved = false; }, 100);
-        }
-
-        // Toggle between modes
-        function toggleMode() {
-            isStatesMode = !isStatesMode;
-
-            // Reset title to the new mode's TLR default — otherwise a
-            // learner who had cycled to SL in the old mode would land on
-            // an oddly-indexed (possibly nonexistent) state in the new one.
-            currentTextIndex = 0;
-            document.getElementById('title-box').textContent =
-                titleTexts[isStatesMode ? 'states' : 'transitions'][0];
-            
-            if (isStatesMode) {
-                // Switch to States mode
-                document.getElementById('draggableFrame').style.display = 'block';
-                document.getElementById('interactiveText').style.display = 'none';
-                document.getElementById('display-mode-toggle').style.display = 'block';
-                document.getElementById('level-indicator').style.display = 'none';
-                document.getElementById('increasing-array').style.display = 'none';
-                document.getElementById('decreasing-array').style.display = 'none';
-                document.getElementById('instructions').textContent = '🎯 Drag the blue frame to explore positions!';
-                
-                createTextBoxes();
-                
-                // Initialize frame position
-                const bellCurve = document.getElementById('bellCurve');
-                const frame = document.getElementById('draggableFrame');
-                const startPercent = 5; // Start at first position
-                const startPosition = getPositionFromPercent(startPercent);
-                const startPoint = bellCurve.getPointAtLength(startPosition);
-                
-                frame.setAttribute('x', startPoint.x);
-                frame.setAttribute('y', startPoint.y - parseFloat(frame.getAttribute('height'))/2);
-                
-                setTimeout(() => {
-                    const frameCenter = {
-                        x: startPoint.x + parseFloat(frame.getAttribute('width'))/2,
-                        y: startPoint.y
-                    };
-                    updateVisibleTextBoxes(frameCenter);
-                    document.getElementById('concept-indicator').textContent = conceptData[0][0];
-                }, 100);
-            } else {
-                // Switch to Transitions mode
-                document.getElementById('draggableFrame').style.display = 'none';
-                document.getElementById('interactiveText').style.display = 'block';
-                document.getElementById('display-mode-toggle').style.display = 'none';
-                document.getElementById('level-indicator').style.display = 'block';
-                document.getElementById('increasing-array').style.display = 'block';
-                document.getElementById('decreasing-array').style.display = 'block';
-                document.getElementById('instructions').textContent = '🎯 Click or drag the text to learn concepts!';
-                
-                // Remove text boxes
-                document.querySelectorAll('.textBox').forEach(box => {
-                    if (box && box.parentNode) box.parentNode.removeChild(box);
-                });
-                textBoxElements = [];
-                
-                // Initialize at first transition
-                const slidingText = document.getElementById('slidingText');
-                const startPercent = transitionsData[0].positionPercent;
-                const startPosition = getPositionFromPercent(startPercent);
-                let startOffset = Math.max(1, Math.min(82, (startPosition / pathLength) * 100));
-                
-                slidingText.setAttribute('startOffset', `${startOffset}%`);
-                currentDataIndex = 0;
-                currentLevel = 1;
-                setLevel(1);
-                
-                // Re-attach events after mode switch
-                setTimeout(() => {
-                    const interactiveText = document.getElementById('interactiveText');
-                    const slidingText = document.getElementById('slidingText');
-                    
-                    interactiveText.removeEventListener('mousedown', startTextDrag);
-                    interactiveText.removeEventListener('touchstart', startTextDrag);
-                    slidingText.removeEventListener('mousedown', startTextDrag);
-                    slidingText.removeEventListener('touchstart', startTextDrag);
-                    
-                    interactiveText.addEventListener('mousedown', startTextDrag);
-                    interactiveText.addEventListener('touchstart', startTextDrag, { passive: false });
-                    slidingText.addEventListener('mousedown', startTextDrag);
-                    slidingText.addEventListener('touchstart', startTextDrag, { passive: false });
-                }, 50);
-            }
-        }
-
-        // Toggle arrays visibility
-        function toggleArrays() {
-            const visibility = document.getElementById('increasing-array').style.display === 'none' || 
-                             document.getElementById('increasing-array').style.display === '';
-            document.getElementById('increasing-array').style.display = visibility ? 'block' : 'none';
-            document.getElementById('decreasing-array').style.display = visibility ? 'block' : 'none';
-        }
-
-        // Load concept function (placeholder for future API integration)
-        function loadConcept() {
-            alert("Load Concept feature will integrate with API to fetch vocabulary for any conceptual spectrum in logographic languages.");
-        }
-
-        // Switch title text
-        function switchTitleText() {
-            const titleBox = document.getElementById('title-box');
-            titleBox.classList.add('hidden');
-            setTimeout(() => {
-                const modeKey = isStatesMode ? 'states' : 'transitions';
-                currentTextIndex = (currentTextIndex + 1) % titleTexts[modeKey].length;
-                titleBox.textContent = titleTexts[modeKey][currentTextIndex];
-                titleBox.classList.remove('hidden');
-            }, 500);
-        }
-
-        // INITIALIZATION
+        // Wait for DOM to be fully loaded
         document.addEventListener('DOMContentLoaded', function() {
+            console.log("LOG-GTCVI-Wide-Generic.html — build 2026-09-10 (rebuilt from ROM-GTCVI-Wide-Generic.html's fixed codebase, TLR level added)");
+            initializeApp();
+        });
+
+        // Main initialization function
+        function initializeApp() {
+            console.log("Initializing Inverted Bell Curve Template...");
             
             try {
                 // Get DOM elements
                 const svg = document.getElementById("svgCanvas");
-                const bellCurve = document.getElementById("bellCurve");
+                const invertedCurve = document.getElementById("invertedCurve");
                 const conceptBackground = document.getElementById("conceptBackground");
+                const titleBox = document.getElementById("title-box");
+                const conceptIndicator = document.getElementById("concept-indicator");
+                const levelIndicator = document.getElementById("level-indicator");
+                const modeToggleBtn = document.getElementById("modeToggle");
                 const frame = document.getElementById("draggableFrame");
+                const dragInstruction = document.getElementById("drag-instruction");
                 const interactiveText = document.getElementById("interactiveText");
                 const slidingText = document.getElementById("slidingText");
-                const quizCheck = document.getElementById("quizCheck");
+                const quizContainer = document.getElementById("quizContainer");
                 const quizInput = document.getElementById("quizInput");
+                const quizCheck = document.getElementById("quizCheck");
+                const quizFeedback = document.getElementById("quizFeedback");
                 
                 // Tool menu items
                 const loadConceptBtn = document.getElementById("loadConcept");
                 const startQuizBtn = document.getElementById("startQuiz");
                 const toggleArraysBtn = document.getElementById("toggleArrays");
                 
+                // Vocabulary arrays elements
+                const increasingArray = document.getElementById("increasing-array");
+                const decreasingArray = document.getElementById("decreasing-array");
+                const increasingItems = document.getElementById("increasing-items");
+                const decreasingItems = document.getElementById("decreasing-items");
+                const toggleIncreasingBtn = document.getElementById("toggle-increasing");
+                const toggleDecreasingBtn = document.getElementById("toggle-decreasing");
+                
+                // Check if critical elements exist
+                if (!svg || !invertedCurve || !titleBox || !modeToggleBtn || !frame || !interactiveText) {
+                    console.error("Critical elements are missing from the DOM");
+                    return;
+                }
+                
                 // Initialize arrays
-                learnedItems = new Set();
+                learnedItemsStates = new Array(conceptData.length).fill(false);
+                learnedItemsTransitions = new Array(transitionsData.length).fill(false);
                 addedIncreasingItems = new Array(transitionsData.length).fill(false);
                 addedDecreasingItems = new Array(transitionsData.length).fill(false);
-
-                // Title box: TLR by default (matches the vocabulary-item
-                // convention — see Conceptionary_Template_Definitions.md).
-                // Was previously left showing a static HTML placeholder
-                // until the title was clicked; now genuinely defaults to
-                // real content from the moment the page loads.
-                document.getElementById('title-box').textContent = titleTexts.states[0];
-                currentTextIndex = 0;
                 
-                // Generate inverted bell curve with new parameters
-                const a = 25, b = 50, c = 40;
+                // Generate INVERTED bell curve (dips down instead of peaks up)
+                const a = 30; // Height of bell curve (now depth)
+                const b = 50; // Center x-position
+                const c = 15; // Width parameter
+                
                 const curvePoints = [];
-                
                 for (let x = -30; x <= 130; x += 1) {
-                    const y = 25 + a * Math.exp(-Math.pow(x - b, 2) / (2 * Math.pow(c, 2)));
+                    // INVERTED: Add the exponential instead of subtracting it
+                    const y = 10 + a * Math.exp(-Math.pow(x - b, 2) / (2 * Math.pow(c, 2)));
                     curvePoints.push(`${x},${y}`);
                 }
                 
-                const bellCurvePath = `M ${curvePoints.join(' L ')}`;
-                bellCurve.setAttribute('d', bellCurvePath);
-                conceptBackground.setAttribute('d', `${bellCurvePath} L 130,25 L -30,25 Z`);
-                pathLength = bellCurve.getTotalLength();
+                // Set the inverted curve path
+                const invertedCurvePath = `M ${curvePoints.join(' L ')}`;
+                invertedCurve.setAttribute('d', invertedCurvePath);
+                conceptBackground.setAttribute('d', `${invertedCurvePath} L 130,60 L -30,60 Z`);
+                
+                pathLength = invertedCurve.getTotalLength();
+                
+                // Helper function: Find data point at a position on the inverted curve
+                function getDataPointAtPosition(position) {
+                    const currentData = isStatesMode ? conceptData : transitionsData;
+                    
+                    let closestIndex = 0;
+                    let minDistance = Infinity;
+                    
+                    for (let i = 0; i < currentData.length; i++) {
+                        const distance = Math.abs(currentData[i][4] - position);
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            closestIndex = i;
+                        }
+                    }
+                    
+                    return {
+                        index: closestIndex,
+                        data: currentData[closestIndex]
+                    };
+                }
+                
+                // Update level indicator based on current mode
+                function updateLevelIndicator() {
+                    if (isStatesMode) {
+                        levelIndicator.style.display = 'none';
+                        return;
+                    }
+                    
+                    levelIndicator.style.display = 'block';
+                    
+                    switch (slidingTextMode) {
+                        case 0:
+                            levelIndicator.textContent = 'Target Language Romanized';
+                            break;
+                        case 1:
+                            levelIndicator.textContent = 'Target Language';
+                            break;
+                        case 2:
+                            levelIndicator.textContent = 'Source Language';
+                            break;
+                        case 3:
+                            levelIndicator.textContent = 'Quiz Mode';
+                            break;
+                    }
+                }
+                
+                // Update sliding text in transitions mode
+                function updateSlidingText(dataPoint) {
+                    if (isStatesMode) return;
+                    
+                    if (!dataPoint) {
+                        slidingText.textContent = "Click and drag this";
+                        return;
+                    }
+                    
+                    const index = dataPoint.index;
+                    const data = dataPoint.data;
+                    
+                    // Update the concept indicator
+                    conceptIndicator.textContent = data[0]; // Source language name
+                    
+                    if (learnedItemsTransitions[index]) {
+                        // If learned, cycle among TLR/TL/SL (0/1/2) — no Quiz branch
+                        if (slidingTextMode === 0) {
+                            slidingText.textContent = data[2]; // TLR
+                        } else if (slidingTextMode === 1) {
+                            slidingText.textContent = data[1]; // TL
+                        } else {
+                            slidingText.textContent = data[0]; // SL
+                        }
+                        interactiveText.classList.add('learned');
+                    } else {
+                        interactiveText.classList.remove('learned');
+                        
+                        if (slidingTextMode === 0) {
+                            slidingText.textContent = data[2]; // TLR (default level)
+                        } else if (slidingTextMode === 1) {
+                            slidingText.textContent = data[1]; // Target Language
+                        } else if (slidingTextMode === 2) {
+                            slidingText.textContent = data[0]; // Source Language
+                        }
+                    }
+                    
+                    updateLevelIndicator();
+                }
+                
+                // Create text boxes for States mode
+                function createTextBoxes() {
+                    if (!isStatesMode) return;
+                    
+                    // Clear existing text boxes
+                    document.querySelectorAll('.textBox').forEach(box => {
+                        if (box && box.parentNode) box.parentNode.removeChild(box);
+                    });
+                    textBoxElements = [];
+                    
+                    // Create new text boxes
+                    for (let i = 0; i < conceptData.length; i++) {
+                        const positionPercent = conceptData[i][4];
+                        const position = (positionPercent / 100) * pathLength;
+                        const point = invertedCurve.getPointAtLength(position);
 
-                // Position frame at start of curve (left baseline = position 0)
+                        // Per-index y-offset and text-anchor, ported directly
+                        // from ROM-GTCV-Generic.html (2026-09-09) — this file
+                        // shares the identical curve formula (a=30, b=50,
+                        // c=15) and the identical 20 position values, just
+                        // mirrored vertically (dip instead of peak), so the
+                        // same relative offsets ("push away from the nearby
+                        // curve into open space") apply correctly without
+                        // adjustment. Offsets are now baked in for every
+                        // item at creation time — the old "no offset until
+                        // learned" approach (needed because activationDistance
+                        // was too small to reach an offset position) is
+                        // retired in favour of GTCV's fix: activationDistance
+                        // widened instead (see below), matching GTCV exactly.
+                        let yOffset = -2;
+                        let textAnchor = "middle";
+
+                        if (i === 0) {
+                            yOffset = 11 - 2;
+                            textAnchor = "middle";
+                        } else if (i === 1) {
+                            yOffset = 8.25 - 2;
+                            textAnchor = "middle";
+                        } else if (i === 2) {
+                            yOffset = 5.5 - 2;
+                            textAnchor = "middle";
+                        } else if (i === 3) {
+                            yOffset = 2.75 - 2;
+                            textAnchor = "middle";
+                        } else if (i === 4) {
+                            // TLR5 — moved up 2% (2026-09-10 user testing)
+                            yOffset = 0 - 2 - 1.2;
+                            textAnchor = "middle";
+                        }
+                        else if (i >= 5 && i <= 9) {
+                            // TLR6-TLR10 — moved down 2% (2026-09-10 user testing)
+                            yOffset = -4 + 1.2;
+                            textAnchor = "end";
+                        }
+                        else if (i === 10) {
+                            // TLR-Lowest — moved down across the apex, sitting
+                            // directly on the curve's lowest point rather than
+                            // floating above it (2026-09-10 user testing)
+                            yOffset = 0;
+                            textAnchor = "middle";
+                        }
+                        else if (i >= 11 && i <= 14) {
+                            yOffset = -4;
+                            textAnchor = "start";
+                        }
+                        else if (i === 15) {
+                            // TLR-5 — moved up 2%, matching TLR5 (2026-09-10 user testing)
+                            yOffset = 0 - 2 - 1.2;
+                            textAnchor = "middle";
+                        } else if (i === 16) {
+                            yOffset = 2.75 - 2;
+                            textAnchor = "middle";
+                        } else if (i === 17) {
+                            yOffset = 5.5 - 2;
+                            textAnchor = "middle";
+                        } else if (i === 18) {
+                            yOffset = 8.25 - 2;
+                            textAnchor = "middle";
+                        } else if (i === 19) {
+                            yOffset = 11 - 2;
+                            textAnchor = "middle";
+                        }
+
+                        const textBox = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                        textBox.setAttribute("class", "textBox");
+                        textBox.setAttribute("x", point.x);
+                        textBox.setAttribute("y", point.y + yOffset);
+                        textBox.setAttribute("text-anchor", textAnchor);
+                        textBox.setAttribute("data-index", i);
+                        textBox.textContent = conceptData[i][2]; // Start with TLR (Target Language Romanized) — default level
+                        
+                        if (learnedItemsStates[i]) textBox.classList.add('learned');
+                        
+                        // Per-textbox click cycle, driven by the box's OWN current text —
+                        // no shared global displayLevel. Extended from 2-way (TL/SL) to
+                        // 3-way (TLR/TL/SL) — TLR is the default level.
+                        textBox.addEventListener('click', function() {
+                            const index = parseInt(this.getAttribute('data-index'));
+                            
+                            if (learnedItemsStates[index]) {
+                                if (this.textContent === conceptData[index][2]) {
+                                    this.textContent = conceptData[index][1]; // TLR -> TL
+                                } else if (this.textContent === conceptData[index][1]) {
+                                    this.textContent = conceptData[index][0]; // TL -> SL
+                                } else {
+                                    this.textContent = conceptData[index][2]; // SL -> TLR
+                                }
+                            } else {
+                                if (this.textContent === conceptData[index][2]) {
+                                    this.textContent = conceptData[index][1]; // TLR -> TL
+                                } else if (this.textContent === conceptData[index][1]) {
+                                    this.textContent = conceptData[index][0]; // TL -> SL
+                                } else if (this.textContent === conceptData[index][0]) {
+                                    showQuiz(index, this); // SL -> Quiz
+                                } else {
+                                    this.textContent = conceptData[index][2]; // Reset to TLR
+                                }
+                            }
+                        });
+                        
+                        svg.appendChild(textBox);
+                        textBoxElements.push(textBox);
+                    }
+                    
+                    console.log("Created", textBoxElements.length, "text boxes for inverted curve");
+
+                    // Re-parent the drag frame to the end of the SVG's
+                    // children so it always renders — and receives
+                    // pointer/touch events — above every text box (SVG
+                    // stacking is document-order only). Same fix as
+                    // ROM-GTCV-Generic.html / ROM-GTCVI-Shallow-Generic.html.
+                    svg.appendChild(frame);
+                }
+                
+                // Add a word to vocabulary array
+                function addToVocabularyArray(index, isIncreasing) {
+                    try {
+                        const currentData = transitionsData;
+                        const sourceLanguage = currentData[index][0];
+                        const targetLanguage = currentData[index][1];
+                        const targetLanguageRomanized = currentData[index][2];
+                        
+                        // Create item element
+                        const itemElement = document.createElement('div');
+                        itemElement.className = 'vocabulary-item';
+                        
+                        // Create Target Language span
+                        const targetSpan = document.createElement('span');
+                        targetSpan.className = 'target-language';
+                        targetSpan.textContent = targetLanguage;
+                        
+                        // Create Target Language Romanized span
+                        const romanizedSpan = document.createElement('span');
+                        romanizedSpan.className = 'romanized-language';
+                        romanizedSpan.textContent = targetLanguageRomanized;
+                        
+                        // Create Source Language span
+                        const sourceSpan = document.createElement('span');
+                        sourceSpan.className = 'source-language';
+                        sourceSpan.textContent = sourceLanguage;
+                        
+                        // Add click handlers to individual spans
+                        targetSpan.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            this.classList.toggle('hidden');
+                        });
+                        
+                        romanizedSpan.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            this.classList.toggle('hidden');
+                        });
+                        
+                        sourceSpan.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            this.classList.toggle('hidden');
+                        });
+                        
+                        // Add spans to item
+                        itemElement.appendChild(romanizedSpan);
+                        itemElement.appendChild(targetSpan);
+                        itemElement.appendChild(sourceSpan);
+                        
+                        // Add to appropriate array
+                        if (isIncreasing) {
+                            increasingItems.appendChild(itemElement);
+                            addedIncreasingItems[index] = true;
+                            increasingArray.style.display = 'block';
+                        } else {
+                            decreasingItems.appendChild(itemElement);
+                            addedDecreasingItems[index] = true;
+                            decreasingArray.style.display = 'block';
+                        }
+                        
+                        console.log("Added vocabulary item:", targetLanguageRomanized, targetLanguage, sourceLanguage);
+                    } catch (error) {
+                        console.error("Error adding vocabulary item:", error);
+                    }
+                }
+                
+                // Initialize frame position
                 function initializeFramePosition() {
-                    const startPoint = bellCurve.getPointAtLength(0);
-                    const frameW = parseFloat(frame.getAttribute('width'));
-                    const frameH = parseFloat(frame.getAttribute('height'));
-                    frame.setAttribute('x', startPoint.x - frameW / 2);
-                    frame.setAttribute('y', startPoint.y - frameH / 2);
+                    // Default start: extreme left end (0%) — the normal baseline
+                    // state before the dip begins. Consistent with the suite-wide
+                    // convention: left-to-right = normal → intensifying → normal.
+                    const startPoint = invertedCurve.getPointAtLength(0);
+                    frame.setAttribute('cx', startPoint.x);
+                    frame.setAttribute('cy', startPoint.y);
                     updateVisibleTextBoxes(startPoint);
                 }
-                initializeFramePosition();
-
-                // Event listeners for frame dragging
+                
+                // Update visible text boxes based on frame position
+                function updateVisibleTextBoxes(point) {
+                    if (!isStatesMode) return -1;
+                    
+                    let closestIndex = -1;
+                    let minDistance = Infinity;
+                    
+                    // Find closest text box and update visibility
+                    textBoxElements.forEach((textBox, index) => {
+                        if (!textBox) return;
+                        
+                        const x = parseFloat(textBox.getAttribute('x'));
+                        const y = parseFloat(textBox.getAttribute('y'));
+                        
+                        const distance = Math.sqrt(Math.pow(point.x - x, 2) + Math.pow(point.y - y, 2));
+                        
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            closestIndex = index;
+                        }
+                    });
+                    
+                    // Ensure ONLY ONE text box is active at a time
+                    textBoxElements.forEach((textBox, index) => {
+                        if (!textBox) return;
+                        
+                        if (index === closestIndex && minDistance < activationDistance) {
+                            // Show only the closest text box
+                            textBox.classList.add('active');
+                            textBox.classList.remove('hidden');
+                        } else if (learnedItemsStates[index]) {
+                            // Keep learned items visible but not active
+                            textBox.classList.remove('active');
+                            textBox.classList.add('learned');
+                            textBox.classList.remove('hidden');
+                        } else {
+                            // Hide all other text boxes
+                            textBox.classList.remove('active', 'learned');
+                            textBox.classList.add('hidden');
+                        }
+                    });
+                    
+                    if (closestIndex !== -1 && minDistance < activationDistance && conceptData[closestIndex]) {
+                        conceptIndicator.textContent = conceptData[closestIndex][0];
+                    }
+                    
+                    return closestIndex;
+                }
+                
+                // Show quiz for an item
+                function showQuiz(index, element) {
+                    console.log("Showing quiz for index:", index);
+                    const currentData = isStatesMode ? conceptData : transitionsData;
+                    currentQuizIndex = index;
+                    
+                    // Update quiz content
+                    quizInput.placeholder = currentData[index][3];
+                    quizInput.value = '';
+                    quizFeedback.textContent = '';
+                    
+                    // Make quiz visible
+                    quizContainer.style.display = 'block';
+                    quizContainer.style.visibility = 'visible';
+                    quizContainer.style.opacity = '1';
+                    quizContainer.style.zIndex = '9999';
+                    
+                    // Focus input with delay
+                    setTimeout(() => {
+                        try {
+                            quizInput.focus();
+                        } catch (e) {
+                            console.error("Error focusing quiz input:", e);
+                        }
+                    }, 100);
+                }
+                
+                // Check quiz answer
+                function checkQuizAnswer() {
+                    if (currentQuizIndex < 0) return;
+                    
+                    const currentData = isStatesMode ? conceptData : transitionsData;
+                    const userAnswer = quizInput.value.trim().toLowerCase();
+                    const correctAnswer = currentData[currentQuizIndex][2].toLowerCase(); // TLR (romanized)
+                    
+                    if (userAnswer === correctAnswer) {
+                        // Correct answer
+                        quizFeedback.textContent = 'Correct!';
+                        quizFeedback.style.color = 'green';
+                        
+                        // Mark as learned — in the correct mode-specific array only,
+                        // so a Transitions-mode quiz answer can't bleed into States
+                        // mode display at the same array index (and vice versa).
+                        if (isStatesMode) {
+                            learnedItemsStates[currentQuizIndex] = true;
+                        } else {
+                            learnedItemsTransitions[currentQuizIndex] = true;
+                        }
+                        
+                        if (isStatesMode) {
+                            // Update text box in states mode
+                            const textBox = textBoxElements[currentQuizIndex];
+                            if (textBox) {
+                                textBox.classList.add('learned');
+                                textBox.textContent = currentData[currentQuizIndex][2]; // TLR (default level)
+                            }
+                        } else {
+                            // In transitions mode
+                            slidingTextMode = 0;
+                            slidingText.textContent = currentData[currentQuizIndex][2]; // TLR (default level)
+                            interactiveText.classList.add('learned');
+                            updateLevelIndicator();
+                            
+                            // Add to vocabulary array
+                            const position = currentData[currentQuizIndex][4];
+                            const isIncreasing = position < 50; // For inverted curve: < 50 = descending
+                            
+                            if (isIncreasing && !addedIncreasingItems[currentQuizIndex]) {
+                                addToVocabularyArray(currentQuizIndex, true);
+                            } else if (!isIncreasing && !addedDecreasingItems[currentQuizIndex]) {
+                                addToVocabularyArray(currentQuizIndex, false);
+                            }
+                        }
+                        
+                        // Hide quiz after delay
+                        setTimeout(() => { quizContainer.style.display = 'none'; }, 1500);
+                    } else {
+                        // Wrong answer
+                        quizFeedback.textContent = 'Try again';
+                        quizFeedback.style.color = 'red';
+                    }
+                }
+                
+                // Frame dragging variables
+                let isDragging = false;
+                
+                // Frame drag start handler
+                function startDrag(e) {
+                    if (!isStatesMode) return;
+                    
+                    isDragging = true;
+                    frame.classList.add('dragging');
+                    
+                    // Fade out instruction on first interaction
+                    if (dragInstruction && !dragInstruction.classList.contains('fade')) {
+                        dragInstruction.classList.add('fade');
+                    }
+                    
+                    e.preventDefault();
+                }
+                
+                // Frame drag move handler with proper boundary constraints
+                function dragMove(e) {
+                    if (!isDragging || !isStatesMode) return;
+                    
+                    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                    
+                    // Convert screen coordinates to SVG viewBox coordinates
+                    // using the live transform matrix — robust against
+                    // letterboxing/pillarboxing from preserveAspectRatio,
+                    // which getBoundingClientRect ratio math does not
+                    // account for. Same fix as GTCV's original mobile bug.
+                    const svgPointFrame = svg.createSVGPoint();
+                    svgPointFrame.x = clientX;
+                    svgPointFrame.y = 0;
+                    const transformedFramePoint = svgPointFrame.matrixTransform(svg.getScreenCTM().inverse());
+                    const svgX = transformedFramePoint.x;
+                    
+                    // Find closest point on curve by testing positions along the path
+                    let bestPosition = 0;
+                    let minDistance = Infinity;
+                    
+                    // Test every 1% along the path for efficiency
+                    for (let i = 0; i <= 100; i++) {
+                        const testLength = (i / 100) * pathLength;
+                        const testPoint = invertedCurve.getPointAtLength(testLength);
+                        const distance = Math.abs(testPoint.x - svgX);
+                        
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            bestPosition = i / 100;
+                        }
+                    }
+                    
+                    // Get the actual point on the curve
+                    const curvePoint = invertedCurve.getPointAtLength(bestPosition * pathLength);
+                    
+                    // Position the circle frame directly at the curve point
+                    frame.setAttribute('cx', curvePoint.x);
+                    frame.setAttribute('cy', curvePoint.y);
+                    
+                    // Update visible text boxes
+                    updateVisibleTextBoxes(curvePoint);
+                    
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                
+                // Frame drag end handler
+                function endDrag(e) {
+                    if (isDragging) {
+                        isDragging = false;
+                        frame.classList.remove('dragging');
+                        
+                        if (e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        }
+                    }
+                }
+                
+                // Text dragging variables
+                let isTextDragging = false;
+                let hasMoved = false;
+                let textDragStartX = 0;
+                
+                // Text drag start handler
+                function startTextDrag(e) {
+                    if (isStatesMode) return;
+                    isTextDragging = true;
+                    hasMoved = false;
+                    textDragStartX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+                    console.log("Text drag started");
+                    e.preventDefault();
+                }
+                
+                // Text drag move handler with proper boundary constraints
+                function textDragMove(e) {
+                    if (!isTextDragging || isStatesMode) return;
+                    
+                    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                    
+                    // Only count as a real drag once movement exceeds a
+                    // small threshold — real touchscreens register a few
+                    // pixels of sensor jitter even on a stationary tap.
+                    const TAP_MOVEMENT_THRESHOLD = 8; // screen pixels
+                    if (Math.abs(clientX - textDragStartX) > TAP_MOVEMENT_THRESHOLD) {
+                        hasMoved = true;
+                    }
+                    
+                    const svgPoint = svg.createSVGPoint();
+                    svgPoint.x = clientX;
+                    svgPoint.y = 0;
+                    const transformedPoint = svgPoint.matrixTransform(svg.getScreenCTM().inverse());
+                    const cursorX = transformedPoint.x;
+                    
+                    let bestPosition = 0;
+                    let minDistance = Infinity;
+                    
+                    for (let i = 0; i <= 1000; i++) {
+                        const testPosition = i / 10;
+                        const testLength = (testPosition / 100) * pathLength;
+                        const testPoint = invertedCurve.getPointAtLength(testLength);
+                        const distance = Math.abs(testPoint.x - cursorX);
+                        
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            bestPosition = testPosition;
+                        }
+                    }
+                    
+                    // Apply boundary constraints to keep text visible within transitions area
+                    let visualOffset = bestPosition;
+                    
+                    // Constrain text position to visible range. Upper bound
+                    // matches the suite-wide convention (0-85%, last
+                    // segment aligning with the right frame edge) rather
+                    // than the last data item's own position (78) — that
+                    // coincidence was capping the visual reach short of
+                    // the actual edge.
+                    if (visualOffset < 1) {        
+                        visualOffset = 1;
+                    } else if (visualOffset > 85) { 
+                        visualOffset = 85;
+                    }
+                    
+                    slidingText.setAttribute('startOffset', `${visualOffset}%`);
+                    
+                    const newDataIndex = getDataPointAtPosition(visualOffset);
+                    if (newDataIndex && newDataIndex.index !== undefined) {
+                        updateSlidingText(newDataIndex);
+                    }
+                    
+                    e.preventDefault();
+                }
+                
+                // Text drag end handler
+                function endTextDrag() {
+                    if (isTextDragging) {
+                        console.log("Text drag ended, hasMoved:", hasMoved);
+                    }
+                    isTextDragging = false;
+                    setTimeout(() => { hasMoved = false; }, 100);
+                }
+                
+                // Handle sliding text clicks
+                function handleSlidingTextClick(e) {
+                    console.log("Sliding text click detected");
+                    if (isStatesMode || hasMoved) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const offset = parseFloat(slidingText.getAttribute('startOffset')) || 50;
+                    const position = offset;
+                    const dataPoint = getDataPointAtPosition(position);
+                    
+                    if (dataPoint) {
+                        const index = dataPoint.index;
+                        
+                        // Handle click based on learned status
+                        if (learnedItemsTransitions[index]) {
+                            // Cycle TLR -> TL -> SL -> TLR (no Quiz once learned)
+                            slidingTextMode = (slidingTextMode + 1) % 3;
+                            updateSlidingText(dataPoint);
+                        } else {
+                            // Cycle through levels: TLR -> TL -> SL -> Quiz
+                            if (slidingTextMode === 0) {
+                                slidingTextMode = 1; // Target Language
+                                updateSlidingText(dataPoint);
+                            } else if (slidingTextMode === 1) {
+                                slidingTextMode = 2; // Source Language
+                                updateSlidingText(dataPoint);
+                            } else if (slidingTextMode === 2) {
+                                slidingTextMode = 3; // Quiz
+                                updateLevelIndicator();
+                                showQuiz(index, interactiveText);
+                            } else {
+                                slidingTextMode = 0; // Reset to TLR
+                                updateSlidingText(dataPoint);
+                            }
+                        }
+                    }
+                }
+                
+                // Toggle arrays visibility
+                function toggleArrays() {
+                    const visibility = increasingArray.style.display === 'none' || increasingArray.style.display === '';
+                    increasingArray.style.display = visibility ? 'block' : 'none';
+                    decreasingArray.style.display = visibility ? 'block' : 'none';
+                }
+                
+                // Toggle between modes
+                function toggleMode() {
+                    console.log("Toggling mode from", isStatesMode ? "States" : "Transitions", "to", isStatesMode ? "Transitions" : "States");
+                    isStatesMode = !isStatesMode;
+                    
+                    if (isStatesMode) {
+                        // Switch to States mode
+                        frame.style.display = 'block';
+                        interactiveText.style.display = 'none';
+                        titleBox.textContent = titleTexts.states[currentTextIndex];
+                        levelIndicator.style.display = 'none';
+                        
+                        // Create text boxes
+                        createTextBoxes();
+                        initializeFramePosition();
+                        
+                        // Hide vocabulary arrays
+                        increasingArray.style.display = 'none';
+                        decreasingArray.style.display = 'none';
+                    } else {
+                        // Switch to Transitions mode
+                        frame.style.display = 'none';
+                        interactiveText.style.display = 'block';
+                        titleBox.textContent = titleTexts.transitions[currentTextIndex];
+                        
+                        // Reset sliding text to starting position
+                        slidingText.setAttribute('startOffset', '1%');
+                        slidingTextMode = 0;
+                        updateLevelIndicator();
+                        
+                        // Remove text boxes
+                        document.querySelectorAll('.textBox').forEach(box => {
+                            if (box && box.parentNode) box.parentNode.removeChild(box);
+                        });
+                        textBoxElements = [];
+                        
+                        // Set initial data point
+                        const position = 1;
+                        const dataPoint = getDataPointAtPosition(position);
+                        updateSlidingText(dataPoint);
+                        
+                        // Show vocabulary arrays only if they already hold
+                        // learned items from earlier in this session.
+                        if (increasingItems.children.length > 0) increasingArray.style.display = 'block';
+                        if (decreasingItems.children.length > 0) decreasingArray.style.display = 'block';
+                        
+                        // Ensure text is visible and re-attach events
+                        setTimeout(() => {
+                            interactiveText.style.display = 'block';
+                            
+                            // Re-attach drag events after element becomes visible
+                            interactiveText.removeEventListener('mousedown', startTextDrag);
+                            interactiveText.removeEventListener('touchstart', startTextDrag);
+                            slidingText.removeEventListener('mousedown', startTextDrag);
+                            slidingText.removeEventListener('touchstart', startTextDrag);
+                            
+                            interactiveText.addEventListener('mousedown', startTextDrag);
+                            interactiveText.addEventListener('touchstart', startTextDrag, { passive: false });
+                            slidingText.addEventListener('mousedown', startTextDrag);
+                            slidingText.addEventListener('touchstart', startTextDrag, { passive: false });
+                        }, 50);
+                    }
+                    
+                    // Hide quiz
+                    quizContainer.style.display = 'none';
+                }
+                
+                // Switch title text language
+                function switchTitleText() {
+                    titleBox.classList.add('hidden');
+                    setTimeout(() => {
+                        currentTextIndex = (currentTextIndex + 1) % 3;
+                        const modeKey = isStatesMode ? 'states' : 'transitions';
+                        titleBox.textContent = titleTexts[modeKey][currentTextIndex];
+                        titleBox.classList.remove('hidden');
+                    }, 500);
+                }
+                
+                // Load concept function (placeholder for future API integration)
+                function loadConcept() {
+                    alert("Load Concept feature will integrate with API to fetch vocabulary for inverted conceptual spectrums (sudden dips and recoveries).");
+                }
+                
+                // Document click handler for closing quizzes
+                document.addEventListener('click', function(e) {
+                    if (quizContainer.style.display !== 'none' && 
+                        !quizContainer.contains(e.target) && 
+                        e.target !== interactiveText &&
+                        e.target !== slidingText &&
+                        !textBoxElements.includes(e.target)) {
+                        
+                        console.log("Hiding quiz from outside click");
+                        quizContainer.style.display = 'none';
+                        
+                        // Reset to TLR mode if in quiz mode
+                        if (slidingTextMode === 3) {
+                            slidingTextMode = 0;
+                            
+                            // Update display in transitions mode
+                            if (!isStatesMode) {
+                                const offset = parseFloat(slidingText.getAttribute('startOffset')) || 50;
+                                const position = offset;
+                                const dataPoint = getDataPointAtPosition(position);
+                                updateSlidingText(dataPoint);
+                            }
+                        }
+                    }
+                });
+                
+                // Add event listeners
+                // Frame dragging
                 frame.addEventListener('mousedown', startDrag);
                 frame.addEventListener('touchstart', startDrag, { passive: false });
                 document.addEventListener('mousemove', dragMove);
@@ -1626,78 +1525,206 @@
                 document.addEventListener('mouseup', endDrag);
                 document.addEventListener('touchend', endDrag);
                 
-                // Text dragging (Transitions mode)
+                // Text dragging event listeners
                 interactiveText.addEventListener('mousedown', startTextDrag);
                 interactiveText.addEventListener('touchstart', startTextDrag, { passive: false });
-                document.addEventListener('mousemove', textDragMove);
-                document.addEventListener('touchmove', textDragMove, { passive: false });
+                slidingText.addEventListener('mousedown', startTextDrag);
+                slidingText.addEventListener('touchstart', startTextDrag, { passive: false });
+                
+                // Global drag move and end events for text
+                document.addEventListener('mousemove', function(e) {
+                    if (isTextDragging && !isStatesMode) {
+                        textDragMove(e);
+                    }
+                });
+                document.addEventListener('touchmove', function(e) {
+                    if (isTextDragging && !isStatesMode) {
+                        textDragMove(e);
+                    }
+                }, { passive: false });
                 document.addEventListener('mouseup', endTextDrag);
                 document.addEventListener('touchend', endTextDrag);
                 
-                // Text clicking (Transitions mode)
+                // Mobile tap-to-cycle. Registered on document, AFTER
+                // endTextDrag above, so isTextDragging has already been
+                // reset by the time this runs.
+                document.addEventListener('touchend', function(e) {
+                    if (!isTextDragging && !isStatesMode && !hasMoved && interactiveText.contains(e.target)) {
+                        handleSlidingTextClick(e);
+                    }
+                });
+                
+                // Text clicking
                 interactiveText.addEventListener('click', handleSlidingTextClick);
                 slidingText.addEventListener('click', handleSlidingTextClick);
                 
-                // Double-click outside quiz box to hide it
-                document.addEventListener('dblclick', function(e) {
-                    const quizContainer = document.getElementById('quizContainer');
-                    
-                    if (quizContainer.style.display !== 'none') {
-                        if (!quizContainer.contains(e.target)) {
-                            hideQuiz();
-                            
-                            if (!isStatesMode && currentLevel === 4) {
-                                currentLevel = 1;
-                                setLevel(1);
-                            }
-                            
-                            e.preventDefault();
-                            e.stopPropagation();
-                        }
-                    }
-                });
-                
-                // Other controls
-                document.getElementById('title-box').addEventListener('click', switchTitleText);
-                document.getElementById('modeToggle').addEventListener('click', toggleMode);
-                document.getElementById('display-mode-toggle').addEventListener('click', cycleDisplayLevel);
-                
-                // Audio button
-                document.getElementById('audio-button').addEventListener('click', function() {
-                    if (isStatesMode) {
-                        // Find active text box and play its audio
-                        const activeTextBox = textBoxElements.find(tb => tb && tb.classList.contains('active'));
-                        if (activeTextBox) {
-                            const index = parseInt(activeTextBox.getAttribute('data-index'));
-                            playAudio(conceptData[index][1], 'target-language');
-                        } else {
-                            alert('Move the frame to a position to hear pronunciation');
-                        }
-                    } else {
-                        // Play audio for current transition
-                        const currentData = transitionsData[currentDataIndex];
-                        playAudio(currentData.targetLanguage, 'target-language');
-                    }
-                });
-                
+                // Other UI controls
+                titleBox.addEventListener('click', switchTitleText);
+                modeToggleBtn.addEventListener('click', toggleMode);
                 quizCheck.addEventListener('click', checkQuizAnswer);
-                
                 quizInput.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        checkQuizAnswer();
-                    } else if (e.key === 'Escape') {
-                        hideQuiz();
-                    }
-                });
-                
-                document.getElementById('toggle-increasing').addEventListener('click', function() {
-                    toggleArrayVisibility('increasing');
-                });
-                
-                document.getElementById('toggle-decreasing').addEventListener('click', function() {
-                    toggleArrayVisibility('decreasing');
+                    if (e.key === 'Enter') checkQuizAnswer();
                 });
 
+                // ── Keyboard-avoidance for the Quiz box ──────────────────
+                if (window.visualViewport) {
+                    const KEYBOARD_HEIGHT_THRESHOLD = 150;
+                    function handleViewportResize() {
+                        const heightDiff = window.innerHeight - window.visualViewport.height;
+                        if (heightDiff > KEYBOARD_HEIGHT_THRESHOLD) {
+                            quizContainer.classList.add('keyboard-open');
+                        } else {
+                            quizContainer.classList.remove('keyboard-open');
+                        }
+                    }
+                    window.visualViewport.addEventListener('resize', handleViewportResize);
+                }
+
+                // ── Full Screen toggle ────────────────────────────────────
+                const fullscreenToggle = document.getElementById('toggleFullscreen');
+                if (fullscreenToggle) {
+                    fullscreenToggle.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        if (!document.fullscreenElement) {
+                            if (document.documentElement.requestFullscreen) {
+                                document.documentElement.requestFullscreen().catch(function(err) {
+                                    console.log('Full screen request failed or unsupported:', err);
+                                });
+                            }
+                            fullscreenToggle.textContent = 'Exit Full Screen';
+                        } else {
+                            if (document.exitFullscreen) {
+                                document.exitFullscreen();
+                            }
+                            fullscreenToggle.textContent = 'Full Screen';
+                        }
+                        dropdownOpen = false;
+                        if (toolsDropdown) toolsDropdown.classList.remove('active');
+                    });
+                }
+                document.addEventListener('fullscreenchange', function() {
+                    if (fullscreenToggle) {
+                        fullscreenToggle.textContent = document.fullscreenElement ? 'Exit Full Screen' : 'Full Screen';
+                    }
+                });
+
+                // ── Quiz box: drag to reposition anywhere on screen ──────
+                (function setupQuizDrag() {
+                    let isDraggingQuiz = false;
+                    let quizDragOffsetX = 0;
+                    let quizDragOffsetY = 0;
+
+                    function quizDragStart(e) {
+                        if (e.target === quizInput || e.target === quizCheck) return;
+                        isDraggingQuiz = true;
+                        const rect = quizContainer.getBoundingClientRect();
+                        const point = e.touches ? e.touches[0] : e;
+                        quizDragOffsetX = point.clientX - rect.left;
+                        quizDragOffsetY = point.clientY - rect.top;
+                        quizContainer.style.left = rect.left + 'px';
+                        quizContainer.style.top = rect.top + 'px';
+                        quizContainer.style.transform = 'none';
+                        quizContainer.classList.add('dragging');
+                        if (e.touches) e.preventDefault();
+                    }
+
+                    function quizDragMove(e) {
+                        if (!isDraggingQuiz) return;
+                        const point = e.touches ? e.touches[0] : e;
+                        let newLeft = point.clientX - quizDragOffsetX;
+                        let newTop = point.clientY - quizDragOffsetY;
+                        const maxLeft = window.innerWidth - quizContainer.offsetWidth;
+                        const maxTop = window.innerHeight - quizContainer.offsetHeight;
+                        newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                        newTop = Math.max(0, Math.min(newTop, maxTop));
+                        quizContainer.style.left = newLeft + 'px';
+                        quizContainer.style.top = newTop + 'px';
+                        if (e.touches) e.preventDefault();
+                    }
+
+                    function quizDragEnd() {
+                        isDraggingQuiz = false;
+                        quizContainer.classList.remove('dragging');
+                    }
+
+                    quizContainer.addEventListener('mousedown', quizDragStart);
+                    document.addEventListener('mousemove', quizDragMove);
+                    document.addEventListener('mouseup', quizDragEnd);
+
+                    quizContainer.addEventListener('touchstart', quizDragStart, { passive: false });
+                    document.addEventListener('touchmove', quizDragMove, { passive: false });
+                    document.addEventListener('touchend', quizDragEnd);
+                })();
+
+                // ── Title box: drag to reposition anywhere on screen ────
+                (function setupTitleDrag() {
+                    const tb = document.getElementById('title-box');
+                    let isDraggingTitle = false;
+                    let titleHasMoved = false;
+                    let titleDragStartX = 0;
+                    let titleDragStartY = 0;
+                    let titleDragOffsetX = 0;
+                    let titleDragOffsetY = 0;
+                    const TITLE_DRAG_THRESHOLD = 8; // screen pixels
+
+                    function titleDragStart(e) {
+                        const point = e.touches ? e.touches[0] : e;
+                        titleDragStartX = point.clientX;
+                        titleDragStartY = point.clientY;
+                        titleHasMoved = false;
+                        isDraggingTitle = true;
+                        const rect = tb.getBoundingClientRect();
+                        titleDragOffsetX = point.clientX - rect.left;
+                        titleDragOffsetY = point.clientY - rect.top;
+                    }
+
+                    function titleDragMove(e) {
+                        if (!isDraggingTitle) return;
+                        const point = e.touches ? e.touches[0] : e;
+                        const dx = point.clientX - titleDragStartX;
+                        const dy = point.clientY - titleDragStartY;
+
+                        if (!titleHasMoved && Math.hypot(dx, dy) > TITLE_DRAG_THRESHOLD) {
+                            titleHasMoved = true;
+                            tb.style.position = 'fixed';
+                            tb.style.transform = 'none';
+                            tb.classList.add('dragging');
+                        }
+
+                        if (titleHasMoved) {
+                            let newLeft = point.clientX - titleDragOffsetX;
+                            let newTop = point.clientY - titleDragOffsetY;
+                            const maxLeft = window.innerWidth - tb.offsetWidth;
+                            const maxTop = window.innerHeight - tb.offsetHeight;
+                            newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                            newTop = Math.max(0, Math.min(newTop, maxTop));
+                            tb.style.left = newLeft + 'px';
+                            tb.style.top = newTop + 'px';
+                            if (e.touches) e.preventDefault();
+                        }
+                    }
+
+                    function titleDragEnd() {
+                        isDraggingTitle = false;
+                        tb.classList.remove('dragging');
+                    }
+
+                    tb.addEventListener('mousedown', titleDragStart);
+                    document.addEventListener('mousemove', titleDragMove);
+                    document.addEventListener('mouseup', titleDragEnd);
+
+                    tb.addEventListener('touchstart', titleDragStart, { passive: true });
+                    document.addEventListener('touchmove', titleDragMove, { passive: false });
+                    document.addEventListener('touchend', titleDragEnd);
+
+                    tb.addEventListener('click', function(e) {
+                        if (titleHasMoved) {
+                            e.stopImmediatePropagation();
+                            e.preventDefault();
+                        }
+                    }, true);
+                })();
+                
                 // Tools menu interaction
                 const toolsButton = document.querySelector('.tools-button');
                 const toolsDropdown = document.querySelector('.tools-dropdown');
@@ -1746,28 +1773,19 @@
                         const currentData = isStatesMode ? conceptData : transitionsData;
                         const randomIndex = Math.floor(Math.random() * currentData.length);
                         
-                        if (isStatesMode) {
-                            currentQuizIndex = randomIndex;
-                            const quizInput = document.getElementById("quizInput");
-                            const quizFeedback = document.getElementById("quizFeedback");
-                            const quizContainer = document.getElementById("quizContainer");
-                            
-                            quizInput.placeholder = currentData[randomIndex][3];
-                            quizInput.value = '';
-                            quizFeedback.textContent = '';
-                            
-                            quizContainer.style.display = 'block';
-                            quizContainer.style.visibility = 'visible';
-                            quizContainer.style.opacity = '1';
-                            quizContainer.style.zIndex = '9999';
-                            
-                            setTimeout(() => {
-                                quizInput.focus();
-                            }, 100);
-                        } else {
-                            currentQuizIndex = randomIndex;
-                            showQuiz();
-                        }
+                        currentQuizIndex = randomIndex;
+                        quizInput.placeholder = currentData[randomIndex][3];
+                        quizInput.value = '';
+                        quizFeedback.textContent = '';
+                        
+                        quizContainer.style.display = 'block';
+                        quizContainer.style.visibility = 'visible';
+                        quizContainer.style.opacity = '1';
+                        quizContainer.style.zIndex = '9999';
+                        
+                        setTimeout(() => {
+                            quizInput.focus();
+                        }, 100);
                     });
                 }
                 
@@ -1779,51 +1797,45 @@
                         toggleArrays();
                     });
                 }
-
-                // Initialize in States mode
+                
+                // Toggle array visibility buttons
+                toggleIncreasingBtn.addEventListener('click', function() {
+                    toggleArrayVisibility('increasing');
+                });
+                
+                toggleDecreasingBtn.addEventListener('click', function() {
+                    toggleArrayVisibility('decreasing');
+                });
+                
+                // Initialize the UI
                 createTextBoxes();
-                
-                // Position frame at the start with inverted curve
-                const startPercent = 5;
-                const startPosition = getPositionFromPercent(startPercent);
-                const startPoint = bellCurve.getPointAtLength(startPosition);
-                
-                frame.setAttribute('x', startPoint.x - parseFloat(frame.getAttribute('width'))/2);
-                frame.setAttribute('y', startPoint.y - parseFloat(frame.getAttribute('height'))/2);
-                
-                // Initialize first text box visibility
-                setTimeout(() => {
-                    const frameCenter = {
-                        x: startPoint.x,
-                        y: startPoint.y
-                    };
-                    updateVisibleTextBoxes(frameCenter);
-                    document.getElementById('concept-indicator').textContent = conceptData[0][0];
-                }, 100);
-                
-                // Hide transitions mode elements initially
+                initializeFramePosition();
                 interactiveText.style.display = 'none';
-                document.getElementById('level-indicator').style.display = 'none';
-                document.getElementById('quizContainer').style.display = 'none';
-                document.getElementById('increasing-array').style.display = 'none';
-                document.getElementById('decreasing-array').style.display = 'none';
+                levelIndicator.style.display = 'none';
+                quizContainer.style.display = 'none';
+                increasingArray.style.display = 'none';
+                decreasingArray.style.display = 'none';
                 
-                // Hide instruction message after 7 seconds
-                setTimeout(() => {
-                    const instructions = document.getElementById('instructions');
-                    if (instructions) {
-                        instructions.classList.add('fade');
-                        setTimeout(() => {
-                            instructions.style.display = 'none';
-                        }, 2000);
-                    }
-                }, 7000);
+                // Set sliding text starting position
+                slidingText.setAttribute('startOffset', '1%');
                 
+                // Fade out drag instruction after 8 seconds if not already
+                // dismissed by interaction.
+                if (dragInstruction) {
+                    setTimeout(() => {
+                        dragInstruction.classList.add('fade');
+                    }, 20000);
+                }
+                
+                console.log("Inverted Bell Curve Template initialized successfully");
+                console.log("States Mode: 19 textboxes positioned along inverted curve");
+                console.log("Transitions Mode: 10 transition phrases for decline & recovery");
+                console.log("Perfect for concepts that suddenly dip and then recover");
                 
             } catch (error) {
-                console.error("Error initializing logographic template:", error);
+                console.error("Error initializing application:", error);
             }
-        });
+        }
     </script>
 </body>
 </html>

@@ -1,3 +1,4 @@
+<!-- Last updated: 2026-09-10 @ 3:35 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,11 +19,18 @@
         }
 
         .a4-page {
-            width: 90vw;
-            height: 70vh;
+            /* Locked to the SVG viewBox's exact 160:50 ratio so the curve
+               always reaches the frame edges — fitting within the 90vw/70vh
+               box on whichever axis is the tighter constraint, rather than
+               relying on preserveAspectRatio's letterboxing. content-box
+               (not border-box) is deliberate: these values need to apply
+               to the content area the SVG fills, not the border-inclusive
+               outer box. */
+            width: min(90vw, 70vh * 160 / 50);
+            height: min(70vh, 90vw * 50 / 160);
             border: 5px solid #007bff;
             background-color: white;
-            box-sizing: border-box;
+            box-sizing: content-box;
             position: relative;
             touch-action: none;
             z-index: 1;
@@ -96,15 +104,57 @@
         /* Enhanced draggable frame */
         #draggableFrame {
             cursor: grab;
-            fill: rgba(100, 150, 255, 0.2);
-            stroke: black;
-            stroke-width: 0.1px;
+            fill: rgba(255, 255, 0, 0.6);
+            stroke: #ccaa00;
+            stroke-width: 0.1;
             pointer-events: all;
-            opacity: 0.8;
+            opacity: 1;
+            filter: drop-shadow(0 0.3px 0.5px rgba(0,0,0,0.3));
+            transition: fill 0.2s ease, stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
+        }
+
+        #draggableFrame:hover {
+            fill: rgba(255, 255, 0, 0.8);
+            stroke: #ffcc00;
+            stroke-width: 0.15;
+            cursor: grab;
+            filter: drop-shadow(0 0.5px 1px rgba(204, 170, 0, 0.6)) drop-shadow(0 0 2px rgba(255, 255, 100, 0.8));
         }
 
         #draggableFrame.dragging {
             cursor: grabbing;
+            fill: transparent;
+            stroke-width: 0.1;
+            filter: drop-shadow(0 0.5px 1px rgba(255, 170, 0, 0.6)) drop-shadow(0 0 2px rgba(255, 220, 0, 0.8));
+            stroke: #ffaa00;
+        }
+
+        @keyframes pulsateAttention {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        .drag-instruction {
+            position: absolute;
+            top: 13%;
+            left: 25%;
+            transform: translateX(-50%);
+            font-size: 0.85em;
+            padding: 6px 12px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            z-index: 3;
+            opacity: 1;
+            transition: opacity 2s ease;
+            text-align: left;
+            max-width: 400px;
+            animation: pulsateAttention 0.6s ease-in-out 3;
+        }
+
+        .drag-instruction.fade {
+            opacity: 0;
+            pointer-events: none;
         }
 
         /* Background gradient */
@@ -114,8 +164,15 @@
         }
 
         /* Transitions Mode Elements */
+        .transition-learned-marker {
+            font-size: 0.2em;
+            fill: #007bff;
+            font-weight: bold;
+            font-family: "Noto Sans CJK", "Hiragino Sans", "Yu Gothic", "SimSun", "KaiTi", "Noto Sans Arabic", "Noto Sans Devanagari", "Noto Serif", "Meiryo", sans-serif;
+        }
+
         .sliding-text {
-            font-size: 3.5px;
+            font-size: 0.2em;
             font-weight: bold;
             fill: blue;
             cursor: pointer;
@@ -160,7 +217,7 @@
             font-size: 1em;
             font-weight: bold;
             text-align: center;
-            cursor: pointer;
+            cursor: grab;
             border: 1px solid #007bff;
             padding: 10px;
             background-color: white;
@@ -168,6 +225,11 @@
             transition: opacity 0.5s ease, transform 0.5s ease;
             font-family: "Noto Sans CJK", "Hiragino Sans", "Yu Gothic", "SimSun", "KaiTi", "Noto Sans Arabic", "Noto Sans Devanagari", "Noto Serif", "Meiryo", sans-serif;
             color: #007bff;
+        }
+
+        .title-box.dragging {
+            cursor: grabbing;
+            transition: none;
         }
         
         .title-box.hidden {
@@ -178,21 +240,25 @@
         /* Mode Toggle Button */
         .mode-toggle {
             position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 90%;
+            left: 85%;
             font-size: 0.8em;
             padding: 8px 16px;
             background-color: #e3f2fd;
             border: 1px solid #007bff;
             border-radius: 4px;
-            cursor: pointer;
+            cursor: grab;
             z-index: 1000;
             color: #007bff;
+        }
+
+        .mode-toggle.dragging {
+            cursor: grabbing;
         }
         
         /* Concept Indicator */
         .concept-indicator {
+            display: none;
             position: absolute;
             bottom: 60px;
             left: 50%;
@@ -208,6 +274,7 @@
 
         /* Level indicator for transitions mode */
         .level-indicator {
+            display: none !important; /* Redundant now that TL-/TLR-/SL- prefixes are built into the sliding text itself */
             position: absolute;
             top: 60px;
             left: 50%;
@@ -262,31 +329,9 @@
         }
 
         /* Instructions */
-        .instructions {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 0.8em;
-            padding: 6px 10px;
-            background-color: rgba(255, 255, 255, 0.95);
-            border: 2px solid #007bff;
-            border-radius: 6px;
-            z-index: 3;
-            color: #007bff;
-            font-weight: bold;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            max-width: 200px;
-            opacity: 1;
-            transition: opacity 2s ease;
-        }
-        
-        .instructions.fade {
-            opacity: 0;
-        }
-
         /* Quiz container styles */
         .quiz-container {
+            box-sizing: border-box;
             position: fixed;
             top: 60%;
             left: 50%;
@@ -316,16 +361,19 @@
         }
         
         .quiz-container input {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
             font-size: 14px;
             border: 1px solid #007bff;
             border-radius: 4px;
             margin-bottom: 10px;
+            cursor: text;
             font-family: "Noto Sans CJK", "Hiragino Sans", "Yu Gothic", "SimSun", "KaiTi", "Noto Sans Arabic", "Noto Sans Devanagari", "Noto Serif", "Meiryo", sans-serif;
         }
         
         .quiz-container button {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
             background-color: #007bff;
@@ -339,6 +387,25 @@
         .quiz-container button:hover {
             background-color: #0056b3;
         }
+
+        .quiz-container.keyboard-open {
+            top: 8px;
+            transform: translate(-50%, 0);
+            max-width: 90vw;
+            width: 320px;
+            padding: 8px;
+        }
+
+        .quiz-container.keyboard-open input {
+            font-size: 13px;
+            padding: 6px;
+            margin-bottom: 6px;
+        }
+
+        .quiz-container.keyboard-open #quizFeedback {
+            min-height: 14px;
+            margin-top: 4px;
+        }
         
         #quizFeedback {
             text-align: center;
@@ -349,7 +416,9 @@
 
         /* Vocabulary Arrays Styles */
         .vocabulary-array {
+            display: none !important; /* Hidden 2026-09-10 — narrow a4-page frame leaves no room either side; learned items now shown via permanent curve markers instead */
             position: absolute;
+            top: 50%;
             width: 25%;
             max-height: 40vh;
             overflow-y: auto;
@@ -358,17 +427,23 @@
             border-radius: 4px;
             padding: 5px;
             z-index: 4;
-            display: none;
+            cursor: grab;
+        }
+
+        .vocabulary-array.dragging {
+            cursor: grabbing;
+        }
+
+        .vocabulary-array .array-title {
+            cursor: grab;
         }
 
         #increasing-array {
             left: 5px;
-            top: 5px;
         }
 
         #decreasing-array {
             right: 5px;
-            top: 35px;
         }
 
         .array-title {
@@ -524,6 +599,82 @@
             background-color: #f5f5f5;
         }
 
+        /* ── TEMPORARY coordinate grid overlay ────────────────────────
+           Shows x%/y% of .a4-page — the same coordinate system used by
+           left:/top: on title-box, vocabulary-array, etc. Reinstated
+           2026-09-10 for manually plotting Transitions-mode marker
+           positions. Safe to delete this whole rule (and the matching
+           HTML/JS) once no longer needed. */
+        .coordinate-grid {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            pointer-events: none;
+        }
+
+        .coordinate-grid.active {
+            display: block;
+        }
+
+        .coordinate-grid .grid-line-v {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 1px;
+            background: rgba(255, 0, 0, 0.4);
+        }
+
+        .coordinate-grid .grid-line-h {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: rgba(255, 0, 0, 0.4);
+        }
+
+        .coordinate-grid .grid-label-x {
+            position: absolute;
+            top: 2px;
+            transform: translateX(-50%);
+            font-size: 10px;
+            font-family: monospace;
+            color: red;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 0 2px;
+            white-space: nowrap;
+        }
+
+        .coordinate-grid .grid-label-y {
+            position: absolute;
+            left: 2px;
+            transform: translateY(-50%);
+            font-size: 10px;
+            font-family: monospace;
+            color: red;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 0 2px;
+            white-space: nowrap;
+        }
+
+        /* ── Mobile sizing: circle and text ───────────────────────────
+           Starting values ported from GTCV's tested end-state, not yet
+           re-confirmed on this file — treat as a starting point, per
+           the GTCV Mobile Fixes Checklist, item 14. */
+        @media (pointer: coarse) {
+            #draggableFrame {
+                r: 3;
+            }
+            .textBox {
+                font-size: 0.3em;
+            }
+            .sliding-text {
+                font-size: 0.2em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -533,15 +684,20 @@
         <div id="level-indicator" class="level-indicator">Target Language</div>
         <div id="display-mode-toggle" class="display-mode-toggle">Show: TL</div>
         <div id="audio-button" class="audio-button">🔊 Audio</div>
-        <div id="instructions" class="instructions">🎯 Drag the blue frame to explore positions!</div>
+        <div id="drag-instruction" class="drag-instruction">Mobile Phone users: click 'Tools' then 'Full Screen'.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again.</div>
+
+        <!-- TEMPORARY coordinate grid overlay — see CSS comment above -->
+        <div id="coordinate-grid" class="coordinate-grid"></div>
         
         <!-- Tools Menu -->
         <div class="tools-menu">
             <div class="tools-button">Tools</div>
             <div class="tools-dropdown">
+                <div class="tool-item" id="toggleFullscreen">Full Screen</div>
                 <div class="tool-item" id="loadConcept">Load Concept</div>
                 <div class="tool-item" id="startQuiz">Quick Quiz</div>
-                <div class="tool-item" id="toggleArrays">Toggle Arrays</div>
+                <div class="tool-item" id="toggleArrays">Hide/Show Arrays</div>
+                <div class="tool-item" id="toggleGrid">Toggle Coordinate Grid</div>
             </div>
         </div>
         
@@ -580,7 +736,7 @@
             </text>
             
             <!-- States Mode Elements -->
-            <rect id="draggableFrame" x="40" y="20" width="10" height="5" rx="1"/>
+            <circle id="draggableFrame" cx="45" cy="22.5" r="1.5"/>
         </svg>
         
         <button id="modeToggle" class="mode-toggle">Toggle Mode</button>
@@ -604,117 +760,111 @@
         // Format: [Source Language, Target Language, Target Language Romanized, Quiz Question, Position %]
         const conceptData = [
             // Descending phase (toward the shallow dip) - positions 5% to 45%
-            ["SL1", "TL1", "TLR1", "What's the target language for 'SL1'?", 5],
-            ["SL2", "TL2", "TLR2", "What's the target language for 'SL2'?", 9.44],
-            ["SL3", "TL3", "TLR3", "What's the target language for 'SL3'?", 13.89],
-            ["SL4", "TL4", "TLR4", "What's the target language for 'SL4'?", 18.33],
-            ["SL5", "TL5", "TLR5", "What's the target language for 'SL5'?", 22.78],
-            ["SL6", "TL6", "TLR6", "What's the target language for 'SL6'?", 27.22],
-            ["SL7", "TL7", "TLR7", "What's the target language for 'SL7'?", 31.67],
-            ["SL8", "TL8", "TLR8", "What's the target language for 'SL8'?", 36.11],
-            ["SL9", "TL9", "TLR9", "What's the target language for 'SL9'?", 40.56],
-            ["SL10", "TL10", "TLR10", "What's the target language for 'SL10'?", 45],
+            ["SL1", "TL1", "TLR1", "What's the romanized target language for 'SL1'?", 5],
+            ["SL2", "TL2", "TLR2", "What's the romanized target language for 'SL2'?", 9.44],
+            ["SL3", "TL3", "TLR3", "What's the romanized target language for 'SL3'?", 13.89],
+            ["SL4", "TL4", "TLR4", "What's the romanized target language for 'SL4'?", 18.33],
+            ["SL5", "TL5", "TLR5", "What's the romanized target language for 'SL5'?", 22.78],
+            ["SL6", "TL6", "TLR6", "What's the romanized target language for 'SL6'?", 27.22],
+            ["SL7", "TL7", "TLR7", "What's the romanized target language for 'SL7'?", 31.67],
+            ["SL8", "TL8", "TLR8", "What's the romanized target language for 'SL8'?", 36.11],
+            ["SL9", "TL9", "TLR9", "What's the romanized target language for 'SL9'?", 40.56],
+            ["SL10", "TL10", "TLR10", "What's the romanized target language for 'SL10'?", 45],
             
             // Shallow dip — lowest point, brief/minor negative state (50%)
             ["SL-Dip", "TL-Dip", "TLR-Dip", "What's the target language for the dip concept?", 50],
             
             // Ascending phase (recovering from the dip) - positions 55% to 95%
-            ["SL-9", "TL-9", "TLR-9", "What's the target language for 'SL-9'?", 55],
-            ["SL-8", "TL-8", "TLR-8", "What's the target language for 'SL-8'?", 60],
-            ["SL-7", "TL-7", "TLR-7", "What's the target language for 'SL-7'?", 65],
-            ["SL-6", "TL-6", "TLR-6", "What's the target language for 'SL-6'?", 70],
-            ["SL-5", "TL-5", "TLR-5", "What's the target language for 'SL-5'?", 75],
-            ["SL-4", "TL-4", "TLR-4", "What's the target language for 'SL-4'?", 80],
-            ["SL-3", "TL-3", "TLR-3", "What's the target language for 'SL-3'?", 85],
-            ["SL-2", "TL-2", "TLR-2", "What's the target language for 'SL-2'?", 90],
-            ["SL-1", "TL-1", "TLR-1", "What's the target language for 'SL-1'?", 95]
+            ["SL-9", "TL-9", "TLR-9", "What's the romanized target language for 'SL-9'?", 55],
+            ["SL-8", "TL-8", "TLR-8", "What's the romanized target language for 'SL-8'?", 60],
+            ["SL-7", "TL-7", "TLR-7", "What's the romanized target language for 'SL-7'?", 65],
+            ["SL-6", "TL-6", "TLR-6", "What's the romanized target language for 'SL-6'?", 70],
+            ["SL-5", "TL-5", "TLR-5", "What's the romanized target language for 'SL-5'?", 75],
+            ["SL-4", "TL-4", "TLR-4", "What's the romanized target language for 'SL-4'?", 80],
+            ["SL-3", "TL-3", "TLR-3", "What's the romanized target language for 'SL-3'?", 85],
+            ["SL-2", "TL-2", "TLR-2", "What's the romanized target language for 'SL-2'?", 90],
+            ["SL-1", "TL-1", "TLR-1", "What's the romanized target language for 'SL-1'?", 95]
         ];
 
         // Transitions data for health/wellness spectrum
         const transitionsData = [
-            // Declining health transitions (1% to 45%)
+            // Declining health transitions (1% to 35%)
             {
                 process: "Feeling fine",
                 targetLanguage: "TL-Feeling fine",
-                romanized: "TL-Feeling-fine-rom",
-                sourceLanguage: "Feeling fine",
-                question: "What's the target language for 'Feeling fine'?",
+                romanized: "TLR-Feeling fine",
+                sourceLanguage: "SL-Feeling fine",
+                question: "What's the romanized target language for 'Feeling fine'?",
                 positionPercent: 1
             },
             {
-                process: "Starting to feel off colour", 
-                targetLanguage: "TL-Starting to feel off colour",
-                romanized: "TL-Off-colour-rom",
-                sourceLanguage: "Starting to feel off colour",
-                question: "What's the target language for 'Starting to feel off colour'?",
+                process: "Starting to feel off-colour",
+                targetLanguage: "TL-Starting to feel off-colour",
+                romanized: "TLR-Starting to feel off-colour",
+                sourceLanguage: "SL-Starting to feel off-colour",
+                question: "What's the romanized target language for 'Starting to feel off-colour'?",
                 positionPercent: 15
             },
             {
-                process: "Coming down with something",
-                targetLanguage: "TL-Coming down with something", 
-                romanized: "TL-Coming-down-rom",
-                sourceLanguage: "Coming down with something",
-                question: "What's the target language for 'Coming down with something'?",
+                process: "Coming down",
+                targetLanguage: "TL-Coming down",
+                romanized: "TLR-Coming down",
+                sourceLanguage: "SL-Coming down",
+                question: "What's the romanized target language for 'Coming down'?",
                 positionPercent: 25
             },
             {
-                process: "Feeling terrible",
-                targetLanguage: "TL-Feeling terrible",
-                romanized: "TL-Feeling-terrible-rom", 
-                sourceLanguage: "Feeling terrible",
-                question: "What's the target language for 'Feeling terrible'?",
+                process: "Feeling Terrible",
+                targetLanguage: "TL-Feeling Terrible",
+                romanized: "TLR-Feeling Terrible",
+                sourceLanguage: "SL-Feeling Terrible",
+                question: "What's the romanized target language for 'Feeling Terrible'?",
                 positionPercent: 35
             },
-            {
-                process: "At the worst point",
-                targetLanguage: "TL-At the worst point",
-                romanized: "TL-Worst-point-rom",
-                sourceLanguage: "At the worst point", 
-                question: "What's the target language for 'At the worst point'?",
-                positionPercent: 45
-            },
             
-            // Peak illness (50%)
+            // Peak illness (50%) — single merged concept, replacing the
+            // former separate "At the worst point" (45%) and "Rock
+            // bottom" (50%) entries, per Alan's 2026-09-10 request.
             {
-                process: "Rock bottom",
-                targetLanguage: "TL-Rock bottom",
-                romanized: "TL-Rock-bottom-rom",
-                sourceLanguage: "Rock bottom",
-                question: "What's the target language for 'Rock bottom'?",
+                process: "At my worst",
+                targetLanguage: "TL-At my worst",
+                romanized: "TLR-At my worst",
+                sourceLanguage: "SL-At my worst",
+                question: "What's the romanized target language for 'At my worst'?",
                 positionPercent: 50
             },
             
             // Recovery transitions (55% to 82%)
             {
                 process: "Starting to pick up",
-                targetLanguage: "TL-Starting to pick up", 
-                romanized: "TL-Starting-pickup-rom",
-                sourceLanguage: "Starting to pick up",
-                question: "What's the target language for 'Starting to pick up'?",
+                targetLanguage: "TL-Starting to pick up",
+                romanized: "TLR-Starting to pick up",
+                sourceLanguage: "SL-Starting to pick up",
+                question: "What's the romanized target language for 'Starting to pick up'?",
                 positionPercent: 55
             },
             {
                 process: "Recovering",
                 targetLanguage: "TL-Recovering",
-                romanized: "TL-Recovering-rom",
-                sourceLanguage: "Recovering",
-                question: "What's the target language for 'Recovering'?",
+                romanized: "TLR-Recovering",
+                sourceLanguage: "SL-Recovering",
+                question: "What's the romanized target language for 'Recovering'?",
                 positionPercent: 65
             },
             {
                 process: "Getting better",
                 targetLanguage: "TL-Getting better",
-                romanized: "TL-Getting-better-rom", 
-                sourceLanguage: "Getting better",
-                question: "What's the target language for 'Getting better'?",
+                romanized: "TLR-Getting better",
+                sourceLanguage: "SL-Getting better",
+                question: "What's the romanized target language for 'Getting better'?",
                 positionPercent: 75
             },
             {
-                process: "Feeling fine again",
-                targetLanguage: "TL-Feeling fine again",
-                romanized: "TL-Fine-again-rom",
-                sourceLanguage: "Feeling fine again",
-                question: "What's the target language for 'Feeling fine again'?",
+                process: "Fine again",
+                targetLanguage: "TL-Fine again",
+                romanized: "TLR-Fine again",
+                sourceLanguage: "SL-Fine again",
+                question: "What's the romanized target language for 'Fine again'?",
                 positionPercent: 82
             }
         ];
@@ -730,6 +880,7 @@
         let textBoxElements = [];
         let addedIncreasingItems = [];
         let addedDecreasingItems = [];
+        let transitionMarkerElements = []; // persistent learned-transition markers on the curve
         
         // Title text options
         // Title cycle: TLR (default) → TL → SL → TLR. Separate content for
@@ -744,8 +895,11 @@
         };
         let currentTextIndex = 0;
         
-        // Activation distance for text boxes
-        const activationDistance = 8;
+        // Activation distance for text boxes. Widened from 8 to 13,
+        // matching ROM-GTCV-Generic.html / ROM-GTCVI-Shallow-Generic.html
+        // (2026-09-10) — the ported anti-overlap offset table pushes some
+        // labels up to 11 units from their true curve point.
+        const activationDistance = 13;
 
         // Audio functionality placeholder
         function playAudio(text, language = 'auto') {
@@ -892,7 +1046,6 @@
                     levelIndicator.textContent = 'Source Language';
                     break;
                 case 4: // Quiz Mode — tests TLR spelling
-                    slidingText.textContent = "QUIZ READY - Click to start!";
                     interactiveText.classList.add('level-4');
                     levelIndicator.textContent = 'Quiz Mode';
                     break;
@@ -921,6 +1074,59 @@
             if (currentLevel === 4 && !isLearned) {
                 setTimeout(() => showQuiz(), 200);
             }
+        }
+
+        // Reveal a small permanent marker on the curve for a learned
+        // Transitions item, showing its TLR (romanized) text — matching
+        // the "TLR default" convention used everywhere else. Replaces the
+        // vocabulary array as the visible record of what's been learned,
+        // since the narrow a4-page frame doesn't leave room for the
+        // arrays either side (2026-09-10). Only created once per item;
+        // subsequent calls for an already-created marker are a no-op.
+        // Explicit, manually-plotted coordinates for each learned-transition
+        // marker (2026-09-10) — replacing curve-derived positioning
+        // entirely. Alan used the coordinate-grid tool (Tools > Toggle
+        // Coordinate Grid) to plot these directly against the overlap
+        // problem, rather than relying on an automatic offset scheme.
+        // Converted from .a4-page grid %-space to this file's SVG viewBox
+        // (-30 0 160 50) via: svg_x = -30 + (x_pct/100)*160,
+        // svg_y = (y_pct/100)*50. Indexed to match transitionsData's
+        // order (0 = first item, etc).
+        const transitionMarkerCoords = [
+            { x: -22, y: 20 }, // TLR1 — grid (5, 40)
+            { x: -6,  y: 25 }, // TLR2 — grid (15, 50)
+            { x: 10,  y: 30 }, // TLR3 — grid (25, 60)
+            { x: 18,  y: 35 }, // TLR4 — grid (30, 70)
+            { x: 34,  y: 45 }, // TLR5 — grid (40, 90)
+            { x: 58,  y: 40 }, // TLR6 — grid (55, 80)
+            { x: 66,  y: 35 }, // TLR7 — grid (60, 70)
+            { x: 74,  y: 30 }, // TLR8 — grid (65, 60)
+            { x: 98,  y: 20 }  // TLR9 — grid (80, 40)
+        ];
+
+        // Reveal a small permanent marker on the curve for a learned
+        // Transitions item, showing its TLR (romanized) text — matching
+        // the "TLR default" convention used everywhere else. Replaces the
+        // vocabulary array as the visible record of what's been learned,
+        // since the narrow a4-page frame doesn't leave room for the
+        // arrays either side (2026-09-10). Only created once per item;
+        // subsequent calls for an already-created marker are a no-op.
+        function revealLearnedTransitionMarker(index) {
+            if (transitionMarkerElements[index]) return; // already created
+
+            const data = transitionsData[index];
+            const coord = transitionMarkerCoords[index];
+
+            const marker = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            marker.setAttribute("class", "transition-learned-marker");
+            marker.setAttribute("x", coord.x);
+            marker.setAttribute("y", coord.y);
+            marker.setAttribute("text-anchor", "start"); // left-aligned, per Alan
+            marker.textContent = data.romanized;
+
+            const svg = document.getElementById("svgCanvas");
+            svg.appendChild(marker);
+            transitionMarkerElements[index] = marker;
         }
 
         function addLearnedToArray(index, isIncreasing) {
@@ -975,18 +1181,20 @@
             if (isIncreasing) {
                 const increasingItems = document.getElementById("increasing-items");
                 increasingItems.appendChild(itemElement);
-                addedIncreasingItems[currentDataIndex] = true;
+                addedIncreasingItems[index] = true;
                 
                 const container = document.getElementById("increasing-array");
+                container.style.display = 'block';
                 const title = container.querySelector('.array-title');
                 const count = increasingItems.children.length;
                 title.textContent = `Increasing Progression (${count} learned)`;
             } else {
                 const decreasingItems = document.getElementById("decreasing-items");
                 decreasingItems.appendChild(itemElement);
-                addedDecreasingItems[currentDataIndex] = true;
+                addedDecreasingItems[index] = true;
                 
                 const container = document.getElementById("decreasing-array");
+                container.style.display = 'block';
                 const title = container.querySelector('.array-title');
                 const count = decreasingItems.children.length;
                 title.textContent = `Decreasing Progression (${count} learned)`;
@@ -1016,21 +1224,64 @@
                 textBox.setAttribute("class", "textBox");
                 textBox.setAttribute("data-index", i);
                 
-                // Enhanced positioning for edge cases
-                if (positionPercent <= 5) {
-                    const leftEdgePoint = bellCurve.getPointAtLength(0);
-                    textBox.setAttribute("x", leftEdgePoint.x + 8);
-                    textBox.setAttribute("y", leftEdgePoint.y - 2);
-                    textBox.setAttribute("text-anchor", "start");
-                } else if (positionPercent >= 95) {
-                    textBox.setAttribute("x", point.x - 2);
-                    textBox.setAttribute("y", point.y - 2);
-                    textBox.setAttribute("text-anchor", "end");
-                } else {
-                    textBox.setAttribute("x", point.x);
-                    textBox.setAttribute("y", point.y - 2);
-                    adjustTextPositioning(textBox, position);
+                // Per-index y-offset and text-anchor, ported from
+                // ROM-GTCV-Generic.html / ROM-GTCVI-Shallow-Generic.html
+                // (2026-09-10) — this file shares the identical curve
+                // formula (a=15, b=50, c=15, baseline=25), so the same
+                // relative offsets apply directly. Fixes the severe
+                // baseline overlap visible once real vocabulary was
+                // injected (TL1-TL7 and TL-7 to TL-1 all on one line).
+                let yOffset = -2;
+                let textAnchor = "middle";
+
+                if (i === 0) {
+                    yOffset = 11 - 2;
+                    textAnchor = "middle";
+                } else if (i === 1) {
+                    yOffset = 8.25 - 2;
+                    textAnchor = "middle";
+                } else if (i === 2) {
+                    yOffset = 5.5 - 2;
+                    textAnchor = "middle";
+                } else if (i === 3) {
+                    yOffset = 2.75 - 2;
+                    textAnchor = "middle";
+                } else if (i === 4) {
+                    yOffset = 0 - 2;
+                    textAnchor = "middle";
                 }
+                else if (i >= 5 && i <= 9) {
+                    yOffset = -4;
+                    textAnchor = "end";
+                }
+                else if (i === 10) {
+                    yOffset = -4;
+                    textAnchor = "middle";
+                }
+                else if (i >= 11 && i <= 14) {
+                    yOffset = -4;
+                    textAnchor = "start";
+                }
+                else if (i === 15) {
+                    yOffset = 0 - 2;
+                    textAnchor = "middle";
+                } else if (i === 16) {
+                    yOffset = 2.75 - 2;
+                    textAnchor = "middle";
+                } else if (i === 17) {
+                    yOffset = 5.5 - 2;
+                    textAnchor = "middle";
+                } else if (i === 18) {
+                    yOffset = 8.25 - 2;
+                    textAnchor = "middle";
+                } else if (i === 19) {
+                    yOffset = 11 - 2;
+                    textAnchor = "middle";
+                }
+                
+                textBox.setAttribute("x", point.x);
+                textBox.setAttribute("y", point.y + yOffset);
+                textBox.setAttribute("text-anchor", textAnchor);
                 
                 // Set initial text based on display level
                 switch(displayLevel) {
@@ -1073,9 +1324,6 @@
                         } else { // Currently showing TLQ - back to TLR
                             this.textContent = conceptData[index][2];
                         }
-                        // Text length varies between TLR/TL/SL/TLQ — re-stagger
-                        // in case the new width now collides with a neighbour
-                        restaggerLearnedTextBoxes();
                     } else {
                         // For unlearned items, progress through learning sequence on THIS textbox only
                         if (this.textContent === conceptData[index][2]) { // Currently showing TLR
@@ -1094,87 +1342,22 @@
                 textBoxElements.push(textBox);
             }
             
-            // Learned items stay permanently visible along the curve, so if
-            // more than one is learned they can end up close enough to
-            // overlap. Stagger them apart on creation in case any were
-            // already learned when the mode was (re)built.
-            restaggerLearnedTextBoxes();
+            // Re-parent the drag frame to the end of the SVG's children so
+            // it always renders — and receives pointer/touch events —
+            // above every text box (SVG stacking is document-order only).
+            const frame = document.getElementById('draggableFrame');
+            if (frame) svg.appendChild(frame);
         }
 
-        // Re-stagger all permanently-visible LEARNED textboxes so they don't
-        // overlap along the curve, while staying as close as possible to
-        // each item's true conceptual position. Accounts for anchor
-        // direction (start/end labels extend their full width to one side
-        // only, not half each side like middle-anchored labels) — treating
-        // every label as centred under-reserves space at the edges, exactly
-        // the bug found and fixed on the HL-BI templates earlier this
-        // project. Only learned items need this — the single active/closest
-        // textbox is shown alone and never conflicts with anything else.
-        function restaggerLearnedTextBoxes() {
-            if (!textBoxElements || textBoxElements.length === 0) return;
-
-            const learnedIdxs = [];
-            for (let i = 0; i < conceptData.length; i++) {
-                if (learnedItems.has(`state_${i}`)) learnedIdxs.push(i);
-            }
-            learnedIdxs.sort((a, b) => conceptData[a][4] - conceptData[b][4]);
-
-            const n = learnedIdxs.length;
-            if (n === 0) return;
-
-            // Matches this template's own effective anchor thresholds from
-            // adjustTextPositioning()/the ≤5%/≥95% special cases: pct<35 →
-            // start, pct>65 → end, else middle.
-            function anchorFor(pct) {
-                return pct < 35 ? 'start' : pct > 65 ? 'end' : 'middle';
-            }
-
-            const fontSize = 3;
-            function widthPct(text) {
-                const widthUnits = text.length * fontSize * 0.6;
-                return (widthUnits / pathLength) * 100;
-            }
-
-            const items = learnedIdxs.map(i => {
-                const box = textBoxElements[i];
-                const pct = conceptData[i][4];
-                const text = box ? box.textContent : conceptData[i][2];
-                const anchor = anchorFor(pct);
-                const w = widthPct(text);
-                return {
-                    idx: i,
-                    pct,
-                    anchor,
-                    leftExt: anchor === 'end' ? w : anchor === 'start' ? 0 : w / 2,
-                    rightExt: anchor === 'start' ? w : anchor === 'end' ? 0 : w / 2
-                };
-            });
-
-            const pad = 1;
-            for (let k = 1; k < n; k++) {
-                const minPos = items[k - 1].pct + items[k - 1].rightExt + items[k].leftExt + pad;
-                if (items[k].pct < minPos) items[k].pct = minPos;
-            }
-            if (items[n - 1].pct + items[n - 1].rightExt > 100) {
-                items[n - 1].pct = 100 - items[n - 1].rightExt;
-                for (let k = n - 2; k >= 0; k--) {
-                    const maxPos = items[k + 1].pct - (items[k].rightExt + items[k + 1].leftExt + pad);
-                    if (items[k].pct > maxPos) items[k].pct = maxPos;
-                }
-            }
-            if (items[0].pct - items[0].leftExt < 0) items[0].pct = items[0].leftExt;
-
-            const bellCurve = document.getElementById("bellCurve");
-            items.forEach(it => {
-                const box = textBoxElements[it.idx];
-                if (!box) return;
-                const position = getPositionFromPercent(it.pct);
-                const point = bellCurve.getPointAtLength(position);
-                box.setAttribute('x', point.x);
-                box.setAttribute('y', point.y - 2);
-                box.setAttribute('text-anchor', it.anchor);
-            });
-        }
+        // NOTE (2026-09-10): restaggerLearnedTextBoxes() was removed here.
+        // It recomputed x/y from scratch with a flat offset whenever an
+        // item became learned, silently discarding the per-index
+        // anti-overlap table's carefully-tuned offsets — causing the
+        // learned-state overlap Alan found (initial display looked right,
+        // learned state reverted to overlapping). Per Alan's own diagnosis,
+        // the fix is for the learned coordinates to simply equal the
+        // initial display coordinates, which they now do automatically
+        // since nothing repositions a box after creation.
 
         function updateVisibleTextBoxes(point) {
             if (!isStatesMode) return;
@@ -1210,15 +1393,9 @@
                     if (isLearned) {
                         textBox.classList.add('learned');
                     }
-                    const positionPercent = conceptData[index][4];
-                    const position = getPositionFromPercent(positionPercent);
-                    adjustTextPositioning(textBox, position);
                 } else if (isLearned) {
                     textBox.classList.remove('active', 'hidden');
                     textBox.classList.add('learned');
-                    const positionPercent = conceptData[index][4];
-                    const position = getPositionFromPercent(positionPercent);
-                    adjustTextPositioning(textBox, position);
                 } else {
                     textBox.classList.remove('active', 'learned');
                     textBox.classList.add('hidden');
@@ -1319,26 +1496,16 @@
                         textBox.classList.add('learned');
                         textBox.textContent = conceptData[currentQuizIndex][2]; // Show TLR
                     }
-                    // Re-stagger so the newly-learned box doesn't overlap
-                    // any other permanently-visible learned box
-                    restaggerLearnedTextBoxes();
                     
                     setTimeout(() => { quizContainer.style.display = 'none'; }, 1500);
                 } else {
                     learnedItems.add(currentQuizIndex);
                     
-                    const positionPercent = transitionsData[currentQuizIndex].positionPercent;
-                    const isIncreasing = positionPercent < 50;
-                    
-                    if (isIncreasing && !addedIncreasingItems[currentQuizIndex]) {
-                        addLearnedToArray(currentQuizIndex, true);
-                    } else if (!isIncreasing && !addedDecreasingItems[currentQuizIndex]) {
-                        addLearnedToArray(currentQuizIndex, false);
-                    }
+                    revealLearnedTransitionMarker(currentQuizIndex);
                     
                     const slidingText = document.getElementById('slidingText');
                     const interactiveText = document.getElementById('interactiveText');
-                    slidingText.textContent = "✓ Learned! Added to progression list";
+                    slidingText.textContent = "✓ Learned!";
                     interactiveText.classList.add('learned');
                     
                     setTimeout(() => {
@@ -1427,35 +1594,13 @@
             // Get the actual point on the curve
             const curvePoint = bellCurve.getPointAtLength(bestPosition * pathLength);
             
-            // Position the frame
+            // Position the circle frame directly at the curve point
             const frame = document.getElementById('draggableFrame');
-            const frameWidth = parseFloat(frame.getAttribute('width'));
-            const frameHeight = parseFloat(frame.getAttribute('height'));
-            
-            let frameX = curvePoint.x - frameWidth/2;
-            let frameY = curvePoint.y - frameHeight/2;
-            
-            // Apply boundary constraints
-            const leftEdgePoint = bellCurve.getPointAtLength(0);
-            const rightEdgePoint = bellCurve.getPointAtLength(pathLength);
-            
-            if (frameX < leftEdgePoint.x) {
-                frameX = leftEdgePoint.x;
-            }
-            if (frameX > rightEdgePoint.x - frameWidth) {
-                frameX = rightEdgePoint.x - frameWidth;
-            }
-            
-            frame.setAttribute('x', frameX);
-            frame.setAttribute('y', frameY);
+            frame.setAttribute('cx', curvePoint.x);
+            frame.setAttribute('cy', curvePoint.y);
             
             // Update visible text boxes
-            const frameCenter = {
-                x: frameX + frameWidth/2,
-                y: frameY + frameHeight/2
-            };
-            
-            updateVisibleTextBoxes(frameCenter);
+            updateVisibleTextBoxes({x: curvePoint.x, y: curvePoint.y});
             
             e.preventDefault();
             e.stopPropagation();
@@ -1477,20 +1622,29 @@
         // Text dragging for Transitions mode
         let isTextDragging = false;
         let hasMoved = false;
+        let textDragStartX = 0;
         
         function startTextDrag(e) {
             if (isStatesMode) return;
             isTextDragging = true;
             hasMoved = false;
+            textDragStartX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
             e.preventDefault();
         }
         
         function textDragMove(e) {
             if (!isTextDragging || isStatesMode) return;
             
-            hasMoved = true;
-            
             const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            
+            // Only count as a real drag once movement exceeds a small
+            // threshold — real touchscreens register a few pixels of
+            // sensor jitter even on a stationary tap.
+            const TAP_MOVEMENT_THRESHOLD = 8; // screen pixels
+            if (Math.abs(clientX - textDragStartX) > TAP_MOVEMENT_THRESHOLD) {
+                hasMoved = true;
+            }
+            
             const svg = document.getElementById('svgCanvas');
             const bellCurve = document.getElementById('bellCurve');
             
@@ -1561,7 +1715,6 @@
                 document.getElementById('level-indicator').style.display = 'none';
                 document.getElementById('increasing-array').style.display = 'none';
                 document.getElementById('decreasing-array').style.display = 'none';
-                document.getElementById('instructions').textContent = '🎯 Drag the blue frame to explore positions!';
                 
                 createTextBoxes();
                 
@@ -1572,15 +1725,11 @@
                 const startPosition = getPositionFromPercent(startPercent);
                 const startPoint = bellCurve.getPointAtLength(startPosition);
                 
-                frame.setAttribute('x', startPoint.x);
-                frame.setAttribute('y', startPoint.y - parseFloat(frame.getAttribute('height'))/2);
+                frame.setAttribute('cx', startPoint.x);
+                frame.setAttribute('cy', startPoint.y);
                 
                 setTimeout(() => {
-                    const frameCenter = {
-                        x: startPoint.x + parseFloat(frame.getAttribute('width'))/2,
-                        y: startPoint.y
-                    };
-                    updateVisibleTextBoxes(frameCenter);
+                    updateVisibleTextBoxes({x: startPoint.x, y: startPoint.y});
                     document.getElementById('concept-indicator').textContent = conceptData[0][0];
                 }, 100);
             } else {
@@ -1589,9 +1738,14 @@
                 document.getElementById('interactiveText').style.display = 'block';
                 document.getElementById('display-mode-toggle').style.display = 'none';
                 document.getElementById('level-indicator').style.display = 'block';
-                document.getElementById('increasing-array').style.display = 'block';
-                document.getElementById('decreasing-array').style.display = 'block';
-                document.getElementById('instructions').textContent = '🎯 Click or drag the text to learn concepts!';
+                // Show vocabulary arrays only if they already hold learned
+                // items from earlier in this session.
+                if (document.getElementById('increasing-items') && document.getElementById('increasing-items').children.length > 0) {
+                    document.getElementById('increasing-array').style.display = 'block';
+                }
+                if (document.getElementById('decreasing-items') && document.getElementById('decreasing-items').children.length > 0) {
+                    document.getElementById('decreasing-array').style.display = 'block';
+                }
                 
                 // Remove text boxes
                 document.querySelectorAll('.textBox').forEach(box => {
@@ -1703,10 +1857,8 @@
                 // Must be called AFTER pathLength is set and bellCurve has its 'd' attribute.
                 function initializeFramePosition() {
                     const startPoint = bellCurve.getPointAtLength(0);
-                    const frameW = parseFloat(frame.getAttribute('width'));
-                    const frameH = parseFloat(frame.getAttribute('height'));
-                    frame.setAttribute('x', startPoint.x - frameW / 2);
-                    frame.setAttribute('y', startPoint.y - frameH / 2);
+                    frame.setAttribute('cx', startPoint.x);
+                    frame.setAttribute('cy', startPoint.y);
                     updateVisibleTextBoxes(startPoint);
                 }
                 initializeFramePosition();
@@ -1726,6 +1878,18 @@
                 document.addEventListener('touchmove', textDragMove, { passive: false });
                 document.addEventListener('mouseup', endTextDrag);
                 document.addEventListener('touchend', endTextDrag);
+                
+                // Mobile tap-to-cycle for Transitions mode. Registered on
+                // document, AFTER endTextDrag above, so isTextDragging is
+                // already reset by the time this runs. Native 'click'
+                // below never fires reliably on touch here, because
+                // startTextDrag's preventDefault() on touchstart
+                // suppresses the browser's synthetic click event.
+                document.addEventListener('touchend', function(e) {
+                    if (!isTextDragging && !isStatesMode && !hasMoved && interactiveText.contains(e.target)) {
+                        handleSlidingTextClick(e);
+                    }
+                });
                 
                 // Text clicking (Transitions mode)
                 interactiveText.addEventListener('click', handleSlidingTextClick);
@@ -1790,6 +1954,364 @@
                 document.getElementById('toggle-decreasing').addEventListener('click', function() {
                     toggleArrayVisibility('decreasing');
                 });
+
+                // ── Keyboard-avoidance for the Quiz box ──────────────────
+                if (window.visualViewport) {
+                    const KEYBOARD_HEIGHT_THRESHOLD = 150;
+                    function handleViewportResize() {
+                        const qc = document.getElementById('quizContainer');
+                        const heightDiff = window.innerHeight - window.visualViewport.height;
+                        if (heightDiff > KEYBOARD_HEIGHT_THRESHOLD) {
+                            qc.classList.add('keyboard-open');
+                        } else {
+                            qc.classList.remove('keyboard-open');
+                        }
+                    }
+                    window.visualViewport.addEventListener('resize', handleViewportResize);
+                }
+
+                // ── Full Screen toggle ────────────────────────────────────
+                const fullscreenToggle = document.getElementById('toggleFullscreen');
+                if (fullscreenToggle) {
+                    fullscreenToggle.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        if (!document.fullscreenElement) {
+                            if (document.documentElement.requestFullscreen) {
+                                document.documentElement.requestFullscreen().catch(function(err) {
+                                    console.log('Full screen request failed or unsupported:', err);
+                                });
+                            }
+                            fullscreenToggle.textContent = 'Exit Full Screen';
+                        } else {
+                            if (document.exitFullscreen) {
+                                document.exitFullscreen();
+                            }
+                            fullscreenToggle.textContent = 'Full Screen';
+                        }
+                        const td = document.querySelector('.tools-dropdown');
+                        if (td) td.classList.remove('active');
+                    });
+                }
+                document.addEventListener('fullscreenchange', function() {
+                    if (fullscreenToggle) {
+                        fullscreenToggle.textContent = document.fullscreenElement ? 'Exit Full Screen' : 'Full Screen';
+                    }
+                });
+
+                // ── Quiz box: drag to reposition anywhere on screen ──────
+                // This file already had cursor:move and a .dragging CSS
+                // class hinting at this feature, but no JS implementing
+                // it — wiring it up properly here.
+                (function setupQuizDrag() {
+                    const qc = document.getElementById('quizContainer');
+                    let isDraggingQuiz = false;
+                    let quizDragOffsetX = 0;
+                    let quizDragOffsetY = 0;
+
+                    function quizDragStart(e) {
+                        if (e.target === quizInput || e.target === quizCheck) return;
+                        isDraggingQuiz = true;
+                        const rect = qc.getBoundingClientRect();
+                        const point = e.touches ? e.touches[0] : e;
+                        quizDragOffsetX = point.clientX - rect.left;
+                        quizDragOffsetY = point.clientY - rect.top;
+                        qc.style.left = rect.left + 'px';
+                        qc.style.top = rect.top + 'px';
+                        qc.style.transform = 'none';
+                        qc.classList.add('dragging');
+                        if (e.touches) e.preventDefault();
+                    }
+
+                    function quizDragMove(e) {
+                        if (!isDraggingQuiz) return;
+                        const point = e.touches ? e.touches[0] : e;
+                        let newLeft = point.clientX - quizDragOffsetX;
+                        let newTop = point.clientY - quizDragOffsetY;
+                        const maxLeft = window.innerWidth - qc.offsetWidth;
+                        const maxTop = window.innerHeight - qc.offsetHeight;
+                        newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                        newTop = Math.max(0, Math.min(newTop, maxTop));
+                        qc.style.left = newLeft + 'px';
+                        qc.style.top = newTop + 'px';
+                        if (e.touches) e.preventDefault();
+                    }
+
+                    function quizDragEnd() {
+                        isDraggingQuiz = false;
+                        qc.classList.remove('dragging');
+                    }
+
+                    qc.addEventListener('mousedown', quizDragStart);
+                    document.addEventListener('mousemove', quizDragMove);
+                    document.addEventListener('mouseup', quizDragEnd);
+
+                    qc.addEventListener('touchstart', quizDragStart, { passive: false });
+                    document.addEventListener('touchmove', quizDragMove, { passive: false });
+                    document.addEventListener('touchend', quizDragEnd);
+                })();
+
+                // ── Title box: drag to reposition anywhere on screen ────
+                (function setupTitleDrag() {
+                    const tb = document.getElementById('title-box');
+                    let isDraggingTitle = false;
+                    let titleHasMoved = false;
+                    let titleDragStartX = 0;
+                    let titleDragStartY = 0;
+                    let titleDragOffsetX = 0;
+                    let titleDragOffsetY = 0;
+                    const TITLE_DRAG_THRESHOLD = 8;
+
+                    function titleDragStart(e) {
+                        const point = e.touches ? e.touches[0] : e;
+                        titleDragStartX = point.clientX;
+                        titleDragStartY = point.clientY;
+                        titleHasMoved = false;
+                        isDraggingTitle = true;
+                        const rect = tb.getBoundingClientRect();
+                        titleDragOffsetX = point.clientX - rect.left;
+                        titleDragOffsetY = point.clientY - rect.top;
+                    }
+
+                    function titleDragMove(e) {
+                        if (!isDraggingTitle) return;
+                        const point = e.touches ? e.touches[0] : e;
+                        const dx = point.clientX - titleDragStartX;
+                        const dy = point.clientY - titleDragStartY;
+
+                        if (!titleHasMoved && Math.hypot(dx, dy) > TITLE_DRAG_THRESHOLD) {
+                            titleHasMoved = true;
+                            tb.style.position = 'fixed';
+                            tb.style.transform = 'none';
+                            tb.classList.add('dragging');
+                        }
+
+                        if (titleHasMoved) {
+                            let newLeft = point.clientX - titleDragOffsetX;
+                            let newTop = point.clientY - titleDragOffsetY;
+                            const maxLeft = window.innerWidth - tb.offsetWidth;
+                            const maxTop = window.innerHeight - tb.offsetHeight;
+                            newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                            newTop = Math.max(0, Math.min(newTop, maxTop));
+                            tb.style.left = newLeft + 'px';
+                            tb.style.top = newTop + 'px';
+                            if (e.touches) e.preventDefault();
+                        }
+                    }
+
+                    function titleDragEnd() {
+                        isDraggingTitle = false;
+                        tb.classList.remove('dragging');
+                    }
+
+                    tb.addEventListener('mousedown', titleDragStart);
+                    document.addEventListener('mousemove', titleDragMove);
+                    document.addEventListener('mouseup', titleDragEnd);
+
+                    tb.addEventListener('touchstart', titleDragStart, { passive: true });
+                    document.addEventListener('touchmove', titleDragMove, { passive: false });
+                    document.addEventListener('touchend', titleDragEnd);
+
+                    tb.addEventListener('click', function(e) {
+                        if (titleHasMoved) {
+                            e.stopImmediatePropagation();
+                            e.preventDefault();
+                        }
+                    }, true);
+                })();
+
+                // ── TEMPORARY coordinate grid overlay ────────────────────
+                // Generates a 10%-spaced grid over .a4-page on first use,
+                // toggled from the Tools menu. Safe to delete this whole
+                // block (and the matching HTML/CSS) once no longer needed.
+                (function setupCoordinateGrid() {
+                    const gridContainer = document.getElementById('coordinate-grid');
+                    const toggleGridBtn = document.getElementById('toggleGrid');
+                    let gridBuilt = false;
+
+                    function buildGrid() {
+                        for (let pct = 0; pct <= 100; pct += 10) {
+                            const vLine = document.createElement('div');
+                            vLine.className = 'grid-line-v';
+                            vLine.style.left = pct + '%';
+                            gridContainer.appendChild(vLine);
+
+                            const xLabel = document.createElement('div');
+                            xLabel.className = 'grid-label-x';
+                            xLabel.style.left = pct + '%';
+                            xLabel.textContent = pct + '%';
+                            gridContainer.appendChild(xLabel);
+
+                            const hLine = document.createElement('div');
+                            hLine.className = 'grid-line-h';
+                            hLine.style.top = pct + '%';
+                            gridContainer.appendChild(hLine);
+
+                            const yLabel = document.createElement('div');
+                            yLabel.className = 'grid-label-y';
+                            yLabel.style.top = pct + '%';
+                            yLabel.textContent = pct + '%';
+                            gridContainer.appendChild(yLabel);
+                        }
+                        gridBuilt = true;
+                    }
+
+                    if (toggleGridBtn) {
+                        toggleGridBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            if (!gridBuilt) buildGrid();
+                            gridContainer.classList.toggle('active');
+                            const td = document.querySelector('.tools-dropdown');
+                            if (td) td.classList.remove('active');
+                        });
+                    }
+                })();
+
+                // ── Toggle Mode button: drag to reposition anywhere ──────
+                (function setupModeToggleDrag() {
+                    const mt = document.getElementById('modeToggle');
+                    let isDraggingMT = false;
+                    let mtHasMoved = false;
+                    let mtDragStartX = 0;
+                    let mtDragStartY = 0;
+                    let mtDragOffsetX = 0;
+                    let mtDragOffsetY = 0;
+                    const MT_DRAG_THRESHOLD = 8;
+
+                    function mtDragStart(e) {
+                        const point = e.touches ? e.touches[0] : e;
+                        mtDragStartX = point.clientX;
+                        mtDragStartY = point.clientY;
+                        mtHasMoved = false;
+                        isDraggingMT = true;
+                        const rect = mt.getBoundingClientRect();
+                        mtDragOffsetX = point.clientX - rect.left;
+                        mtDragOffsetY = point.clientY - rect.top;
+                    }
+
+                    function mtDragMove(e) {
+                        if (!isDraggingMT) return;
+                        const point = e.touches ? e.touches[0] : e;
+                        const dx = point.clientX - mtDragStartX;
+                        const dy = point.clientY - mtDragStartY;
+
+                        if (!mtHasMoved && Math.hypot(dx, dy) > MT_DRAG_THRESHOLD) {
+                            mtHasMoved = true;
+                            mt.style.position = 'fixed';
+                            mt.classList.add('dragging');
+                        }
+
+                        if (mtHasMoved) {
+                            let newLeft = point.clientX - mtDragOffsetX;
+                            let newTop = point.clientY - mtDragOffsetY;
+                            const maxLeft = window.innerWidth - mt.offsetWidth;
+                            const maxTop = window.innerHeight - mt.offsetHeight;
+                            newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                            newTop = Math.max(0, Math.min(newTop, maxTop));
+                            mt.style.left = newLeft + 'px';
+                            mt.style.top = newTop + 'px';
+                            if (e.touches) e.preventDefault();
+                        }
+                    }
+
+                    function mtDragEnd() {
+                        isDraggingMT = false;
+                        mt.classList.remove('dragging');
+                    }
+
+                    mt.addEventListener('mousedown', mtDragStart);
+                    document.addEventListener('mousemove', mtDragMove);
+                    document.addEventListener('mouseup', mtDragEnd);
+
+                    mt.addEventListener('touchstart', mtDragStart, { passive: true });
+                    document.addEventListener('touchmove', mtDragMove, { passive: false });
+                    document.addEventListener('touchend', mtDragEnd);
+
+                    // Capture phase, so this runs before toggleMode's own
+                    // (bubble-phase) click listener and can stop it.
+                    mt.addEventListener('click', function(e) {
+                        if (mtHasMoved) {
+                            e.stopImmediatePropagation();
+                            e.preventDefault();
+                        }
+                    }, true);
+                })();
+
+                // ── Vocabulary arrays: drag to reposition anywhere ───────
+                // Excludes the Hide All (toggle-visibility) button and any
+                // individual item row from starting a drag, so their own
+                // click handlers keep working — drag only starts from the
+                // title bar or the box's own background/padding.
+                function setupArrayDrag(boxId, itemsContainerId) {
+                    const box = document.getElementById(boxId);
+                    if (!box) return;
+                    const itemsContainer = document.getElementById(itemsContainerId);
+                    let isDraggingBox = false;
+                    let boxHasMoved = false;
+                    let dragStartX = 0;
+                    let dragStartY = 0;
+                    let dragOffsetX = 0;
+                    let dragOffsetY = 0;
+                    const DRAG_THRESHOLD = 8;
+
+                    function isExcluded(target) {
+                        if (target.classList && target.classList.contains('toggle-visibility')) return true;
+                        if (itemsContainer && itemsContainer.contains(target)) return true;
+                        return false;
+                    }
+
+                    function dragStart(e) {
+                        if (isExcluded(e.target)) return;
+                        const point = e.touches ? e.touches[0] : e;
+                        dragStartX = point.clientX;
+                        dragStartY = point.clientY;
+                        boxHasMoved = false;
+                        isDraggingBox = true;
+                        const rect = box.getBoundingClientRect();
+                        dragOffsetX = point.clientX - rect.left;
+                        dragOffsetY = point.clientY - rect.top;
+                    }
+
+                    function dragMoveBox(e) {
+                        if (!isDraggingBox) return;
+                        const point = e.touches ? e.touches[0] : e;
+                        const dx = point.clientX - dragStartX;
+                        const dy = point.clientY - dragStartY;
+
+                        if (!boxHasMoved && Math.hypot(dx, dy) > DRAG_THRESHOLD) {
+                            boxHasMoved = true;
+                            box.style.position = 'fixed';
+                            box.classList.add('dragging');
+                        }
+
+                        if (boxHasMoved) {
+                            let newLeft = point.clientX - dragOffsetX;
+                            let newTop = point.clientY - dragOffsetY;
+                            const maxLeft = window.innerWidth - box.offsetWidth;
+                            const maxTop = window.innerHeight - box.offsetHeight;
+                            newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                            newTop = Math.max(0, Math.min(newTop, maxTop));
+                            box.style.left = newLeft + 'px';
+                            box.style.top = newTop + 'px';
+                            if (e.touches) e.preventDefault();
+                        }
+                    }
+
+                    function dragEndBox() {
+                        isDraggingBox = false;
+                        box.classList.remove('dragging');
+                    }
+
+                    box.addEventListener('mousedown', dragStart);
+                    document.addEventListener('mousemove', dragMoveBox);
+                    document.addEventListener('mouseup', dragEndBox);
+
+                    box.addEventListener('touchstart', dragStart, { passive: true });
+                    document.addEventListener('touchmove', dragMoveBox, { passive: false });
+                    document.addEventListener('touchend', dragEndBox);
+                }
+
+                setupArrayDrag('increasing-array', 'increasing-items');
+                setupArrayDrag('decreasing-array', 'decreasing-items');
 
                 // Tools menu interaction
                 const toolsButton = document.querySelector('.tools-button');
@@ -1881,16 +2403,12 @@
                 const startPosition = getPositionFromPercent(startPercent);
                 const startPoint = bellCurve.getPointAtLength(startPosition);
                 
-                frame.setAttribute('x', startPoint.x - parseFloat(frame.getAttribute('width'))/2);
-                frame.setAttribute('y', startPoint.y - parseFloat(frame.getAttribute('height'))/2);
+                frame.setAttribute('cx', startPoint.x);
+                frame.setAttribute('cy', startPoint.y);
                 
                 // Initialize first text box visibility
                 setTimeout(() => {
-                    const frameCenter = {
-                        x: startPoint.x,
-                        y: startPoint.y
-                    };
-                    updateVisibleTextBoxes(frameCenter);
+                    updateVisibleTextBoxes({x: startPoint.x, y: startPoint.y});
                     document.getElementById('concept-indicator').textContent = conceptData[0][0];
                 }, 100);
                 
@@ -1901,16 +2419,14 @@
                 document.getElementById('increasing-array').style.display = 'none';
                 document.getElementById('decreasing-array').style.display = 'none';
                 
-                // Hide instruction message after 7 seconds
-                setTimeout(() => {
-                    const instructions = document.getElementById('instructions');
-                    if (instructions) {
-                        instructions.classList.add('fade');
-                        setTimeout(() => {
-                            instructions.style.display = 'none';
-                        }, 2000);
-                    }
-                }, 7000);
+                // Fade out drag instruction after 20 seconds if not already
+                // dismissed by interaction.
+                const dragInstruction = document.getElementById('drag-instruction');
+                if (dragInstruction) {
+                    setTimeout(() => {
+                        dragInstruction.classList.add('fade');
+                    }, 20000);
+                }
                 
                 
             } catch (error) {
