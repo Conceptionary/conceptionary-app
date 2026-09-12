@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-09-09 @ 11:45 a.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-09-12 @ 11:50 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -334,8 +334,9 @@
         }
 
         #decreasing-array {
-            left: 75%;
+            left: 25%;
             transform: translateX(-50%);
+            display: none !important; /* Consolidated into the single Learned Vocabulary panel, 2026-09-12 */
         }
 
         .array-title {
@@ -566,7 +567,7 @@
         
         <!-- Vocabulary Arrays -->
         <div id="increasing-array" class="vocabulary-array">
-            <div class="array-title">Improvement Progression</div>
+            <div class="array-title">Learned Vocabulary</div>
             <button class="toggle-visibility" id="toggle-increasing">Hide All</button>
             <div id="increasing-items"></div>
         </div>
@@ -1105,14 +1106,12 @@
                             interactiveText.classList.add('learned');
                             updateLevelIndicator();
                             
-                            // Add to vocabulary array based on position
-                            const position = currentData[currentQuizIndex][3];
-                            const isIncreasing = position <= 50; // Curve phase
-                            
-                            if (isIncreasing && !addedIncreasingItems[currentQuizIndex]) {
+                            // Add to the single combined vocabulary array —
+                            // no longer split by curve phase (2026-09-12),
+                            // since 4 items split 3-vs-1 made a second,
+                            // near-empty panel unnecessary.
+                            if (!addedIncreasingItems[currentQuizIndex]) {
                                 addToVocabularyArray(currentQuizIndex, true);
-                            } else if (!isIncreasing && !addedDecreasingItems[currentQuizIndex]) {
-                                addToVocabularyArray(currentQuizIndex, false);
                             }
                             
                             // Do NOT mark corresponding States Mode textboxes as learned/visible
