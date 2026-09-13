@@ -1,3 +1,4 @@
+<!-- Last updated: 2026-09-14 @ 11:05 a.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -84,11 +85,29 @@
 
         #draggableFrame {
             cursor: grab;
-            fill: rgba(100, 150, 255, 0.8);
-            stroke: #2c5aa0;
-            stroke-width: 0.2;
+            fill: rgba(255, 255, 0, 0.6);
+            stroke: #ccaa00;
+            stroke-width: 0.1;
             pointer-events: all;
             opacity: 1;
+            filter: drop-shadow(0 0.3px 0.5px rgba(0,0,0,0.3));
+            transition: fill 0.2s ease, stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
+        }
+
+        #draggableFrame:hover {
+            fill: rgba(255, 255, 0, 0.8);
+            stroke: #ffcc00;
+            stroke-width: 0.15;
+            cursor: grab;
+            filter: drop-shadow(0 0.5px 1px rgba(204, 170, 0, 0.6)) drop-shadow(0 0 2px rgba(255, 255, 100, 0.8));
+        }
+
+        #draggableFrame.dragging {
+            cursor: grabbing;
+            fill: transparent;
+            stroke-width: 0.1;
+            filter: drop-shadow(0 0.5px 1px rgba(255, 170, 0, 0.6)) drop-shadow(0 0 2px rgba(255, 220, 0, 0.8));
+            stroke: #ffaa00;
         }
 
         #draggableFrame:hover {
@@ -103,7 +122,7 @@
 
         /* Transitions Template Elements */
         .sliding-text {
-            font-size: 1.6px;
+            font-size: 3.2px;
             font-weight: bold;
             fill: blue;
             cursor: pointer;
@@ -151,6 +170,7 @@
         }
         
         .concept-indicator {
+            display: none;
             position: absolute;
             bottom: 60px;
             left: 50%;
@@ -177,6 +197,7 @@
         }
 
         .quiz-container {
+            box-sizing: border-box;
             position: fixed;
             top: 40%;
             left: 50%;
@@ -193,9 +214,15 @@
             pointer-events: auto;
             visibility: visible;
             opacity: 1;
+            cursor: grab;
+        }
+
+        .quiz-container.dragging {
+            cursor: grabbing;
         }
         
         .quiz-container input {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
             font-size: 14px;
@@ -205,6 +232,7 @@
         }
         
         .quiz-container button {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
             background-color: #3366cc;
@@ -217,6 +245,25 @@
         
         .quiz-container button:hover {
             background-color: #254e9c;
+        }
+
+        .quiz-container.keyboard-open {
+            top: 8px;
+            transform: translate(-50%, 0);
+            max-width: 90vw;
+            width: 320px;
+            padding: 8px;
+        }
+
+        .quiz-container.keyboard-open input {
+            font-size: 13px;
+            padding: 6px;
+            margin-bottom: 6px;
+        }
+
+        .quiz-container.keyboard-open #quizFeedback {
+            min-height: 14px;
+            margin-top: 4px;
         }
         
         #quizFeedback {
@@ -361,6 +408,41 @@
         .tool-item:hover {
             background-color: #f5f5f5;
         }
+
+        /* ── Mobile sizing: frame, text, and touch targets ────────────
+           Starting values — roughly doubled from this file's own
+           desktop sizes for the frame and SVG text, and enlarged to
+           meet the ~48px touch-target guideline for buttons, matching
+           the fix applied across the GT5L family. Not yet visually
+           confirmed on a real device. Treat as a starting point. */
+        @media (pointer: coarse) {
+            #draggableFrame {
+                r: 3;
+            }
+            .textBox {
+                font-size: 6px;
+            }
+            .sliding-text {
+                font-size: 6.4px;
+            }
+            .tools-button,
+            .mode-toggle {
+                min-height: 48px;
+                padding: 14px 18px;
+                font-size: 1em;
+            }
+            .toggle-visibility {
+                min-height: 48px;
+                min-width: 48px;
+                padding: 12px 16px;
+                font-size: 0.9em;
+            }
+            .tool-item {
+                min-height: 48px;
+                padding: 16px 15px;
+                font-size: 0.95em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -373,6 +455,7 @@
         <div class="tools-menu">
             <div class="tools-button">Tools</div>
             <div class="tools-dropdown">
+                <div class="tool-item" id="toggleFullscreen">Full Screen</div>
                 <div class="tool-item" id="loadConcept">Load Concept</div>
                 <div class="tool-item" id="startQuiz">Quick Quiz</div>
                 <div class="tool-item" id="toggleArrays">Toggle Arrays</div>
@@ -406,7 +489,7 @@
             <path id="conceptBackground"></path>
             
             <!-- States Mode Elements -->
-            <rect id="draggableFrame" x="-3" y="30" width="6" height="4" rx="0.5"/>
+            <circle id="draggableFrame" cx="0" cy="32" r="1.5"/>
             
             <!-- Transitions Mode Elements - Single Draggable Text -->
             <text id="interactiveText" class="sliding-text">
@@ -431,22 +514,22 @@
     <script>
         // Enhanced data for 7 permanent change positions on 3-line path
         const conceptData = [
-            ["TL1", "SL1", "What is the TL word for 'SL1'?", 0],        // Start of Line 1
-            ["TL2", "SL2", "What is the TL word for 'SL2'?", 15],       // Middle of Line 1
-            ["TL3", "SL3", "What is the TL word for 'SL3'?", 30],       // End of Line 1 / Start of Line 2
-            ["TL4", "SL4", "What is the TL word for 'SL4'?", 40],       // Middle of Line 2
-            ["TL5", "SL5", "What is the TL word for 'SL5'?", 50],       // End of Line 2 / Start of Line 3
-            ["TL6", "SL6", "What is the TL word for 'SL6'?", 75],       // Middle of Line 3
-            ["TL7", "SL7", "What is the TL word for 'SL7'?", 100]       // End of Line 3
+            ["SL1", "TL1", "What is the TL word for 'SL1'?", 0],        // Start of Line 1
+            ["SL2", "TL2", "What is the TL word for 'SL2'?", 15],       // Middle of Line 1
+            ["SL3", "TL3", "What is the TL word for 'SL3'?", 30],       // End of Line 1 / Start of Line 2
+            ["SL4", "TL4", "What is the TL word for 'SL4'?", 40],       // Middle of Line 2
+            ["SL5", "TL5", "What is the TL word for 'SL5'?", 50],       // End of Line 2 / Start of Line 3
+            ["SL6", "TL6", "What is the TL word for 'SL6'?", 75],       // Middle of Line 3
+            ["SL7", "TL7", "What is the TL word for 'SL7'?", 100]       // End of Line 3
         ];
 
         // Transitions data for permanent positive change process
         const transitionsData = [
-            ["TL-T1", "SL-T1", "What is the TL word for 'SL-T1'?", 0],
-            ["TL-T2", "SL-T2", "What is the TL word for 'SL-T2'?", 20],
-            ["TL-T3", "SL-T3", "What is the TL word for 'SL-T3'?", 40],
-            ["TL-T4", "SL-T4", "What is the TL word for 'SL-T4'?", 60],
-            ["TL-T5", "SL-T5", "What is the TL word for 'SL-T5'?", 80]
+            ["SL-T1", "TL-T1", "What is the TL word for 'SL-T1'?", 0],
+            ["SL-T2", "TL-T2", "What is the TL word for 'SL-T2'?", 20],
+            ["SL-T3", "TL-T3", "What is the TL word for 'SL-T3'?", 40],
+            ["SL-T4", "TL-T4", "What is the TL word for 'SL-T4'?", 60],
+            ["SL-T5", "TL-T5", "What is the TL word for 'SL-T5'?", 80]
         ];
 
         // Global variables - Enhanced from GT5L
@@ -454,11 +537,12 @@
         let pathLength = 0;
         let currentQuizIndex = -1;
         let slidingTextMode = 1; // 0: Source Language, 1: Target Language, 2: Quiz
-        let learnedItems = [];
+        let statesLearnedItems = [];
+        let transitionsLearnedItems = [];
         let textBoxElements = [];
         let addedImprovingItems = [];
         let addedEnhancedItems = [];
-        let currentTextLayer = new Array(7).fill(0); // Start with numbers (index 0) - reduced to 7
+        let currentTextLayer = new Array(7).fill(1); // Start with TL (index 1) — TL always defaults everywhere in this project
         
         // TRANSITIONS MODE VARIABLES
         let startPercent = 0;
@@ -513,10 +597,7 @@
             const textPath = document.getElementById("slidingText");
             if (!textPath) return;
             
-            // Use offset index for transitions learned items to avoid conflicts with states
-            const transitionsLearnedIndex = 1000 + index;
-            
-            if (learnedItems[transitionsLearnedIndex]) {
+            if (transitionsLearnedItems[index]) {
                 interactiveText.classList.add('learned');
                 textPath.textContent = slidingTextMode === 1 ? data[1] : data[0]; // TL or SL
             } else {
@@ -561,15 +642,26 @@
             if (!isDraggingText || isStatesMode) return;
             
             let currentX = event.touches ? event.touches[0].clientX : event.clientX;
-            let movement = currentX - lastX;
+            let clientMovement = currentX - lastX;
             
             // If we've moved significantly, mark as having moved
-            if (Math.abs(movement) > 5) {
+            if (Math.abs(clientMovement) > 5) {
                 hasMovedDuringDrag = true;
             }
             
+            // Convert the screen-pixel movement into SVG-space movement
+            // using the SVG's actual rendered width, rather than a fixed
+            // pixel-to-percent multiplier — the old approach (movement *
+            // 0.2) didn't account for how large .a4-page renders on any
+            // given screen, which made drag speed inconsistent and feel
+            // jittery depending on window/device size.
+            const svg = document.getElementById('svgCanvas');
+            const svgRect = svg.getBoundingClientRect();
+            const SVG_VIEWBOX_WIDTH = 100; // matches viewBox="0 0 100 43.6"
+            const svgMovement = svgRect.width > 0 ? (clientMovement / svgRect.width) * SVG_VIEWBOX_WIDTH : 0;
+            
             lastX = currentX;
-            startPercent += movement * 0.2;
+            startPercent += svgMovement;
             startPercent = Math.min(100, Math.max(0, startPercent));
             updateTextPosition(startPercent);
             
@@ -598,14 +690,11 @@
             const index = transitionData.index;
             const data = transitionData.data;
             
-            // Use offset index for transitions learned items to avoid conflicts with states
-            const transitionsLearnedIndex = 1000 + index;
-            
             console.log("Current position:", startPercent, "index:", index, "slidingTextMode:", slidingTextMode);
             console.log("Data:", data);
-            console.log("Is learned:", learnedItems[transitionsLearnedIndex]);
+            console.log("Is learned:", transitionsLearnedItems[index]);
             
-            if (learnedItems[transitionsLearnedIndex]) {
+            if (transitionsLearnedItems[index]) {
                 // Toggle between TL and SL for learned items
                 slidingTextMode = (slidingTextMode === 1) ? 0 : 1;
                 console.log("Learned item - toggled to mode:", slidingTextMode);
@@ -697,7 +786,8 @@
                 }
                 
                 // Initialize arrays (reduced to 7 for states, 5 for transitions)
-                learnedItems = new Array(Math.max(conceptData.length, transitionsData.length) + 1000).fill(false);
+                statesLearnedItems = new Array(conceptData.length).fill(false);
+                transitionsLearnedItems = new Array(transitionsData.length).fill(false);
                 addedImprovingItems = new Array(transitionsData.length).fill(false);
                 addedEnhancedItems = new Array(transitionsData.length).fill(false);
                 
@@ -771,7 +861,7 @@
                 // Set initial text based on current layer (numbers or words)
                 textBox.textContent = conceptData[i][currentTextLayer[i]];
                 
-                if (learnedItems[i]) textBox.classList.add('learned');
+                if (statesLearnedItems[i]) textBox.classList.add('learned');
                 
                 // Add click event listener with proper 3-level cycling
                 textBox.addEventListener('click', function(e) {
@@ -780,21 +870,21 @@
                     
                     const index = parseInt(this.getAttribute('data-index'));
                     
-                    if (learnedItems[index]) {
-                        // Toggle between numbers and words for learned items
-                        currentTextLayer[index] = (currentTextLayer[index] === 0) ? 1 : 0;
+                    if (statesLearnedItems[index]) {
+                        // Toggle between TL and SL for learned items
+                        currentTextLayer[index] = (currentTextLayer[index] === 1) ? 0 : 1;
                         this.textContent = conceptData[index][currentTextLayer[index]];
                     } else {
-                        // Cycle through numbers -> words -> quiz
-                        if (currentTextLayer[index] === 0) {
-                            currentTextLayer[index] = 1;
-                            this.textContent = conceptData[index][1]; // Words
-                        } else if (currentTextLayer[index] === 1) {
+                        // Cycle through TL -> SL -> Quiz
+                        if (currentTextLayer[index] === 1) {
+                            currentTextLayer[index] = 0;
+                            this.textContent = conceptData[index][0]; // SL
+                        } else if (currentTextLayer[index] === 0) {
                             currentTextLayer[index] = 2;
                             showQuiz(index, this);
                         } else {
-                            currentTextLayer[index] = 0;
-                            this.textContent = conceptData[index][0]; // Numbers
+                            currentTextLayer[index] = 1;
+                            this.textContent = conceptData[index][1]; // TL
                         }
                     }
                 });
@@ -802,6 +892,11 @@
                 svg.appendChild(textBox);
                 textBoxElements.push(textBox);
             }
+            
+            // Re-parent the drag frame to the end of the SVG's children so
+            // it always renders — and receives pointer/touch events —
+            // above every text box (SVG stacking is document-order only).
+            if (frame && frame.parentNode) frame.parentNode.appendChild(frame);
             
             console.log("Created 7 text boxes at specific positions along the 3-line path");
         }
@@ -846,7 +941,7 @@
         // Add to vocabulary array (based on GT5L reference)
         function addToVocabularyArray(index, isImproving) {
             try {
-                const currentData = isImproving ? transitionsData : transitionsData; // Both use same data
+                const currentData = transitionsData;
                 const sourceLanguage = currentData[index][0];
                 const targetLanguage = currentData[index][1];
                 
@@ -877,9 +972,11 @@
                 if (isImproving) {
                     improvingItems.appendChild(itemElement);
                     addedImprovingItems[index] = true;
+                    improvingArray.style.display = 'block';
                 } else {
                     enhancedItems.appendChild(itemElement);
                     addedEnhancedItems[index] = true;
+                    enhancedArray.style.display = 'block';
                 }
                 
                 console.log("Added vocabulary item:", targetLanguage, "->", sourceLanguage);
@@ -911,22 +1008,21 @@
                 
                 if (isStatesMode) {
                     // Handle States Mode learning - use conceptData indices (0-6 for 7 positions)
-                    learnedItems[currentQuizIndex] = true;
+                    statesLearnedItems[currentQuizIndex] = true;
                     console.log("Marked States item as learned:", currentQuizIndex);
                     
                     const textBox = textBoxElements[currentQuizIndex];
                     if (textBox) {
                         textBox.classList.add('learned');
-                        textBox.textContent = currentData[currentQuizIndex][0]; // Show numbers
-                        currentTextLayer[currentQuizIndex] = 0; // Set to numbers
+                        textBox.textContent = currentData[currentQuizIndex][1]; // Show TL (default level)
+                        currentTextLayer[currentQuizIndex] = 1; // Set to TL
                         console.log("Updated states textbox to learned");
                     }
                 } else {
                     // Handle Transitions Mode learning - use separate tracking
                     // Use a separate learned array offset for transitions to avoid conflicts
-                    const transitionsLearnedIndex = 1000 + currentQuizIndex; // Offset to avoid conflicts
-                    learnedItems[transitionsLearnedIndex] = true;
-                    console.log("Marked Transitions item as learned:", transitionsLearnedIndex);
+                    transitionsLearnedItems[currentQuizIndex] = true;
+                    console.log("Marked Transitions item as learned:", currentQuizIndex);
                     
                     // Reset to TL mode and add to arrays
                     slidingTextMode = 1; // Reset to TL
@@ -1002,7 +1098,7 @@
                 
                 if (index === closestIndex && minDistance < activationDistance) {
                     textBox.classList.add('active');
-                } else if (learnedItems[index]) {
+                } else if (statesLearnedItems[index]) {
                     textBox.classList.remove('active');
                     textBox.classList.add('learned');
                 } else {
@@ -1020,11 +1116,14 @@
         // Initialize frame position
         function initializeFramePosition() {
             const startPoint = pathLine.getPointAtLength(0);
-            const frameWidth = parseFloat(frame.getAttribute('width'));
-            const frameHeight = parseFloat(frame.getAttribute('height'));
             
-            frame.setAttribute('x', startPoint.x - frameWidth/2);
-            frame.setAttribute('y', startPoint.y - frameHeight/2);
+            frame.setAttribute('cx', startPoint.x);
+            frame.setAttribute('cy', startPoint.y);
+            
+            // Re-parent to the end of the SVG's children so the frame
+            // always renders — and receives pointer/touch events —
+            // above every text box (SVG stacking is document-order only).
+            if (frame.parentNode) frame.parentNode.appendChild(frame);
             
             console.log("Frame initialized at:", startPoint.x, startPoint.y);
             updateVisibleTextBoxes(startPoint);
@@ -1041,8 +1140,8 @@
             frame.classList.add('dragging');
             
             const point = getEventPoint(e);
-            offsetX = point.x - parseFloat(frame.getAttribute("x"));
-            offsetY = point.y - parseFloat(frame.getAttribute("y"));
+            offsetX = point.x - parseFloat(frame.getAttribute("cx"));
+            offsetY = point.y - parseFloat(frame.getAttribute("cy"));
             
             e.preventDefault();
             e.stopPropagation();
@@ -1056,11 +1155,9 @@
             const newY = point.y - offsetY;
 
             const closestPoint = getClosestPointOnPath(newX, newY);
-            const frameWidth = parseFloat(frame.getAttribute('width'));
-            const frameHeight = parseFloat(frame.getAttribute('height'));
             
-            frame.setAttribute("x", closestPoint.x - frameWidth / 2);
-            frame.setAttribute("y", closestPoint.y - frameHeight / 2);
+            frame.setAttribute("cx", closestPoint.x);
+            frame.setAttribute("cy", closestPoint.y);
 
             updateVisibleTextBoxes(closestPoint);
             
@@ -1153,8 +1250,12 @@
                 startPercent = 0;
                 updateTextPosition(startPercent);
                 
-                improvingArray.style.display = 'block';
-                enhancedArray.style.display = 'block';
+                if (improvingItems && improvingItems.children.length > 0) {
+                    improvingArray.style.display = 'block';
+                }
+                if (enhancedItems && enhancedItems.children.length > 0) {
+                    enhancedArray.style.display = 'block';
+                }
             }
             
             quizContainer.style.display = 'none';
@@ -1259,11 +1360,105 @@
             // Tools menu setup
             const toolsButton = document.querySelector('.tools-button');
             const toolsDropdown = document.querySelector('.tools-dropdown');
+            const fullscreenBtn = document.getElementById("toggleFullscreen");
             const loadConceptBtn = document.getElementById("loadConcept");
             const startQuizBtn = document.getElementById("startQuiz");
             const toggleArraysBtn = document.getElementById("toggleArrays");
             
             let dropdownOpen = false;
+            
+            if (fullscreenBtn) {
+                fullscreenBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (!document.fullscreenElement) {
+                        if (document.documentElement.requestFullscreen) {
+                            document.documentElement.requestFullscreen().catch(function(err) {
+                                console.log('Full screen request failed or unsupported:', err);
+                            });
+                        }
+                        fullscreenBtn.textContent = 'Exit Full Screen';
+                    } else {
+                        if (document.exitFullscreen) {
+                            document.exitFullscreen();
+                        }
+                        fullscreenBtn.textContent = 'Full Screen';
+                    }
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                });
+                document.addEventListener('fullscreenchange', function() {
+                    fullscreenBtn.textContent = document.fullscreenElement ? 'Exit Full Screen' : 'Full Screen';
+                });
+            }
+
+            // ── Keyboard-avoidance for the Quiz box ──────────────────
+            if (window.visualViewport) {
+                const KEYBOARD_HEIGHT_THRESHOLD = 150;
+                function handleViewportResize() {
+                    const qc = document.getElementById('quizContainer');
+                    if (!qc) return;
+                    const heightDiff = window.innerHeight - window.visualViewport.height;
+                    if (heightDiff > KEYBOARD_HEIGHT_THRESHOLD) {
+                        qc.classList.add('keyboard-open');
+                    } else {
+                        qc.classList.remove('keyboard-open');
+                    }
+                }
+                window.visualViewport.addEventListener('resize', handleViewportResize);
+            }
+
+            // ── Quiz box: drag to reposition anywhere on screen ──────
+            // Covers both States and Transitions modes automatically,
+            // since both share this one quiz container.
+            (function setupQuizDrag() {
+                const qc = document.getElementById('quizContainer');
+                const qInput = document.getElementById('quizInput');
+                const qCheck = document.getElementById('quizCheck');
+                let isDraggingQuiz = false;
+                let quizDragOffsetX = 0;
+                let quizDragOffsetY = 0;
+
+                function quizDragStart(e) {
+                    if (e.target === qInput || e.target === qCheck) return;
+                    isDraggingQuiz = true;
+                    const rect = qc.getBoundingClientRect();
+                    const point = e.touches ? e.touches[0] : e;
+                    quizDragOffsetX = point.clientX - rect.left;
+                    quizDragOffsetY = point.clientY - rect.top;
+                    qc.style.left = rect.left + 'px';
+                    qc.style.top = rect.top + 'px';
+                    qc.style.transform = 'none';
+                    qc.classList.add('dragging');
+                    if (e.touches) e.preventDefault();
+                }
+
+                function quizDragMove(e) {
+                    if (!isDraggingQuiz) return;
+                    const point = e.touches ? e.touches[0] : e;
+                    let newLeft = point.clientX - quizDragOffsetX;
+                    let newTop = point.clientY - quizDragOffsetY;
+                    const maxLeft = window.innerWidth - qc.offsetWidth;
+                    const maxTop = window.innerHeight - qc.offsetHeight;
+                    newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                    newTop = Math.max(0, Math.min(newTop, maxTop));
+                    qc.style.left = newLeft + 'px';
+                    qc.style.top = newTop + 'px';
+                    if (e.touches) e.preventDefault();
+                }
+
+                function quizDragEnd() {
+                    isDraggingQuiz = false;
+                    qc.classList.remove('dragging');
+                }
+
+                qc.addEventListener('mousedown', quizDragStart);
+                document.addEventListener('mousemove', quizDragMove);
+                document.addEventListener('mouseup', quizDragEnd);
+
+                qc.addEventListener('touchstart', quizDragStart, { passive: false });
+                document.addEventListener('touchmove', quizDragMove, { passive: false });
+                document.addEventListener('touchend', quizDragEnd);
+            })();
             
             if (toolsButton) {
                 toolsButton.addEventListener('click', function(e) {
