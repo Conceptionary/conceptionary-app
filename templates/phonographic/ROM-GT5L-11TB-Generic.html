@@ -1,3 +1,4 @@
+<!-- Last updated: 2026-09-13 @ 7:10 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -256,6 +257,7 @@
         }
 
         .quiz-container {
+            box-sizing: border-box;
             position: fixed;
             top: 40%;
             left: 50%;
@@ -275,6 +277,7 @@
         }
         
         .quiz-container input {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
             font-size: 14px;
@@ -284,6 +287,7 @@
         }
         
         .quiz-container button {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
             background-color: #3366cc;
@@ -296,6 +300,25 @@
         
         .quiz-container button:hover {
             background-color: #254e9c;
+        }
+
+        .quiz-container.keyboard-open {
+            top: 8px;
+            transform: translate(-50%, 0);
+            max-width: 90vw;
+            width: 320px;
+            padding: 8px;
+        }
+
+        .quiz-container.keyboard-open input {
+            font-size: 13px;
+            padding: 6px;
+            margin-bottom: 6px;
+        }
+
+        .quiz-container.keyboard-open #quizFeedback {
+            min-height: 14px;
+            margin-top: 4px;
         }
         
         #quizFeedback {
@@ -316,7 +339,6 @@
             border-radius: 4px;
             cursor: pointer;
             z-index: 4;
-            display: none;
         }
 
         .tools-dropdown {
@@ -430,6 +452,40 @@
             cursor: pointer;
             z-index: 5;
         }
+
+        /* ── Mobile sizing: frame and text ─────────────────────────────
+           Starting values — roughly doubled from desktop, matching the
+           reasoning used across the Curve family's mobile fixes, but not
+           yet visually confirmed on a real device for this file's own
+           100x43.6 viewBox and 5-line layout. Treat as a starting point. */
+        @media (pointer: coarse) {
+            #draggableFrame {
+                r: 3;
+            }
+            .textBox {
+                font-size: 2.8px;
+            }
+            .sliding-text {
+                font-size: 3.2px;
+            }
+            .tools-button,
+            .mode-toggle {
+                min-height: 48px;
+                padding: 14px 18px;
+                font-size: 1em;
+            }
+            .toggle-visibility {
+                min-height: 48px;
+                min-width: 48px;
+                padding: 12px 16px;
+                font-size: 0.9em;
+            }
+            .tools-dropdown button {
+                min-height: 48px;
+                padding: 16px 15px;
+                font-size: 0.95em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -441,6 +497,7 @@
         
         <button class="tools-button">🛠️ Tools</button>
         <div class="tools-dropdown">
+            <button id="toggleFullscreen">🖥️ Full Screen</button>
             <button id="loadConcept">📥 Load Concept</button>
             <button id="startQuiz">🎯 Start Quiz</button>
             <button id="toggleArrays">👁️ Toggle Arrays</button>
@@ -739,9 +796,11 @@
                 if (isIncreasing) {
                     increasingItems.appendChild(itemElement);
                     addedIncreasingItems[index] = true;
+                    increasingArray.style.display = 'block';
                 } else {
                     decreasingItems.appendChild(itemElement);
                     addedDecreasingItems[index] = true;
+                    decreasingArray.style.display = 'block';
                 }
             } catch (error) {
                 console.error("Error adding vocabulary item:", error);
@@ -1579,8 +1638,12 @@
                 startPercent = 0;
                 updateTextPosition(startPercent);
                 
-                increasingArray.style.display = 'block';
-                decreasingArray.style.display = 'block';
+                if (increasingItems && increasingItems.children.length > 0) {
+                    increasingArray.style.display = 'block';
+                }
+                if (decreasingItems && decreasingItems.children.length > 0) {
+                    decreasingArray.style.display = 'block';
+                }
                 
                 setTimeout(() => {
                     interactiveText.style.display = 'block';
@@ -1719,11 +1782,52 @@
             // Tools menu
             const toolsButton = document.querySelector('.tools-button');
             const toolsDropdown = document.querySelector('.tools-dropdown');
+            const fullscreenBtn = document.getElementById("toggleFullscreen");
             const loadConceptBtn = document.getElementById("loadConcept");
             const startQuizBtn = document.getElementById("startQuiz");
             const toggleArraysBtn = document.getElementById("toggleArrays");
             
             let dropdownOpen = false;
+            
+            if (fullscreenBtn) {
+                fullscreenBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (!document.fullscreenElement) {
+                        if (document.documentElement.requestFullscreen) {
+                            document.documentElement.requestFullscreen().catch(function(err) {
+                                console.log('Full screen request failed or unsupported:', err);
+                            });
+                        }
+                        fullscreenBtn.textContent = '🖥️ Exit Full Screen';
+                    } else {
+                        if (document.exitFullscreen) {
+                            document.exitFullscreen();
+                        }
+                        fullscreenBtn.textContent = '🖥️ Full Screen';
+                    }
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                });
+                document.addEventListener('fullscreenchange', function() {
+                    fullscreenBtn.textContent = document.fullscreenElement ? '🖥️ Exit Full Screen' : '🖥️ Full Screen';
+                });
+            }
+
+            // ── Keyboard-avoidance for the Quiz box ──────────────────
+            if (window.visualViewport) {
+                const KEYBOARD_HEIGHT_THRESHOLD = 150;
+                function handleViewportResize() {
+                    const qc = document.getElementById('quizContainer');
+                    if (!qc) return;
+                    const heightDiff = window.innerHeight - window.visualViewport.height;
+                    if (heightDiff > KEYBOARD_HEIGHT_THRESHOLD) {
+                        qc.classList.add('keyboard-open');
+                    } else {
+                        qc.classList.remove('keyboard-open');
+                    }
+                }
+                window.visualViewport.addEventListener('resize', handleViewportResize);
+            }
             
             if (toolsButton) {
                 toolsButton.addEventListener('click', function(e) {
