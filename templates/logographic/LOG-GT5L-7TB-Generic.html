@@ -1,3 +1,4 @@
+<!-- Last updated: 2026-09-14 @ 12:50 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -78,7 +79,7 @@
         /* States Template Elements */
         .textBox {
             cursor: pointer;
-            font-size: 1.4px;
+            font-size: 2.8px;
             fill: black;
             opacity: 0;
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
@@ -133,7 +134,7 @@
 
         /* Transitions Template Elements */
         .sliding-text {
-            font-size: 1.6px;
+            font-size: 3.2px;
             font-weight: bold;
             fill: blue;
             cursor: grab;
@@ -256,6 +257,7 @@
         }
 
         .quiz-container {
+            box-sizing: border-box;
             position: fixed;
             top: 40%;
             left: 50%;
@@ -270,11 +272,16 @@
             min-width: 280px;
             max-width: 600px;
             width: auto;
-            cursor: move;
+            cursor: grab;
             user-select: none;
+        }
+
+        .quiz-container.dragging {
+            cursor: grabbing;
         }
         
         .quiz-container input {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
             font-size: 14px;
@@ -284,6 +291,7 @@
         }
         
         .quiz-container button {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
             background-color: #3366cc;
@@ -296,6 +304,25 @@
         
         .quiz-container button:hover {
             background-color: #254e9c;
+        }
+
+        .quiz-container.keyboard-open {
+            top: 8px;
+            transform: translate(-50%, 0);
+            max-width: 90vw;
+            width: 320px;
+            padding: 8px;
+        }
+
+        .quiz-container.keyboard-open input {
+            font-size: 13px;
+            padding: 6px;
+            margin-bottom: 6px;
+        }
+
+        .quiz-container.keyboard-open #quizFeedback {
+            min-height: 14px;
+            margin-top: 4px;
         }
         
         #quizFeedback {
@@ -316,7 +343,6 @@
             border-radius: 4px;
             cursor: pointer;
             z-index: 4;
-            display: none;
         }
 
         .tools-dropdown {
@@ -406,12 +432,20 @@
             cursor: pointer;
         }
 
+        .vocabulary-item .target-language-roman {
+            font-style: italic;
+            color: #007bff;
+            margin-bottom: 2px;
+            cursor: pointer;
+        }
+
         .vocabulary-item .source-language {
             color: #666;
             cursor: pointer;
         }
 
         .vocabulary-item .target-language.hidden,
+        .vocabulary-item .target-language-roman.hidden,
         .vocabulary-item .source-language.hidden {
             color: transparent;
             user-select: none;
@@ -430,6 +464,41 @@
             cursor: pointer;
             z-index: 5;
         }
+
+        /* ── Mobile sizing: frame, text, and touch targets ────────────
+           Starting values — roughly doubled from desktop for the frame
+           and SVG text, and enlarged to meet the ~48px touch-target
+           guideline for buttons, matching the fix applied across the
+           GT5L/GP3L family. Not yet visually confirmed on a real
+           device. Treat as a starting point. */
+        @media (pointer: coarse) {
+            #draggableFrame {
+                r: 3;
+            }
+            .textBox {
+                font-size: 5.6px;
+            }
+            .sliding-text {
+                font-size: 6.4px;
+            }
+            .tools-button,
+            .mode-toggle {
+                min-height: 48px;
+                padding: 14px 18px;
+                font-size: 1em;
+            }
+            .toggle-visibility {
+                min-height: 48px;
+                min-width: 48px;
+                padding: 12px 16px;
+                font-size: 0.9em;
+            }
+            .tools-dropdown button {
+                min-height: 48px;
+                padding: 16px 15px;
+                font-size: 0.95em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -441,6 +510,7 @@
         
         <button class="tools-button">🛠️ Tools</button>
         <div class="tools-dropdown">
+            <button id="toggleFullscreen">🖥️ Full Screen</button>
             <button id="loadConcept">📥 Load Concept</button>
             <button id="startQuiz">🎯 Start Quiz</button>
             <button id="toggleArrays">👁️ Toggle Arrays</button>
@@ -723,11 +793,16 @@
             try {
                 if (index >= transitionsData.length) return;
                 
-                const sourceLanguage = transitionsData[index][1];
-                const targetLanguage = transitionsData[index][0];
+                const tlr = transitionsData[index][0];
+                const targetLanguage = transitionsData[index][1];
+                const sourceLanguage = transitionsData[index][2];
                 
                 const itemElement = document.createElement('div');
                 itemElement.className = 'vocabulary-item';
+                
+                const tlrSpan = document.createElement('span');
+                tlrSpan.className = 'target-language-roman';
+                tlrSpan.textContent = tlr;
                 
                 const targetLangSpan = document.createElement('span');
                 targetLangSpan.className = 'target-language';
@@ -737,22 +812,25 @@
                 sourceLangSpan.className = 'source-language';
                 sourceLangSpan.textContent = sourceLanguage;
                 
-                [targetLangSpan, sourceLangSpan].forEach(span => {
+                [tlrSpan, targetLangSpan, sourceLangSpan].forEach(span => {
                     span.addEventListener('click', function(e) {
                         e.stopPropagation();
                         this.classList.toggle('hidden');
                     });
                 });
                 
+                itemElement.appendChild(tlrSpan);
                 itemElement.appendChild(targetLangSpan);
                 itemElement.appendChild(sourceLangSpan);
                 
                 if (isIncreasing) {
                     increasingItems.appendChild(itemElement);
                     addedIncreasingItems[index] = true;
+                    increasingArray.style.display = 'block';
                 } else {
                     decreasingItems.appendChild(itemElement);
                     addedDecreasingItems[index] = true;
+                    decreasingArray.style.display = 'block';
                 }
             } catch (error) {
                 console.error("Error adding vocabulary item:", error);
@@ -1619,8 +1697,12 @@
                 startPercent = 0;
                 updateTextPosition(startPercent);
                 
-                increasingArray.style.display = 'block';
-                decreasingArray.style.display = 'block';
+                if (increasingItems && increasingItems.children.length > 0) {
+                    increasingArray.style.display = 'block';
+                }
+                if (decreasingItems && decreasingItems.children.length > 0) {
+                    decreasingArray.style.display = 'block';
+                }
                 
                 setTimeout(() => {
                     interactiveText.style.display = 'block';
@@ -1758,11 +1840,105 @@
             // Tools menu
             const toolsButton = document.querySelector('.tools-button');
             const toolsDropdown = document.querySelector('.tools-dropdown');
+            const fullscreenBtn = document.getElementById("toggleFullscreen");
             const loadConceptBtn = document.getElementById("loadConcept");
             const startQuizBtn = document.getElementById("startQuiz");
             const toggleArraysBtn = document.getElementById("toggleArrays");
             
             let dropdownOpen = false;
+            
+            if (fullscreenBtn) {
+                fullscreenBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (!document.fullscreenElement) {
+                        if (document.documentElement.requestFullscreen) {
+                            document.documentElement.requestFullscreen().catch(function(err) {
+                                console.log('Full screen request failed or unsupported:', err);
+                            });
+                        }
+                        fullscreenBtn.textContent = '🖥️ Exit Full Screen';
+                    } else {
+                        if (document.exitFullscreen) {
+                            document.exitFullscreen();
+                        }
+                        fullscreenBtn.textContent = '🖥️ Full Screen';
+                    }
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                });
+                document.addEventListener('fullscreenchange', function() {
+                    fullscreenBtn.textContent = document.fullscreenElement ? '🖥️ Exit Full Screen' : '🖥️ Full Screen';
+                });
+            }
+
+            // ── Keyboard-avoidance for the Quiz box ──────────────────
+            if (window.visualViewport) {
+                const KEYBOARD_HEIGHT_THRESHOLD = 150;
+                function handleViewportResize() {
+                    const qc = document.getElementById('quizContainer');
+                    if (!qc) return;
+                    const heightDiff = window.innerHeight - window.visualViewport.height;
+                    if (heightDiff > KEYBOARD_HEIGHT_THRESHOLD) {
+                        qc.classList.add('keyboard-open');
+                    } else {
+                        qc.classList.remove('keyboard-open');
+                    }
+                }
+                window.visualViewport.addEventListener('resize', handleViewportResize);
+            }
+
+            // ── Quiz box: drag to reposition anywhere on screen ──────
+            // This file already had cursor:move — wiring up the actual
+            // drag behavior that was missing behind it.
+            (function setupQuizDrag() {
+                const qc = document.getElementById('quizContainer');
+                const qInput = document.getElementById('quizInput');
+                const qCheck = document.getElementById('quizCheck');
+                let isDraggingQuiz = false;
+                let quizDragOffsetX = 0;
+                let quizDragOffsetY = 0;
+
+                function quizDragStart(e) {
+                    if (e.target === qInput || e.target === qCheck) return;
+                    isDraggingQuiz = true;
+                    const rect = qc.getBoundingClientRect();
+                    const point = e.touches ? e.touches[0] : e;
+                    quizDragOffsetX = point.clientX - rect.left;
+                    quizDragOffsetY = point.clientY - rect.top;
+                    qc.style.left = rect.left + 'px';
+                    qc.style.top = rect.top + 'px';
+                    qc.style.transform = 'none';
+                    qc.classList.add('dragging');
+                    if (e.touches) e.preventDefault();
+                }
+
+                function quizDragMove(e) {
+                    if (!isDraggingQuiz) return;
+                    const point = e.touches ? e.touches[0] : e;
+                    let newLeft = point.clientX - quizDragOffsetX;
+                    let newTop = point.clientY - quizDragOffsetY;
+                    const maxLeft = window.innerWidth - qc.offsetWidth;
+                    const maxTop = window.innerHeight - qc.offsetHeight;
+                    newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                    newTop = Math.max(0, Math.min(newTop, maxTop));
+                    qc.style.left = newLeft + 'px';
+                    qc.style.top = newTop + 'px';
+                    if (e.touches) e.preventDefault();
+                }
+
+                function quizDragEnd() {
+                    isDraggingQuiz = false;
+                    qc.classList.remove('dragging');
+                }
+
+                qc.addEventListener('mousedown', quizDragStart);
+                document.addEventListener('mousemove', quizDragMove);
+                document.addEventListener('mouseup', quizDragEnd);
+
+                qc.addEventListener('touchstart', quizDragStart, { passive: false });
+                document.addEventListener('touchmove', quizDragMove, { passive: false });
+                document.addEventListener('touchend', quizDragEnd);
+            })();
             
             if (toolsButton) {
                 toolsButton.addEventListener('click', function(e) {

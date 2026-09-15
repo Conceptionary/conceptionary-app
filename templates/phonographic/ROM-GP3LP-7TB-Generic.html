@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-09-14 @ 11:05 a.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-09-15 @ 11:30 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -304,6 +304,12 @@
             padding: 3px;
             background-color: #f0f0f0;
             border-bottom: 1px solid #ccc;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .vocabulary-array.dragging .array-title {
+            cursor: grabbing;
         }
 
         .vocabulary-item {
@@ -459,6 +465,7 @@
                 <div class="tool-item" id="loadConcept">Load Concept</div>
                 <div class="tool-item" id="startQuiz">Quick Quiz</div>
                 <div class="tool-item" id="toggleArrays">Toggle Arrays</div>
+                <div class="tool-item" id="toggleGrid">Toggle Coordinate Grid</div>
             </div>
         </div>
         
@@ -563,8 +570,8 @@
         // Generate 3-line path with coordinates (horizontal-diagonal-horizontal)
         const pathPoints = [
             `0,32.4`,          // Start horizontal line
-            `30,32.4`,         // End of first horizontal
-            `50,21.6`,         // Diagonal rise point
+            `40,32.4`,         // End of first horizontal
+            `60,21.6`,         // Diagonal rise point
             `100,21.6`         // End horizontal line (elevated)
         ];
 
@@ -845,17 +852,29 @@
                 { percent: 100, description: "End of Line 3", anchor: "end" }         // Position 7
             ];
             
+            // Confirmed coordinates, ported directly from LOG-GP3LP-7TB
+            // (Alan, 2026-09-15) — both files share identical path
+            // geometry, so the same 7 positions apply here unchanged.
+            const confirmedPositions = {
+                0: { x: 0, y: 39.24 },   // 0%, 90%
+                1: { x: 20, y: 34.88 },  // 20%, 80%
+                2: { x: 40, y: 32.7 },   // 40%, 75%
+                3: { x: 50, y: 27.03 },  // 50%, 62%
+                4: { x: 60, y: 21.8 },   // 60%, 50%
+                5: { x: 75, y: 17.44 },  // 75%, 40%
+                6: { x: 98, y: 21.8 }    // 98%, 50%
+            };
+            
             // Create text boxes at the 7 specific positions
             for (let i = 0; i < 7; i++) {
                 const positionData = sevenPositions[i];
-                const position = (positionData.percent / 100) * pathLength;
-                const point = pathLine.getPointAtLength(position);
+                const fixedPos = confirmedPositions[i];
                 
                 const textBox = document.createElementNS("http://www.w3.org/2000/svg", "text");
                 textBox.setAttribute("class", "textBox");
-                textBox.setAttribute("x", point.x);
-                textBox.setAttribute("y", point.y);
-                textBox.setAttribute("text-anchor", positionData.anchor);
+                textBox.setAttribute("x", fixedPos.x);
+                textBox.setAttribute("y", fixedPos.y);
+                textBox.style.textAnchor = positionData.anchor;
                 textBox.setAttribute("data-index", i);
                 
                 // Set initial text based on current layer (numbers or words)
@@ -1364,6 +1383,77 @@
             const loadConceptBtn = document.getElementById("loadConcept");
             const startQuizBtn = document.getElementById("startQuiz");
             const toggleArraysBtn = document.getElementById("toggleArrays");
+            const toggleGridBtn = document.getElementById("toggleGrid");
+            
+            // ── Coordinate grid overlay — for manually identifying
+            // staggered text-box coordinates on this file's 100x43.6
+            // viewBox. Red lines every 10% of width/height, labeled.
+            if (toggleGridBtn) {
+                let gridVisible = false;
+                let gridGroup = null;
+                
+                function buildGrid() {
+                    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    g.setAttribute("id", "coordinateGrid");
+                    g.setAttribute("pointer-events", "none");
+                    
+                    for (let x = 0; x <= 100; x += 10) {
+                        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        line.setAttribute("x1", x);
+                        line.setAttribute("y1", 0);
+                        line.setAttribute("x2", x);
+                        line.setAttribute("y2", 43.6);
+                        line.setAttribute("stroke", "red");
+                        line.setAttribute("stroke-width", "0.1");
+                        line.setAttribute("opacity", "0.5");
+                        g.appendChild(line);
+                        
+                        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                        label.setAttribute("x", x + 0.3);
+                        label.setAttribute("y", 1.5);
+                        label.setAttribute("font-size", "1.2");
+                        label.setAttribute("fill", "red");
+                        label.textContent = x + "%";
+                        g.appendChild(label);
+                    }
+                    
+                    for (let y = 0; y <= 43.6; y += 4.36) {
+                        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        line.setAttribute("x1", 0);
+                        line.setAttribute("y1", y);
+                        line.setAttribute("x2", 100);
+                        line.setAttribute("y2", y);
+                        line.setAttribute("stroke", "red");
+                        line.setAttribute("stroke-width", "0.1");
+                        line.setAttribute("opacity", "0.5");
+                        g.appendChild(line);
+                        
+                        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                        label.setAttribute("x", 0.3);
+                        label.setAttribute("y", y + 1.2);
+                        label.setAttribute("font-size", "1.2");
+                        label.setAttribute("fill", "red");
+                        label.textContent = Math.round((y / 43.6) * 100) + "%";
+                        g.appendChild(label);
+                    }
+                    
+                    return g;
+                }
+                
+                toggleGridBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    gridVisible = !gridVisible;
+                    if (gridVisible) {
+                        gridGroup = buildGrid();
+                        svg.appendChild(gridGroup);
+                    } else if (gridGroup && gridGroup.parentNode) {
+                        gridGroup.parentNode.removeChild(gridGroup);
+                        gridGroup = null;
+                    }
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                });
+            }
             
             let dropdownOpen = false;
             
@@ -1459,6 +1549,62 @@
                 document.addEventListener('touchmove', quizDragMove, { passive: false });
                 document.addEventListener('touchend', quizDragEnd);
             })();
+
+            // ── Vocabulary arrays: drag to reposition anywhere on screen
+            // Drag handle is the title bar (.array-title), so clicking
+            // "Hide All" or a vocabulary item still works normally.
+            function setupArrayDrag(arrayEl) {
+                const handle = arrayEl.querySelector('.array-title');
+                if (!handle) return;
+                let isDraggingArray = false;
+                let dragOffsetX = 0;
+                let dragOffsetY = 0;
+
+                function dragStart(e) {
+                    isDraggingArray = true;
+                    const rect = arrayEl.getBoundingClientRect();
+                    const point = e.touches ? e.touches[0] : e;
+                    dragOffsetX = point.clientX - rect.left;
+                    dragOffsetY = point.clientY - rect.top;
+                    arrayEl.style.left = rect.left + 'px';
+                    arrayEl.style.top = rect.top + 'px';
+                    arrayEl.style.right = 'auto';
+                    arrayEl.classList.add('dragging');
+                    if (e.touches) e.preventDefault();
+                }
+
+                function dragMove(e) {
+                    if (!isDraggingArray) return;
+                    const point = e.touches ? e.touches[0] : e;
+                    let newLeft = point.clientX - dragOffsetX;
+                    let newTop = point.clientY - dragOffsetY;
+                    const maxLeft = window.innerWidth - arrayEl.offsetWidth;
+                    const maxTop = window.innerHeight - arrayEl.offsetHeight;
+                    newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                    newTop = Math.max(0, Math.min(newTop, maxTop));
+                    arrayEl.style.left = newLeft + 'px';
+                    arrayEl.style.top = newTop + 'px';
+                    if (e.touches) e.preventDefault();
+                }
+
+                function dragEnd() {
+                    isDraggingArray = false;
+                    arrayEl.classList.remove('dragging');
+                }
+
+                handle.addEventListener('mousedown', dragStart);
+                document.addEventListener('mousemove', dragMove);
+                document.addEventListener('mouseup', dragEnd);
+
+                handle.addEventListener('touchstart', dragStart, { passive: false });
+                document.addEventListener('touchmove', dragMove, { passive: false });
+                document.addEventListener('touchend', dragEnd);
+            }
+            
+            const improvingArrayEl = document.getElementById('improving-array');
+            const enhancedArrayEl = document.getElementById('enhanced-array');
+            if (improvingArrayEl) setupArrayDrag(improvingArrayEl);
+            if (enhancedArrayEl) setupArrayDrag(enhancedArrayEl);
             
             if (toolsButton) {
                 toolsButton.addEventListener('click', function(e) {

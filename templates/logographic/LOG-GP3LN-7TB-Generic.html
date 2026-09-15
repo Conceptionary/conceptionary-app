@@ -1,3 +1,4 @@
+<!-- Last updated: 2026-09-15 @ 7:00 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -61,7 +62,7 @@
 
         .textBox {
             cursor: pointer;
-            font-size: 3px;
+            font-size: 4px;
             fill: black;
             opacity: 0;
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
@@ -82,11 +83,29 @@
 
         #draggableFrame {
             cursor: grab;
-            fill: rgba(100, 150, 255, 0.8);
-            stroke: #2c5aa0;
-            stroke-width: 0.2;
+            fill: rgba(255, 255, 0, 0.6);
+            stroke: #ccaa00;
+            stroke-width: 0.1;
             pointer-events: all;
             opacity: 1;
+            filter: drop-shadow(0 0.3px 0.5px rgba(0,0,0,0.3));
+            transition: fill 0.2s ease, stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
+        }
+
+        #draggableFrame:hover {
+            fill: rgba(255, 255, 0, 0.8);
+            stroke: #ffcc00;
+            stroke-width: 0.15;
+            cursor: grab;
+            filter: drop-shadow(0 0.5px 1px rgba(204, 170, 0, 0.6)) drop-shadow(0 0 2px rgba(255, 255, 100, 0.8));
+        }
+
+        #draggableFrame.dragging {
+            cursor: grabbing;
+            fill: transparent;
+            stroke-width: 0.1;
+            filter: drop-shadow(0 0.5px 1px rgba(255, 170, 0, 0.6)) drop-shadow(0 0 2px rgba(255, 220, 0, 0.8));
+            stroke: #ffaa00;
         }
 
         #draggableFrame:hover {
@@ -100,7 +119,7 @@
         }
 
         .sliding-text {
-            font-size: 1.6px;
+            font-size: 4px;
             font-weight: bold;
             fill: blue;
             cursor: pointer;
@@ -147,6 +166,7 @@
         }
         
         .concept-indicator {
+            display: none;
             position: absolute;
             bottom: 60px;
             left: 50%;
@@ -160,6 +180,7 @@
         }
         
         .level-indicator {
+            display: none !important; /* Redundant */
             position: absolute;
             top: 60px;
             left: 50%;
@@ -173,6 +194,7 @@
         }
 
         .quiz-container {
+            box-sizing: border-box;
             position: fixed;
             top: 40%;
             left: 50%;
@@ -186,9 +208,15 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
             max-width: 360px;
             width: 360px;
+            cursor: grab;
+        }
+
+        .quiz-container.dragging {
+            cursor: grabbing;
         }
         
         .quiz-container input {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
             font-size: 14px;
@@ -198,6 +226,7 @@
         }
         
         .quiz-container button {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
             background-color: #3366cc;
@@ -210,6 +239,25 @@
         
         .quiz-container button:hover {
             background-color: #254e9c;
+        }
+
+        .quiz-container.keyboard-open {
+            top: 8px;
+            transform: translate(-50%, 0);
+            max-width: 90vw;
+            width: 320px;
+            padding: 8px;
+        }
+
+        .quiz-container.keyboard-open input {
+            font-size: 13px;
+            padding: 6px;
+            margin-bottom: 6px;
+        }
+
+        .quiz-container.keyboard-open #quizFeedback {
+            min-height: 14px;
+            margin-top: 4px;
         }
         
         #quizFeedback {
@@ -233,8 +281,8 @@
             display: none;
         }
 
-        #changing-array { left: 5px; }
-        #negative-array { right: 5px; }
+        #changing-array { top: 52%; left: 10%; }
+        #negative-array { top: 7%; right: 3%; }
 
         .array-title {
             font-size: 0.9em;
@@ -244,6 +292,12 @@
             padding: 3px;
             background-color: #f0f0f0;
             border-bottom: 1px solid #ccc;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .vocabulary-array.dragging .array-title {
+            cursor: grabbing;
         }
 
         .vocabulary-item {
@@ -344,6 +398,42 @@
         }
 
         .tool-item:hover { background-color: #f5f5f5; }
+
+        /* ── Mobile sizing: frame, text, and touch targets ────────────
+           Starting values — roughly doubled from this file's own
+           (already-doubled) desktop sizes for the frame and SVG text,
+           and enlarged to meet the ~48px touch-target guideline for
+           buttons, matching the fix applied across the GT5L/GP3L
+           family. Not yet visually confirmed on a real device. Treat
+           as a starting point. */
+        @media (pointer: coarse) {
+            #draggableFrame {
+                r: 3;
+            }
+            .textBox {
+                font-size: 8px;
+            }
+            .sliding-text {
+                font-size: 8px;
+            }
+            .tools-button,
+            .mode-toggle {
+                min-height: 48px;
+                padding: 14px 18px;
+                font-size: 1em;
+            }
+            .toggle-visibility {
+                min-height: 48px;
+                min-width: 48px;
+                padding: 12px 16px;
+                font-size: 0.9em;
+            }
+            .tool-item {
+                min-height: 48px;
+                padding: 16px 15px;
+                font-size: 0.95em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -355,9 +445,11 @@
         <div class="tools-menu">
             <div class="tools-button">Tools</div>
             <div class="tools-dropdown">
+                <div class="tool-item" id="toggleFullscreen">Full Screen</div>
                 <div class="tool-item" id="loadConcept">Load Concept</div>
                 <div class="tool-item" id="startQuiz">Quick Quiz</div>
                 <div class="tool-item" id="toggleArrays">Toggle Arrays</div>
+                <div class="tool-item" id="toggleGrid">Toggle Coordinate Grid</div>
             </div>
         </div>
         
@@ -385,7 +477,7 @@
             <path id="gradualChangePath" class="path-line" />
             <path id="conceptBackground"></path>
             
-            <rect id="draggableFrame" x="-3" y="30" width="6" height="4" rx="0.5"/>
+            <circle id="draggableFrame" cx="0" cy="32" r="1.5"/>
             
             <text id="interactiveText" class="sliding-text">
                 <textPath id="slidingText" href="#gradualChangePath" startOffset="0%">
@@ -453,7 +545,7 @@
 
         // REVERSED 3-line path coordinates
         const pathPoints = [
-            `0,21.6`, `30,21.6`, `50,32.4`, `100,32.4`
+            `0,21.6`, `40,21.6`, `60,32.4`, `100,32.4`
         ];
 
         let svg, pathLine, conceptBackground, titleBox, conceptIndicator, levelIndicator;
@@ -541,16 +633,27 @@
                 { percent: 100, anchor: "end" }
             ];
             
+            // Confirmed coordinates from the coordinate grid (Alan,
+            // 2026-09-14) — updated following the Line 2 shift.
+            const confirmedPositions = {
+                0: { x: 0, y: 17.44 },   // TLR1: 0%, 40%
+                1: { x: 23, y: 20.93 },  // TLR2: 23%, 48%
+                2: { x: 40, y: 25.29 },  // TLR3: 40%, 58%
+                3: { x: 52, y: 28.34 },  // TLR4: 52%, 65%
+                4: { x: 60, y: 31.83 },  // TLR5: 60%, 73%
+                5: { x: 75, y: 35.75 },  // TLR6: 75%, 82%
+                6: { x: 98, y: 37.06 }   // TLR7: 98%, 85%
+            };
+            
             for (let i = 0; i < 7; i++) {
                 const positionData = sevenPositions[i];
-                const position = (positionData.percent / 100) * pathLength;
-                const point = pathLine.getPointAtLength(position);
+                const fixedPos = confirmedPositions[i];
                 
                 const textBox = document.createElementNS("http://www.w3.org/2000/svg", "text");
                 textBox.setAttribute("class", "textBox");
-                textBox.setAttribute("x", point.x);
-                textBox.setAttribute("y", point.y);
-                textBox.setAttribute("text-anchor", positionData.anchor);
+                textBox.setAttribute("x", fixedPos.x);
+                textBox.setAttribute("y", fixedPos.y);
+                textBox.style.textAnchor = positionData.anchor;
                 textBox.setAttribute("data-index", i);
                 
                 textBox.textContent = conceptData[i][currentTextLayer[i]];
@@ -594,6 +697,11 @@
                 svg.appendChild(textBox);
                 textBoxElements.push(textBox);
             }
+            
+            // Re-parent the drag frame to the end of the SVG's children so
+            // it always renders — and receives pointer/touch events —
+            // above every text box (SVG stacking is document-order only).
+            if (frame && frame.parentNode) frame.parentNode.appendChild(frame);
         }
 
         function showQuiz(index, element) {
@@ -625,8 +733,8 @@
             try {
                 const currentData = transitionsData;
                 const tlr = currentData[index][0];
-                const sourceLanguage = currentData[index][1];
-                const targetLanguage = currentData[index][2];
+                const targetLanguage = currentData[index][1];
+                const sourceLanguage = currentData[index][2];
                 
                 const itemElement = document.createElement('div');
                 itemElement.className = 'vocabulary-item';
@@ -657,9 +765,11 @@
                 if (isChanging) {
                     changingItems.appendChild(itemElement);
                     addedChangingItems[index] = true;
+                    changingArray.style.display = 'block';
                 } else {
                     negativeItems.appendChild(itemElement);
                     addedNegativeItems[index] = true;
+                    negativeArray.style.display = 'block';
                 }
             } catch (error) {
                 console.error("Error adding vocabulary:", error);
@@ -761,11 +871,14 @@
 
         function initializeFramePosition() {
             const startPoint = pathLine.getPointAtLength(0);
-            const frameWidth = parseFloat(frame.getAttribute('width'));
-            const frameHeight = parseFloat(frame.getAttribute('height'));
             
-            frame.setAttribute('x', startPoint.x - frameWidth/2);
-            frame.setAttribute('y', startPoint.y - frameHeight/2);
+            frame.setAttribute('cx', startPoint.x);
+            frame.setAttribute('cy', startPoint.y);
+            
+            // Re-parent to the end of the SVG's children so the frame
+            // always renders — and receives pointer/touch events —
+            // above every text box (SVG stacking is document-order only).
+            if (frame.parentNode) frame.parentNode.appendChild(frame);
             
             updateVisibleTextBoxes(startPoint);
             conceptIndicator.textContent = "Position 1";
@@ -780,8 +893,8 @@
             frame.classList.add('dragging');
             
             const point = getEventPoint(e);
-            offsetX = point.x - parseFloat(frame.getAttribute("x"));
-            offsetY = point.y - parseFloat(frame.getAttribute("y"));
+            offsetX = point.x - parseFloat(frame.getAttribute("cx"));
+            offsetY = point.y - parseFloat(frame.getAttribute("cy"));
             
             e.preventDefault();
             e.stopPropagation();
@@ -795,11 +908,9 @@
             const newY = point.y - offsetY;
 
             const closestPoint = getClosestPointOnPath(newX, newY);
-            const frameWidth = parseFloat(frame.getAttribute('width'));
-            const frameHeight = parseFloat(frame.getAttribute('height'));
             
-            frame.setAttribute("x", closestPoint.x - frameWidth / 2);
-            frame.setAttribute("y", closestPoint.y - frameHeight / 2);
+            frame.setAttribute("cx", closestPoint.x);
+            frame.setAttribute("cy", closestPoint.y);
 
             updateVisibleTextBoxes(closestPoint);
             
@@ -858,14 +969,25 @@
             if (!isDraggingText || isStatesMode) return;
             
             let currentX = event.touches ? event.touches[0].clientX : event.clientX;
-            let movement = currentX - lastX;
+            let clientMovement = currentX - lastX;
             
-            if (Math.abs(movement) > 5) {
+            if (Math.abs(clientMovement) > 5) {
                 hasMovedDuringDrag = true;
             }
             
+            // Convert the screen-pixel movement into SVG-space movement
+            // using the SVG's actual rendered width, rather than a fixed
+            // pixel-to-percent multiplier — the old approach (movement *
+            // 0.2) didn't account for how large .a4-page renders on any
+            // given screen, which made drag speed inconsistent and feel
+            // jittery depending on window/device size.
+            const svg = document.getElementById('svgCanvas');
+            const svgRect = svg.getBoundingClientRect();
+            const SVG_VIEWBOX_WIDTH = 100; // matches viewBox="0 0 100 43.6"
+            const svgMovement = svgRect.width > 0 ? (clientMovement / svgRect.width) * SVG_VIEWBOX_WIDTH : 0;
+            
             lastX = currentX;
-            startPercent += movement * 0.2;
+            startPercent += svgMovement;
             startPercent = Math.min(100, Math.max(0, startPercent));
             updateTextPosition(startPercent);
             
@@ -946,8 +1068,12 @@
                 startPercent = 0;
                 updateTextPosition(startPercent);
                 
-                changingArray.style.display = 'block';
-                negativeArray.style.display = 'block';
+                if (changingItems && changingItems.children.length > 0) {
+                    changingArray.style.display = 'block';
+                }
+                if (negativeItems && negativeItems.children.length > 0) {
+                    negativeArray.style.display = 'block';
+                }
             }
             
             quizContainer.style.display = 'none';
@@ -1031,8 +1157,156 @@
             
             const toolsButton = document.querySelector('.tools-button');
             const toolsDropdown = document.querySelector('.tools-dropdown');
+            const fullscreenBtn = document.getElementById("toggleFullscreen");
             
             let dropdownOpen = false;
+            
+            if (fullscreenBtn) {
+                fullscreenBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (!document.fullscreenElement) {
+                        if (document.documentElement.requestFullscreen) {
+                            document.documentElement.requestFullscreen().catch(function(err) {
+                                console.log('Full screen request failed or unsupported:', err);
+                            });
+                        }
+                        fullscreenBtn.textContent = 'Exit Full Screen';
+                    } else {
+                        if (document.exitFullscreen) {
+                            document.exitFullscreen();
+                        }
+                        fullscreenBtn.textContent = 'Full Screen';
+                    }
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                });
+                document.addEventListener('fullscreenchange', function() {
+                    fullscreenBtn.textContent = document.fullscreenElement ? 'Exit Full Screen' : 'Full Screen';
+                });
+            }
+
+            // ── Keyboard-avoidance for the Quiz box ──────────────────
+            if (window.visualViewport) {
+                const KEYBOARD_HEIGHT_THRESHOLD = 150;
+                function handleViewportResize() {
+                    const qc = document.getElementById('quizContainer');
+                    if (!qc) return;
+                    const heightDiff = window.innerHeight - window.visualViewport.height;
+                    if (heightDiff > KEYBOARD_HEIGHT_THRESHOLD) {
+                        qc.classList.add('keyboard-open');
+                    } else {
+                        qc.classList.remove('keyboard-open');
+                    }
+                }
+                window.visualViewport.addEventListener('resize', handleViewportResize);
+            }
+
+            // ── Quiz box: drag to reposition anywhere on screen ──────
+            (function setupQuizDrag() {
+                const qc = document.getElementById('quizContainer');
+                const qInput = document.getElementById('quizInput');
+                const qCheck = document.getElementById('quizCheck');
+                let isDraggingQuiz = false;
+                let quizDragOffsetX = 0;
+                let quizDragOffsetY = 0;
+
+                function quizDragStart(e) {
+                    if (e.target === qInput || e.target === qCheck) return;
+                    isDraggingQuiz = true;
+                    const rect = qc.getBoundingClientRect();
+                    const point = e.touches ? e.touches[0] : e;
+                    quizDragOffsetX = point.clientX - rect.left;
+                    quizDragOffsetY = point.clientY - rect.top;
+                    qc.style.left = rect.left + 'px';
+                    qc.style.top = rect.top + 'px';
+                    qc.style.transform = 'none';
+                    qc.classList.add('dragging');
+                    if (e.touches) e.preventDefault();
+                }
+
+                function quizDragMove(e) {
+                    if (!isDraggingQuiz) return;
+                    const point = e.touches ? e.touches[0] : e;
+                    let newLeft = point.clientX - quizDragOffsetX;
+                    let newTop = point.clientY - quizDragOffsetY;
+                    const maxLeft = window.innerWidth - qc.offsetWidth;
+                    const maxTop = window.innerHeight - qc.offsetHeight;
+                    newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                    newTop = Math.max(0, Math.min(newTop, maxTop));
+                    qc.style.left = newLeft + 'px';
+                    qc.style.top = newTop + 'px';
+                    if (e.touches) e.preventDefault();
+                }
+
+                function quizDragEnd() {
+                    isDraggingQuiz = false;
+                    qc.classList.remove('dragging');
+                }
+
+                qc.addEventListener('mousedown', quizDragStart);
+                document.addEventListener('mousemove', quizDragMove);
+                document.addEventListener('mouseup', quizDragEnd);
+
+                qc.addEventListener('touchstart', quizDragStart, { passive: false });
+                document.addEventListener('touchmove', quizDragMove, { passive: false });
+                document.addEventListener('touchend', quizDragEnd);
+            })();
+
+            // ── Vocabulary arrays: drag to reposition anywhere on screen
+            // Drag handle is the title bar (.array-title), so clicking
+            // "Hide All" or a vocabulary item still works normally.
+            function setupArrayDrag(arrayEl) {
+                const handle = arrayEl.querySelector('.array-title');
+                if (!handle) return;
+                let isDraggingArray = false;
+                let dragOffsetX = 0;
+                let dragOffsetY = 0;
+
+                function dragStart(e) {
+                    isDraggingArray = true;
+                    const rect = arrayEl.getBoundingClientRect();
+                    const point = e.touches ? e.touches[0] : e;
+                    dragOffsetX = point.clientX - rect.left;
+                    dragOffsetY = point.clientY - rect.top;
+                    arrayEl.style.left = rect.left + 'px';
+                    arrayEl.style.top = rect.top + 'px';
+                    arrayEl.style.right = 'auto';
+                    arrayEl.classList.add('dragging');
+                    if (e.touches) e.preventDefault();
+                }
+
+                function dragMove(e) {
+                    if (!isDraggingArray) return;
+                    const point = e.touches ? e.touches[0] : e;
+                    let newLeft = point.clientX - dragOffsetX;
+                    let newTop = point.clientY - dragOffsetY;
+                    const maxLeft = window.innerWidth - arrayEl.offsetWidth;
+                    const maxTop = window.innerHeight - arrayEl.offsetHeight;
+                    newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                    newTop = Math.max(0, Math.min(newTop, maxTop));
+                    arrayEl.style.left = newLeft + 'px';
+                    arrayEl.style.top = newTop + 'px';
+                    if (e.touches) e.preventDefault();
+                }
+
+                function dragEnd() {
+                    isDraggingArray = false;
+                    arrayEl.classList.remove('dragging');
+                }
+
+                handle.addEventListener('mousedown', dragStart);
+                document.addEventListener('mousemove', dragMove);
+                document.addEventListener('mouseup', dragEnd);
+
+                handle.addEventListener('touchstart', dragStart, { passive: false });
+                document.addEventListener('touchmove', dragMove, { passive: false });
+                document.addEventListener('touchend', dragEnd);
+            }
+            
+            const changingArrayEl = document.getElementById('changing-array');
+            const negativeArrayEl = document.getElementById('negative-array');
+            if (changingArrayEl) setupArrayDrag(changingArrayEl);
+            if (negativeArrayEl) setupArrayDrag(negativeArrayEl);
             
             if (toolsButton) {
                 toolsButton.addEventListener('click', function(e) {
@@ -1053,6 +1327,77 @@
             const loadConceptBtn = document.getElementById("loadConcept");
             const startQuizBtn = document.getElementById("startQuiz");
             const toggleArraysBtn = document.getElementById("toggleArrays");
+            const toggleGridBtn = document.getElementById("toggleGrid");
+            
+            // ── Coordinate grid overlay — for manually identifying
+            // staggered text-box coordinates on this file's 100x43.6
+            // viewBox. Red lines every 10% of width/height, labeled.
+            if (toggleGridBtn) {
+                let gridVisible = false;
+                let gridGroup = null;
+                
+                function buildGrid() {
+                    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    g.setAttribute("id", "coordinateGrid");
+                    g.setAttribute("pointer-events", "none");
+                    
+                    for (let x = 0; x <= 100; x += 10) {
+                        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        line.setAttribute("x1", x);
+                        line.setAttribute("y1", 0);
+                        line.setAttribute("x2", x);
+                        line.setAttribute("y2", 43.6);
+                        line.setAttribute("stroke", "red");
+                        line.setAttribute("stroke-width", "0.1");
+                        line.setAttribute("opacity", "0.5");
+                        g.appendChild(line);
+                        
+                        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                        label.setAttribute("x", x + 0.3);
+                        label.setAttribute("y", 1.5);
+                        label.setAttribute("font-size", "1.2");
+                        label.setAttribute("fill", "red");
+                        label.textContent = x + "%";
+                        g.appendChild(label);
+                    }
+                    
+                    for (let y = 0; y <= 43.6; y += 4.36) {
+                        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        line.setAttribute("x1", 0);
+                        line.setAttribute("y1", y);
+                        line.setAttribute("x2", 100);
+                        line.setAttribute("y2", y);
+                        line.setAttribute("stroke", "red");
+                        line.setAttribute("stroke-width", "0.1");
+                        line.setAttribute("opacity", "0.5");
+                        g.appendChild(line);
+                        
+                        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                        label.setAttribute("x", 0.3);
+                        label.setAttribute("y", y + 1.2);
+                        label.setAttribute("font-size", "1.2");
+                        label.setAttribute("fill", "red");
+                        label.textContent = Math.round((y / 43.6) * 100) + "%";
+                        g.appendChild(label);
+                    }
+                    
+                    return g;
+                }
+                
+                toggleGridBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    gridVisible = !gridVisible;
+                    if (gridVisible) {
+                        gridGroup = buildGrid();
+                        svg.appendChild(gridGroup);
+                    } else if (gridGroup && gridGroup.parentNode) {
+                        gridGroup.parentNode.removeChild(gridGroup);
+                        gridGroup = null;
+                    }
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                });
+            }
             
             if (loadConceptBtn) {
                 loadConceptBtn.addEventListener('click', function(e) {
