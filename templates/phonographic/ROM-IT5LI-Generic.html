@@ -1,3 +1,4 @@
+<!-- Last updated: 2026-09-17 @ 1:15 a.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -82,12 +83,30 @@
         }
 
         #draggableFrame {
-            cursor: move;
-            fill: rgba(100, 150, 255, 0.2);
-            stroke: black;
-            stroke-width: 0.1px;
+            cursor: grab;
+            fill: rgba(255, 255, 0, 0.6);
+            stroke: #ccaa00;
+            stroke-width: 0.1;
             pointer-events: all;
-            opacity: 0.8;
+            opacity: 1;
+            filter: drop-shadow(0 0.3px 0.5px rgba(0,0,0,0.3));
+            transition: fill 0.2s ease, stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
+        }
+
+        #draggableFrame:hover {
+            fill: rgba(255, 255, 0, 0.8);
+            stroke: #ffcc00;
+            stroke-width: 0.15;
+            cursor: grab;
+            filter: drop-shadow(0 0.5px 1px rgba(204, 170, 0, 0.6)) drop-shadow(0 0 2px rgba(255, 255, 100, 0.8));
+        }
+
+        #draggableFrame.dragging {
+            cursor: grabbing;
+            fill: transparent;
+            stroke-width: 0.1;
+            filter: drop-shadow(0 0.5px 1px rgba(255, 170, 0, 0.6)) drop-shadow(0 0 2px rgba(255, 220, 0, 0.8));
+            stroke: #ffaa00;
         }
 
         #draggableFrame:hover {
@@ -102,7 +121,7 @@
 
         /* Transitions Template Elements */
         .sliding-text {
-            font-size: 4px;
+            font-size: 0.4em;
             font-weight: bold;
             fill: blue;
             cursor: pointer;
@@ -151,6 +170,7 @@
         
         /* Concept Indicator */
         .concept-indicator {
+            display: none;
             position: absolute;
             bottom: 60px;
             left: 50%;
@@ -162,9 +182,57 @@
             border-radius: 4px;
             z-index: 3;
         }
+
+        .mode-indicator {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9em;
+            font-weight: bold;
+            padding: 8px 16px;
+            background-color: white;
+            border: 2px solid #3366cc;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 3;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .mode-indicator.hidden {
+            opacity: 0;
+            transform: translateX(-50%) scale(0.9);
+        }
+
+        .drag-instruction {
+            position: absolute;
+            top: 40%;
+            left: 5%;
+            font-size: 0.85em;
+            padding: 6px 12px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            z-index: 3;
+            opacity: 1;
+            transition: opacity 2s ease;
+            text-align: center;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .drag-instruction.dragging {
+            cursor: grabbing;
+            transition: none;
+        }
+
+        .drag-instruction.fade {
+            opacity: 0;
+        }
         
         /* Level indicator for transitions mode */
         .level-indicator {
+            display: none !important; /* Redundant */
             position: absolute;
             top: 60px;
             left: 50%;
@@ -179,6 +247,7 @@
 
         /* Quiz container styles */
         .quiz-container {
+            box-sizing: border-box;
             position: fixed;
             top: 40%;
             left: 50%;
@@ -195,9 +264,15 @@
             pointer-events: auto;
             visibility: visible;
             opacity: 1;
+            cursor: grab;
+        }
+
+        .quiz-container.dragging {
+            cursor: grabbing;
         }
         
         .quiz-container input {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
             font-size: 14px;
@@ -207,6 +282,7 @@
         }
         
         .quiz-container button {
+            box-sizing: border-box;
             width: 100%;
             padding: 8px;
             background-color: #3366cc;
@@ -219,6 +295,25 @@
         
         .quiz-container button:hover {
             background-color: #254e9c;
+        }
+
+        .quiz-container.keyboard-open {
+            top: 8px;
+            transform: translate(-50%, 0);
+            max-width: 90vw;
+            width: 320px;
+            padding: 8px;
+        }
+
+        .quiz-container.keyboard-open input {
+            font-size: 13px;
+            padding: 6px;
+            margin-bottom: 6px;
+        }
+
+        .quiz-container.keyboard-open #quizFeedback {
+            min-height: 14px;
+            margin-top: 4px;
         }
         
         #quizFeedback {
@@ -244,11 +339,13 @@
         }
 
         #increasing-array {
-            left: 5px;
+            top: 40%;
+            right: 5%;
         }
 
         #decreasing-array {
-            right: 5px;
+            top: 40%;
+            left: 5%;
         }
 
         .array-title {
@@ -362,18 +459,56 @@
         .tool-item:hover {
             background-color: #f5f5f5;
         }
+
+        /* ── Mobile sizing: frame, text, and touch targets ────────────
+           Starting values — roughly doubled from desktop for the frame
+           and SVG text, and enlarged to meet the ~48px touch-target
+           guideline for buttons, matching the fix applied across the
+           GT5L/GP3L/IT5L family. Not yet visually confirmed on a real
+           device. Treat as a starting point. */
+        @media (pointer: coarse) {
+            #draggableFrame {
+                r: 6;
+            }
+            .textBox {
+                font-size: 0.8em;
+            }
+            .sliding-text {
+                font-size: 0.8em;
+            }
+            .tools-button,
+            .mode-toggle {
+                min-height: 48px;
+                padding: 14px 18px;
+                font-size: 1em;
+            }
+            .toggle-visibility {
+                min-height: 48px;
+                min-width: 48px;
+                padding: 12px 16px;
+                font-size: 0.9em;
+            }
+            .tool-item {
+                min-height: 48px;
+                padding: 16px 15px;
+                font-size: 0.95em;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="a4-page">
         <div id="title-box" class="title-box">Instant Change Template - Phonographic 5-Box (Inverted)</div>
         <div id="concept-indicator" class="concept-indicator">Position</div>
+        <div id="mode-indicator" class="mode-indicator">SL States Mode</div>
+        <div id="drag-instruction" class="drag-instruction">Mobile Phone users: click 'Tools' then 'Full Screen'.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again.</div>
         <div id="level-indicator" class="level-indicator">Target Language</div>
         
         <!-- Tools Menu -->
         <div class="tools-menu">
             <div class="tools-button">Tools</div>
             <div class="tools-dropdown">
+                <div class="tool-item" id="toggleFullscreen">Full Screen</div>
                 <div class="tool-item" id="loadConcept">Load Concept</div>
                 <div class="tool-item" id="startQuiz">Quick Quiz</div>
                 <div class="tool-item" id="toggleArrays">Toggle Arrays</div>
@@ -407,7 +542,7 @@
             <path id="conceptBackground"></path>
             
             <!-- States Mode Elements -->
-            <rect id="draggableFrame" x="-30" y="12" width="10" height="5"/>
+            <circle id="draggableFrame" cx="-25" cy="14.5" r="3"/>
             
             <!-- Transitions Mode Elements - Single Draggable Text -->
             <text id="interactiveText" class="sliding-text">
@@ -452,10 +587,16 @@
 
         // Global variables
         let isStatesMode = true;
+        let currentModeIndicatorIndex = 1;
+        const modeIndicatorTexts = {
+            states: ["TL States Mode", "SL States Mode"],
+            transitions: ["TL Transitions Mode", "SL Transitions Mode"]
+        };
         let pathLength = 0;
         let currentQuizIndex = -1;
         let slidingTextMode = 0; // 0: TL, 1: SL, 2: Quiz
-        let learnedItems = [];
+        let statesLearnedItems = [];
+        let transitionsLearnedItems = [];
         let textBoxElements = [];
         let addedIncreasingItems = [];
         let addedDecreasingItems = [];
@@ -522,7 +663,7 @@
             const textPath = document.getElementById("slidingText");
             if (!textPath) return;
             
-            if (learnedItems[index]) {
+            if (transitionsLearnedItems[index]) {
                 interactiveText.classList.add('learned');
                 // For learned items, cycle between TL and SL
                 if (slidingTextMode === 0) {
@@ -568,14 +709,27 @@
             if (!isDraggingText || isStatesMode) return;
             
             let currentX = event.touches ? event.touches[0].clientX : event.clientX;
-            let movement = currentX - lastX;
+            let clientMovement = currentX - lastX;
             
-            if (Math.abs(movement) > 5) {
+            if (Math.abs(clientMovement) > 5) {
                 hasMovedDuringDrag = true;
             }
             
+            // Convert the screen-pixel movement into a percentage of the
+            // SVG's actual rendered width, rather than a fixed
+            // pixel-to-percent multiplier — the old approach (movement *
+            // 0.2) didn't account for how large .a4-page renders on any
+            // given screen, which made drag speed inconsistent and feel
+            // jittery depending on window/device size. startPercent is a
+            // 0-100 scale regardless of this file's viewBox width (160,
+            // not 100), so this converts directly to percent rather than
+            // going via viewBox units.
+            const svg = document.getElementById('svgCanvas');
+            const svgRect = svg.getBoundingClientRect();
+            const percentMovement = svgRect.width > 0 ? (clientMovement / svgRect.width) * 100 : 0;
+            
             lastX = currentX;
-            startPercent += movement * 0.2;
+            startPercent += percentMovement;
             startPercent = Math.min(100, Math.max(0, startPercent));
             updateTextPosition(startPercent);
             
@@ -596,7 +750,7 @@
             const index = transitionData.index;
             const data = transitionData.data;
             
-            if (learnedItems[index]) {
+            if (transitionsLearnedItems[index]) {
                 // Cycle between TL and SL for learned items
                 slidingTextMode = (slidingTextMode + 1) % 2;
                 updateTextBasedOnPosition(startPercent);
@@ -678,7 +832,8 @@
                 }
                 
                 // Initialize arrays (now only 5 items)
-                learnedItems = new Array(Math.max(conceptData.length, transitionsData.length)).fill(false);
+                statesLearnedItems = new Array(conceptData.length).fill(false);
+                transitionsLearnedItems = new Array(transitionsData.length).fill(false);
                 addedIncreasingItems = new Array(transitionsData.length).fill(false);
                 addedDecreasingItems = new Array(transitionsData.length).fill(false);
                 
@@ -695,6 +850,17 @@
                 createTextBoxes();
                 initializeFramePosition();
                 setupEventListeners();
+                
+                // Hide drag instruction after 12 seconds
+                setTimeout(() => {
+                    const dragInstruction = document.getElementById('drag-instruction');
+                    if (dragInstruction) {
+                        dragInstruction.classList.add('fade');
+                        setTimeout(() => {
+                            dragInstruction.style.display = 'none';
+                        }, 2000);
+                    }
+                }, 12000);
                 
                 // Hide sliding text in States mode
                 const interactiveText = document.getElementById("interactiveText");
@@ -749,7 +915,7 @@
                 // Set initial text based on current layer (starts with TL)
                 textBox.textContent = conceptData[config.index][currentTextLayer[config.index]];
                 
-                if (learnedItems[config.index]) textBox.classList.add('learned');
+                if (statesLearnedItems[config.index]) textBox.classList.add('learned');
                 
                 // Add click event listener with Phonographic 3-level cycling
                 textBox.addEventListener('click', function(e) {
@@ -758,7 +924,7 @@
                     
                     const index = parseInt(this.getAttribute('data-index'));
                     
-                    if (learnedItems[index]) {
+                    if (statesLearnedItems[index]) {
                         // Cycle between TL and SL for learned items
                         if (currentTextLayer[index] === 0) {
                             currentTextLayer[index] = 1; // TL -> SL
@@ -785,6 +951,11 @@
                 svg.appendChild(textBox);
                 textBoxElements.push(textBox);
             }
+            
+            // Re-parent the drag frame to the end of the SVG's children so
+            // it always renders — and receives pointer/touch events —
+            // above every text box (SVG stacking is document-order only).
+            if (frame && frame.parentNode) frame.parentNode.appendChild(frame);
             
             console.log("Created", textBoxElements.length, "text boxes with Phonographic 3-level cycling (inverted 5-box version)");
         }
@@ -821,7 +992,7 @@
 
         function addToVocabularyArray(index, isIncreasing) {
             try {
-                const currentData = isIncreasing ? transitionsData : transitionsData;
+                const currentData = transitionsData;
                 const targetLanguage = currentData[index][0]; // Target Language
                 const sourceLanguage = currentData[index][1]; // Source Language
                 
@@ -852,9 +1023,11 @@
                 if (isIncreasing) {
                     increasingItems.appendChild(itemElement);
                     addedIncreasingItems[index] = true;
+                    increasingArray.style.display = 'block';
                 } else {
                     decreasingItems.appendChild(itemElement);
                     addedDecreasingItems[index] = true;
+                    decreasingArray.style.display = 'block';
                 }
                 
                 console.log("Added vocabulary item:", targetLanguage, "->", sourceLanguage);
@@ -877,7 +1050,11 @@
                 quizFeedback.textContent = 'Correct!';
                 quizFeedback.style.color = 'green';
                 
-                learnedItems[currentQuizIndex] = true;
+                if (isStatesMode) {
+                    statesLearnedItems[currentQuizIndex] = true;
+                } else {
+                    transitionsLearnedItems[currentQuizIndex] = true;
+                }
                 
                 if (isStatesMode) {
                     const textBox = textBoxElements[currentQuizIndex];
@@ -905,10 +1082,10 @@
                     // ADD TO VOCABULARY ARRAYS
                     const position = startPercent;
                     
-                    if (position < 50 && !addedIncreasingItems[currentQuizIndex]) {
-                        addToVocabularyArray(currentQuizIndex, true);
-                    } else if (position >= 50 && !addedDecreasingItems[currentQuizIndex]) {
+                    if (position < 50 && !addedDecreasingItems[currentQuizIndex]) {
                         addToVocabularyArray(currentQuizIndex, false);
+                    } else if (position >= 50 && !addedIncreasingItems[currentQuizIndex]) {
+                        addToVocabularyArray(currentQuizIndex, true);
                     }
                     
                     updateLevelIndicator();
@@ -952,7 +1129,7 @@
                 
                 if (index === closestIndex && minDistance < activationDistance) {
                     textBox.classList.add('active');
-                } else if (learnedItems[index]) {
+                } else if (statesLearnedItems[index]) {
                     textBox.classList.remove('active');
                     textBox.classList.add('learned');
                 } else {
@@ -969,11 +1146,14 @@
 
         function initializeFramePosition() {
             const startPoint = pathLine.getPointAtLength(0);
-            const frameWidth = parseFloat(frame.getAttribute('width'));
-            const frameHeight = parseFloat(frame.getAttribute('height'));
             
-            frame.setAttribute('x', startPoint.x - frameWidth/2);
-            frame.setAttribute('y', startPoint.y - frameHeight/2);
+            frame.setAttribute('cx', startPoint.x);
+            frame.setAttribute('cy', startPoint.y);
+            
+            // Re-parent to the end of the SVG's children so the frame
+            // always renders — and receives pointer/touch events —
+            // above every text box (SVG stacking is document-order only).
+            if (frame.parentNode) frame.parentNode.appendChild(frame);
             
             updateVisibleTextBoxes(startPoint);
             conceptIndicator.textContent = conceptData[0][1]; // Show SL
@@ -989,8 +1169,8 @@
             frame.classList.add('dragging');
             
             const point = getEventPoint(e);
-            offsetX = point.x - parseFloat(frame.getAttribute("x"));
-            offsetY = point.y - parseFloat(frame.getAttribute("y"));
+            offsetX = point.x - parseFloat(frame.getAttribute("cx"));
+            offsetY = point.y - parseFloat(frame.getAttribute("cy"));
             
             e.preventDefault();
             e.stopPropagation();
@@ -1004,11 +1184,9 @@
             const newY = point.y - offsetY;
 
             const closestPoint = getClosestPointOnPath(newX, newY);
-            const frameWidth = parseFloat(frame.getAttribute('width'));
-            const frameHeight = parseFloat(frame.getAttribute('height'));
             
-            frame.setAttribute("x", closestPoint.x - frameWidth / 2);
-            frame.setAttribute("y", closestPoint.y - frameHeight / 2);
+            frame.setAttribute("cx", closestPoint.x);
+            frame.setAttribute("cy", closestPoint.y);
 
             updateVisibleTextBoxes(closestPoint);
             
@@ -1055,6 +1233,19 @@
             return closestPoint || pathLine.getPointAtLength(0);
         }
 
+        function switchModeIndicatorText() {
+            const modeIndicator = document.getElementById('mode-indicator');
+            if (!modeIndicator) return;
+            
+            modeIndicator.classList.add('hidden');
+            setTimeout(() => {
+                currentModeIndicatorIndex = (currentModeIndicatorIndex + 1) % 2;
+                const modeKey = isStatesMode ? 'states' : 'transitions';
+                modeIndicator.textContent = modeIndicatorTexts[modeKey][currentModeIndicatorIndex];
+                modeIndicator.classList.remove('hidden');
+            }, 500);
+        }
+
         function toggleMode() {
             isStatesMode = !isStatesMode;
             
@@ -1070,6 +1261,8 @@
                 
                 titleBox.textContent = titleTexts.states[currentTextIndex];
                 levelIndicator.style.display = 'none';
+                const modeIndicatorStates = document.getElementById("mode-indicator");
+                if (modeIndicatorStates) modeIndicatorStates.textContent = modeIndicatorTexts.states[currentModeIndicatorIndex];
                 
                 createTextBoxes();
                 initializeFramePosition();
@@ -1089,6 +1282,8 @@
                 titleBox.textContent = titleTexts.transitions[currentTextIndex];
                 slidingTextMode = 0; // Start with TL
                 updateLevelIndicator();
+                const modeIndicatorTrans = document.getElementById("mode-indicator");
+                if (modeIndicatorTrans) modeIndicatorTrans.textContent = modeIndicatorTexts.transitions[currentModeIndicatorIndex];
                 
                 // Remove text boxes
                 document.querySelectorAll('.textBox').forEach(box => {
@@ -1100,8 +1295,12 @@
                 startPercent = 0;
                 updateTextPosition(startPercent);
                 
-                increasingArray.style.display = 'block';
-                decreasingArray.style.display = 'block';
+                if (increasingItems && increasingItems.children.length > 0) {
+                    increasingArray.style.display = 'block';
+                }
+                if (decreasingItems && decreasingItems.children.length > 0) {
+                    decreasingArray.style.display = 'block';
+                }
             }
             
             quizContainer.style.display = 'none';
@@ -1163,6 +1362,8 @@
             // UI events
             titleBox.addEventListener('click', switchTitleText);
             modeToggleBtn.addEventListener('click', toggleMode);
+            const modeIndicator = document.getElementById("mode-indicator");
+            if (modeIndicator) modeIndicator.addEventListener("click", switchModeIndicatorText);
             quizCheck.addEventListener('click', checkQuizAnswer);
             quizInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') checkQuizAnswer();
@@ -1200,11 +1401,151 @@
             // Tools menu setup
             const toolsButton = document.querySelector('.tools-button');
             const toolsDropdown = document.querySelector('.tools-dropdown');
+            const fullscreenBtn = document.getElementById("toggleFullscreen");
             const loadConceptBtn = document.getElementById("loadConcept");
             const startQuizBtn = document.getElementById("startQuiz");
             const toggleArraysBtn = document.getElementById("toggleArrays");
             
             let dropdownOpen = false;
+            
+            if (fullscreenBtn) {
+                fullscreenBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (!document.fullscreenElement) {
+                        if (document.documentElement.requestFullscreen) {
+                            document.documentElement.requestFullscreen().catch(function(err) {
+                                console.log('Full screen request failed or unsupported:', err);
+                            });
+                        }
+                        fullscreenBtn.textContent = 'Exit Full Screen';
+                    } else {
+                        if (document.exitFullscreen) {
+                            document.exitFullscreen();
+                        }
+                        fullscreenBtn.textContent = 'Full Screen';
+                    }
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                });
+                document.addEventListener('fullscreenchange', function() {
+                    fullscreenBtn.textContent = document.fullscreenElement ? 'Exit Full Screen' : 'Full Screen';
+                });
+            }
+
+            // ── Keyboard-avoidance for the Quiz box ──────────────────
+            if (window.visualViewport) {
+                const KEYBOARD_HEIGHT_THRESHOLD = 150;
+                function handleViewportResize() {
+                    const qc = document.getElementById('quizContainer');
+                    if (!qc) return;
+                    const heightDiff = window.innerHeight - window.visualViewport.height;
+                    if (heightDiff > KEYBOARD_HEIGHT_THRESHOLD) {
+                        qc.classList.add('keyboard-open');
+                    } else {
+                        qc.classList.remove('keyboard-open');
+                    }
+                }
+                window.visualViewport.addEventListener('resize', handleViewportResize);
+            }
+
+            // ── Quiz box: drag to reposition anywhere on screen ──────
+            (function setupQuizDrag() {
+                const qc = document.getElementById('quizContainer');
+                const qInput = document.getElementById('quizInput');
+                const qCheck = document.getElementById('quizCheck');
+                let isDraggingQuiz = false;
+                let quizDragOffsetX = 0;
+                let quizDragOffsetY = 0;
+
+                function quizDragStart(e) {
+                    if (e.target === qInput || e.target === qCheck) return;
+                    isDraggingQuiz = true;
+                    const rect = qc.getBoundingClientRect();
+                    const point = e.touches ? e.touches[0] : e;
+                    quizDragOffsetX = point.clientX - rect.left;
+                    quizDragOffsetY = point.clientY - rect.top;
+                    qc.style.left = rect.left + 'px';
+                    qc.style.top = rect.top + 'px';
+                    qc.style.transform = 'none';
+                    qc.classList.add('dragging');
+                    if (e.touches) e.preventDefault();
+                }
+
+                function quizDragMove(e) {
+                    if (!isDraggingQuiz) return;
+                    const point = e.touches ? e.touches[0] : e;
+                    let newLeft = point.clientX - quizDragOffsetX;
+                    let newTop = point.clientY - quizDragOffsetY;
+                    const maxLeft = window.innerWidth - qc.offsetWidth;
+                    const maxTop = window.innerHeight - qc.offsetHeight;
+                    newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                    newTop = Math.max(0, Math.min(newTop, maxTop));
+                    qc.style.left = newLeft + 'px';
+                    qc.style.top = newTop + 'px';
+                    if (e.touches) e.preventDefault();
+                }
+
+                function quizDragEnd() {
+                    isDraggingQuiz = false;
+                    qc.classList.remove('dragging');
+                }
+
+                qc.addEventListener('mousedown', quizDragStart);
+                document.addEventListener('mousemove', quizDragMove);
+                document.addEventListener('mouseup', quizDragEnd);
+
+                qc.addEventListener('touchstart', quizDragStart, { passive: false });
+                document.addEventListener('touchmove', quizDragMove, { passive: false });
+                document.addEventListener('touchend', quizDragEnd);
+            })();
+
+            // ── Drag Instruction panel: drag to reposition anywhere ──
+            (function setupInstructionDrag() {
+                const el = document.getElementById('drag-instruction');
+                if (!el) return;
+                let isDraggingInstruction = false;
+                let instrDragOffsetX = 0;
+                let instrDragOffsetY = 0;
+
+                function instrDragStart(e) {
+                    isDraggingInstruction = true;
+                    const rect = el.getBoundingClientRect();
+                    const point = e.touches ? e.touches[0] : e;
+                    instrDragOffsetX = point.clientX - rect.left;
+                    instrDragOffsetY = point.clientY - rect.top;
+                    el.style.left = rect.left + 'px';
+                    el.style.top = rect.top + 'px';
+                    el.classList.add('dragging');
+                    if (e.touches) e.preventDefault();
+                }
+
+                function instrDragMove(e) {
+                    if (!isDraggingInstruction) return;
+                    const point = e.touches ? e.touches[0] : e;
+                    let newLeft = point.clientX - instrDragOffsetX;
+                    let newTop = point.clientY - instrDragOffsetY;
+                    const maxLeft = window.innerWidth - el.offsetWidth;
+                    const maxTop = window.innerHeight - el.offsetHeight;
+                    newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                    newTop = Math.max(0, Math.min(newTop, maxTop));
+                    el.style.left = newLeft + 'px';
+                    el.style.top = newTop + 'px';
+                    if (e.touches) e.preventDefault();
+                }
+
+                function instrDragEnd() {
+                    isDraggingInstruction = false;
+                    el.classList.remove('dragging');
+                }
+
+                el.addEventListener('mousedown', instrDragStart);
+                document.addEventListener('mousemove', instrDragMove);
+                document.addEventListener('mouseup', instrDragEnd);
+
+                el.addEventListener('touchstart', instrDragStart, { passive: false });
+                document.addEventListener('touchmove', instrDragMove, { passive: false });
+                document.addEventListener('touchend', instrDragEnd);
+            })();
             
             if (toolsButton) {
                 toolsButton.addEventListener('click', function(e) {

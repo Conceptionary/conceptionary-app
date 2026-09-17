@@ -1,10 +1,10 @@
-<!-- Last updated: 2026-09-16 @ 11:50 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-09-18 @ 12:10 a.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instant Change - Phonographic 5-Box Template (Enhanced)</title>
+    <title>Instant Change - Phonographic 11-Box Template (Enhanced)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -51,7 +51,7 @@
 
         .path-line {
             stroke: black;
-            stroke-width: 0.025;
+            stroke-width: 0.15;
             fill: none;
         }
 
@@ -88,7 +88,6 @@
         /* States Template Elements */
         .textBox {
             cursor: pointer;
-            font-size: 0.4em;
             fill: black;
             opacity: 0;
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
@@ -136,9 +135,7 @@
 
         /* Transitions Template Elements */
         .sliding-text {
-            font-size: 0.4em;
-            font-weight: bold;
-            fill: blue;
+            fill: black;
             cursor: grab;
         }
         
@@ -268,9 +265,11 @@
             z-index: 9999;
             display: none;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            max-width: 360px;
-            width: 360px;
+            min-width: 280px;
+            max-width: 600px;
+            width: auto;
             cursor: grab;
+            user-select: none;
         }
 
         .quiz-container.dragging {
@@ -383,7 +382,7 @@
         /* Vocabulary arrays */
         .vocabulary-array {
             position: absolute;
-            top: 70px;
+            top: 2%;
             width: 20%;
             max-height: 40vh;
             overflow-y: auto;
@@ -458,8 +457,8 @@
 
         .drag-instruction {
             position: absolute;
-            top: 15%;
-            left: 2%;
+            top: 2%;
+            left: 5%;
             font-size: 0.85em;
             padding: 6px 12px;
             background-color: rgba(255, 255, 255, 0.95);
@@ -475,21 +474,17 @@
             opacity: 0;
         }
 
-        /* ── Mobile sizing: frame, text, and touch targets ────────────
-           Starting values — roughly doubled from desktop for the frame
-           and SVG text, and enlarged to meet the ~48px touch-target
-           guideline for buttons, matching the fix applied across the
-           GT5L/GP3L family. Not yet visually confirmed on a real
-           device. Treat as a starting point. */
+        /* ── Mobile sizing: frame and touch targets ───────────────────
+           Text sizing is handled in calculateFontSize() (JS), not here,
+           since those sizes are set inline per text box and would
+           override any CSS rule. Frame radius roughly doubled, and
+           touch targets enlarged to meet the ~48px guideline, matching
+           the fix applied across the GT5L/GP3L/IT5L family. Not yet
+           visually confirmed on a real device. Treat as a starting
+           point. */
         @media (pointer: coarse) {
             #draggableFrame {
-                r: 6;
-            }
-            .textBox {
-                font-size: 0.8em;
-            }
-            .sliding-text {
-                font-size: 0.8em;
+                r: 3;
             }
             .tools-button,
             .mode-toggle {
@@ -513,7 +508,7 @@
 </head>
 <body>
     <div class="a4-page">
-        <div id="title-box" class="title-box">Instant Change Template - Phonographic 5-Box</div>
+        <div id="title-box" class="title-box">Instant Change Template - Phonographic 11-Box</div>
         <div id="mode-indicator" class="mode-indicator">SL States Mode</div>
         <div id="concept-indicator" class="concept-indicator">SL1</div>
         <div id="level-indicator" class="level-indicator">Target Language</div>
@@ -542,7 +537,7 @@
             <div id="decreasing-items"></div>
         </div>
         
-        <svg id="svgCanvas" viewBox="-30 0 160 50" preserveAspectRatio="xMidYMid meet">
+        <svg id="svgCanvas" viewBox="0 0 100 50" preserveAspectRatio="none">
             <!-- Concept Gradient -->
             <defs>
                 <linearGradient id="conceptGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -556,11 +551,13 @@
             <path id="conceptBackground"></path>
             
             <!-- Extension paths (horizontal continuations) -->
-            <path id="extensionPath1" class="extension-path" d="M 23.33,40 L 130,40" />
-            <path id="extensionPath2" class="extension-path" d="M 76.67,20 L 130,20" />
+            <path id="extensionPath1" class="extension-path" d="M 33.33,37.16 L 66.67,37.16" />
+            <path id="extensionPath2" class="extension-path" d="M 66.67,24.77 L 100,24.77" />
             
             <!-- States Mode Elements -->
-            <circle id="draggableFrame" cx="-24" cy="37.5" r="3"/>
+            <!-- Circular draggable frame -->
+            <circle id="draggableFrame" cx="-1.5" cy="37.16" r="1.5" 
+                  style="z-index: 10000; pointer-events: all; cursor: grab;"/>
             
             <!-- Transitions Mode Elements - Single Draggable Text -->
             <text id="interactiveText" class="sliding-text">
@@ -571,7 +568,7 @@
         </svg>
         <button id="modeToggle" class="mode-toggle">Toggle Mode</button>
         <div class="watermark">
-            &copy; 2025 Alan William Preston - Instant Change Template (Phonographic 5-Box Enhanced)
+            &copy; 2025 Alan William Preston - Instant Change Template (Phonographic 11-Box)
         </div>
     </div>
 
@@ -585,18 +582,24 @@
         // Sample vocabulary data - replace with actual concepts
         const conceptData = [
             ["TL1", "SL1", "What is the TL word for 'SL1'?", 0],
-            ["TL2", "SL2", "What is the TL word for 'SL2'?", 25],
-            ["TL3", "SL3", "What is the TL word for 'SL3'?", 50],
-            ["TL4", "SL4", "What is the TL word for 'SL4'?", 75],
-            ["TL5", "SL5", "What is the TL word for 'SL5'?", 100]
+            ["TL2", "SL2", "What is the TL word for 'SL2'?", 10],
+            ["TL3", "SL3", "What is the TL word for 'SL3'?", 20],
+            ["TL4", "SL4", "What is the TL word for 'SL4'?", 30],
+            ["TL5", "SL5", "What is the TL word for 'SL5'?", 40],
+            ["TL6", "SL6", "What is the TL word for 'SL6'?", 50],
+            ["TL7", "SL7", "What is the TL word for 'SL7'?", 60],
+            ["TL8", "SL8", "What is the TL word for 'SL8'?", 70],
+            ["TL9", "SL9", "What is the TL word for 'SL9'?", 80],
+            ["TL10", "SL10", "What is the TL word for 'SL10'?", 90],
+            ["TL11", "SL11", "What is the TL word for 'SL11'?", 100]
         ];
 
         const transitionsData = [
-            ["TL-T1", "SL-T1", "What is the TL word for 'SL-T1'?", 0],
-            ["TL-T2", "SL-T2", "What is the TL word for 'SL-T2'?", 20],
-            ["TL-T3", "SL-T3", "What is the TL word for 'SL-T3'?", 40],
-            ["TL-T4", "SL-T4", "What is the TL word for 'SL-T4'?", 60],
-            ["TL-T5", "SL-T5", "What is the TL word for 'SL-T5'?", 80]
+            ["TL-T1", "SL-T1", "What is the TL word for 'SL-T1'?", 0, 26.7],      // Line 1: 0% to 26.7%
+            ["TL-T2", "SL-T2", "What is the TL word for 'SL-T2'?", 26.7, 36.6],   // Line 2: 26.7% to 36.6%
+            ["TL-T3", "SL-T3", "What is the TL word for 'SL-T3'?", 36.6, 63.4],   // Line 3: 36.6% to 63.4%
+            ["TL-T4", "SL-T4", "What is the TL word for 'SL-T4'?", 63.4, 73.3],   // Line 4: 63.4% to 73.3%
+            ["TL-T5", "SL-T5", "What is the TL word for 'SL-T5'?", 73.3, 95]      // Line 5: 73.3% to 95%
         ];
 
         // Extension vocabulary for continuation paths
@@ -608,12 +611,11 @@
 
         // Extension vocabulary expanded for transitions mode
         const extension1TransitionData = [
-            ["TL-Ext1-A", "SL-Ext1-A", "What is the TL phrase for 'SL-Ext1-A'?"],
-            ["TL-Ext1-B", "SL-Ext1-B", "What is the TL phrase for 'SL-Ext1-B'?"]
+            ["TL-Ext1-A", "SL-Ext1-A", "What is the TL phrase for 'SL-Ext1-A'?", 0, 95]
         ];
 
         const extension2TransitionData = [
-            ["TL-Ext2-A", "SL-Ext2-A", "What is the TL phrase for 'SL-Ext2-A'?"]
+            ["TL-Ext2-A", "SL-Ext2-A", "What is the TL phrase for 'SL-Ext2-A'?", 0, 95]
         ];
 
         // Global variables
@@ -626,13 +628,20 @@
         };
         let pathLength = 0;
         let currentQuizIndex = -1;
+        let currentQuizIsExtension = false; // Track if current quiz is for extension textbox
+        let currentQuizExtIndex = -1; // Extension index for extension textboxes
+        
+        // Quiz container dragging variables
+        let isQuizDragging = false;
+        let quizDragOffset = { x: 0, y: 0 };
+        let quizPosition = { x: null, y: null }; // null = use default centered position
         let slidingTextMode = 0; // 0: TL, 1: SL, 2: Quiz
         let learnedItemsStates = []; // Separate tracking for States Mode
         let learnedItemsTransitions = []; // Separate tracking for Transitions Mode
         let textBoxElements = [];
         let addedIncreasingItems = [];
         let addedDecreasingItems = [];
-        let currentTextLayer = new Array(5).fill(0);
+        let currentTextLayer = new Array(11).fill(0);
         let extensionTextBoxes = [];
         let extensionTextLayers = [0, 0, 0];
         
@@ -645,7 +654,7 @@
         
         // Title text options
         const titleTexts = {
-            states: ["Instant Change Template - Phonographic 5-Box", "Target Language View", "Source Language View"],
+            states: ["Instant Change Template - Phonographic 11-Box", "Target Language View", "Source Language View"],
             transitions: ["Instant Change Transitions - Phonographic", "Dynamic Changes", "Temporal Progression"]
         };
         let currentTextIndex = 0;
@@ -654,13 +663,14 @@
         const activationDistance = 11.4;
 
         // CENTERED: Rebuilt 5-line system with perfect center alignment
+        // STANDARDIZED to viewBox="0 0 100 50" for consistency with GT5L+
         const pathPoints = [
-            `-30,40`, 
-            `23.33,40`,
-            `23.33,20`,
-            `76.67,20`,
-            `76.67,40`,
-            `130,40`
+            `0,37.16`, 
+            `33.33,37.16`,
+            `33.33,24.77`,
+            `66.67,24.77`,
+            `66.67,37.16`,
+            `100,37.16`
         ];
 
         // DOM elements
@@ -707,7 +717,7 @@
                     closestDistance = distance;
                     closestPoint = point;
                     closestPath = 'main';
-                    closestOffset = (i / pathLength) * 100;
+                    closestOffset = (i / pathLength) * 95;
                 }
             }
             
@@ -720,7 +730,7 @@
                     closestDistance = distance;
                     closestPoint = point;
                     closestPath = 'ext1';
-                    closestOffset = (i / ext1Length) * 100;
+                    closestOffset = (i / ext1Length) * 95;
                 }
             }
             
@@ -733,7 +743,7 @@
                     closestDistance = distance;
                     closestPoint = point;
                     closestPath = 'ext2';
-                    closestOffset = (i / ext2Length) * 100;
+                    closestOffset = (i / ext2Length) * 95;
                 }
             }
             
@@ -774,17 +784,21 @@
             let targetHref = '#gradualChangePath';
             if (newPath === 'ext1') {
                 targetHref = '#extensionPath1';
+                interactiveText.style.textAnchor = 'start';  // Left-align for ext1
             } else if (newPath === 'ext2') {
                 targetHref = '#extensionPath2';
+                interactiveText.style.textAnchor = 'end';  // Right-align for ext2 to keep visible
+            } else {
+                interactiveText.style.textAnchor = 'start';  // Left-align for main path
             }
             
             slidingText.setAttribute('href', targetHref);
-            slidingText.setAttribute('startOffset', `${offset}%`);
+            slidingText.setAttribute('startOffset', `${Math.min(offset, 95)}%`);
             
             updateTextContent();
             updatePathIndicator();
             
-            console.log("Switched to path:", newPath, "at offset:", offset);
+            console.log("Switched to path:", newPath, "at offset:", offset, "text-anchor:", interactiveText.style.textAnchor);
         }
 
         function updateTextContent() {
@@ -793,14 +807,23 @@
             let displayText = '';
             
             if (currentPath === 'main') {
-                // Use transitions data based on position
-                const index = Math.floor((currentOffset / 100) * transitionsData.length);
-                const data = transitionsData[Math.min(index, transitionsData.length - 1)];
+                // Find which transition range the current offset falls into
+                let selectedData = null;
+                for (let i = 0; i < transitionsData.length; i++) {
+                    const start = transitionsData[i][3];
+                    const end = transitionsData[i][4];
+                    if (currentOffset >= start && currentOffset <= end) {
+                        selectedData = transitionsData[i];
+                        break;
+                    }
+                }
                 
-                if (slidingTextMode === 0) {
-                    displayText = data[0]; // TL
-                } else if (slidingTextMode === 1) {
-                    displayText = data[1]; // SL
+                if (selectedData) {
+                    if (slidingTextMode === 0) {
+                        displayText = selectedData[0]; // TL
+                    } else if (slidingTextMode === 1) {
+                        displayText = selectedData[1]; // SL
+                    }
                 }
             } else if (currentPath === 'ext1') {
                 const index = Math.floor((currentOffset / 100) * extension1TransitionData.length);
@@ -811,7 +834,7 @@
                 } else if (slidingTextMode === 1) {
                     displayText = data[1]; // SL
                 }
-            } else if (currentPath === 'ext2') {
+            } else if (currentPath == 'ext2') {
                 const index = Math.floor((currentOffset / 100) * extension2TransitionData.length);
                 const data = extension2TransitionData[Math.min(index, extension2TransitionData.length - 1)];
                 
@@ -823,6 +846,7 @@
             }
             
             slidingText.textContent = displayText;
+            interactiveText.style.fontSize = calculateFontSize(displayText) + "px";
         }
 
         function updateLevelIndicator() {
@@ -874,20 +898,24 @@
             }
             
             if (hasMovedDuringDrag) {
-                const svgPoint = svg.createSVGPoint();
-                svgPoint.x = clientX;
-                svgPoint.y = clientY;
-                const transformed = svgPoint.matrixTransform(svg.getScreenCTM().inverse());
-                const svgX = transformed.x;
-                const svgY = transformed.y;
+                const svgRect = svg.getBoundingClientRect();
+                const svgX = ((clientX - svgRect.left) / svgRect.width) * 100;
+                const svgY = ((clientY - svgRect.top) / svgRect.height) * 50;
                 
                 const closest = findClosestPointOnAllPaths(svgX, svgY);
                 
                 if (closest.path !== currentPath) {
                     switchToPath(closest.path, closest.offset);
                 } else {
-                    currentOffset = closest.offset;
-                    slidingText.setAttribute('startOffset', `${closest.offset}%`);
+                    // Apply alignment based on current path
+                    if (currentPath === 'ext2') {
+                        interactiveText.style.textAnchor = 'end';  // Right-align for ext2
+                    } else {
+                        interactiveText.style.textAnchor = 'start';  // Left-align for main and ext1
+                    }
+                    
+                    currentOffset = Math.min(closest.offset, 95);
+                    slidingText.setAttribute('startOffset', `${Math.min(closest.offset, 95)}%`);
                     updateTextContent();
                 }
                 
@@ -987,12 +1015,9 @@
             const clientY = e.clientY || (e.touches && e.touches[0].clientY);
             
             try {
-                const svgPoint = svg.createSVGPoint();
-                svgPoint.x = clientX;
-                svgPoint.y = clientY;
-                const transformed = svgPoint.matrixTransform(svg.getScreenCTM().inverse());
-                const svgX = transformed.x;
-                const svgY = transformed.y;
+                const svgRect = svg.getBoundingClientRect();
+                const svgX = ((clientX - svgRect.left) / svgRect.width) * 100;
+                const svgY = ((clientY - svgRect.top) / svgRect.height) * 50;
                 
                 // Find closest point on ALL paths (main + extensions)
                 let closestPoint = null;
@@ -1037,10 +1062,21 @@
                 }
                 
                 if (closestPoint) {
-                    frame.setAttribute('cx', closestPoint.x);
+                    // Circle radius is 1.5 units
+                    const radius = 1.5;
+                    
+                    // Constrain circle to stay within viewBox (-30 to 130 on x-axis)
+                    const minX = 0 + radius;  // -28.5 units (left edge at 0)
+                    const maxX = 100 - radius;   // 128.5 units (right edge at 100)
+                    
+                    const constrainedX = Math.max(minX, Math.min(maxX, closestPoint.x));
+                    
+                    // Position circle centered on the path
+                    frame.setAttribute('cx', constrainedX);
                     frame.setAttribute('cy', closestPoint.y);
                     
-                    updateVisibleTextBoxes(closestPoint);
+                    // Use constrained position for textbox updates
+                    updateVisibleTextBoxes({ x: constrainedX, y: closestPoint.y });
                     
                     // Update concept indicator based on which path we're on
                     if (closestPathName === 'main') {
@@ -1050,7 +1086,7 @@
                         for (let i = 0; i <= 100; i++) {
                             const testLength = (i / 100) * pathLength;
                             const testPoint = pathLine.getPointAtLength(testLength);
-                            const dist = Math.sqrt(Math.pow(testPoint.x - closestPoint.x, 2) + Math.pow(testPoint.y - closestPoint.y, 2));
+                            const dist = Math.sqrt(Math.pow(testPoint.x - constrainedX, 2) + Math.pow(testPoint.y - closestPoint.y, 2));
                             if (dist < minDist) {
                                 minDist = dist;
                                 bestPos = i;
@@ -1063,7 +1099,7 @@
                         conceptIndicator.textContent = extensionData[1][1] + " (Line 3+)";
                     }
                     
-                    console.log("Dragging on path:", closestPathName);
+                    console.log("Dragging on path:", closestPathName, "at x:", constrainedX);
                 }
                 
             } catch (error) {
@@ -1099,16 +1135,27 @@
         function initializeFramePosition() {
             currentPathPosition = 0;
             const startPoint = pathLine.getPointAtLength(0);
-            frame.setAttribute('cx', startPoint.x);
+            
+            // Circle radius is 1.5 units
+            const radius = 1.5;
+            
+            // Constrain x position: left edge should not go below -30 (viewBox start)
+            const minX = 0 + radius;  // -28.5 units (so left edge is at 0)
+            const maxX = 100 - radius;   // 128.5 units (so right edge is at 100)
+            const constrainedX = Math.max(minX, Math.min(maxX, startPoint.x));
+            
+            // Position circle centered on the path
+            frame.setAttribute('cx', constrainedX);
             frame.setAttribute('cy', startPoint.y);
-            updateVisibleTextBoxes(startPoint);
+            
+            updateVisibleTextBoxes({ x: constrainedX, y: startPoint.y });
             updateConceptIndicator(0);
             
             bringFrameToFront();
             frame.style.pointerEvents = 'all';
             frame.style.cursor = 'grab';
             
-            console.log("Frame initialized at start position");
+            console.log("Circle frame initialized at start position");
         }
 
         function updateVisibleTextBoxes(point) {
@@ -1175,7 +1222,8 @@
             extensionTextBoxes.forEach((textBox, extIndex) => {
                 if (!textBox) return;
                 
-                const dataIndex = extIndex + 5;
+                // Extension textboxes use indices 11-13 in learnedItemsStates array
+                const dataIndex = conceptData.length + extIndex; // 11 + extIndex
                 
                 if (closestIsExtension && extIndex === closestExtIndex && minDistance < activationDistance) {
                     textBox.style.opacity = '1';
@@ -1193,65 +1241,76 @@
             return closestIsExtension ? -1 : closestIndex;
         }
 
+        function calculateFontSize(text) {
+            const length = text.length;
+            let baseSize;
+            if (length <= 10) baseSize = 2.1;
+            else if (length <= 20) baseSize = 1.8;
+            else if (length <= 40) baseSize = 1.5;
+            else if (length <= 60) baseSize = 1.2;
+            else if (length <= 80) baseSize = 1.05;
+            else if (length <= 100) baseSize = 0.9;
+            else baseSize = 0.75;
+            
+            // Roughly double on coarse-pointer (touch) devices, matching
+            // the mobile-sizing convention used via CSS elsewhere in this
+            // family. This can't be done via a CSS media query since
+            // these sizes are set inline per text box, and inline styles
+            // always override CSS class rules regardless of specificity.
+            if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
+                return baseSize * 2;
+            }
+            return baseSize;
+        }
+
+
         function createTextBoxes() {
             if (!isStatesMode) return;
             
+            // Clear existing text boxes
             document.querySelectorAll('.textBox:not(.extension)').forEach(box => {
                 if (box && box.parentNode) box.parentNode.removeChild(box);
             });
             textBoxElements = [];
             
-            // Calculate actual positions on the path for each textbox
-            // The path consists of 5 lines, and we need midpoints
-            
-            // Line 1: from 0% to ~12.5% (horizontal from -30 to 23.33)
-            // Line 2: from ~12.5% to ~25% (vertical from y=40 to y=20)
-            // Line 3: from ~25% to ~62.5% (horizontal from 23.33 to 76.67) - longest segment
-            // Line 4: from ~62.5% to ~75% (vertical from y=20 to y=40)
-            // Line 5: from ~75% to 100% (horizontal from 76.67 to 130)
-            
-            // For accurate midpoints, we need to calculate segment lengths
-            const line1Length = Math.sqrt(Math.pow(23.33 - (-30), 2) + Math.pow(40 - 40, 2)); // 53.33
-            const line2Length = Math.sqrt(Math.pow(23.33 - 23.33, 2) + Math.pow(20 - 40, 2)); // 20
-            const line3Length = Math.sqrt(Math.pow(76.67 - 23.33, 2) + Math.pow(20 - 20, 2)); // 53.34
-            const line4Length = Math.sqrt(Math.pow(76.67 - 76.67, 2) + Math.pow(40 - 20, 2)); // 20
-            const line5Length = Math.sqrt(Math.pow(130 - 76.67, 2) + Math.pow(40 - 40, 2)); // 53.33
-            
-            const totalLength = line1Length + line2Length + line3Length + line4Length + line5Length; // 200
-            
-            // Calculate percentage positions for midpoints of each line
-            const midpoint1Percent = (line1Length / 2) / totalLength * 100; // ~13.33%
-            const midpoint2Percent = (line1Length + line2Length / 2) / totalLength * 100; // ~31.67%
-            const midpoint3Percent = (line1Length + line2Length + line3Length / 2) / totalLength * 100; // ~50%
-            const midpoint4Percent = (line1Length + line2Length + line3Length + line4Length / 2) / totalLength * 100; // ~68.33%
-            const midpoint5Percent = (line1Length + line2Length + line3Length + line4Length + line5Length / 2) / totalLength * 100; // ~86.67%
-            
-            const textboxPositions = [
-                midpoint1Percent,   // Line 1 midpoint
-                midpoint2Percent,   // Line 2 midpoint
-                midpoint3Percent,   // Line 3 midpoint
-                midpoint4Percent,   // Line 4 midpoint
-                midpoint5Percent    // Line 5 midpoint
+            // STANDARDIZED to viewBox="0 0 100 50"
+            // Same coordinate system as GT5L+ for visual continuity
+            const textBoxConfig = [
+                { x: 0, y: 34.66, anchor: "start", index: 0 },      // TL1 - Line 1 start (y=34.66 (GT5L+ 30.22), raised from line)
+                { x: 16.67, y: 37.16, anchor: "middle", index: 1 },     // TL2 - Line 1 center (y=37.16 (GT5L+ 32.4), on Line 1)
+                { x: 33.33, y: 41.16, anchor: "middle", index: 2 },     // TL3 - Line 1 end (y=41.16 (GT5L+ 35.89), dropped from line)
+                { x: 34.58, y: 30.96, anchor: "start", index: 3 },      // TL4 - Line 2 middle (y=30.96 (GT5L+ 27), on Line 2 midpoint)
+                { x: 33.33, y: 22.27, anchor: "middle", index: 4 },   // TL5 - Line 3 start (y=22.27 (GT5L+ 19.42), raised from line)
+                { x: 50, y: 24.77, anchor: "middle", index: 5 },        // TL6 - Line 3 center (y=24.77 (GT5L+ 21.6), on Line 3)
+                { x: 66.67, y: 28.77, anchor: "middle", index: 6 },     // TL7 - Line 3 end (y=28.77 (GT5L+ 25.09), dropped from line)
+                { x: 67.92, y: 30.96, anchor: "start", index: 7 },      // TL8 - Line 4 middle (y=30.96 (GT5L+ 27), on Line 4 midpoint)
+                { x: 66.67, y: 34.66, anchor: "middle", index: 8 },   // TL9 - Line 5 start (y=34.66 (GT5L+ 30.22), raised from line)
+                { x: 83.33, y: 37.16, anchor: "middle", index: 9 },    // TL10 - Line 5 center (y=37.16 (GT5L+ 32.4), on Line 5)
+                { x: 100, y: 41.16, anchor: "end", index: 10 }          // TL11 - Line 5 end (y=41.16 (GT5L+ 35.89), dropped from line)
             ];
             
-            for (let i = 0; i < conceptData.length; i++) {
-                const positionPercent = textboxPositions[i];
-                const position = (positionPercent / 100) * pathLength;
-                const point = pathLine.getPointAtLength(position);
+            // Create text boxes with Phonographic 3-level cycling
+            for (let i = 0; i < textBoxConfig.length; i++) {
+                const config = textBoxConfig[i];
                 
                 const textBox = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                textBox.setAttribute("x", point.x);
-                textBox.setAttribute("y", point.y);
-                textBox.setAttribute("text-anchor", "middle");
                 textBox.setAttribute("class", "textBox");
-                textBox.setAttribute("data-index", i);
-                textBox.textContent = conceptData[i][0]; // Start with TL
+                textBox.setAttribute("x", config.x);
+                textBox.setAttribute("y", config.y);
+                textBox.setAttribute("text-anchor", config.anchor);
+                textBox.setAttribute("data-index", config.index);
                 
-                if (learnedItemsStates[i]) {
-                    textBox.classList.add('learned');
-                }
+                // Set initial text based on current layer (starts with TL)
+                textBox.textContent = conceptData[config.index][currentTextLayer[config.index]];
+                textBox.style.fontSize = calculateFontSize(conceptData[config.index][currentTextLayer[config.index]]) + "px";
                 
-                textBox.addEventListener('click', function() {
+                if (learnedItemsStates[config.index]) textBox.classList.add('learned');
+                
+                // Add click event listener with Phonographic 3-level cycling
+                textBox.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
                     const index = parseInt(this.getAttribute('data-index'));
                     
                     if (learnedItemsStates[index]) {
@@ -1259,21 +1318,25 @@
                         if (currentTextLayer[index] === 0) {
                             currentTextLayer[index] = 1; // TL -> SL
                             this.textContent = conceptData[index][1];
+                            this.style.fontSize = calculateFontSize(conceptData[index][1]) + "px";
                         } else {
                             currentTextLayer[index] = 0; // SL -> TL
                             this.textContent = conceptData[index][0];
+                            this.style.fontSize = calculateFontSize(conceptData[index][0]) + "px";
                         }
                     } else {
                         // TL -> SL -> Quiz cycle for unlearned items
                         if (currentTextLayer[index] === 0) {
                             currentTextLayer[index] = 1; // TL -> SL
                             this.textContent = conceptData[index][1];
+                            this.style.fontSize = calculateFontSize(conceptData[index][1]) + "px";
                         } else if (currentTextLayer[index] === 1) {
                             currentTextLayer[index] = 2; // SL -> Quiz
                             showQuiz(index, this);
                         } else {
                             currentTextLayer[index] = 0; // Reset to TL
                             this.textContent = conceptData[index][0];
+                            this.style.fontSize = calculateFontSize(conceptData[index][0]) + "px";
                         }
                     }
                 });
@@ -1285,7 +1348,7 @@
             // Ensure frame is on top after creating text boxes
             bringFrameToFront();
             
-            console.log("Created", textBoxElements.length, "text boxes at midpoints");
+            console.log("Created", textBoxElements.length, "text boxes with Phonographic 3-level cycling");
         }
 
         function bringFrameToFront() {
@@ -1318,31 +1381,36 @@
             ext1Box.setAttribute("data-extension-index", 0);
             ext1Box.setAttribute("data-index", 5);
             ext1Box.textContent = extensionData[0][0];
+            ext1Box.style.fontSize = calculateFontSize(extensionData[0][0]) + "px";
             ext1Box.style.opacity = '0';
             ext1Box.style.transform = 'scale(0.5)';
             
             ext1Box.addEventListener('click', function() {
                 const extIndex = 0;
-                const dataIndex = 5;
+                const dataIndex = conceptData.length + extIndex; // 11 + 0 = 11
                 
                 if (learnedItemsStates[dataIndex]) {
                     if (extensionTextLayers[extIndex] === 0) {
                         extensionTextLayers[extIndex] = 1;
                         this.textContent = extensionData[extIndex][1];
+                        this.style.fontSize = calculateFontSize(extensionData[extIndex][1]) + "px";
                     } else {
                         extensionTextLayers[extIndex] = 0;
                         this.textContent = extensionData[extIndex][0];
+                        this.style.fontSize = calculateFontSize(extensionData[extIndex][0]) + "px";
                     }
                 } else {
                     if (extensionTextLayers[extIndex] === 0) {
                         extensionTextLayers[extIndex] = 1;
                         this.textContent = extensionData[extIndex][1];
+                        this.style.fontSize = calculateFontSize(extensionData[extIndex][1]) + "px";
                     } else if (extensionTextLayers[extIndex] === 1) {
                         extensionTextLayers[extIndex] = 2;
                         showQuiz(dataIndex, this);
                     } else {
                         extensionTextLayers[extIndex] = 0;
                         this.textContent = extensionData[extIndex][0];
+                        this.style.fontSize = calculateFontSize(extensionData[extIndex][0]) + "px";
                     }
                 }
             });
@@ -1351,8 +1419,8 @@
             extensionTextBoxes.push(ext1Box);
             
             // Extension 2 text box (on Line 3+ path) - positioned at MIDPOINT of extension path 2
-            // Extension path 2 goes from x=76.67 to x=130 at y=20
-            const ext2MidX = (76.67 + 130) / 2; // 103.335
+            // Extension path 2 goes from x=66.67 to x=100 at y=24.77
+            const ext2MidX = (66.67 + 100) / 2; // 83.335 - midpoint of Line 3+ extension
             const ext2Box = document.createElementNS("http://www.w3.org/2000/svg", "text");
             ext2Box.setAttribute("x", ext2MidX);
             ext2Box.setAttribute("y", 20);
@@ -1361,31 +1429,36 @@
             ext2Box.setAttribute("data-extension-index", 1);
             ext2Box.setAttribute("data-index", 6);
             ext2Box.textContent = extensionData[1][0];
+            ext2Box.style.fontSize = calculateFontSize(extensionData[1][0]) + "px";
             ext2Box.style.opacity = '0';
             ext2Box.style.transform = 'scale(0.5)';
             
             ext2Box.addEventListener('click', function() {
                 const extIndex = 1;
-                const dataIndex = 6;
+                const dataIndex = conceptData.length + extIndex; // 11 + 1 = 12
                 
                 if (learnedItemsStates[dataIndex]) {
                     if (extensionTextLayers[extIndex] === 0) {
                         extensionTextLayers[extIndex] = 1;
                         this.textContent = extensionData[extIndex][1];
+                        this.style.fontSize = calculateFontSize(extensionData[extIndex][1]) + "px";
                     } else {
                         extensionTextLayers[extIndex] = 0;
                         this.textContent = extensionData[extIndex][0];
+                        this.style.fontSize = calculateFontSize(extensionData[extIndex][0]) + "px";
                     }
                 } else {
                     if (extensionTextLayers[extIndex] === 0) {
                         extensionTextLayers[extIndex] = 1;
                         this.textContent = extensionData[extIndex][1];
+                        this.style.fontSize = calculateFontSize(extensionData[extIndex][1]) + "px";
                     } else if (extensionTextLayers[extIndex] === 1) {
                         extensionTextLayers[extIndex] = 2;
                         showQuiz(dataIndex, this);
                     } else {
                         extensionTextLayers[extIndex] = 0;
                         this.textContent = extensionData[extIndex][0];
+                        this.style.fontSize = calculateFontSize(extensionData[extIndex][0]) + "px";
                     }
                 }
             });
@@ -1393,57 +1466,12 @@
             svg.appendChild(ext2Box);
             extensionTextBoxes.push(ext2Box);
             
-            // Extension 3 text box (on Line 5) - positioned at 90% along x-axis
-            // ViewBox x-axis goes from -30 to 130 (total range = 160)
-            // 90% along x-axis: -30 + (0.90 * 160) = 114
-            const ext3X = 114; // 90% on x-axis
-            const ext3Box = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            ext3Box.setAttribute("x", ext3X);
-            ext3Box.setAttribute("y", 40);
-            ext3Box.setAttribute("text-anchor", "middle");
-            ext3Box.setAttribute("class", "textBox extension");
-            ext3Box.setAttribute("data-extension-index", 2);
-            ext3Box.setAttribute("data-index", 7);
-            ext3Box.textContent = extensionData[2][0];
-            ext3Box.style.opacity = '0';
-            ext3Box.style.transform = 'scale(0.5)';
-            
-            ext3Box.addEventListener('click', function() {
-                const extIndex = 2;
-                const dataIndex = 7;
-                
-                if (learnedItemsStates[dataIndex]) {
-                    if (extensionTextLayers[extIndex] === 0) {
-                        extensionTextLayers[extIndex] = 1;
-                        this.textContent = extensionData[extIndex][1];
-                    } else {
-                        extensionTextLayers[extIndex] = 0;
-                        this.textContent = extensionData[extIndex][0];
-                    }
-                } else {
-                    if (extensionTextLayers[extIndex] === 0) {
-                        extensionTextLayers[extIndex] = 1;
-                        this.textContent = extensionData[extIndex][1];
-                    } else if (extensionTextLayers[extIndex] === 1) {
-                        extensionTextLayers[extIndex] = 2;
-                        showQuiz(dataIndex, this);
-                    } else {
-                        extensionTextLayers[extIndex] = 0;
-                        this.textContent = extensionData[extIndex][0];
-                    }
-                }
-            });
-            
-            svg.appendChild(ext3Box);
-            extensionTextBoxes.push(ext3Box);
-            
             // Ensure frame is on top after creating extension text boxes
             bringFrameToFront();
             
             console.log("Created", extensionTextBoxes.length, "extension text boxes");
             console.log("Extension 1 (Line 1+) position: x=" + ext1X + ", y=40 (50% x-axis)");
-            console.log("Extension 2 (Line 3+) position: x=" + ext2MidX + ", y=20 (midpoint)");
-            console.log("Extension 3 (Line 5+) position: x=" + ext3X + ", y=40 (90% x-axis)");
+            console.log("Extension 2 (Line 3+) position: x=" + ext2MidX + ", y=20 (midpoint of Line 3+ extension)");
         }
 
         function showQuiz(index, element) {
@@ -1451,15 +1479,24 @@
             let dataIndex; // Index within the specific data array
             
             if (isStatesMode) {
-                if (index >= 5) {
+                // Check if this is an extension textbox by looking at the element's class
+                const isExtension = element && element.classList && element.classList.contains('extension');
+                
+                if (isExtension) {
+                    // Extension textboxes use extensionData
+                    const extIndex = parseInt(element.getAttribute('data-extension-index'));
                     currentData = extensionData;
                     currentQuizIndex = index;
-                    const extIndex = index - 5;
+                    currentQuizIsExtension = true;
+                    currentQuizExtIndex = extIndex;
                     const slWord = extensionData[extIndex][1];
                     quizInput.placeholder = `What is the TL word for '${slWord}'?`;
                 } else {
+                    // All 11 main textboxes (indices 0-10) use conceptData
                     currentData = conceptData;
                     currentQuizIndex = index;
+                    currentQuizIsExtension = false;
+                    currentQuizExtIndex = -1;
                     const slWord = conceptData[index][1];
                     quizInput.placeholder = `What is the TL word for '${slWord}'?`;
                 }
@@ -1488,6 +1525,33 @@
             quizInput.value = '';
             quizFeedback.textContent = '';
             
+            // Task 1: Calculate dynamic width based on question length
+            const questionLength = quizInput.placeholder.length;
+            let calculatedWidth;
+            if (questionLength < 30) {
+                calculatedWidth = 280;
+            } else if (questionLength < 50) {
+                calculatedWidth = 360;
+            } else if (questionLength < 70) {
+                calculatedWidth = 450;
+            } else {
+                calculatedWidth = 600;
+            }
+            quizContainer.style.width = calculatedWidth + 'px';
+            
+            // Task 2: Position quiz container (custom position or default centered)
+            if (quizPosition.x !== null && quizPosition.y !== null) {
+                // Use saved custom position
+                quizContainer.style.left = quizPosition.x + 'px';
+                quizContainer.style.top = quizPosition.y + 'px';
+                quizContainer.style.transform = 'none'; // Disable centering transform
+            } else {
+                // Use default centered position
+                quizContainer.style.left = '50%';
+                quizContainer.style.top = '40%';
+                quizContainer.style.transform = 'translate(-50%, -50%)';
+            }
+            
             quizContainer.style.display = 'block';
             quizContainer.style.visibility = 'visible';
             quizContainer.style.opacity = '1';
@@ -1502,8 +1566,11 @@
             }, 100);
         }
 
-        function addToVocabularyArray(index, isIncreasing) {
+        function addToVocabularyArray(index, isIncreasing, trackingIndex) {
             try {
+                // Use trackingIndex if provided, otherwise use index (for backwards compatibility)
+                const indexToTrack = trackingIndex !== undefined ? trackingIndex : index;
+                
                 // Determine which data to use based on current path in transitions mode
                 let currentData;
                 if (currentPath === 'ext1') {
@@ -1543,15 +1610,13 @@
                 
                 if (isIncreasing) {
                     increasingItems.appendChild(itemElement);
-                    addedIncreasingItems[index] = true;
-                    increasingArray.style.display = 'block';
+                    addedIncreasingItems[indexToTrack] = true;
                 } else {
                     decreasingItems.appendChild(itemElement);
-                    addedDecreasingItems[index] = true;
-                    decreasingArray.style.display = 'block';
+                    addedDecreasingItems[indexToTrack] = true;
                 }
                 
-                console.log("Added vocabulary item:", targetLanguage, "->", sourceLanguage, "from path:", currentPath);
+                console.log("Added vocabulary item:", targetLanguage, "->", sourceLanguage, "from path:", currentPath, "trackingIndex:", indexToTrack);
             } catch (error) {
                 console.error("Error adding vocabulary item:", error);
             }
@@ -1564,11 +1629,13 @@
             let dataIndex;
             
             if (isStatesMode) {
-                if (currentQuizIndex >= 5) {
-                    const extIndex = currentQuizIndex - 5;
+                // Use the tracking variables set by showQuiz
+                if (currentQuizIsExtension) {
+                    // Extension textbox
                     currentData = extensionData;
-                    dataIndex = extIndex;
+                    dataIndex = currentQuizExtIndex;
                 } else {
+                    // Main textbox (all 11 main textboxes use conceptData)
                     currentData = conceptData;
                     dataIndex = currentQuizIndex;
                 }
@@ -1594,17 +1661,21 @@
                 
                 if (isStatesMode) {
                     // Mark as learned in States Mode only
-                    learnedItemsStates[currentQuizIndex] = true;
-                    
-                    if (currentQuizIndex >= 5) {
-                        const extIndex = currentQuizIndex - 5;
-                        const extBox = extensionTextBoxes[extIndex];
+                    if (currentQuizIsExtension) {
+                        // Extension textbox - use correct index (11-13)
+                        const correctIndex = conceptData.length + currentQuizExtIndex;
+                        learnedItemsStates[correctIndex] = true;
+                        
+                        const extBox = extensionTextBoxes[currentQuizExtIndex];
                         if (extBox) {
                             extBox.classList.add('learned');
-                            extBox.textContent = extensionData[extIndex][0];
+                            extBox.textContent = extensionData[currentQuizExtIndex][0];
                         }
-                        extensionTextLayers[extIndex] = 0;
+                        extensionTextLayers[currentQuizExtIndex] = 0;
                     } else {
+                        // Main textbox - use currentQuizIndex directly (0-10)
+                        learnedItemsStates[currentQuizIndex] = true;
+                        
                         const textBox = textBoxElements[currentQuizIndex];
                         if (textBox) {
                             textBox.classList.add('learned');
@@ -1621,17 +1692,30 @@
                     updateLevelIndicator();
                     
                     // Add to vocabulary array
+                    // Use currentQuizIndex (global index) to track what's been added
                     if (currentPath === 'main') {
-                        if (!addedIncreasingItems[dataIndex]) {
-                            addToVocabularyArray(dataIndex, true);
+                        // Main path: TL-T1, TL-T2, TL-T3 go to increasing (indices 0-2)
+                        // TL-T4, TL-T5 go to decreasing (indices 3-4)
+                        // Peak is at 50%, so check the start position
+                        const startPosition = transitionsData[dataIndex][3];
+                        const isIncreasing = startPosition < 50;
+                        
+                        if (isIncreasing) {
+                            if (!addedIncreasingItems[currentQuizIndex]) {
+                                addToVocabularyArray(dataIndex, true, currentQuizIndex);
+                            }
+                        } else {
+                            if (!addedDecreasingItems[currentQuizIndex]) {
+                                addToVocabularyArray(dataIndex, false, currentQuizIndex);
+                            }
                         }
                     } else if (currentPath === 'ext1') {
-                        if (!addedIncreasingItems[dataIndex]) {
-                            addToVocabularyArray(dataIndex, true);
+                        if (!addedIncreasingItems[currentQuizIndex]) {
+                            addToVocabularyArray(dataIndex, true, currentQuizIndex);
                         }
                     } else if (currentPath === 'ext2') {
-                        if (!addedDecreasingItems[dataIndex]) {
-                            addToVocabularyArray(dataIndex, false);
+                        if (!addedDecreasingItems[currentQuizIndex]) {
+                            addToVocabularyArray(dataIndex, false, currentQuizIndex);
                         }
                     }
                 }
@@ -1643,6 +1727,62 @@
             } else {
                 quizFeedback.textContent = 'Try again';
                 quizFeedback.style.color = 'red';
+            }
+        }
+
+        // Task 2: Quiz container drag and drop functions
+        function startQuizDrag(e) {
+            // Don't drag if clicking on input or button
+            if (e.target === quizInput || e.target === quizCheck) {
+                return;
+            }
+            
+            isQuizDragging = true;
+            
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            const rect = quizContainer.getBoundingClientRect();
+            quizDragOffset.x = clientX - rect.left;
+            quizDragOffset.y = clientY - rect.top;
+            
+            quizContainer.style.cursor = 'grabbing';
+            e.preventDefault();
+        }
+        
+        function dragQuiz(e) {
+            if (!isQuizDragging) return;
+            
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            // Calculate new position
+            let newX = clientX - quizDragOffset.x;
+            let newY = clientY - quizDragOffset.y;
+            
+            // Keep quiz container within viewport bounds
+            const rect = quizContainer.getBoundingClientRect();
+            const maxX = window.innerWidth - rect.width;
+            const maxY = window.innerHeight - rect.height;
+            
+            newX = Math.max(0, Math.min(newX, maxX));
+            newY = Math.max(0, Math.min(newY, maxY));
+            
+            // Save position and apply
+            quizPosition.x = newX;
+            quizPosition.y = newY;
+            
+            quizContainer.style.left = newX + 'px';
+            quizContainer.style.top = newY + 'px';
+            quizContainer.style.transform = 'none'; // Remove centering transform
+            
+            e.preventDefault();
+        }
+        
+        function endQuizDrag(e) {
+            if (isQuizDragging) {
+                isQuizDragging = false;
+                quizContainer.style.cursor = 'move';
             }
         }
 
@@ -1713,12 +1853,8 @@
                 currentOffset = 0;
                 switchToPath('main', 0);
                 
-                if (increasingItems && increasingItems.children.length > 0) {
-                    increasingArray.style.display = 'block';
-                }
-                if (decreasingItems && decreasingItems.children.length > 0) {
-                    decreasingArray.style.display = 'block';
-                }
+                increasingArray.style.display = 'block';
+                decreasingArray.style.display = 'block';
             }
             
             quizContainer.style.display = 'none';
@@ -1801,6 +1937,14 @@
             quizInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') checkQuizAnswer();
             });
+            
+            // Task 2: Quiz container drag and drop functionality
+            quizContainer.addEventListener('mousedown', startQuizDrag);
+            quizContainer.addEventListener('touchstart', startQuizDrag, { passive: false });
+            document.addEventListener('mousemove', dragQuiz);
+            document.addEventListener('touchmove', dragQuiz, { passive: false });
+            document.addEventListener('mouseup', endQuizDrag);
+            document.addEventListener('touchend', endQuizDrag);
             
             // TRANSITIONS MODE EVENT SETUP
             interactiveText.addEventListener("mousedown", startTextDrag);
@@ -1931,7 +2075,6 @@
                 document.addEventListener('touchmove', quizDragMove, { passive: false });
                 document.addEventListener('touchend', quizDragEnd);
             })();
-            
             
             if (toolsButton) {
                 toolsButton.addEventListener('click', function(e) {
