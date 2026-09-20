@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-09-19 @ 10:05 a.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-09-20 @ 10:53 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -381,10 +381,10 @@
 
         /* Vocabulary arrays */
         .vocabulary-array {
-            position: absolute;
+            position: fixed;
             top: 2%;
-            width: 20%;
-            max-height: 40vh;
+            width: 18vw;
+            max-height: calc(100vh - 40px);   /* grows with its content; only the screen height caps it (40px allows for padding + border) */
             overflow-y: auto;
             background-color: rgba(255, 255, 255, 0.95);
             border: 1px solid #ccc;
@@ -394,12 +394,40 @@
             display: none;
         }
 
-        #increasing-array {
-            left: 10px;
+        #vocabulary-array {
+            left: 5%;   /* fallback only: setupArrayDrag() places it at 5% across / 2% down the template box */
         }
 
-        #decreasing-array {
-            right: 10px;
+        /* Learned Vocabulary array is draggable anywhere on screen (see setupArrayDrag).
+           touch-action:none lets a finger drag it; when the list overflows, JS adds
+           .scrollable so vertical swipes scroll the list instead (title stays a drag handle). */
+        .vocabulary-array {
+            touch-action: none;
+        }
+        .vocabulary-array.scrollable {
+            touch-action: pan-y;
+        }
+        .vocabulary-array.dragging {
+            user-select: none;
+            -webkit-user-select: none;
+            opacity: 0.85;
+        }
+        .array-title {
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .vocabulary-array.dragging .array-title {
+            cursor: grabbing;
+        }
+
+        /* Redundant in this family (removed from view 2026-09-20). The elements and the JS that
+           updates them are left in place so nothing throws; !important beats the inline
+           display:block the JS sets. */
+        .level-indicator,
+        .concept-indicator {
+            display: none !important;
         }
 
         .array-title {
@@ -423,8 +451,16 @@
             background-color: white;
         }
 
-        .vocabulary-item .target-language {
+        /* Each learned entry shows all three layers, in click-cycle order:
+           TLR (bold, what the learner is quizzed on) -> TL -> SL. */
+        .vocabulary-item .target-language-roman {
             font-weight: bold;
+            color: #2c5aa0;
+            margin-bottom: 2px;
+            cursor: pointer;
+        }
+
+        .vocabulary-item .target-language {
             color: #2c5aa0;
             margin-bottom: 2px;
             cursor: pointer;
@@ -435,6 +471,7 @@
             cursor: pointer;
         }
 
+        .vocabulary-item .target-language-roman.hidden,
         .vocabulary-item .target-language.hidden,
         .vocabulary-item .source-language.hidden {
             color: transparent;
@@ -522,20 +559,15 @@
             <button id="toggleFullscreen">Full Screen</button>
             <button id="loadConcept">Load Concept</button>
             <button id="startQuiz">Start Random Quiz</button>
-            <button id="toggleArrays">Toggle Vocabulary Arrays</button>
+            <button id="toggleArrays">Toggle Vocabulary</button>
         </div>
         
-        <!-- Vocabulary Arrays -->
-        <div id="increasing-array" class="vocabulary-array">
-            <div class="array-title">Increasing Progression</div>
-            <button class="toggle-visibility" id="toggle-increasing">Hide All</button>
-            <div id="increasing-items"></div>
-        </div>
-        
-        <div id="decreasing-array" class="vocabulary-array">
-            <div class="array-title">Decreasing Progression</div>
-            <button class="toggle-visibility" id="toggle-decreasing">Hide All</button>
-            <div id="decreasing-items"></div>
+        <!-- Vocabulary Array: ONE combined list of learned items, kept in path order.
+             Instant-change concepts have no "increasing" or "decreasing" progression. -->
+        <div id="vocabulary-array" class="vocabulary-array">
+            <div class="array-title">Learned Vocabulary</div>
+            <button class="toggle-visibility" id="toggle-vocabulary">Hide All</button>
+            <div id="vocabulary-items"></div>
         </div>
         
         <svg id="svgCanvas" viewBox="0 0 100 50" preserveAspectRatio="none">
@@ -581,7 +613,7 @@
 
     <script>
         // Sample vocabulary data - replace with actual concepts
-        // Format: [TL, TLR, SL, Quiz, Position]
+        // Format: [TLR, TL, SL, Quiz, Position]
         const conceptData = [
             ["TLR1", "TL1", "SL1", "What is the TLR word for 'SL1'?", 0],
             ["TLR2", "TL2", "SL2", "What is the TLR word for 'SL2'?", 10],
@@ -604,7 +636,7 @@
         ];
 
         // Extension vocabulary for continuation paths
-        // Format: [TL, TLR, SL, Quiz]
+        // Format: [TLR, TL, SL, Quiz]
         const extensionData = [
             ["TLR+1", "TL+1", "SL+1", "What is the TLR word for 'SL+1'?"],  // Extension from Line 1
             ["TLR+3", "TL+3", "SL+3", "What is the TLR word for 'SL+3'?"],  // Extension from Line 3
@@ -633,16 +665,14 @@
         let currentQuizIsExtension = false; // Track if current quiz is for extension textbox
         let currentQuizExtIndex = -1; // Extension index for extension textboxes
         
-        // Quiz container dragging variables
-        let isQuizDragging = false;
-        let quizDragOffset = { x: 0, y: 0 };
+        // Quiz container drag state (the drag itself is wired in setupQuizDrag())
         let quizPosition = { x: null, y: null }; // null = use default centered position
+        let quizJustDragged = false; // swallows the synthetic click a drag-release generates
         let slidingTextMode = 0; // 0: TLR, 1: TL, 2: SL, 3: Quiz
         let learnedItemsStates = []; // Separate tracking for States Mode
         let learnedItemsTransitions = []; // Separate tracking for Transitions Mode
         let textBoxElements = [];
-        let addedIncreasingItems = [];
-        let addedDecreasingItems = [];
+        let addedVocabularyItems = [];
         let currentTextLayer = new Array(11).fill(0);
         let extensionTextBoxes = [];
         let extensionTextLayers = [0, 0, 0];
@@ -680,8 +710,8 @@
         // DOM elements
         let svg, pathLine, conceptBackground, titleBox, conceptIndicator, levelIndicator, pathIndicator;
         let modeToggleBtn, frame, quizContainer, quizInput, quizCheck, quizFeedback;
-        let increasingArray, decreasingArray, increasingItems, decreasingItems;
-        let toggleIncreasingBtn, toggleDecreasingBtn;
+        let vocabularyArray, vocabularyItems;
+        let toggleVocabularyBtn;
         let interactiveText, slidingText;
         let ext1Path, ext2Path;
 
@@ -800,8 +830,26 @@
             slidingText.setAttribute('startOffset', `${Math.min(offset, 95)}%`);
             
             updateTextContent();
+            // Now the word for this path is showing: keep all of it on the path
+            currentOffset = clampTextOffset(offset);
+            slidingText.setAttribute('startOffset', `${currentOffset}%`);
             updatePathIndicator();
             
+        }
+
+        // Single source of truth for "which main-path transition is the sliding
+        // text on?" — uses the explicit [start, end] ranges in transitionsData
+        // (which follow the real path-segment lengths), NOT equal fifths of the
+        // path. Both the display (updateTextContent) and the quiz/learned
+        // tracking (toggleTextFormat) must use this, or in ~21% of the path the
+        // learner sees one item but is quizzed on / credited with another.
+        function getTransitionIndexForOffset(offset) {
+            for (let i = 0; i < transitionsData.length; i++) {
+                if (offset >= transitionsData[i][3] && offset <= transitionsData[i][4]) {
+                    return i;
+                }
+            }
+            return transitionsData.length - 1;
         }
 
         function updateTextContent() {
@@ -811,15 +859,7 @@
             
             if (currentPath === 'main') {
                 // Find which transition range the current offset falls into
-                let selectedData = null;
-                for (let i = 0; i < transitionsData.length; i++) {
-                    const start = transitionsData[i][3];
-                    const end = transitionsData[i][4];
-                    if (currentOffset >= start && currentOffset <= end) {
-                        selectedData = transitionsData[i];
-                        break;
-                    }
-                }
+                const selectedData = transitionsData[getTransitionIndexForOffset(currentOffset)];
                 
                 if (selectedData) {
                     if (slidingTextMode === 0) {
@@ -868,10 +908,10 @@
             
             switch (slidingTextMode) {
                 case 0:
-                    levelIndicator.textContent = 'Target Language (TL)';
+                    levelIndicator.textContent = 'Target Language Romanized (TLR)';
                     break;
                 case 1:
-                    levelIndicator.textContent = 'Target Language Romanized (TLR)';
+                    levelIndicator.textContent = 'Target Language (TL)';
                     break;
                 case 2:
                     levelIndicator.textContent = 'Source Language (SL)';
@@ -880,6 +920,26 @@
                     levelIndicator.textContent = 'Quiz Mode';
                     break;
             }
+        }
+
+        // Keep the whole sliding word on its path: glyphs beyond either end of a
+        // path are not drawn, so the word would be cut off. The main path and
+        // ext1 are left-aligned (the offset is where the word STARTS, so it must
+        // stop short of the end by the word's length); ext2 is right-aligned
+        // (the offset is where the word ENDS, so it must not go below the word's
+        // length). If the word can't be measured, fall back to the old 95% cap.
+        function clampTextOffset(offset) {
+            let lo = 0, hi = 95;
+            try {
+                const len = document.getElementById("interactiveText").getComputedTextLength();
+                const pathLen = getPathObject(currentPath).getTotalLength();
+                if (len > 0 && pathLen > 0) {
+                    const lenPct = (len / pathLen) * 100;
+                    if (currentPath === 'ext2') { lo = Math.min(100, lenPct); hi = 100; }
+                    else { lo = 0; hi = Math.max(0, 100 - lenPct); }
+                }
+            } catch (e) { /* not measurable: keep the fallback */ }
+            return Math.min(hi, Math.max(lo, offset));
         }
 
         function startTextDrag(e) {
@@ -926,9 +986,10 @@
                         interactiveText.style.textAnchor = 'start';  // Left-align for main and ext1
                     }
                     
-                    currentOffset = Math.min(closest.offset, 95);
-                    slidingText.setAttribute('startOffset', `${Math.min(closest.offset, 95)}%`);
-                    updateTextContent();
+                    currentOffset = closest.offset;
+                    updateTextContent();   // the word (and font size) for this spot, so it can be measured
+                    currentOffset = clampTextOffset(currentOffset);
+                    slidingText.setAttribute('startOffset', `${currentOffset}%`);
                 }
                 
                 lastDragPoint = { x: clientX, y: clientY };
@@ -953,8 +1014,7 @@
             let learnedItemsIndex;
             
             if (currentPath === 'main') {
-                dataIndex = Math.floor((currentOffset / 100) * transitionsData.length);
-                dataIndex = Math.min(dataIndex, transitionsData.length - 1);
+                dataIndex = getTransitionIndexForOffset(currentOffset);
                 currentData = transitionsData;
                 learnedItemsIndex = dataIndex;
             } else if (currentPath === 'ext1') {
@@ -1017,6 +1077,13 @@
         
         let isDragging = false;
         let currentPathPosition = 0;
+
+        // The frame circle's real radius in path units: CSS doubles it to 3 on
+        // touch devices (pointer: coarse), so the left/right clamp must too, or
+        // the circle is half cut off at either end of the path.
+        function getFrameRadius() {
+            return (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ? 3 : 1.5;
+        }
 
         function startDrag(e) {
             if (!isStatesMode) return;
@@ -1083,7 +1150,7 @@
                 
                 if (closestPoint) {
                     // Circle radius is 1.5 units
-                    const radius = 1.5;
+                    const radius = getFrameRadius();
                     
                     // Constrain circle to stay within viewBox (-30 to 130 on x-axis)
                     const minX = 0 + radius;  // -28.5 units (left edge at 0)
@@ -1143,7 +1210,7 @@
 
         function updateConceptIndicator(position) {
             const closestIndex = conceptData.reduce((closest, data, index) => {
-                const distance = Math.abs(data[3] - position);
+                const distance = Math.abs(data[4] - position);
                 return distance < closest.distance ? { index, distance } : closest;
             }, { index: 0, distance: Infinity }).index;
             
@@ -1155,7 +1222,7 @@
             const startPoint = pathLine.getPointAtLength(0);
             
             // Circle radius is 1.5 units
-            const radius = 1.5;
+            const radius = getFrameRadius();
             
             // Constrain x position: left edge should not go below -30 (viewBox start)
             const minX = 0 + radius;  // -28.5 units (so left edge is at 0)
@@ -1604,7 +1671,7 @@
             }, 100);
         }
 
-        function addToVocabularyArray(index, isIncreasing, trackingIndex) {
+        function addToVocabularyArray(index, trackingIndex) {
             try {
                 // Use trackingIndex if provided, otherwise use index (for backwards compatibility)
                 const indexToTrack = trackingIndex !== undefined ? trackingIndex : index;
@@ -1619,11 +1686,16 @@
                     currentData = transitionsData;
                 }
                 
-                const targetLanguage = currentData[index][1]; // TL — matches what the quiz actually tests
+                const tlr = currentData[index][0];            // TLR — what the quiz tests
+                const targetLanguage = currentData[index][1]; // TL
                 const sourceLanguage = currentData[index][2]; // SL
                 
                 const itemElement = document.createElement('div');
                 itemElement.className = 'vocabulary-item';
+                
+                const tlrSpan = document.createElement('span');
+                tlrSpan.className = 'target-language-roman';
+                tlrSpan.textContent = tlr;
                 
                 const targetSpan = document.createElement('span');
                 targetSpan.className = 'target-language';
@@ -1632,6 +1704,11 @@
                 const sourceSpan = document.createElement('span');
                 sourceSpan.className = 'source-language';
                 sourceSpan.textContent = sourceLanguage;
+                
+                tlrSpan.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.classList.toggle('hidden');
+                });
                 
                 targetSpan.addEventListener('click', function(e) {
                     e.stopPropagation();
@@ -1644,19 +1721,27 @@
                 });
                 
                 
+                itemElement.appendChild(tlrSpan);
                 itemElement.appendChild(targetSpan);
                 itemElement.appendChild(sourceSpan);
                 
-                if (isIncreasing) {
-                    increasingItems.appendChild(itemElement);
-                    addedIncreasingItems[indexToTrack] = true;
-                    increasingArray.style.display = 'block';
-                } else {
-                    decreasingItems.appendChild(itemElement);
-                    addedDecreasingItems[indexToTrack] = true;
-                    decreasingArray.style.display = 'block';
+                // One combined list, kept in path order whatever order the items
+                // were learned in (main path first, then extension 1, then
+                // extension 2, by global index): insert before the first entry
+                // with a higher index (null = append at the end).
+                itemElement.setAttribute('data-index', indexToTrack);
+                let insertBeforeEl = null;
+                for (const child of vocabularyItems.children) {
+                    if (parseInt(child.getAttribute('data-index'), 10) > indexToTrack) {
+                        insertBeforeEl = child;
+                        break;
+                    }
                 }
+                vocabularyItems.insertBefore(itemElement, insertBeforeEl);
+                addedVocabularyItems[indexToTrack] = true;
+                vocabularyArray.style.display = 'block';
                 
+
             } catch (error) {
                 console.error("Error adding vocabulary item:", error);
             }
@@ -1698,6 +1783,7 @@
             if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
                 quizFeedback.textContent = 'Correct!';
                 quizFeedback.style.color = 'green';
+                const answeredIndex = currentQuizIndex;
                 
                 if (isStatesMode) {
                     // Mark as learned in States Mode only
@@ -1731,103 +1817,24 @@
                     updateTextContent();
                     updateLevelIndicator();
                     
-                    // Add to vocabulary array
-                    // Use currentQuizIndex (global index) to track what's been added
-                    if (currentPath === 'main') {
-                        // Main path: TL-T1, TL-T2, TL-T3 go to increasing (indices 0-2)
-                        // TL-T4, TL-T5 go to decreasing (indices 3-4)
-                        // Peak is at 50%, so check the start position
-                        const startPosition = transitionsData[dataIndex][3];
-                        const isIncreasing = startPosition < 50;
-                        
-                        if (isIncreasing) {
-                            if (!addedIncreasingItems[currentQuizIndex]) {
-                                addToVocabularyArray(dataIndex, true, currentQuizIndex);
-                            }
-                        } else {
-                            if (!addedDecreasingItems[currentQuizIndex]) {
-                                addToVocabularyArray(dataIndex, false, currentQuizIndex);
-                            }
-                        }
-                    } else if (currentPath === 'ext1') {
-                        if (!addedIncreasingItems[currentQuizIndex]) {
-                            addToVocabularyArray(dataIndex, true, currentQuizIndex);
-                        }
-                    } else if (currentPath === 'ext2') {
-                        if (!addedDecreasingItems[currentQuizIndex]) {
-                            addToVocabularyArray(dataIndex, false, currentQuizIndex);
-                        }
+                    // Add to the one combined vocabulary list. currentQuizIndex is the
+                    // global index (main path, then ext1, then ext2), so each item is
+                    // filed once and sorted into path order.
+                    if (!addedVocabularyItems[currentQuizIndex]) {
+                        addToVocabularyArray(dataIndex, currentQuizIndex);
                     }
                 }
                 
                 setTimeout(() => {
-                    quizContainer.style.display = 'none';
-                    currentQuizIndex = -1;
+                    // Only close our own quiz - the learner may already have opened another
+                    if (currentQuizIndex === answeredIndex) {
+                        quizContainer.style.display = 'none';
+                        currentQuizIndex = -1;
+                    }
                 }, 1500);
             } else {
                 quizFeedback.textContent = 'Try again';
                 quizFeedback.style.color = 'red';
-            }
-        }
-
-        // Quiz container drag-and-drop functions
-        function startQuizDrag(e) {
-            // Don't drag if clicking on input or button
-            if (e.target === quizInput || e.target === quizCheck) {
-                return;
-            }
-            
-            isQuizDragging = true;
-            quizContainer.style.cursor = 'grabbing';
-            
-            // Get current position
-            const rect = quizContainer.getBoundingClientRect();
-            
-            // Calculate offset from mouse to top-left corner
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-            
-            quizDragOffset.x = clientX - rect.left;
-            quizDragOffset.y = clientY - rect.top;
-            
-            e.preventDefault();
-        }
-        
-        function dragQuiz(e) {
-            if (!isQuizDragging) return;
-            
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-            
-            // Calculate new position
-            let newX = clientX - quizDragOffset.x;
-            let newY = clientY - quizDragOffset.y;
-            
-            // Get quiz container dimensions
-            const rect = quizContainer.getBoundingClientRect();
-            const width = rect.width;
-            const height = rect.height;
-            
-            // Constrain to viewport
-            newX = Math.max(0, Math.min(newX, window.innerWidth - width));
-            newY = Math.max(0, Math.min(newY, window.innerHeight - height));
-            
-            // Save position and apply
-            quizPosition.x = newX;
-            quizPosition.y = newY;
-            
-            quizContainer.style.left = newX + 'px';
-            quizContainer.style.top = newY + 'px';
-            quizContainer.style.transform = 'none'; // Disable centering
-            
-            e.preventDefault();
-        }
-        
-        function endQuizDrag(e) {
-            if (isQuizDragging) {
-                isQuizDragging = false;
-                quizContainer.style.cursor = 'move';
-                e.preventDefault();
             }
         }
 
@@ -1875,8 +1882,7 @@
                     frame.style.cursor = 'grab';
                 }, 100);
                 
-                increasingArray.style.display = 'none';
-                decreasingArray.style.display = 'none';
+                vocabularyArray.style.display = 'none';
             } else {
                 // Switch to Transitions mode
                 frame.style.display = 'none';
@@ -1901,11 +1907,8 @@
                 currentOffset = 0;
                 switchToPath('main', 0);
                 
-                if (increasingItems && increasingItems.children.length > 0) {
-                    increasingArray.style.display = 'block';
-                }
-                if (decreasingItems && decreasingItems.children.length > 0) {
-                    decreasingArray.style.display = 'block';
+                if (vocabularyItems && vocabularyItems.children.length > 0) {
+                    vocabularyArray.style.display = 'block';
                 }
             }
             
@@ -1931,7 +1934,7 @@
                     return;
                 }
                 
-                const spans = container.querySelectorAll('.vocabulary-item .target-language, .vocabulary-item .source-language');
+                const spans = container.querySelectorAll('.vocabulary-item .target-language-roman, .vocabulary-item .target-language, .vocabulary-item .source-language');
                 
                 let visibleCount = 0;
                 spans.forEach(span => {
@@ -1987,14 +1990,6 @@
             quizInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') checkQuizAnswer();
             });
-            
-            // Quiz container drag events
-            quizContainer.addEventListener('mousedown', startQuizDrag);
-            document.addEventListener('mousemove', dragQuiz);
-            document.addEventListener('mouseup', endQuizDrag);
-            quizContainer.addEventListener('touchstart', startQuizDrag, { passive: false });
-            document.addEventListener('touchmove', dragQuiz, { passive: false });
-            document.addEventListener('touchend', endQuizDrag);
             
             // TRANSITIONS MODE EVENT SETUP
             interactiveText.addEventListener("mousedown", startTextDrag);
@@ -2075,18 +2070,115 @@
                 window.visualViewport.addEventListener('resize', handleViewportResize);
             }
 
+            // ── Learned Vocabulary array: default position + drag anywhere ──────
+            // Default spot: 5% across / 2% down the template box (.a4-page). The array is
+            // position:fixed so it can be dragged anywhere on the screen, e.g. clear of the quiz box.
+            // Once the learner has moved it, it stays where they put it (also across hide/show).
+            (function setupArrayDrag() {
+                const arr = document.getElementById('vocabulary-array');
+                const list = document.getElementById('vocabulary-items');
+                const page = document.querySelector('.a4-page');
+                if (!arr) return;
+                const DRAG_THRESHOLD_PX = 5;   // below this a press is a click (Hide All, tapping an entry)
+                let userMoved = false, dragging = false, moved = false, wasShown = false;
+                let offX = 0, offY = 0, startX = 0, startY = 0, activeId = null, justDragged = false;
+
+                function place(left, top) {
+                    const maxLeft = Math.max(0, window.innerWidth - arr.offsetWidth);
+                    const maxTop = Math.max(0, window.innerHeight - arr.offsetHeight);
+                    arr.style.left = Math.min(Math.max(0, left), maxLeft) + 'px';
+                    arr.style.top = Math.min(Math.max(0, top), maxTop) + 'px';
+                }
+                function placeDefault() {
+                    const r = page ? page.getBoundingClientRect()
+                                   : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+                    place(r.left + r.width * 0.05, r.top + r.height * 0.02);
+                }
+                function updateScrollable() {
+                    arr.classList.toggle('scrollable', arr.scrollHeight > arr.clientHeight + 1);
+                }
+                function isShown() { return arr.style.display === 'block'; }
+                // Re-place after the content (and so the height) or the window changes: the array
+                // grows downward as entries are added, and is nudged up if its bottom edge would
+                // otherwise fall off the screen.
+                function refit() {
+                    if (!isShown()) return;
+                    if (userMoved) place(parseFloat(arr.style.left) || 0, parseFloat(arr.style.top) || 0);
+                    else placeDefault();
+                    updateScrollable();
+                }
+
+                // Watch for the array being shown (the JS shows it from several places), and for
+                // entries being added, rather than patching every call site.
+                new MutationObserver(function () {
+                    const shown = isShown();
+                    if (shown && !wasShown) {
+                        wasShown = true;
+                        if (userMoved) place(parseFloat(arr.style.left) || 0, parseFloat(arr.style.top) || 0);
+                        else placeDefault();
+                    } else if (!shown) {
+                        wasShown = false;
+                    }
+                    if (shown) updateScrollable();
+                }).observe(arr, { attributes: true, attributeFilter: ['style'] });
+                if (list) new MutationObserver(refit).observe(list, { childList: true, subtree: true });
+
+                window.addEventListener('resize', refit);
+
+                arr.addEventListener('pointerdown', function (e) {
+                    if (e.button) return;                        // primary button / touch / pen only
+                    if (e.target.closest && e.target.closest('button')) return;   // let Hide All click through
+                    const r = arr.getBoundingClientRect();
+                    dragging = true; moved = false; activeId = e.pointerId;
+                    startX = e.clientX; startY = e.clientY;
+                    offX = e.clientX - r.left; offY = e.clientY - r.top;
+                });
+                document.addEventListener('pointermove', function (e) {
+                    if (!dragging || e.pointerId !== activeId) return;
+                    if (!moved) {
+                        if (Math.hypot(e.clientX - startX, e.clientY - startY) < DRAG_THRESHOLD_PX) return;
+                        moved = true;
+                        arr.classList.add('dragging');
+                        try { arr.setPointerCapture(activeId); } catch (_) {}
+                    }
+                    place(e.clientX - offX, e.clientY - offY);
+                    userMoved = true;
+                    if (e.cancelable) e.preventDefault();
+                });
+                function endDrag(e) {
+                    if (!dragging || e.pointerId !== activeId) return;
+                    dragging = false;
+                    arr.classList.remove('dragging');
+                    try { arr.releasePointerCapture(activeId); } catch (_) {}
+                    if (moved) {
+                        // The release fires a click; swallow it so it can't dismiss the quiz box,
+                        // close the Tools menu or toggle an entry (reset after 100ms if none arrives).
+                        justDragged = true;
+                        setTimeout(function () { justDragged = false; }, 100);
+                    }
+                    moved = false;
+                }
+                document.addEventListener('pointerup', endDrag);
+                document.addEventListener('pointercancel', endDrag);
+                document.addEventListener('click', function (e) {
+                    if (justDragged) { justDragged = false; e.stopPropagation(); e.preventDefault(); }
+                }, true);
+            })();
+
             // ── Quiz box: drag to reposition anywhere on screen ──────
             (function setupQuizDrag() {
                 const qc = document.getElementById('quizContainer');
                 const qInput = document.getElementById('quizInput');
                 const qCheck = document.getElementById('quizCheck');
                 let isDraggingQuiz = false;
+                let dragMoved = false;
                 let quizDragOffsetX = 0;
                 let quizDragOffsetY = 0;
 
                 function quizDragStart(e) {
                     if (e.target === qInput || e.target === qCheck) return;
                     isDraggingQuiz = true;
+                    dragMoved = false;
                     const rect = qc.getBoundingClientRect();
                     const point = e.touches ? e.touches[0] : e;
                     quizDragOffsetX = point.clientX - rect.left;
@@ -2109,12 +2201,25 @@
                     newTop = Math.max(0, Math.min(newTop, maxTop));
                     qc.style.left = newLeft + 'px';
                     qc.style.top = newTop + 'px';
+                    // Remember where the learner put it, so the next quiz opens there
+                    quizPosition.x = newLeft;
+                    quizPosition.y = newTop;
+                    dragMoved = true;
                     if (e.touches) e.preventDefault();
                 }
 
                 function quizDragEnd() {
+                    if (!isDraggingQuiz) return;
                     isDraggingQuiz = false;
                     qc.classList.remove('dragging');
+                    // A drag-release fires a click at whatever is under the cursor;
+                    // if that lands just outside the box, the outside-click dismiss
+                    // handler would close the quiz. Flag it so that one click is
+                    // swallowed (reset after 100ms in case no click ever arrives).
+                    if (dragMoved) {
+                        quizJustDragged = true;
+                        setTimeout(function () { quizJustDragged = false; }, 100);
+                    }
                 }
 
                 qc.addEventListener('mousedown', quizDragStart);
@@ -2157,9 +2262,24 @@
                     dropdownOpen = false;
                     toolsDropdown.classList.remove('active');
                     
-                    const currentData = isStatesMode ? conceptData : transitionsData;
-                    const randomIndex = Math.floor(Math.random() * currentData.length);
-                    showQuiz(randomIndex, null);
+                    if (isStatesMode) {
+                        showQuiz(Math.floor(Math.random() * conceptData.length), null);
+                    } else {
+                        // Transitions quiz indices are global across paths (main,
+                        // then ext1, then ext2) and showQuiz()/checkQuizAnswer()
+                        // resolve them via currentPath — so pick within the path
+                        // the sliding text is currently on.
+                        let base = 0;
+                        let count = transitionsData.length;
+                        if (currentPath === 'ext1') {
+                            base = transitionsData.length;
+                            count = extension1TransitionData.length;
+                        } else if (currentPath === 'ext2') {
+                            base = transitionsData.length + extension1TransitionData.length;
+                            count = extension2TransitionData.length;
+                        }
+                        showQuiz(base + Math.floor(Math.random() * count), null);
+                    }
                 });
             }
             
@@ -2169,26 +2289,26 @@
                     dropdownOpen = false;
                     toolsDropdown.classList.remove('active');
                     
-                    const visibility = increasingArray.style.display === 'none' || increasingArray.style.display === '';
-                    increasingArray.style.display = visibility ? 'block' : 'none';
-                    decreasingArray.style.display = visibility ? 'block' : 'none';
+                    const visibility = vocabularyArray.style.display === 'none' || vocabularyArray.style.display === '';
+                    vocabularyArray.style.display = visibility ? 'block' : 'none';
                 });
             }
             
-            if (toggleIncreasingBtn) {
-                toggleIncreasingBtn.addEventListener('click', function() {
-                    toggleArrayVisibility('increasing');
+            if (toggleVocabularyBtn) {
+                toggleVocabularyBtn.addEventListener('click', function() {
+                    toggleArrayVisibility('vocabulary');
                 });
             }
             
-            if (toggleDecreasingBtn) {
-                toggleDecreasingBtn.addEventListener('click', function() {
-                    toggleArrayVisibility('decreasing');
-                });
-            }
+
             
             // Document click handler for closing quizzes
             document.addEventListener('click', function(e) {
+                // Swallow the one synthetic click that follows a quiz-box drag-release
+                if (quizJustDragged) {
+                    quizJustDragged = false;
+                    return;
+                }
                 if (quizContainer.style.display !== 'none' && 
                     !quizContainer.contains(e.target) &&
                     !e.target.classList.contains('textBox') &&
@@ -2224,12 +2344,9 @@
                 quizInput = document.getElementById("quizInput");
                 quizCheck = document.getElementById("quizCheck");
                 quizFeedback = document.getElementById("quizFeedback");
-                increasingArray = document.getElementById("increasing-array");
-                decreasingArray = document.getElementById("decreasing-array");
-                increasingItems = document.getElementById("increasing-items");
-                decreasingItems = document.getElementById("decreasing-items");
-                toggleIncreasingBtn = document.getElementById("toggle-increasing");
-                toggleDecreasingBtn = document.getElementById("toggle-decreasing");
+                vocabularyArray = document.getElementById("vocabulary-array");
+                vocabularyItems = document.getElementById("vocabulary-items");
+                toggleVocabularyBtn = document.getElementById("toggle-vocabulary");
                 interactiveText = document.getElementById("interactiveText");
                 slidingText = document.getElementById("slidingText");
                 ext1Path = document.getElementById("extensionPath1");
@@ -2256,8 +2373,7 @@
                 
                 learnedItemsStates = new Array(statesItemsCount).fill(false);
                 learnedItemsTransitions = new Array(transitionsItemsCount).fill(false);
-                addedIncreasingItems = new Array(transitionsItemsCount).fill(false);
-                addedDecreasingItems = new Array(transitionsItemsCount).fill(false);
+                addedVocabularyItems = new Array(transitionsItemsCount).fill(false);
                 
                 // Create the main path
                 const pathD = `M ${pathPoints.join(' L ')}`;
@@ -2283,8 +2399,7 @@
                 levelIndicator.style.display = 'none';
                 pathIndicator.style.display = 'none';
                 quizContainer.style.display = 'none';
-                increasingArray.style.display = 'none';
-                decreasingArray.style.display = 'none';
+                vocabularyArray.style.display = 'none';
                 
                 // Hide drag instruction after 12 seconds
                 setTimeout(() => {

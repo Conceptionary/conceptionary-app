@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-09-18 @ 12:10 a.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-09-20 @ 11:34 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -379,12 +379,13 @@
             border-bottom: none;
         }
 
-        /* Vocabulary arrays */
+        /* Vocabulary array: ONE combined "Learned Vocabulary" list, kept in path order.
+           Instant-change concepts have no "increasing" or "decreasing" progression. */
         .vocabulary-array {
-            position: absolute;
+            position: fixed;
             top: 2%;
-            width: 20%;
-            max-height: 40vh;
+            width: 22.5vw;
+            max-height: calc(100vh - 40px);   /* grows with its content; only the screen height caps it (40px allows for padding + border) */
             overflow-y: auto;
             background-color: rgba(255, 255, 255, 0.95);
             border: 1px solid #ccc;
@@ -394,12 +395,39 @@
             display: none;
         }
 
-        #increasing-array {
-            left: 10px;
+        #vocabulary-array {
+            left: 5%;   /* fallback only: setupArrayDrag() places it at 5% across / 2% down the template box */
         }
 
-        #decreasing-array {
-            right: 10px;
+        /* The array is draggable anywhere on screen (see setupArrayDrag).
+           touch-action:none lets a finger drag it; when the list overflows, JS adds
+           .scrollable so vertical swipes scroll the list instead (title stays a drag handle). */
+        .vocabulary-array {
+            touch-action: none;
+        }
+        .vocabulary-array.scrollable {
+            touch-action: pan-y;
+        }
+        .vocabulary-array.dragging {
+            user-select: none;
+            -webkit-user-select: none;
+            opacity: 0.85;
+        }
+        .array-title {
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .vocabulary-array.dragging .array-title {
+            cursor: grabbing;
+        }
+
+        /* Redundant in this family (removed from view 2026-09-20). The elements and the JS that
+           updates them are left in place so nothing throws; !important beats any inline display. */
+        .level-indicator,
+        .concept-indicator {
+            display: none !important;
         }
 
         .array-title {
@@ -521,20 +549,16 @@
             <button id="toggleFullscreen">Full Screen</button>
             <button id="loadConcept">Load Concept</button>
             <button id="startQuiz">Start Random Quiz</button>
-            <button id="toggleArrays">Toggle Vocabulary Arrays</button>
+            <button id="toggleArrays">Toggle Vocabulary</button>
         </div>
         
-        <!-- Vocabulary Arrays -->
-        <div id="increasing-array" class="vocabulary-array">
-            <div class="array-title">Increasing Progression</div>
-            <button class="toggle-visibility" id="toggle-increasing">Hide All</button>
-            <div id="increasing-items"></div>
-        </div>
-        
-        <div id="decreasing-array" class="vocabulary-array">
-            <div class="array-title">Decreasing Progression</div>
-            <button class="toggle-visibility" id="toggle-decreasing">Hide All</button>
-            <div id="decreasing-items"></div>
+        <!-- Vocabulary Array: ONE combined list of learned items, kept in path order (main path,
+             then extension 1, then extension 2). Instant-change concepts have no "increasing"
+             or "decreasing" progression. -->
+        <div id="vocabulary-array" class="vocabulary-array">
+            <div class="array-title">Learned Vocabulary</div>
+            <button class="toggle-visibility" id="toggle-vocabulary">Hide All</button>
+            <div id="vocabulary-items"></div>
         </div>
         
         <svg id="svgCanvas" viewBox="0 0 100 50" preserveAspectRatio="none">
@@ -568,7 +592,7 @@
         </svg>
         <button id="modeToggle" class="mode-toggle">Toggle Mode</button>
         <div class="watermark">
-            &copy; 2025 Alan William Preston - Instant Change Template (Phonographic 11-Box)
+            &copy; 2026 Alan William Preston - Instant Change Template (Phonographic 11-Box)
         </div>
     </div>
 
@@ -639,8 +663,7 @@
         let learnedItemsStates = []; // Separate tracking for States Mode
         let learnedItemsTransitions = []; // Separate tracking for Transitions Mode
         let textBoxElements = [];
-        let addedIncreasingItems = [];
-        let addedDecreasingItems = [];
+        let addedVocabularyItems = [];   // by global transition index (main, then ext 1, then ext 2)
         let currentTextLayer = new Array(11).fill(0);
         let extensionTextBoxes = [];
         let extensionTextLayers = [0, 0, 0];
@@ -651,6 +674,12 @@
         let isDraggingText = false;
         let lastDragPoint = null;
         let hasMovedDuringDrag = false;
+        let dragStartClientX = 0;   // pointer position at the start of a text drag (px)
+        let dragStartClientY = 0;
+        let dragGrabOffset = 0;     // path-length between the grab point and the text start
+        const DRAG_THRESHOLD_PX = 8; // movement below this is a tap, not a drag
+        let quizJustDragged = false; // swallows the synthetic click a quiz-box drag-release generates
+        const MAX_TEXT_OFFSET = 95;  // the sliding text never starts beyond 95% of a path, so it stays on screen
         
         // Title text options
         const titleTexts = {
@@ -676,8 +705,8 @@
         // DOM elements
         let svg, pathLine, conceptBackground, titleBox, conceptIndicator, levelIndicator, pathIndicator;
         let modeToggleBtn, frame, quizContainer, quizInput, quizCheck, quizFeedback;
-        let increasingArray, decreasingArray, increasingItems, decreasingItems;
-        let toggleIncreasingBtn, toggleDecreasingBtn;
+        let vocabularyArray, vocabularyItems;
+        let toggleVocabularyBtn;
         let interactiveText, slidingText;
         let ext1Path, ext2Path;
 
@@ -701,53 +730,97 @@
             return path.getPointAtLength(position);
         }
 
-        function findClosestPointOnAllPaths(x, y) {
-            let closestPoint = null;
-            let closestDistance = Infinity;
-            let closestPath = 'main';
-            let closestOffset = 0;
-            
-            const sampleRate = 0.5;
-            
-            // Check main path
-            for (let i = 0; i < pathLength; i += sampleRate) {
-                const point = pathLine.getPointAtLength(i);
-                const distance = Math.sqrt(Math.pow(point.x - x, 2) + Math.pow(point.y - y, 2));
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    closestPoint = point;
-                    closestPath = 'main';
-                    closestOffset = (i / pathLength) * 95;
+        // ── Which vocabulary item is this? ─────────────────────────────
+        // Transition items live in three lists (main path, extension 1,
+        // extension 2). Everything that needs "which item?" goes through
+        // these helpers, and an item is identified by ONE global index:
+        // the main path first (0-4), then extension 1, then extension 2 -
+        // the same order the learned-vocabulary list is kept in.
+        //
+        // On the main path Line 1 = T1 ... Line 5 = T5, using the explicit
+        // [start, end] zones in transitionsData (which follow the real
+        // path-segment lengths, not equal fifths of the path).
+        function getTransitionList(pathName) {
+            if (pathName === 'ext1') return extension1TransitionData;
+            if (pathName === 'ext2') return extension2TransitionData;
+            return transitionsData;
+        }
+
+        function getTransitionBase(pathName) {
+            if (pathName === 'ext1') return transitionsData.length;
+            if (pathName === 'ext2') return transitionsData.length + extension1TransitionData.length;
+            return 0;
+        }
+
+        function getTransitionIndexForOffset(offset) {
+            for (let i = 0; i < transitionsData.length; i++) {
+                if (offset >= transitionsData[i][3] && offset <= transitionsData[i][4]) {
+                    return i;
                 }
             }
-            
-            // Check extension path 1
-            const ext1Length = ext1Path.getTotalLength();
-            for (let i = 0; i < ext1Length; i += sampleRate) {
-                const point = ext1Path.getPointAtLength(i);
-                const distance = Math.sqrt(Math.pow(point.x - x, 2) + Math.pow(point.y - y, 2));
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    closestPoint = point;
-                    closestPath = 'ext1';
-                    closestOffset = (i / ext1Length) * 95;
+            return transitionsData.length - 1;
+        }
+
+        // The item shown at a given path and offset (percent along that path).
+        function getTransitionItem(pathName, offset) {
+            const list = getTransitionList(pathName);
+            let dataIndex;
+            if (pathName === 'main') {
+                dataIndex = getTransitionIndexForOffset(offset);
+            } else {
+                dataIndex = Math.min(list.length - 1, Math.max(0, Math.floor((offset / 100) * list.length)));
+            }
+            return { path: pathName, dataIndex: dataIndex, index: getTransitionBase(pathName) + dataIndex, data: list[dataIndex] };
+        }
+
+        // The item for a global index (what the quiz and the array work from).
+        function getTransitionItemByIndex(index) {
+            let pathName = 'main';
+            let dataIndex = index;
+            if (index >= transitionsData.length + extension1TransitionData.length) {
+                pathName = 'ext2';
+                dataIndex = index - transitionsData.length - extension1TransitionData.length;
+            } else if (index >= transitionsData.length) {
+                pathName = 'ext1';
+                dataIndex = index - transitionsData.length;
+            }
+            const list = getTransitionList(pathName);
+            if (index < 0 || dataIndex >= list.length) return null;
+            return { path: pathName, dataIndex: dataIndex, index: index, data: list[dataIndex] };
+        }
+
+        // Client (screen) point -> SVG user units. The viewBox is 0 0 100 50 and
+        // preserveAspectRatio is "none", so the mapping is a plain scaling.
+        function getSvgPoint(clientX, clientY) {
+            const svgRect = svg.getBoundingClientRect();
+            return {
+                x: ((clientX - svgRect.left) / svgRect.width) * 100,
+                y: ((clientY - svgRect.top) / svgRect.height) * 50
+            };
+        }
+
+        // Nearest point on one path element to an SVG-space point, as a
+        // length along that path plus its distance. When aroundLength is
+        // given only a window of the path around it is searched, so the
+        // text cannot teleport to a different line when the pointer strays
+        // between two lines; null searches the whole path.
+        function closestOnPathEl(el, x, y, aroundLength) {
+            const total = el.getTotalLength();
+            const WINDOW = 45;
+            const lo = aroundLength === null ? 0 : Math.max(0, aroundLength - WINDOW);
+            const hi = aroundLength === null ? total : Math.min(total, aroundLength + WINDOW);
+            const step = aroundLength === null ? 0.5 : 0.25;
+            let best = lo;
+            let bestDist = Infinity;
+            for (let L = lo; L <= hi + 1e-9; L += step) {
+                const p = el.getPointAtLength(Math.min(L, total));
+                const d = Math.hypot(p.x - x, p.y - y);
+                if (d < bestDist) {
+                    bestDist = d;
+                    best = L;
                 }
             }
-            
-            // Check extension path 2
-            const ext2Length = ext2Path.getTotalLength();
-            for (let i = 0; i < ext2Length; i += sampleRate) {
-                const point = ext2Path.getPointAtLength(i);
-                const distance = Math.sqrt(Math.pow(point.x - x, 2) + Math.pow(point.y - y, 2));
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    closestPoint = point;
-                    closestPath = 'ext2';
-                    closestOffset = (i / ext2Length) * 95;
-                }
-            }
-            
-            return { point: closestPoint, path: closestPath, offset: closestOffset };
+            return { len: Math.min(best, total), dist: bestDist };
         }
 
         function updatePathIndicator() {
@@ -796,6 +869,9 @@
             slidingText.setAttribute('startOffset', `${Math.min(offset, 95)}%`);
             
             updateTextContent();
+            // Now the word for this path is showing: keep all of it on the path
+            currentOffset = clampTextOffset(offset);
+            slidingText.setAttribute('startOffset', `${currentOffset}%`);
             updatePathIndicator();
             
             console.log("Switched to path:", newPath, "at offset:", offset, "text-anchor:", interactiveText.style.textAnchor);
@@ -803,50 +879,14 @@
 
         function updateTextContent() {
             if (isStatesMode) return;
-            
-            let displayText = '';
-            
-            if (currentPath === 'main') {
-                // Find which transition range the current offset falls into
-                let selectedData = null;
-                for (let i = 0; i < transitionsData.length; i++) {
-                    const start = transitionsData[i][3];
-                    const end = transitionsData[i][4];
-                    if (currentOffset >= start && currentOffset <= end) {
-                        selectedData = transitionsData[i];
-                        break;
-                    }
-                }
-                
-                if (selectedData) {
-                    if (slidingTextMode === 0) {
-                        displayText = selectedData[0]; // TL
-                    } else if (slidingTextMode === 1) {
-                        displayText = selectedData[1]; // SL
-                    }
-                }
-            } else if (currentPath === 'ext1') {
-                const index = Math.floor((currentOffset / 100) * extension1TransitionData.length);
-                const data = extension1TransitionData[Math.min(index, extension1TransitionData.length - 1)];
-                
-                if (slidingTextMode === 0) {
-                    displayText = data[0]; // TL
-                } else if (slidingTextMode === 1) {
-                    displayText = data[1]; // SL
-                }
-            } else if (currentPath == 'ext2') {
-                const index = Math.floor((currentOffset / 100) * extension2TransitionData.length);
-                const data = extension2TransitionData[Math.min(index, extension2TransitionData.length - 1)];
-                
-                if (slidingTextMode === 0) {
-                    displayText = data[0]; // TL
-                } else if (slidingTextMode === 1) {
-                    displayText = data[1]; // SL
-                }
-            }
-            
+
+            const item = getTransitionItem(currentPath, currentOffset);
+            // TL first; then SL (which also stays on show while the quiz is open)
+            const displayText = (slidingTextMode === 0) ? item.data[0] : item.data[1];
+
             slidingText.textContent = displayText;
             interactiveText.style.fontSize = calculateFontSize(displayText) + "px";
+            interactiveText.classList.toggle('learned', !!learnedItemsTransitions[item.index]);
         }
 
         function updateLevelIndicator() {
@@ -870,59 +910,98 @@
             }
         }
 
+        // Keep the whole sliding word on its path: glyphs beyond either end of a
+        // path are not drawn, so the word would be cut off. The main path and
+        // ext1 are left-aligned (the offset is where the word STARTS, so it must
+        // stop short of the end by the word's length); ext2 is right-aligned
+        // (the offset is where the word ENDS, so it must not go below the word's
+        // length). If the word can't be measured, fall back to the old
+        // MAX_TEXT_OFFSET cap.
+        function clampTextOffset(offset) {
+            let lo = 0, hi = MAX_TEXT_OFFSET;
+            try {
+                const len = document.getElementById("interactiveText").getComputedTextLength();
+                const pathLen = getPathObject(currentPath).getTotalLength();
+                if (len > 0 && pathLen > 0) {
+                    const lenPct = (len / pathLen) * 100;
+                    if (currentPath === 'ext2') { lo = Math.min(100, lenPct); hi = 100; }
+                    else { lo = 0; hi = Math.max(0, 100 - lenPct); }
+                }
+            } catch (e) { /* not measurable: keep the fallback */ }
+            return Math.min(hi, Math.max(lo, offset));
+        }
+
         function startTextDrag(e) {
             if (isStatesMode) return;
-            
+
             isDraggingText = true;
             hasMovedDuringDrag = false;
             interactiveText.classList.add('dragging');
-            
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-            lastDragPoint = { x: clientX, y: clientY };
-            
+
+            const src = e.touches ? e.touches[0] : e;
+            dragStartClientX = src.clientX;
+            dragStartClientY = src.clientY;
+
+            // Remember where on the text the learner grabbed it, so the text
+            // does not jump so that its anchor sits under the pointer.
+            const pt = getSvgPoint(src.clientX, src.clientY);
+            const el = getPathObject(currentPath);
+            const startLen = (currentOffset / 100) * el.getTotalLength();
+            dragGrabOffset = closestOnPathEl(el, pt.x, pt.y, null).len - startLen;
+
             e.preventDefault();
         }
 
         function dragText(e) {
             if (!isDraggingText || isStatesMode) return;
-            
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-            
-            const deltaX = clientX - lastDragPoint.x;
-            const deltaY = clientY - lastDragPoint.y;
-            
-            if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) {
+
+            const src = e.touches ? e.touches[0] : e;
+            if (!hasMovedDuringDrag) {
+                // Distance from where the drag STARTED, not from the last
+                // event, so slow drags still register as drags
+                if (Math.hypot(src.clientX - dragStartClientX, src.clientY - dragStartClientY) <= DRAG_THRESHOLD_PX) {
+                    if (e.cancelable) e.preventDefault();
+                    return;
+                }
                 hasMovedDuringDrag = true;
             }
-            
-            if (hasMovedDuringDrag) {
-                const svgRect = svg.getBoundingClientRect();
-                const svgX = ((clientX - svgRect.left) / svgRect.width) * 100;
-                const svgY = ((clientY - svgRect.top) / svgRect.height) * 50;
-                
-                const closest = findClosestPointOnAllPaths(svgX, svgY);
-                
-                if (closest.path !== currentPath) {
-                    switchToPath(closest.path, closest.offset);
-                } else {
-                    // Apply alignment based on current path
-                    if (currentPath === 'ext2') {
-                        interactiveText.style.textAnchor = 'end';  // Right-align for ext2
-                    } else {
-                        interactiveText.style.textAnchor = 'start';  // Left-align for main and ext1
-                    }
-                    
-                    currentOffset = Math.min(closest.offset, 95);
-                    slidingText.setAttribute('startOffset', `${Math.min(closest.offset, 95)}%`);
-                    updateTextContent();
+
+            const pt = getSvgPoint(src.clientX, src.clientY);
+
+            // Stay on the current path (searching only a window around the text
+            // so it cannot jump to a far-off line) unless the pointer is clearly
+            // nearer another path - then the text hops onto that path.
+            const curEl = getPathObject(currentPath);
+            const curTotal = curEl.getTotalLength();
+            const curStartLen = (currentOffset / 100) * curTotal;
+            const cur = closestOnPathEl(curEl, pt.x, pt.y, curStartLen + dragGrabOffset);
+
+            let bestPath = currentPath;
+            let bestLen = cur.len;
+            let bestDist = cur.dist;
+            ['main', 'ext1', 'ext2'].forEach(name => {
+                if (name === currentPath) return;
+                const c = closestOnPathEl(getPathObject(name), pt.x, pt.y, null);
+                if (c.dist < bestDist - 0.05) {
+                    bestPath = name;
+                    bestLen = c.len;
+                    bestDist = c.dist;
                 }
-                
-                lastDragPoint = { x: clientX, y: clientY };
+            });
+
+            if (bestPath !== currentPath) {
+                const total = getPathObject(bestPath).getTotalLength();
+                switchToPath(bestPath, Math.min(100, Math.max(0, (bestLen / total) * 100)));
+                dragGrabOffset = 0;
+            } else {
+                const startLen = Math.min(curTotal, Math.max(0, bestLen - dragGrabOffset));
+                currentOffset = (startLen / curTotal) * 100;
+                updateTextContent();   // the word (and font size) for this spot, so it can be measured
+                currentOffset = clampTextOffset(currentOffset);
+                slidingText.setAttribute('startOffset', `${currentOffset}%`);
             }
-            
-            e.preventDefault();
+
+            if (e.cancelable) e.preventDefault();
         }
 
         function endTextDrag(e) {
@@ -933,33 +1012,11 @@
         }
 
         function toggleTextFormat(e) {
-            if (isStatesMode) return;
-            
-            // Get current data based on path and offset
-            let currentData;
-            let dataIndex;
-            let learnedItemsIndex;
-            
-            if (currentPath === 'main') {
-                dataIndex = Math.floor((currentOffset / 100) * transitionsData.length);
-                dataIndex = Math.min(dataIndex, transitionsData.length - 1);
-                currentData = transitionsData;
-                learnedItemsIndex = dataIndex;
-            } else if (currentPath === 'ext1') {
-                dataIndex = Math.floor((currentOffset / 100) * extension1TransitionData.length);
-                dataIndex = Math.min(dataIndex, extension1TransitionData.length - 1);
-                currentData = extension1TransitionData;
-                learnedItemsIndex = transitionsData.length + dataIndex;
-            } else if (currentPath === 'ext2') {
-                dataIndex = Math.floor((currentOffset / 100) * extension2TransitionData.length);
-                dataIndex = Math.min(dataIndex, extension2TransitionData.length - 1);
-                currentData = extension2TransitionData;
-                learnedItemsIndex = transitionsData.length + extension1TransitionData.length + dataIndex;
-            }
-            
-            console.log("ToggleTextFormat - Path:", currentPath, "DataIndex:", dataIndex, "LearnedIndex:", learnedItemsIndex);
-            
-            if (learnedItemsTransitions[learnedItemsIndex]) {
+            if (isStatesMode || isDraggingText || hasMovedDuringDrag) return;
+
+            const item = getTransitionItem(currentPath, currentOffset);
+
+            if (learnedItemsTransitions[item.index]) {
                 // Cycle TL <-> SL for learned items
                 slidingTextMode = (slidingTextMode === 0) ? 1 : 0;
                 updateTextContent();
@@ -973,7 +1030,7 @@
                 } else if (slidingTextMode === 1) {
                     slidingTextMode = 2;
                     updateLevelIndicator();
-                    showQuiz(learnedItemsIndex, interactiveText);
+                    showQuiz(item.index, interactiveText);
                 } else {
                     slidingTextMode = 0;
                     updateTextContent();
@@ -1062,20 +1119,10 @@
                 }
                 
                 if (closestPoint) {
-                    // Circle radius is 1.5 units
-                    const radius = 1.5;
+                    // Keep the whole circle inside the viewBox
+                    placeFrameAt(closestPoint);
+                    const constrainedX = parseFloat(frame.getAttribute('cx'));
                     
-                    // Constrain circle to stay within viewBox (-30 to 130 on x-axis)
-                    const minX = 0 + radius;  // -28.5 units (left edge at 0)
-                    const maxX = 100 - radius;   // 128.5 units (right edge at 100)
-                    
-                    const constrainedX = Math.max(minX, Math.min(maxX, closestPoint.x));
-                    
-                    // Position circle centered on the path
-                    frame.setAttribute('cx', constrainedX);
-                    frame.setAttribute('cy', closestPoint.y);
-                    
-                    // Use constrained position for textbox updates
                     updateVisibleTextBoxes({ x: constrainedX, y: closestPoint.y });
                     
                     // Update concept indicator based on which path we're on
@@ -1132,23 +1179,30 @@
             conceptIndicator.textContent = conceptData[closestIndex][1];
         }
 
+        const VIEWBOX_MIN_X = 0;
+        const VIEWBOX_MAX_X = 100;
+
+        // The frame is a circle centred on a path point. At the two ends of
+        // the path the centre is nudged in by one radius, so the whole circle
+        // stays visible and grabbable. (The radius doubles on touch screens,
+        // matching the CSS rule.)
+        function getFrameRadius() {
+            const r = parseFloat(frame.getAttribute('r')) || 1.5;
+            return (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ? r * 2 : r;
+        }
+
+        function placeFrameAt(pt) {
+            const r = getFrameRadius();
+            frame.setAttribute('cx', Math.max(VIEWBOX_MIN_X + r, Math.min(VIEWBOX_MAX_X - r, pt.x)));
+            frame.setAttribute('cy', pt.y);
+        }
+
         function initializeFramePosition() {
             currentPathPosition = 0;
             const startPoint = pathLine.getPointAtLength(0);
-            
-            // Circle radius is 1.5 units
-            const radius = 1.5;
-            
-            // Constrain x position: left edge should not go below -30 (viewBox start)
-            const minX = 0 + radius;  // -28.5 units (so left edge is at 0)
-            const maxX = 100 - radius;   // 128.5 units (so right edge is at 100)
-            const constrainedX = Math.max(minX, Math.min(maxX, startPoint.x));
-            
-            // Position circle centered on the path
-            frame.setAttribute('cx', constrainedX);
-            frame.setAttribute('cy', startPoint.y);
-            
-            updateVisibleTextBoxes({ x: constrainedX, y: startPoint.y });
+            placeFrameAt(startPoint);
+
+            updateVisibleTextBoxes({ x: parseFloat(frame.getAttribute('cx')), y: startPoint.y });
             updateConceptIndicator(0);
             
             bringFrameToFront();
@@ -1272,7 +1326,9 @@
                 if (box && box.parentNode) box.parentNode.removeChild(box);
             });
             textBoxElements = [];
-            
+            // Every box is rebuilt showing TL - a box left at the Quiz step (layer 2) must not show the quiz prompt
+            currentTextLayer = new Array(conceptData.length).fill(0);
+
             // STANDARDIZED to viewBox="0 0 100 50"
             // Same coordinate system as GT5L+ for visual continuity
             const textBoxConfig = [
@@ -1475,53 +1531,29 @@
         }
 
         function showQuiz(index, element) {
-            let currentData;
-            let dataIndex; // Index within the specific data array
-            
+            let slWord;
+
             if (isStatesMode) {
-                // Check if this is an extension textbox by looking at the element's class
-                const isExtension = element && element.classList && element.classList.contains('extension');
-                
-                if (isExtension) {
-                    // Extension textboxes use extensionData
-                    const extIndex = parseInt(element.getAttribute('data-extension-index'));
-                    currentData = extensionData;
-                    currentQuizIndex = index;
-                    currentQuizIsExtension = true;
-                    currentQuizExtIndex = extIndex;
-                    const slWord = extensionData[extIndex][1];
-                    quizInput.placeholder = `What is the TL word for '${slWord}'?`;
-                } else {
-                    // All 11 main textboxes (indices 0-10) use conceptData
-                    currentData = conceptData;
-                    currentQuizIndex = index;
-                    currentQuizIsExtension = false;
-                    currentQuizExtIndex = -1;
-                    const slWord = conceptData[index][1];
-                    quizInput.placeholder = `What is the TL word for '${slWord}'?`;
+                const isExt = index >= conceptData.length;
+                const entry = isExt ? extensionData[index - conceptData.length] : conceptData[index];
+                if (!entry) {
+                    console.error("Invalid quiz index:", index);
+                    return;
                 }
+                slWord = entry[1];
             } else {
-                // Transitions mode - index is the learnedItemsIndex
-                currentQuizIndex = index;
-                
-                // Determine which data array and calculate dataIndex
-                if (currentPath === 'main') {
-                    currentData = transitionsData;
-                    dataIndex = index; // Direct mapping for main path (0-4)
-                } else if (currentPath === 'ext1') {
-                    currentData = extension1TransitionData;
-                    dataIndex = index - transitionsData.length; // Subtract offset (index 5 -> dataIndex 0)
-                } else if (currentPath === 'ext2') {
-                    currentData = extension2TransitionData;
-                    dataIndex = index - transitionsData.length - extension1TransitionData.length; // Subtract offset
+                // Transitions mode - index is the global transition index
+                const item = getTransitionItemByIndex(index);
+                if (!item) {
+                    console.error("Invalid quiz index:", index);
+                    return;
                 }
-                
-                const slWord = currentData[dataIndex][1];
-                quizInput.placeholder = `What is the TL word for '${slWord}'?`;
-                
-                console.log(`ShowQuiz - Path: ${currentPath}, QuizIndex: ${currentQuizIndex}, DataIndex: ${dataIndex}, SL: ${slWord}`);
+                slWord = item.data[1];
             }
-            
+
+            currentQuizIndex = index;
+            quizInput.placeholder = `What is the TL word for '${slWord}'?`;
+
             quizInput.value = '';
             quizFeedback.textContent = '';
             
@@ -1566,57 +1598,55 @@
             }, 100);
         }
 
-        function addToVocabularyArray(index, isIncreasing, trackingIndex) {
+        function addToVocabularyArray(index) {
             try {
-                // Use trackingIndex if provided, otherwise use index (for backwards compatibility)
-                const indexToTrack = trackingIndex !== undefined ? trackingIndex : index;
-                
-                // Determine which data to use based on current path in transitions mode
-                let currentData;
-                if (currentPath === 'ext1') {
-                    currentData = extension1TransitionData;
-                } else if (currentPath === 'ext2') {
-                    currentData = extension2TransitionData;
-                } else {
-                    currentData = transitionsData;
-                }
-                
-                const targetLanguage = currentData[index][0];
-                const sourceLanguage = currentData[index][1];
-                
+                const item = getTransitionItemByIndex(index);
+                if (!item) return;
+
+                const targetLanguage = item.data[0];
+                const sourceLanguage = item.data[1];
+
                 const itemElement = document.createElement('div');
                 itemElement.className = 'vocabulary-item';
-                
+
                 const targetSpan = document.createElement('span');
                 targetSpan.className = 'target-language';
                 targetSpan.textContent = targetLanguage;
-                
+
                 const sourceSpan = document.createElement('span');
                 sourceSpan.className = 'source-language';
                 sourceSpan.textContent = sourceLanguage;
-                
+
                 targetSpan.addEventListener('click', function(e) {
                     e.stopPropagation();
                     this.classList.toggle('hidden');
                 });
-                
+
                 sourceSpan.addEventListener('click', function(e) {
                     e.stopPropagation();
                     this.classList.toggle('hidden');
                 });
-                
+
                 itemElement.appendChild(targetSpan);
                 itemElement.appendChild(sourceSpan);
-                
-                if (isIncreasing) {
-                    increasingItems.appendChild(itemElement);
-                    addedIncreasingItems[indexToTrack] = true;
-                } else {
-                    decreasingItems.appendChild(itemElement);
-                    addedDecreasingItems[indexToTrack] = true;
+
+                // One combined list, kept in path order (main path, then
+                // extension 1, then extension 2) whatever order the items were
+                // learned in: insert before the first entry with a higher
+                // global index (null = append at the end).
+                itemElement.setAttribute('data-index', index);
+                let insertBeforeEl = null;
+                for (const child of vocabularyItems.children) {
+                    if (parseInt(child.getAttribute('data-index'), 10) > index) {
+                        insertBeforeEl = child;
+                        break;
+                    }
                 }
-                
-                console.log("Added vocabulary item:", targetLanguage, "->", sourceLanguage, "from path:", currentPath, "trackingIndex:", indexToTrack);
+                vocabularyItems.insertBefore(itemElement, insertBeforeEl);
+                addedVocabularyItems[index] = true;
+                vocabularyArray.style.display = 'block';
+
+                console.log("Added vocabulary item:", targetLanguage, "->", sourceLanguage, "from path:", item.path);
             } catch (error) {
                 console.error("Error adding vocabulary item:", error);
             }
@@ -1624,105 +1654,68 @@
 
         function checkQuizAnswer() {
             if (currentQuizIndex < 0) return;
-            
-            let currentData;
-            let dataIndex;
-            
+
+            // The item is fixed when the quiz opens (currentQuizIndex is the
+            // global index), so moving the sliding text meanwhile cannot make
+            // the answer be checked against a different item.
+            let entry;
             if (isStatesMode) {
-                // Use the tracking variables set by showQuiz
-                if (currentQuizIsExtension) {
-                    // Extension textbox
-                    currentData = extensionData;
-                    dataIndex = currentQuizExtIndex;
-                } else {
-                    // Main textbox (all 11 main textboxes use conceptData)
-                    currentData = conceptData;
-                    dataIndex = currentQuizIndex;
-                }
+                const isExt = currentQuizIndex >= conceptData.length;
+                entry = isExt ? extensionData[currentQuizIndex - conceptData.length] : conceptData[currentQuizIndex];
             } else {
-                if (currentPath === 'main') {
-                    currentData = transitionsData;
-                    dataIndex = currentQuizIndex;
-                } else if (currentPath === 'ext1') {
-                    currentData = extension1TransitionData;
-                    dataIndex = currentQuizIndex - transitionsData.length;
-                } else if (currentPath === 'ext2') {
-                    currentData = extension2TransitionData;
-                    dataIndex = currentQuizIndex - transitionsData.length - extension1TransitionData.length;
-                }
+                const item = getTransitionItemByIndex(currentQuizIndex);
+                entry = item ? item.data : null;
             }
-            
+            if (!entry) return;
+
             const userAnswer = quizInput.value.trim();
-            const correctAnswer = currentData[dataIndex][0];
-            
+            const correctAnswer = entry[0];
+
             if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
                 quizFeedback.textContent = 'Correct!';
                 quizFeedback.style.color = 'green';
-                
+                const answeredIndex = currentQuizIndex;
+
                 if (isStatesMode) {
                     // Mark as learned in States Mode only
-                    if (currentQuizIsExtension) {
-                        // Extension textbox - use correct index (11-13)
-                        const correctIndex = conceptData.length + currentQuizExtIndex;
-                        learnedItemsStates[correctIndex] = true;
-                        
-                        const extBox = extensionTextBoxes[currentQuizExtIndex];
+                    learnedItemsStates[answeredIndex] = true;
+
+                    if (answeredIndex >= conceptData.length) {
+                        const extIndex = answeredIndex - conceptData.length;
+                        const extBox = extensionTextBoxes[extIndex];
                         if (extBox) {
                             extBox.classList.add('learned');
-                            extBox.textContent = extensionData[currentQuizExtIndex][0];
+                            extBox.textContent = extensionData[extIndex][0];
                         }
-                        extensionTextLayers[currentQuizExtIndex] = 0;
+                        extensionTextLayers[extIndex] = 0;
                     } else {
-                        // Main textbox - use currentQuizIndex directly (0-10)
-                        learnedItemsStates[currentQuizIndex] = true;
-                        
-                        const textBox = textBoxElements[currentQuizIndex];
+                        const textBox = textBoxElements[answeredIndex];
                         if (textBox) {
                             textBox.classList.add('learned');
-                            textBox.textContent = conceptData[currentQuizIndex][0];
+                            textBox.textContent = conceptData[answeredIndex][0];
                         }
-                        currentTextLayer[currentQuizIndex] = 0;
+                        currentTextLayer[answeredIndex] = 0;
                     }
                 } else {
                     // Mark as learned in Transitions Mode only
-                    learnedItemsTransitions[currentQuizIndex] = true;
-                    
+                    learnedItemsTransitions[answeredIndex] = true;
+
                     slidingTextMode = 0;
                     updateTextContent();
                     updateLevelIndicator();
-                    
-                    // Add to vocabulary array
-                    // Use currentQuizIndex (global index) to track what's been added
-                    if (currentPath === 'main') {
-                        // Main path: TL-T1, TL-T2, TL-T3 go to increasing (indices 0-2)
-                        // TL-T4, TL-T5 go to decreasing (indices 3-4)
-                        // Peak is at 50%, so check the start position
-                        const startPosition = transitionsData[dataIndex][3];
-                        const isIncreasing = startPosition < 50;
-                        
-                        if (isIncreasing) {
-                            if (!addedIncreasingItems[currentQuizIndex]) {
-                                addToVocabularyArray(dataIndex, true, currentQuizIndex);
-                            }
-                        } else {
-                            if (!addedDecreasingItems[currentQuizIndex]) {
-                                addToVocabularyArray(dataIndex, false, currentQuizIndex);
-                            }
-                        }
-                    } else if (currentPath === 'ext1') {
-                        if (!addedIncreasingItems[currentQuizIndex]) {
-                            addToVocabularyArray(dataIndex, true, currentQuizIndex);
-                        }
-                    } else if (currentPath === 'ext2') {
-                        if (!addedDecreasingItems[currentQuizIndex]) {
-                            addToVocabularyArray(dataIndex, false, currentQuizIndex);
-                        }
+
+                    // Add to the vocabulary array (once)
+                    if (!addedVocabularyItems[answeredIndex]) {
+                        addToVocabularyArray(answeredIndex);
                     }
                 }
-                
+
                 setTimeout(() => {
-                    quizContainer.style.display = 'none';
-                    currentQuizIndex = -1;
+                    // Only close our own quiz - the learner may already have opened another
+                    if (currentQuizIndex === answeredIndex) {
+                        quizContainer.style.display = 'none';
+                        currentQuizIndex = -1;
+                    }
                 }, 1500);
             } else {
                 quizFeedback.textContent = 'Try again';
@@ -1730,62 +1723,8 @@
             }
         }
 
-        // Task 2: Quiz container drag and drop functions
-        function startQuizDrag(e) {
-            // Don't drag if clicking on input or button
-            if (e.target === quizInput || e.target === quizCheck) {
-                return;
-            }
-            
-            isQuizDragging = true;
-            
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-            
-            const rect = quizContainer.getBoundingClientRect();
-            quizDragOffset.x = clientX - rect.left;
-            quizDragOffset.y = clientY - rect.top;
-            
-            quizContainer.style.cursor = 'grabbing';
-            e.preventDefault();
-        }
         
-        function dragQuiz(e) {
-            if (!isQuizDragging) return;
-            
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-            
-            // Calculate new position
-            let newX = clientX - quizDragOffset.x;
-            let newY = clientY - quizDragOffset.y;
-            
-            // Keep quiz container within viewport bounds
-            const rect = quizContainer.getBoundingClientRect();
-            const maxX = window.innerWidth - rect.width;
-            const maxY = window.innerHeight - rect.height;
-            
-            newX = Math.max(0, Math.min(newX, maxX));
-            newY = Math.max(0, Math.min(newY, maxY));
-            
-            // Save position and apply
-            quizPosition.x = newX;
-            quizPosition.y = newY;
-            
-            quizContainer.style.left = newX + 'px';
-            quizContainer.style.top = newY + 'px';
-            quizContainer.style.transform = 'none'; // Remove centering transform
-            
-            e.preventDefault();
-        }
         
-        function endQuizDrag(e) {
-            if (isQuizDragging) {
-                isQuizDragging = false;
-                quizContainer.style.cursor = 'move';
-            }
-        }
-
         function switchModeIndicatorText() {
             const modeIndicator = document.getElementById('mode-indicator');
             if (!modeIndicator) return;
@@ -1827,8 +1766,7 @@
                     console.log("Frame ready in States mode");
                 }, 100);
                 
-                increasingArray.style.display = 'none';
-                decreasingArray.style.display = 'none';
+                vocabularyArray.style.display = 'none';
             } else {
                 // Switch to Transitions mode
                 frame.style.display = 'none';
@@ -1853,10 +1791,11 @@
                 currentOffset = 0;
                 switchToPath('main', 0);
                 
-                increasingArray.style.display = 'block';
-                decreasingArray.style.display = 'block';
+                if (vocabularyItems && vocabularyItems.children.length > 0) {
+                    vocabularyArray.style.display = 'block';
+                }
             }
-            
+
             quizContainer.style.display = 'none';
         }
 
@@ -1938,14 +1877,6 @@
                 if (e.key === 'Enter') checkQuizAnswer();
             });
             
-            // Task 2: Quiz container drag and drop functionality
-            quizContainer.addEventListener('mousedown', startQuizDrag);
-            quizContainer.addEventListener('touchstart', startQuizDrag, { passive: false });
-            document.addEventListener('mousemove', dragQuiz);
-            document.addEventListener('touchmove', dragQuiz, { passive: false });
-            document.addEventListener('mouseup', endQuizDrag);
-            document.addEventListener('touchend', endQuizDrag);
-            
             // TRANSITIONS MODE EVENT SETUP
             interactiveText.addEventListener("mousedown", startTextDrag);
             document.addEventListener("mousemove", dragText);
@@ -2025,18 +1956,115 @@
                 window.visualViewport.addEventListener('resize', handleViewportResize);
             }
 
+            // ── Learned Vocabulary array: default position + drag anywhere ──────
+            // Default spot: 5% across / 2% down the template box (.a4-page). The array is
+            // position:fixed so it can be dragged anywhere on the screen, e.g. clear of the quiz box.
+            // Once the learner has moved it, it stays where they put it (also across hide/show).
+            (function setupArrayDrag() {
+                const arr = document.getElementById('vocabulary-array');
+                const list = document.getElementById('vocabulary-items');
+                const page = document.querySelector('.a4-page');
+                if (!arr) return;
+                const DRAG_THRESHOLD_PX = 5;   // below this a press is a click (Hide All, tapping an entry)
+                let userMoved = false, dragging = false, moved = false, wasShown = false;
+                let offX = 0, offY = 0, startX = 0, startY = 0, activeId = null, justDragged = false;
+
+                function place(left, top) {
+                    const maxLeft = Math.max(0, window.innerWidth - arr.offsetWidth);
+                    const maxTop = Math.max(0, window.innerHeight - arr.offsetHeight);
+                    arr.style.left = Math.min(Math.max(0, left), maxLeft) + 'px';
+                    arr.style.top = Math.min(Math.max(0, top), maxTop) + 'px';
+                }
+                function placeDefault() {
+                    const r = page ? page.getBoundingClientRect()
+                                   : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+                    place(r.left + r.width * 0.05, r.top + r.height * 0.02);
+                }
+                function updateScrollable() {
+                    arr.classList.toggle('scrollable', arr.scrollHeight > arr.clientHeight + 1);
+                }
+                function isShown() { return arr.style.display === 'block'; }
+                // Re-place after the content (and so the height) or the window changes: the array
+                // grows downward as entries are added, and is nudged up if its bottom edge would
+                // otherwise fall off the screen.
+                function refit() {
+                    if (!isShown()) return;
+                    if (userMoved) place(parseFloat(arr.style.left) || 0, parseFloat(arr.style.top) || 0);
+                    else placeDefault();
+                    updateScrollable();
+                }
+
+                // Watch for the array being shown (the JS shows it from several places), and for
+                // entries being added, rather than patching every call site.
+                new MutationObserver(function () {
+                    const shown = isShown();
+                    if (shown && !wasShown) {
+                        wasShown = true;
+                        if (userMoved) place(parseFloat(arr.style.left) || 0, parseFloat(arr.style.top) || 0);
+                        else placeDefault();
+                    } else if (!shown) {
+                        wasShown = false;
+                    }
+                    if (shown) updateScrollable();
+                }).observe(arr, { attributes: true, attributeFilter: ['style'] });
+                if (list) new MutationObserver(refit).observe(list, { childList: true, subtree: true });
+
+                window.addEventListener('resize', refit);
+
+                arr.addEventListener('pointerdown', function (e) {
+                    if (e.button) return;                        // primary button / touch / pen only
+                    if (e.target.closest && e.target.closest('button')) return;   // let Hide All click through
+                    const r = arr.getBoundingClientRect();
+                    dragging = true; moved = false; activeId = e.pointerId;
+                    startX = e.clientX; startY = e.clientY;
+                    offX = e.clientX - r.left; offY = e.clientY - r.top;
+                });
+                document.addEventListener('pointermove', function (e) {
+                    if (!dragging || e.pointerId !== activeId) return;
+                    if (!moved) {
+                        if (Math.hypot(e.clientX - startX, e.clientY - startY) < DRAG_THRESHOLD_PX) return;
+                        moved = true;
+                        arr.classList.add('dragging');
+                        try { arr.setPointerCapture(activeId); } catch (_) {}
+                    }
+                    place(e.clientX - offX, e.clientY - offY);
+                    userMoved = true;
+                    if (e.cancelable) e.preventDefault();
+                });
+                function endDrag(e) {
+                    if (!dragging || e.pointerId !== activeId) return;
+                    dragging = false;
+                    arr.classList.remove('dragging');
+                    try { arr.releasePointerCapture(activeId); } catch (_) {}
+                    if (moved) {
+                        // The release fires a click; swallow it so it can't dismiss the quiz box,
+                        // close the Tools menu or toggle an entry (reset after 100ms if none arrives).
+                        justDragged = true;
+                        setTimeout(function () { justDragged = false; }, 100);
+                    }
+                    moved = false;
+                }
+                document.addEventListener('pointerup', endDrag);
+                document.addEventListener('pointercancel', endDrag);
+                document.addEventListener('click', function (e) {
+                    if (justDragged) { justDragged = false; e.stopPropagation(); e.preventDefault(); }
+                }, true);
+            })();
+
             // ── Quiz box: drag to reposition anywhere on screen ──────
             (function setupQuizDrag() {
                 const qc = document.getElementById('quizContainer');
                 const qInput = document.getElementById('quizInput');
                 const qCheck = document.getElementById('quizCheck');
                 let isDraggingQuiz = false;
+                let dragMoved = false;
                 let quizDragOffsetX = 0;
                 let quizDragOffsetY = 0;
 
                 function quizDragStart(e) {
                     if (e.target === qInput || e.target === qCheck) return;
                     isDraggingQuiz = true;
+                    dragMoved = false;
                     const rect = qc.getBoundingClientRect();
                     const point = e.touches ? e.touches[0] : e;
                     quizDragOffsetX = point.clientX - rect.left;
@@ -2059,12 +2087,25 @@
                     newTop = Math.max(0, Math.min(newTop, maxTop));
                     qc.style.left = newLeft + 'px';
                     qc.style.top = newTop + 'px';
+                    // Remember where the learner put it, so the next quiz opens there
+                    quizPosition.x = newLeft;
+                    quizPosition.y = newTop;
+                    dragMoved = true;
                     if (e.touches) e.preventDefault();
                 }
 
                 function quizDragEnd() {
+                    if (!isDraggingQuiz) return;
                     isDraggingQuiz = false;
                     qc.classList.remove('dragging');
+                    // A drag-release fires a click at whatever is under the cursor;
+                    // if that lands just outside the box, the outside-click dismiss
+                    // handler would close the quiz. Flag it so that one click is
+                    // swallowed (reset after 100ms in case no click ever arrives).
+                    if (dragMoved) {
+                        quizJustDragged = true;
+                        setTimeout(function () { quizJustDragged = false; }, 100);
+                    }
                 }
 
                 qc.addEventListener('mousedown', quizDragStart);
@@ -2107,9 +2148,10 @@
                     dropdownOpen = false;
                     toolsDropdown.classList.remove('active');
                     
-                    const currentData = isStatesMode ? conceptData : transitionsData;
-                    const randomIndex = Math.floor(Math.random() * currentData.length);
-                    showQuiz(randomIndex, null);
+                    const itemCount = isStatesMode
+                        ? conceptData.length + extensionTextBoxes.length
+                        : transitionsData.length + extension1TransitionData.length + extension2TransitionData.length;
+                    showQuiz(Math.floor(Math.random() * itemCount), null);
                 });
             }
             
@@ -2119,27 +2161,25 @@
                     dropdownOpen = false;
                     toolsDropdown.classList.remove('active');
                     
-                    const visibility = increasingArray.style.display === 'none' || increasingArray.style.display === '';
-                    increasingArray.style.display = visibility ? 'block' : 'none';
-                    decreasingArray.style.display = visibility ? 'block' : 'none';
+                    const visibility = vocabularyArray.style.display === 'none' || vocabularyArray.style.display === '';
+                    vocabularyArray.style.display = visibility ? 'block' : 'none';
                 });
             }
             
-            if (toggleIncreasingBtn) {
-                toggleIncreasingBtn.addEventListener('click', function() {
-                    toggleArrayVisibility('increasing');
-                });
-            }
-            
-            if (toggleDecreasingBtn) {
-                toggleDecreasingBtn.addEventListener('click', function() {
-                    toggleArrayVisibility('decreasing');
+            if (toggleVocabularyBtn) {
+                toggleVocabularyBtn.addEventListener('click', function() {
+                    toggleArrayVisibility('vocabulary');
                 });
             }
             
             // Document click handler for closing quizzes
             document.addEventListener('click', function(e) {
-                if (quizContainer.style.display !== 'none' && 
+                // Swallow the one synthetic click that follows a quiz-box drag-release
+                if (quizJustDragged) {
+                    quizJustDragged = false;
+                    return;
+                }
+                if (quizContainer.style.display !== 'none' &&  
                     !quizContainer.contains(e.target) &&
                     !e.target.classList.contains('textBox') &&
                     !e.target.classList.contains('sliding-text')) {
@@ -2175,12 +2215,9 @@
                 quizInput = document.getElementById("quizInput");
                 quizCheck = document.getElementById("quizCheck");
                 quizFeedback = document.getElementById("quizFeedback");
-                increasingArray = document.getElementById("increasing-array");
-                decreasingArray = document.getElementById("decreasing-array");
-                increasingItems = document.getElementById("increasing-items");
-                decreasingItems = document.getElementById("decreasing-items");
-                toggleIncreasingBtn = document.getElementById("toggle-increasing");
-                toggleDecreasingBtn = document.getElementById("toggle-decreasing");
+                vocabularyArray = document.getElementById("vocabulary-array");
+                vocabularyItems = document.getElementById("vocabulary-items");
+                toggleVocabularyBtn = document.getElementById("toggle-vocabulary");
                 interactiveText = document.getElementById("interactiveText");
                 slidingText = document.getElementById("slidingText");
                 ext1Path = document.getElementById("extensionPath1");
@@ -2199,8 +2236,7 @@
                 
                 learnedItemsStates = new Array(statesItemsCount).fill(false);
                 learnedItemsTransitions = new Array(transitionsItemsCount).fill(false);
-                addedIncreasingItems = new Array(transitionsItemsCount).fill(false);
-                addedDecreasingItems = new Array(transitionsItemsCount).fill(false);
+                addedVocabularyItems = new Array(transitionsItemsCount).fill(false);
                 
                 // Create the main path
                 const pathD = `M ${pathPoints.join(' L ')}`;
@@ -2227,9 +2263,8 @@
                 levelIndicator.style.display = 'none';
                 pathIndicator.style.display = 'none';
                 quizContainer.style.display = 'none';
-                increasingArray.style.display = 'none';
-                decreasingArray.style.display = 'none';
-                
+                vocabularyArray.style.display = 'none';
+
                 // Hide drag instruction after 12 seconds
                 setTimeout(() => {
                     const dragInstruction = document.getElementById('drag-instruction');
