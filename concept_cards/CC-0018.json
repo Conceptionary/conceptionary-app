@@ -1,0 +1,358 @@
+{
+  "id": "CC-0018",
+  "version": "1.0",
+  "created": "2026-09-22",
+  "last_updated": "2026-09-22",
+  "status": "active",
+  "concept": {
+    "name": "Confidence after public criticism",
+    "description": "Confidence that drops instantly when a person is publicly criticised and then rebuilds gradually over time, back to self-assurance.",
+    "taxonomy_ref": null,
+    "taxonomy_path": "Emotional → Emotional intensity and duration (confidence is not yet a named sub-category; nearest is \"Emotional recovery\", 7.4)",
+    "shape": "asymmetric_instant_drop_gradual_recovery",
+    "template_family": "HTSCVI",
+    "template_id": "ROM-HTSCVI",
+    "modes_used": [
+      "states",
+      "transitions"
+    ],
+    "notes": "Worked example for HTSCVI (the primary example in Conceptionary_Template_Definitions.md). Confidence has no sub-category of its own in the Master Taxonomy yet. Draft vocabulary, not yet validated."
+  },
+  "template": {
+    "phonographic": {
+      "id": "ROM-HTSCVI",
+      "file": "templates/phonographic/ROM-HTSCVI-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-HTSCVI",
+      "file": "templates/logographic/LOG-HTSCVI-Generic.html",
+      "track": "logographic"
+    }
+  },
+  "language_pairs": {
+    "EN-DE": {
+      "source_language": "English",
+      "target_language": "German",
+      "track": "phonographic",
+      "generated_by": "claude-sonnet-5",
+      "generated_date": "2026-09-22",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "lang_config": {
+        "titles": {
+          "states": [
+            "Selbstvertrauen nach öffentlicher Kritik / Confidence after public criticism",
+            "Selbstvertrauen nach öffentlicher Kritik",
+            "Confidence after public criticism"
+          ],
+          "transitions": [
+            "Verben: Selbstvertrauen nach öffentlicher Kritik / Confidence after public criticism (verbs)",
+            "Verben: Selbstvertrauen nach öffentlicher Kritik",
+            "Confidence after public criticism (verbs)"
+          ]
+        },
+        "ui": {
+          "quiz_button": "Prüfen",
+          "quiz_correct": "Richtig!",
+          "quiz_wrong": "Noch einmal"
+        },
+        "conceptData": [
+          [
+            "selbstsicher",
+            "confident",
+            "How do you say 'confident' in German?",
+            13.41
+          ],
+          [
+            "überrumpelt",
+            "caught off guard",
+            "How do you say 'caught off guard' in German?",
+            26.82
+          ],
+          [
+            "erschüttert",
+            "shaken",
+            "How do you say 'shaken' in German?",
+            34.37
+          ],
+          [
+            "niedergeschmettert",
+            "crushed",
+            "How do you say 'crushed' in German?",
+            41.91
+          ],
+          [
+            "geknickt",
+            "deflated",
+            "How do you say 'deflated' in German?",
+            50
+          ],
+          [
+            "verunsichert",
+            "insecure",
+            "How do you say 'insecure' in German?",
+            58
+          ],
+          [
+            "zögerlich",
+            "hesitant",
+            "How do you say 'hesitant' in German?",
+            67
+          ],
+          [
+            "ermutigt",
+            "encouraged",
+            "How do you say 'encouraged' in German?",
+            80
+          ],
+          [
+            "selbstbewusst",
+            "self-assured",
+            "How do you say 'self-assured' in German?",
+            95
+          ]
+        ],
+        "transitionsData": [
+          [
+            "sich sicher fühlen",
+            "feeling confident",
+            "How do you say 'feeling confident' in German?",
+            13.41
+          ],
+          [
+            "kritisiert werden",
+            "being criticised",
+            "How do you say 'being criticised' in German?",
+            34.36
+          ],
+          [
+            "grübeln",
+            "brooding",
+            "How do you say 'brooding' in German?",
+            45.95
+          ],
+          [
+            "sich zusammenreißen",
+            "pulling oneself together",
+            "How do you say 'pulling oneself together' in German?",
+            54
+          ],
+          [
+            "Kraft schöpfen",
+            "gaining strength",
+            "How do you say 'gaining strength' in German?",
+            62.5
+          ],
+          [
+            "Selbstvertrauen zurückgewinnen",
+            "regaining confidence",
+            "How do you say 'regaining confidence' in German?",
+            73.5
+          ],
+          [
+            "wieder auf die Beine kommen",
+            "bouncing back",
+            "How do you say 'bouncing back' in German?",
+            90
+          ]
+        ],
+        "diacritic_map": [
+          [
+            "ä",
+            "ae"
+          ],
+          [
+            "ö",
+            "oe"
+          ],
+          [
+            "ü",
+            "ue"
+          ],
+          [
+            "ß",
+            "ss"
+          ]
+        ],
+        "diacritic_instructions": "No umlaut keys? Type ae, oe, ue and ss for ä, ö, ü and ß."
+      }
+    },
+    "EN-JA": {
+      "source_language": "English",
+      "target_language": "Japanese",
+      "track": "logographic",
+      "generated_by": "claude-sonnet-5",
+      "generated_date": "2026-09-22",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "lang_config": {
+        "titles": {
+          "states": [
+            "hitomae de hihan sareta ato no jishin",
+            "人前で批判された後の自信",
+            "Confidence after public criticism"
+          ],
+          "transitions": [
+            "dōshi: hitomae de hihan sareta ato no jishin",
+            "動詞：人前で批判された後の自信",
+            "Confidence after public criticism (verbs)"
+          ]
+        },
+        "ui": {
+          "quiz_button": "確認",
+          "quiz_correct": "正解！",
+          "quiz_wrong": "もう一度"
+        },
+        "conceptData": [
+          [
+            "自信がある",
+            "confident",
+            "How do you write 'confident' in Japanese, in romaji?",
+            13.41,
+            "jishin ga aru"
+          ],
+          [
+            "不意を突かれた",
+            "caught off guard",
+            "How do you write 'caught off guard' in Japanese, in romaji?",
+            26.82,
+            "fui o tsukareta"
+          ],
+          [
+            "動揺した",
+            "shaken",
+            "How do you write 'shaken' in Japanese, in romaji?",
+            34.37,
+            "dōyō shita"
+          ],
+          [
+            "打ちのめされた",
+            "crushed",
+            "How do you write 'crushed' in Japanese, in romaji?",
+            41.91,
+            "uchinomesareta"
+          ],
+          [
+            "しょんぼり",
+            "deflated",
+            "How do you write 'deflated' in Japanese, in romaji?",
+            50,
+            "shonbori"
+          ],
+          [
+            "自信がない",
+            "insecure",
+            "How do you write 'insecure' in Japanese, in romaji?",
+            58,
+            "jishin ga nai"
+          ],
+          [
+            "ためらいがち",
+            "hesitant",
+            "How do you write 'hesitant' in Japanese, in romaji?",
+            67,
+            "tamerai gachi"
+          ],
+          [
+            "励まされた",
+            "encouraged",
+            "How do you write 'encouraged' in Japanese, in romaji?",
+            80,
+            "hagemasareta"
+          ],
+          [
+            "自信に満ちた",
+            "self-assured",
+            "How do you write 'self-assured' in Japanese, in romaji?",
+            95,
+            "jishin ni michita"
+          ]
+        ],
+        "transitionsData": [
+          [
+            "自信を持つ",
+            "feeling confident",
+            "How do you write 'feeling confident' in Japanese, in romaji?",
+            13.41,
+            "jishin o motsu"
+          ],
+          [
+            "批判される",
+            "being criticised",
+            "How do you write 'being criticised' in Japanese, in romaji?",
+            34.36,
+            "hihan sareru"
+          ],
+          [
+            "悩む",
+            "brooding",
+            "How do you write 'brooding' in Japanese, in romaji?",
+            45.95,
+            "nayamu"
+          ],
+          [
+            "気を取り直す",
+            "pulling oneself together",
+            "How do you write 'pulling oneself together' in Japanese, in romaji?",
+            54,
+            "ki o torinaosu"
+          ],
+          [
+            "力をつける",
+            "gaining strength",
+            "How do you write 'gaining strength' in Japanese, in romaji?",
+            62.5,
+            "chikara o tsukeru"
+          ],
+          [
+            "自信を取り戻す",
+            "regaining confidence",
+            "How do you write 'regaining confidence' in Japanese, in romaji?",
+            73.5,
+            "jishin o torimodosu"
+          ],
+          [
+            "立ち直る",
+            "bouncing back",
+            "How do you write 'bouncing back' in Japanese, in romaji?",
+            90,
+            "tachinaoru"
+          ]
+        ],
+        "diacritic_map": [
+          [
+            "ā",
+            "a"
+          ],
+          [
+            "ī",
+            "i"
+          ],
+          [
+            "ū",
+            "u"
+          ],
+          [
+            "ē",
+            "e"
+          ],
+          [
+            "ō",
+            "o"
+          ]
+        ],
+        "digraph_map": [
+          [
+            "ou",
+            "o"
+          ]
+        ],
+        "collapse_double_vowels": true,
+        "diacritic_instructions": "Long vowels: type ō as o, oo or ou (likewise ū as u or uu). All are accepted."
+      }
+    }
+  }
+}

@@ -2,10 +2,10 @@
   "meta": {
     "project": "Conceptionary",
     "description": "Master registry of all GPCV (General Purpose Conceptionary Vocabulary) templates. Each entry maps a template file to its path type, learning track, supported language pairs, and pedagogical metadata.",
-    "version": "1.2.0",
-    "last_updated": "2026-09-22 @ 8:29 a.m.",
+    "version": "1.3.0",
+    "last_updated": "2026-09-22 @ 9:39 a.m.",
     "author": "Alan William Preston",
-    "total_templates": 80,
+    "total_templates": 83,
     "tracks": {
       "phonographic": {
         "description": "Templates for phonographic / romanized-alphabet languages (English, German, Spanish, French, Bahasa Indonesia, Te Reo Māori, etc.)",
@@ -13,7 +13,7 @@
         "cycle_levels": 3,
         "cycle_sequence": ["TL", "SL", "Quiz"],
         "quiz_tests": "TL",
-        "count": 39
+        "count": 41
       },
       "logographic": {
         "description": "Templates for logographic / non-romanized languages (Japanese, Mandarin Chinese, Korean, etc.)",
@@ -22,7 +22,7 @@
         "cycle_sequence": ["TLR", "TL", "SL", "Quiz"],
         "quiz_tests": "TLR",
         "default_display": "TLR",
-        "count": 41
+        "count": 42
       }
     },
     "path_families": [
@@ -32,7 +32,8 @@
       "bell_curve",
       "circular_cyclical",
       "bidirectional",
-      "hybrid_temporary"
+      "hybrid_temporary",
+      "temporal_reference_grid"
     ]
   },
 
@@ -58,11 +59,10 @@
       "track": "phonographic",
       "family": "single_line",
       "path_type": "Horizontal Line (5 textboxes)",
-      "description": "A single horizontal line with 5 vocabulary positions. PLANNED — file not yet created for phonographic track. Logographic equivalent: LOG-HL-5TB-Generic.html already exists.",
+      "description": "A single horizontal line with 5 vocabulary positions (states) and 4 transition segments. Phonographic equivalent of LOG-HL-5TB-Generic.html.",
       "modes": ["states", "transitions"],
-      "textbox_count": { "states": 5, "transitions": 5 },
-      "status": "planned",
-      "notes": "Logographic track has both 5TB and 10TB variants. Phonographic track currently has only 10TB. A 5TB phonographic variant may be created when needed.",
+      "textbox_count": { "states": 5, "transitions": 4 },
+      "notes": "Built and in the repo (added 2026-08-26; textPath anchored to a dedicated invisible path for Firefox). Entry corrected 2026-09-22: it was listed as planned. Transitions data has 4 segments, checked against the file.",
       "suitable_for": ["spectrums", "scales", "continua"],
       "language_pairs_available": []
     },
@@ -1159,6 +1159,54 @@
       "architecture": "fixed_geometry_zones",
       "notes": "2026-09-22: Built and user-tested 2026-09-21/22. Positions (percent of path length) and transition zones are fixed by the template, not the concept card: the App reads them from the template's own conceptData/transitionsData and injects only the words. Cards must supply exactly 9 states and 7 transitions.",
       "suitable_for": ["sudden loss then gradual recovery", "loss of confidence", "bereavement", "a power cut then gradual restoration", "sudden fright then calming"],
+      "language_pairs_available": []
+    },
+
+    {
+      "id": "ROM-TRG",
+      "file": "ROM-TRG-Generic.html",
+      "path": "templates/phonographic/ROM-TRG-Generic.html",
+      "track": "phonographic",
+      "family": "temporal_reference_grid",
+      "path_type": "Temporal Reference Grid",
+      "description": "A grid of four time-reference cells (past, present, future, present perfect) that shows one conversational question in different tenses: \"How was it?\", \"How is it?\", \"How will it be? / How's it going to be?\", \"How has it been? / How's it been?\". Each cell cycles SL -> TL -> Quiz independently; the topic header cycles SL/TL.",
+      "modes": ["grid"],
+      "textbox_count": { "cells": 4, "topic": 1 },
+      "architecture": "grid_of_cells",
+      "notes": "Unique generic file, phonographic only (no LOG version). First built 2026-08-29 to fill the Activities gap in Conceptionary_Aspectual_Template_Selection_Framework.md; based on Alan's \"What is it like?\" template (c.2002), an atelic case (no goal, no scalar degree). Uses its own LANG object {topic, past, present, future, perfect: {sl, tl, quiz}}, not conceptData/transitionsData, so injectAndOpen() in the App cannot populate it yet - it needs its own injection branch. Quiz uses plain comparison (no AnswerUtils).",
+      "suitable_for": ["conversational questions across tenses", "atelic activities", "\"what is it like?\" questions"],
+      "language_pairs_available": []
+    },
+
+    {
+      "id": "ROM-CR-RICE",
+      "file": "ROM-CR-RICE-Generic.html",
+      "path": "templates/phonographic/ROM-CR-RICE-Generic.html",
+      "track": "phonographic",
+      "family": "circular_cyclical",
+      "path_type": "Annual Rice-Growing Cycle",
+      "description": "Phonographic 12-month wheel for the annual rice-growing cycle, with a water-level outer ring. States mode (8 growing-season stages) and Transitions mode (12 items, one per calendar month; Jan/Feb/Nov/Dec share one fallow-season set). 3-level cycle (TL->SL->Quiz).",
+      "modes": ["states", "transitions"],
+      "textbox_count": { "states": 8, "transitions": 12 },
+      "architecture": "custom_layer_enum",
+      "notes": "Custom architecture: its own 4-value LAYER enum and plain vocab[] / transVocab[] arrays rather than the standard LANG block, so the App cannot inject into it yet. Added to the registry 2026-09-22 from the Session Starter description (counts of 8 and 12); not re-checked against the file - confirm when the file is next opened.",
+      "suitable_for": ["rice growing cycle", "agricultural vocabulary", "seasonal language in rice-growing cultures"],
+      "language_pairs_available": []
+    },
+
+    {
+      "id": "LOG-CR-RICE",
+      "file": "LOG-CR-RICE-Generic.html",
+      "path": "templates/logographic/LOG-CR-RICE-Generic.html",
+      "track": "logographic",
+      "family": "circular_cyclical",
+      "path_type": "Annual Rice-Growing Cycle",
+      "description": "Logographic 12-month wheel for the annual rice-growing cycle, with a water-level outer ring. States mode (8 growing-season stages) and Transitions mode (12 items, one per calendar month; Jan/Feb/Nov/Dec share one fallow-season set). 4-level cycle (TLR->TL->SL->Quiz).",
+      "modes": ["states", "transitions"],
+      "textbox_count": { "states": 8, "transitions": 12 },
+      "architecture": "custom_layer_enum",
+      "notes": "Custom architecture: its own 4-value LAYER enum and plain vocab[] / transVocab[] arrays rather than the standard LANG block, so the App cannot inject into it yet. Added to the registry 2026-09-22 from the Session Starter description (counts of 8 and 12); not re-checked against the file - confirm when the file is next opened.",
+      "suitable_for": ["rice growing cycle", "agricultural vocabulary", "seasonal language in rice-growing cultures"],
       "language_pairs_available": []
     }
 

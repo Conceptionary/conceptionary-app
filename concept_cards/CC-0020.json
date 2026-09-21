@@ -1,0 +1,358 @@
+{
+  "id": "CC-0020",
+  "version": "1.0",
+  "created": "2026-09-22",
+  "last_updated": "2026-09-22",
+  "status": "active",
+  "concept": {
+    "name": "Power outage",
+    "description": "Electricity that fails gradually (flickering, dimming, fading) down to a blackout and is then restored instantly by a switch.",
+    "taxonomy_ref": null,
+    "taxonomy_path": "Not yet in the Master Taxonomy (nearest: Natural-Environmental / everyday infrastructure)",
+    "shape": "asymmetric_gradual_dip_instant_recovery",
+    "template_family": "HTCVSI",
+    "template_id": "ROM-HTCVSI",
+    "modes_used": [
+      "states",
+      "transitions"
+    ],
+    "notes": "Worked example for HTCVSI (the primary example in Conceptionary_Template_Definitions.md). No taxonomy entry yet. Draft vocabulary, not yet validated."
+  },
+  "template": {
+    "phonographic": {
+      "id": "ROM-HTCVSI",
+      "file": "templates/phonographic/ROM-HTCVSI-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-HTCVSI",
+      "file": "templates/logographic/LOG-HTCVSI-Generic.html",
+      "track": "logographic"
+    }
+  },
+  "language_pairs": {
+    "EN-DE": {
+      "source_language": "English",
+      "target_language": "German",
+      "track": "phonographic",
+      "generated_by": "claude-sonnet-5",
+      "generated_date": "2026-09-22",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "lang_config": {
+        "titles": {
+          "states": [
+            "Der Stromausfall / Power outage",
+            "Der Stromausfall",
+            "Power outage"
+          ],
+          "transitions": [
+            "Verben: Der Stromausfall / Power outage (verbs)",
+            "Verben: Der Stromausfall",
+            "Power outage (verbs)"
+          ]
+        },
+        "ui": {
+          "quiz_button": "Prüfen",
+          "quiz_correct": "Richtig!",
+          "quiz_wrong": "Noch einmal"
+        },
+        "conceptData": [
+          [
+            "normal",
+            "normal",
+            "How do you say 'normal' in German?",
+            5
+          ],
+          [
+            "instabil",
+            "unstable",
+            "How do you say 'unstable' in German?",
+            20
+          ],
+          [
+            "schwach",
+            "dim",
+            "How do you say 'dim' in German?",
+            33
+          ],
+          [
+            "matt",
+            "faint",
+            "How do you say 'faint' in German?",
+            42
+          ],
+          [
+            "fast dunkel",
+            "almost dark",
+            "How do you say 'almost dark' in German?",
+            50
+          ],
+          [
+            "Stromausfall",
+            "blackout",
+            "How do you say 'blackout' in German?",
+            58.09
+          ],
+          [
+            "eingeschaltet",
+            "switched on",
+            "How do you say 'switched on' in German?",
+            65.63
+          ],
+          [
+            "wiederhergestellt",
+            "restored",
+            "How do you say 'restored' in German?",
+            73.18
+          ],
+          [
+            "wieder normal",
+            "back to normal",
+            "How do you say 'back to normal' in German?",
+            86.59
+          ]
+        ],
+        "transitionsData": [
+          [
+            "normal funktionieren",
+            "working normally",
+            "How do you say 'working normally' in German?",
+            10
+          ],
+          [
+            "flackern",
+            "flickering",
+            "How do you say 'flickering' in German?",
+            26.5
+          ],
+          [
+            "dunkler werden",
+            "dimming",
+            "How do you say 'dimming' in German?",
+            37.5
+          ],
+          [
+            "schwinden",
+            "fading",
+            "How do you say 'fading' in German?",
+            46
+          ],
+          [
+            "aussetzen",
+            "cutting out",
+            "How do you say 'cutting out' in German?",
+            54.05
+          ],
+          [
+            "wieder angehen",
+            "coming back on",
+            "How do you say 'coming back on' in German?",
+            65.64
+          ],
+          [
+            "wieder funktionieren",
+            "working again",
+            "How do you say 'working again' in German?",
+            86.59
+          ]
+        ],
+        "diacritic_map": [
+          [
+            "ä",
+            "ae"
+          ],
+          [
+            "ö",
+            "oe"
+          ],
+          [
+            "ü",
+            "ue"
+          ],
+          [
+            "ß",
+            "ss"
+          ]
+        ],
+        "diacritic_instructions": "No umlaut keys? Type ae, oe, ue and ss for ä, ö, ü and ß."
+      }
+    },
+    "EN-JA": {
+      "source_language": "English",
+      "target_language": "Japanese",
+      "track": "logographic",
+      "generated_by": "claude-sonnet-5",
+      "generated_date": "2026-09-22",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "lang_config": {
+        "titles": {
+          "states": [
+            "teiden",
+            "停電",
+            "Power outage"
+          ],
+          "transitions": [
+            "dōshi: teiden",
+            "動詞：停電",
+            "Power outage (verbs)"
+          ]
+        },
+        "ui": {
+          "quiz_button": "確認",
+          "quiz_correct": "正解！",
+          "quiz_wrong": "もう一度"
+        },
+        "conceptData": [
+          [
+            "通常",
+            "normal",
+            "How do you write 'normal' in Japanese, in romaji?",
+            5,
+            "tsūjō"
+          ],
+          [
+            "不安定",
+            "unstable",
+            "How do you write 'unstable' in Japanese, in romaji?",
+            20,
+            "fuantei"
+          ],
+          [
+            "薄暗い",
+            "dim",
+            "How do you write 'dim' in Japanese, in romaji?",
+            33,
+            "usugurai"
+          ],
+          [
+            "微か",
+            "faint",
+            "How do you write 'faint' in Japanese, in romaji?",
+            42,
+            "kasuka"
+          ],
+          [
+            "ほとんど真っ暗",
+            "almost dark",
+            "How do you write 'almost dark' in Japanese, in romaji?",
+            50,
+            "hotondo makkura"
+          ],
+          [
+            "停電",
+            "blackout",
+            "How do you write 'blackout' in Japanese, in romaji?",
+            58.09,
+            "teiden"
+          ],
+          [
+            "スイッチが入った",
+            "switched on",
+            "How do you write 'switched on' in Japanese, in romaji?",
+            65.63,
+            "suicchi ga haitta"
+          ],
+          [
+            "復旧した",
+            "restored",
+            "How do you write 'restored' in Japanese, in romaji?",
+            73.18,
+            "fukkyū shita"
+          ],
+          [
+            "元通り",
+            "back to normal",
+            "How do you write 'back to normal' in Japanese, in romaji?",
+            86.59,
+            "motodōri"
+          ]
+        ],
+        "transitionsData": [
+          [
+            "正常に動く",
+            "working normally",
+            "How do you write 'working normally' in Japanese, in romaji?",
+            10,
+            "seijō ni ugoku"
+          ],
+          [
+            "ちらつく",
+            "flickering",
+            "How do you write 'flickering' in Japanese, in romaji?",
+            26.5,
+            "chiratsuku"
+          ],
+          [
+            "暗くなる",
+            "dimming",
+            "How do you write 'dimming' in Japanese, in romaji?",
+            37.5,
+            "kuraku naru"
+          ],
+          [
+            "弱まる",
+            "fading",
+            "How do you write 'fading' in Japanese, in romaji?",
+            46,
+            "yowamaru"
+          ],
+          [
+            "途切れる",
+            "cutting out",
+            "How do you write 'cutting out' in Japanese, in romaji?",
+            54.05,
+            "togireru"
+          ],
+          [
+            "電気がつく",
+            "coming back on",
+            "How do you write 'coming back on' in Japanese, in romaji?",
+            65.64,
+            "denki ga tsuku"
+          ],
+          [
+            "再び動く",
+            "working again",
+            "How do you write 'working again' in Japanese, in romaji?",
+            86.59,
+            "futatabi ugoku"
+          ]
+        ],
+        "diacritic_map": [
+          [
+            "ā",
+            "a"
+          ],
+          [
+            "ī",
+            "i"
+          ],
+          [
+            "ū",
+            "u"
+          ],
+          [
+            "ē",
+            "e"
+          ],
+          [
+            "ō",
+            "o"
+          ]
+        ],
+        "digraph_map": [
+          [
+            "ou",
+            "o"
+          ]
+        ],
+        "collapse_double_vowels": true,
+        "diacritic_instructions": "Long vowels: type ō as o, oo or ou (likewise ū as u or uu). All are accepted."
+      }
+    }
+  }
+}

@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-09-22 @ 8:29 a.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-09-22 @ 9:32 a.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <!--
   CONCEPTIONARY — Standalone Web Application
@@ -1691,6 +1691,11 @@ async function injectAndOpen(templatePath, langConfig, card) {
     //   A card must supply exactly 9 states and 7 transitions (LOG rows
     //   also need TLR in column 4), otherwise injection stops with a clear
     //   message instead of opening a half-populated template.
+    //   Quiz spelling conventions: lang_config may carry diacritic_map,
+    //   digraph_map ([[from, to], ...]), collapse_double_vowels (true/false)
+    //   and diacritic_instructions (also accepted as ui.diacritic_instructions).
+    //   They replace the template's answerConfig block, which the template's
+    //   AnswerUtils applies to both the typed and the stored answer.
     //
     // All other templates: no remap needed (inject as-is)
     // ═══════════════════════════════════════════════════════════
@@ -1745,6 +1750,22 @@ async function injectAndOpen(templatePath, langConfig, card) {
           !Array.isArray(langConfig.titles.transitions) || langConfig.titles.transitions.length < 3)) {
         throw new Error('An HT card needs titles.states and titles.transitions, each with 3 entries');
       }
+      // Quiz spelling conventions (all optional; empty = case/space/hyphen-insensitive only)
+      const htPairs = name => {
+        const v = langConfig[name];
+        if (v === undefined || v === null) return [];
+        if (!Array.isArray(v) || v.some(p => !Array.isArray(p) || p.length !== 2 ||
+            typeof p[0] !== 'string' || p[0] === '' || typeof p[1] !== 'string')) {
+          throw new Error(name + ' must be a list of [from, to] pairs of text');
+        }
+        return v;
+      };
+      ht.answer = {
+        diacritic_map: htPairs('diacritic_map'),
+        digraph_map: htPairs('digraph_map'),
+        collapse_double_vowels: langConfig.collapse_double_vowels === true,
+        diacritic_instructions: String(langConfig.diacritic_instructions ?? langConfig.ui?.diacritic_instructions ?? '')
+      };
     }
     function remapHTRow(r, nums) {
       return isLogHT ? [r[4], r[0], r[1], r[2], ...nums] : [r[0], r[1], r[2], ...nums];
@@ -1915,6 +1936,15 @@ async function injectAndOpen(templatePath, langConfig, card) {
         /const transitionsData\s*=\s*\[[\s\S]*?\];/,
         () => `const transitionsData = ${JSON.stringify(data, null, 12)};`
       );
+    }
+    // HT: spelling conventions for the Quiz (the template's answerConfig block)
+    if (isHT) {
+      const before = html;
+      html = html.replace(
+        /const answerConfig\s*=\s*\{[\s\S]*?\};/,
+        () => `const answerConfig = ${JSON.stringify(ht.answer, null, 12)};`
+      );
+      if (html === before) console.warn('This HT template has no answerConfig block - Quiz uses plain comparison. Update the template.');
     }
     // Inject titleTexts
     if (langConfig.titles) {

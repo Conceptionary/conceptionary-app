@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-09-21 @ 11:30 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-09-22 @ 9:31 a.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -298,6 +298,26 @@
         .quiz-container.keyboard-open #quizFeedback {
             min-height: 14px;
             margin-top: 4px;
+        }
+
+        /* Spelling-convention note in the Quiz box (from answerConfig.
+           diacritic_instructions): how to type accented letters. Empty for
+           languages that need no note, in which case it takes no space. */
+        .quiz-diac-note {
+            font-size: 11px;
+            line-height: 1.35;
+            color: #555;
+            text-align: left;
+            margin-bottom: 8px;
+        }
+
+        .quiz-diac-note:empty {
+            display: none;
+        }
+
+        .quiz-container.keyboard-open .quiz-diac-note {
+            font-size: 10px;
+            margin-bottom: 4px;
         }
 
         /* Vocabulary array: ONE combined "Learned Vocabulary" list, kept in
@@ -644,6 +664,7 @@
     <!-- Quiz Container -->
     <div id="quizContainer" class="quiz-container">
         <input type="text" id="quizInput" placeholder="Enter the target language word">
+        <div id="quizDiacriticNote" class="quiz-diac-note"></div>
         <button id="quizCheck">Check</button>
         <div id="quizFeedback"></div>
     </div>
@@ -743,6 +764,56 @@
             transitions: ["TL-Transitions-Title / SL-Transitions-Title", "TL-Transitions-Title", "SL-Transitions-Title"]
         };
         let currentTextIndex = 0;
+
+        // ── Answer checking: spelling conventions for the Quiz ───────────
+        // The Quiz compares what the learner types with column 0 of the row
+        // (the TL word). BOTH sides pass through the same normalisation, so any
+        // spelling that the config below maps to the same canonical form is
+        // accepted - a learner without the accented keys can still answer.
+        // Language-specific content lives ONLY in answerConfig (the App
+        // replaces it from the concept card's lang_config); AnswerUtils is
+        // language-agnostic and, with the empty defaults, simply ignores
+        // upper/lower case, spaces and hyphens.
+        //   diacritic_map           [[accented, canonical], ...]
+        //                           e.g. [["ā","a"]] or [["ä","ae"],["ß","ss"]]
+        //   digraph_map             [[sequence, canonical], ...], applied after
+        //                           diacritic_map, e.g. [["ou","o"]]
+        //   collapse_double_vowels  true: aa->a ee->e ii->i oo->o uu->u
+        //                           (e.g. Te Reo Māori "aa" is an alternative to "ā")
+        //   diacritic_instructions  short note shown in the Quiz box telling
+        //                           the learner how to type the accented letters
+        const answerConfig = {
+            diacritic_map: [],
+            digraph_map: [],
+            collapse_double_vowels: false,
+            diacritic_instructions: ""
+        };
+
+        const AnswerUtils = {
+            normalize: function(text) {
+                let t = String(text == null ? "" : text).normalize("NFC").toLowerCase();
+                (answerConfig.diacritic_map || []).forEach(function(pair) {
+                    t = t.split(String(pair[0]).normalize("NFC").toLowerCase()).join(pair[1]);
+                });
+                (answerConfig.digraph_map || []).forEach(function(pair) {
+                    t = t.split(String(pair[0]).normalize("NFC").toLowerCase()).join(pair[1]);
+                });
+                if (answerConfig.collapse_double_vowels) {
+                    t = t.replace(/aa/g, "a").replace(/ee/g, "e").replace(/ii/g, "i")
+                         .replace(/oo/g, "o").replace(/uu/g, "u");
+                }
+                return t.replace(/[\s\-]+/g, "").replace(/[.,!?;:]+/g, "");
+            },
+            checkAnswer: function(userInput, correct) {
+                const u = this.normalize(userInput);
+                return u !== "" && u === this.normalize(correct);
+            }
+        };
+
+        (function showSpellingNote() {
+            const note = document.getElementById("quizDiacriticNote");
+            if (note) note.textContent = answerConfig.diacritic_instructions || "";
+        })();
 
         // Global state
         let isStatesMode = true;
@@ -1134,10 +1205,9 @@
             const entry = currentData[currentQuizIndex];
             if (!entry) return;
 
-            const userAnswer = quizInput.value.trim().toLowerCase();
-            const correctAnswer = entry[0].toLowerCase();   // the quiz tests TL
-
-            if (userAnswer === correctAnswer) {
+            // The Quiz tests the TL (column 0). AnswerUtils applies the spelling conventions in
+            // answerConfig to both the typed answer and the stored one.
+            if (AnswerUtils.checkAnswer(quizInput.value, entry[0])) {
                 quizFeedback.textContent = 'Correct!';
                 quizFeedback.style.color = 'green';
                 const answeredIndex = currentQuizIndex;

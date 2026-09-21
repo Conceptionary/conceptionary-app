@@ -1,0 +1,358 @@
+{
+  "id": "CC-0019",
+  "version": "1.0",
+  "created": "2026-09-22",
+  "last_updated": "2026-09-22",
+  "status": "active",
+  "concept": {
+    "name": "Economic bubble",
+    "description": "A market that builds gradually, overheats to a peak, and then bursts and crashes almost instantly before settling into a sluggish flat.",
+    "taxonomy_ref": "15.3",
+    "taxonomy_path": "Economic / Financial → Economic conditions",
+    "shape": "asymmetric_gradual_rise_instant_crash",
+    "template_family": "HTCVS",
+    "template_id": "ROM-HTCVS",
+    "modes_used": [
+      "states",
+      "transitions"
+    ],
+    "notes": "Worked example for HTCVS (the primary example in Conceptionary_Template_Definitions.md). The taxonomy currently lists Economic growth as a positive gradient; this card is the bubble-and-burst variant. Draft vocabulary, not yet validated."
+  },
+  "template": {
+    "phonographic": {
+      "id": "ROM-HTCVS",
+      "file": "templates/phonographic/ROM-HTCVS-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-HTCVS",
+      "file": "templates/logographic/LOG-HTCVS-Generic.html",
+      "track": "logographic"
+    }
+  },
+  "language_pairs": {
+    "EN-DE": {
+      "source_language": "English",
+      "target_language": "German",
+      "track": "phonographic",
+      "generated_by": "claude-sonnet-5",
+      "generated_date": "2026-09-22",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "lang_config": {
+        "titles": {
+          "states": [
+            "Die Wirtschaftsblase / Economic bubble",
+            "Die Wirtschaftsblase",
+            "Economic bubble"
+          ],
+          "transitions": [
+            "Verben: Die Wirtschaftsblase / Economic bubble (verbs)",
+            "Verben: Die Wirtschaftsblase",
+            "Economic bubble (verbs)"
+          ]
+        },
+        "ui": {
+          "quiz_button": "Prüfen",
+          "quiz_correct": "Richtig!",
+          "quiz_wrong": "Noch einmal"
+        },
+        "conceptData": [
+          [
+            "stabil",
+            "stable",
+            "How do you say 'stable' in German?",
+            5
+          ],
+          [
+            "steigend",
+            "rising",
+            "How do you say 'rising' in German?",
+            20
+          ],
+          [
+            "boomend",
+            "booming",
+            "How do you say 'booming' in German?",
+            33
+          ],
+          [
+            "explosionsartig",
+            "explosive",
+            "How do you say 'explosive' in German?",
+            42
+          ],
+          [
+            "überhitzt",
+            "overheated",
+            "How do you say 'overheated' in German?",
+            50
+          ],
+          [
+            "Höhepunkt",
+            "peak",
+            "How do you say 'peak' in German?",
+            58.09
+          ],
+          [
+            "im freien Fall",
+            "in free fall",
+            "How do you say 'in free fall' in German?",
+            65.63
+          ],
+          [
+            "abgestürzt",
+            "crashed",
+            "How do you say 'crashed' in German?",
+            73.18
+          ],
+          [
+            "flau",
+            "sluggish",
+            "How do you say 'sluggish' in German?",
+            86.59
+          ]
+        ],
+        "transitionsData": [
+          [
+            "stabil bleiben",
+            "holding steady",
+            "How do you say 'holding steady' in German?",
+            10
+          ],
+          [
+            "anziehen",
+            "picking up",
+            "How do you say 'picking up' in German?",
+            26.5
+          ],
+          [
+            "wachsen",
+            "growing",
+            "How do you say 'growing' in German?",
+            37.5
+          ],
+          [
+            "in die Höhe schnellen",
+            "surging",
+            "How do you say 'surging' in German?",
+            46
+          ],
+          [
+            "gipfeln",
+            "peaking",
+            "How do you say 'peaking' in German?",
+            54.05
+          ],
+          [
+            "platzen",
+            "bursting",
+            "How do you say 'bursting' in German?",
+            65.64
+          ],
+          [
+            "stagnieren",
+            "stagnating",
+            "How do you say 'stagnating' in German?",
+            86.59
+          ]
+        ],
+        "diacritic_map": [
+          [
+            "ä",
+            "ae"
+          ],
+          [
+            "ö",
+            "oe"
+          ],
+          [
+            "ü",
+            "ue"
+          ],
+          [
+            "ß",
+            "ss"
+          ]
+        ],
+        "diacritic_instructions": "No umlaut keys? Type ae, oe, ue and ss for ä, ö, ü and ß."
+      }
+    },
+    "EN-JA": {
+      "source_language": "English",
+      "target_language": "Japanese",
+      "track": "logographic",
+      "generated_by": "claude-sonnet-5",
+      "generated_date": "2026-09-22",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "lang_config": {
+        "titles": {
+          "states": [
+            "keizai baburu",
+            "経済バブル",
+            "Economic bubble"
+          ],
+          "transitions": [
+            "dōshi: keizai baburu",
+            "動詞：経済バブル",
+            "Economic bubble (verbs)"
+          ]
+        },
+        "ui": {
+          "quiz_button": "確認",
+          "quiz_correct": "正解！",
+          "quiz_wrong": "もう一度"
+        },
+        "conceptData": [
+          [
+            "安定している",
+            "stable",
+            "How do you write 'stable' in Japanese, in romaji?",
+            5,
+            "antei shite iru"
+          ],
+          [
+            "上昇している",
+            "rising",
+            "How do you write 'rising' in Japanese, in romaji?",
+            20,
+            "jōshō shite iru"
+          ],
+          [
+            "好景気の",
+            "booming",
+            "How do you write 'booming' in Japanese, in romaji?",
+            33,
+            "kōkeiki no"
+          ],
+          [
+            "爆発的",
+            "explosive",
+            "How do you write 'explosive' in Japanese, in romaji?",
+            42,
+            "bakuhatsuteki"
+          ],
+          [
+            "過熱した",
+            "overheated",
+            "How do you write 'overheated' in Japanese, in romaji?",
+            50,
+            "kanetsu shita"
+          ],
+          [
+            "ピーク",
+            "peak",
+            "How do you write 'peak' in Japanese, in romaji?",
+            58.09,
+            "pīku"
+          ],
+          [
+            "急落",
+            "in free fall",
+            "How do you write 'in free fall' in Japanese, in romaji?",
+            65.63,
+            "kyūraku"
+          ],
+          [
+            "暴落した",
+            "crashed",
+            "How do you write 'crashed' in Japanese, in romaji?",
+            73.18,
+            "bōraku shita"
+          ],
+          [
+            "低迷している",
+            "sluggish",
+            "How do you write 'sluggish' in Japanese, in romaji?",
+            86.59,
+            "teimei shite iru"
+          ]
+        ],
+        "transitionsData": [
+          [
+            "安定を保つ",
+            "holding steady",
+            "How do you write 'holding steady' in Japanese, in romaji?",
+            10,
+            "antei o tamotsu"
+          ],
+          [
+            "上向く",
+            "picking up",
+            "How do you write 'picking up' in Japanese, in romaji?",
+            26.5,
+            "uwamuku"
+          ],
+          [
+            "成長する",
+            "growing",
+            "How do you write 'growing' in Japanese, in romaji?",
+            37.5,
+            "seichō suru"
+          ],
+          [
+            "急騰する",
+            "surging",
+            "How do you write 'surging' in Japanese, in romaji?",
+            46,
+            "kyūtō suru"
+          ],
+          [
+            "ピークに達する",
+            "peaking",
+            "How do you write 'peaking' in Japanese, in romaji?",
+            54.05,
+            "pīku ni tassuru"
+          ],
+          [
+            "弾ける",
+            "bursting",
+            "How do you write 'bursting' in Japanese, in romaji?",
+            65.64,
+            "hajikeru"
+          ],
+          [
+            "停滞する",
+            "stagnating",
+            "How do you write 'stagnating' in Japanese, in romaji?",
+            86.59,
+            "teitai suru"
+          ]
+        ],
+        "diacritic_map": [
+          [
+            "ā",
+            "a"
+          ],
+          [
+            "ī",
+            "i"
+          ],
+          [
+            "ū",
+            "u"
+          ],
+          [
+            "ē",
+            "e"
+          ],
+          [
+            "ō",
+            "o"
+          ]
+        ],
+        "digraph_map": [
+          [
+            "ou",
+            "o"
+          ]
+        ],
+        "collapse_double_vowels": true,
+        "diacritic_instructions": "Long vowels: type ō as o, oo or ou (likewise ū as u or uu). All are accepted."
+      }
+    }
+  }
+}
