@@ -1,0 +1,1952 @@
+<!-- Last updated: 2026-09-22 @ 12:25 a.m. (Mangawhai, NZ) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hybrid Temporary: Curve then Sudden Return, Inverted (HTCVSI) - Phonographic Template</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f9f9f9;
+            overflow: hidden;
+        }
+
+        .a4-page {
+            /* Locked to the SVG viewBox's exact 160:60 ratio so the curve
+               always reaches the frame edges (same approach as the GTCV
+               family). content-box is deliberate: the width/height apply
+               to the content area the SVG actually fills. */
+            width: min(90vw, 70vh * 160 / 60);
+            height: min(70vh, 90vw * 60 / 160);
+            border: 5px solid black;
+            background-color: white;
+            box-sizing: content-box;
+            position: relative;
+            touch-action: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .watermark {
+            position: absolute;
+            bottom: 5px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            pointer-events: none;
+            user-select: none;
+            z-index: 0;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .path-line {
+            stroke: black;
+            stroke-width: 0.25;
+            fill: none;
+        }
+
+        /* Background gradient: red deepening while the concept dips, dark
+           grey for the "normal" baseline on either side of it, with a hard
+           edge at the sudden return. The fill lies beneath the path. */
+        #conceptBackground {
+            fill: url(#conceptGradient);
+            opacity: 0.2;
+        }
+
+        /* States Template Elements.
+           Hidden labels have pointer-events:none so an invisible label can
+           never swallow a click meant for whatever is underneath it. */
+        .textBox {
+            cursor: pointer;
+            font-size: 0.2em;
+            fill: black;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transform: scale(0.5);
+            text-anchor: middle;
+        }
+
+        .textBox.active {
+            opacity: 1;
+            pointer-events: all;
+            transform: scale(1) translateY(0);
+        }
+
+        /* Learned items stay visible */
+        .textBox.learned {
+            opacity: 1;
+            pointer-events: all;
+            transform: scale(1) translateY(0);
+            fill: green;
+        }
+
+        #draggableFrame {
+            cursor: grab;
+            fill: rgba(255, 255, 0, 0.6);
+            stroke: #ccaa00;
+            stroke-width: 0.1;
+            pointer-events: all;
+            opacity: 1;
+            filter: drop-shadow(0 0.3px 0.5px rgba(0,0,0,0.3));
+            transition: fill 0.2s ease, stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
+        }
+
+        #draggableFrame:hover {
+            fill: rgba(255, 255, 0, 0.8);
+            stroke: #ffcc00;
+            stroke-width: 0.15;
+            cursor: grab;
+            filter: drop-shadow(0 0.5px 1px rgba(204, 170, 0, 0.6)) drop-shadow(0 0 2px rgba(255, 255, 100, 0.8));
+        }
+
+        #draggableFrame.dragging {
+            cursor: grabbing;
+            fill: transparent;
+            stroke-width: 0.1;
+            filter: drop-shadow(0 0.5px 1px rgba(255, 170, 0, 0.6)) drop-shadow(0 0 2px rgba(255, 220, 0, 0.8));
+            stroke: #ffaa00;
+        }
+
+        @keyframes pulsateAttention {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        .drag-instruction {
+            /* Lower left: the empty ground below the flat lead-in and to
+               the left of the dip - clear of the path, every state label,
+               the title box (bottom right) and the buttons (right). It
+               fades after 20 s or on the first drag. */
+            position: absolute;
+            top: 54%;
+            left: 4%;
+            font-size: 0.85em;
+            padding: 6px 12px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            z-index: 3;
+            opacity: 1;
+            transition: opacity 2s ease;
+            text-align: left;
+            max-width: 34%;
+            animation: pulsateAttention 0.6s ease-in-out 3;
+        }
+
+        .drag-instruction.fade {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Small screens: the ground area is short, so the note is smaller. */
+        @media (max-width: 760px) {
+            .drag-instruction {
+                font-size: 0.72em;
+                padding: 4px 8px;
+            }
+        }
+
+        /* Transitions Template Elements */
+        .sliding-text {
+            font-size: 3.5px;
+            font-weight: bold;
+            fill: blue;
+            cursor: grab;
+            dominant-baseline: auto;
+            pointer-events: all;
+        }
+
+        .sliding-text.dragging {
+            cursor: grabbing;
+            fill: darkorange;
+        }
+
+        .sliding-text.learned {
+            fill: green;
+        }
+
+        /* Common Title Box Styling. Default spot: the empty ground area at
+           the bottom right, under the Tools column and to the right of
+           the sudden return - clear of every state label, the enlarged
+           Tools button on phones, the Learned Vocabulary array (left) and
+           the sliding word. */
+        .title-box {
+            position: absolute;
+            top: 76%;
+            left: 84%;
+            transform: translateX(-50%);
+            width: max-content;   /* else the space right of left:84% (16%) squeezes it into a narrow tall box */
+            max-width: 26%;
+            box-sizing: border-box;
+            font-size: 1em;
+            font-weight: bold;
+            text-align: center;
+            cursor: grab;
+            border: 1px solid black;
+            padding: 10px;
+            background-color: white;
+            z-index: 2;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .title-box.dragging {
+            cursor: grabbing;
+            transition: none;
+        }
+
+        .title-box.hidden {
+            opacity: 0;
+            transform: translateX(-50%) scale(0.9);
+        }
+
+        /* Mode Toggle Button: lives in the top-right column, directly below
+           Show All (it used to sit bottom-centre) */
+        .mode-toggle {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-family: inherit;
+            font-size: 0.8em;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        /* Quiz container styles */
+        .quiz-container {
+            box-sizing: border-box;
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 3px solid #3366cc;
+            border-radius: 4px;
+            padding: 12px;
+            z-index: 9999;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            max-width: 360px;
+            width: 360px;
+            pointer-events: auto;
+            visibility: visible;
+            opacity: 1;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .quiz-container.dragging {
+            cursor: grabbing;
+        }
+
+        .quiz-container input {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            cursor: text;
+            user-select: text;
+        }
+
+        .quiz-container button {
+            box-sizing: border-box;
+            width: 100%;
+            padding: 8px;
+            background-color: #3366cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .quiz-container button:hover {
+            background-color: #254e9c;
+        }
+
+        #quizFeedback {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 8px;
+            min-height: 20px;
+        }
+
+        /* Applied via JS (visualViewport) when the on-screen keyboard is
+           open: pins the quiz box near the top of the space still visible. */
+        .quiz-container.keyboard-open {
+            top: 8px;
+            transform: translate(-50%, 0);
+            max-width: 90vw;
+            width: 320px;
+            padding: 8px;
+        }
+
+        .quiz-container.keyboard-open input {
+            font-size: 13px;
+            padding: 6px;
+            margin-bottom: 6px;
+        }
+
+        .quiz-container.keyboard-open #quizFeedback {
+            min-height: 14px;
+            margin-top: 4px;
+        }
+
+        /* Vocabulary array: ONE combined "Learned Vocabulary" list, kept in
+           path order. This concept has a gradual descent but no gradual
+           recovery (the return is a single sudden jump), so the
+           Increasing/Decreasing split used by the GTCV family has no
+           meaning here. Behaviour matches the Instant Change family. */
+        .vocabulary-array {
+            position: fixed;
+            top: 30%;
+            width: 22.5vw;
+            max-height: calc(100vh - 40px);   /* grows with its content; only the screen height caps it */
+            overflow-y: auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 8px;
+            z-index: 4;
+            display: none;
+            touch-action: none;
+        }
+
+        #vocabulary-array {
+            left: 5%;   /* fallback only: setupArrayDrag() places it at 5% across / 30% down the template box */
+        }
+
+        .vocabulary-array.scrollable {
+            touch-action: pan-y;
+        }
+
+        .vocabulary-array.dragging {
+            user-select: none;
+            -webkit-user-select: none;
+            opacity: 0.85;
+        }
+
+        .array-title {
+            font-size: 0.85em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 8px;
+            padding: 5px;
+            background-color: #e8f4fd;
+            border-radius: 3px;
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .vocabulary-array.dragging .array-title {
+            cursor: grabbing;
+        }
+
+        /* Hide All rolls the list up into the title bar (Show All rolls it
+           back down); the bar stays so the array can always be reopened. */
+        .array-title {
+            transition: margin-bottom 0.6s ease-in-out;
+        }
+
+        .vocabulary-array.collapsed .array-title {
+            margin-bottom: 0;
+        }
+
+        .vocabulary-item {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.75em;
+            margin: 5px 0;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background-color: white;
+        }
+
+        .vocabulary-item .target-language {
+            font-weight: bold;
+            color: green;
+            margin-bottom: 2px;
+            cursor: pointer;
+        }
+
+        .vocabulary-item .source-language {
+            color: #666;
+            cursor: pointer;
+        }
+
+        .vocabulary-item .target-language.hidden,
+        .vocabulary-item .source-language.hidden {
+            color: transparent;
+            user-select: none;
+            background-color: #f0f0f0;
+        }
+
+        .toggle-visibility {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 0.65em;
+            padding: 3px 8px;
+            background-color: #e0e0e0;
+            border: 1px solid #999;
+            border-radius: 3px;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        /* Tools Menu */
+        .tools-menu {
+            position: absolute;
+            top: 22%;                   /* just below the baseline (y=10 of 60 is 16.7% down) */
+            right: 10px;
+            z-index: 5;
+            display: flex;              /* Tools button, with Show All directly beneath it */
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .tools-button {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+
+        /* Show All and Toggle Mode: one under the other on a desktop. On a
+           touch screen (see the coarse-pointer block) they sit side by side,
+           so the whole column stays short enough to clear the title box
+           below it. */
+        .tools-row {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .show-all-btn {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-family: inherit;
+            font-size: 0.8em;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .show-all-btn.active {
+            background-color: #d6e8ff;
+            border-color: #3366cc;
+            font-weight: bold;
+        }
+
+        /* Show All (quick reference). While it is on, the interactive pieces
+           (frame, state boxes, sliding word, instruction) step aside and every
+           word of the current mode is displayed at once in one language
+           layer. !important because toggleMode() sets inline display styles. */
+        .show-all-on #draggableFrame,
+        .show-all-on .textBox,
+        .show-all-on #interactiveText,
+        .show-all-on #drag-instruction {
+            display: none !important;
+        }
+
+        .showall-word {
+            cursor: pointer;   /* click a word to flip it between TL and SL (no Quiz) */
+            user-select: none;
+            -webkit-user-select: none;
+            pointer-events: all;   /* future audio: mouseover / tap a word to hear it */
+        }
+
+        .showall-state {
+            font-size: 0.2em;
+            font-weight: bold;
+        }
+
+        .showall-trans {
+            font-size: 3.5px;
+            font-weight: bold;
+        }
+
+        .showall-word.layer-tl { fill: #0b3d91; }
+        .showall-word.layer-sl { fill: #8b1a1a; }
+
+        .tools-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 30px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            width: 150px;
+            padding: 5px 0;
+            z-index: 10;
+        }
+
+        .tools-dropdown.active {
+            display: block;
+        }
+
+        .tool-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            pointer-events: auto;
+            user-select: none;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .tool-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* ── Mobile sizing (touch-primary devices) ─────────────────────
+           Frame circle doubled (r 1.5 -> 3); text sizes as in the GTCV
+           family; touch targets enlarged to the ~48px guideline. */
+        @media (pointer: coarse) {
+            #draggableFrame {
+                r: 3;
+            }
+            .textBox,
+            .showall-state {
+                font-size: 0.3em;
+            }
+            .sliding-text {
+                font-size: 3.5px;
+            }
+            .title-box {
+                font-size: 0.75em;
+                padding: 6px 8px;
+                max-width: 30%;
+            }
+            .tools-dropdown {
+                top: 52px;   /* below the enlarged Tools button, not over it */
+            }
+            .tools-menu {
+                max-width: 34%;   /* keeps the column right of the sudden return; wraps to a stack if too narrow */
+            }
+            .tools-row {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+            .tools-button,
+            .show-all-btn,
+            .mode-toggle {
+                box-sizing: border-box;   /* so min-height 48px is the real height */
+                min-height: 48px;
+                padding: 12px 16px;
+                font-size: 1em;
+            }
+            .show-all-btn,
+            .mode-toggle {
+                padding: 12px 10px;
+                font-size: 0.85em;
+            }
+            /* Narrow phones (landscape ~ 667px): squeeze the two words so the
+               pair still fits side by side right of the return */
+            @media (max-width: 760px) {
+                .tools-menu {
+                    max-width: 32%;
+                }
+                .show-all-btn,
+                .mode-toggle {
+                    padding: 12px 7px;
+                    font-size: 0.75em;
+                }
+            }
+            /* Portrait phones (page only ~130px tall): the column starts
+               just below the baseline, so compact its buttons to keep all
+               three on the page. */
+            @media (max-width: 480px) {
+                .tools-menu {
+                    top: 18%;
+                    gap: 3px;
+                }
+                .tools-row {
+                    gap: 3px;
+                }
+                .tools-button,
+                .show-all-btn,
+                .mode-toggle {
+                    min-height: 32px;
+                    padding: 4px 8px;
+                    font-size: 0.75em;
+                }
+                .tools-dropdown {
+                    top: 36px;
+                }
+                .title-box {
+                    top: 68%;
+                    left: 50%;
+                    font-size: 0.6em;
+                    padding: 3px 6px;
+                    max-width: 26%;
+                }
+                .drag-instruction {
+                    top: 34%;
+                    left: 2%;
+                    max-width: 30%;
+                    font-size: 0.5em;
+                    padding: 3px 5px;
+                }
+            }
+            .tool-item {
+                min-height: 48px;
+                padding: 14px 15px;
+                font-size: 0.95em;
+            }
+            .toggle-visibility {
+                min-height: 48px;
+                min-width: 48px;
+                padding: 12px 16px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="a4-page">
+        <div id="title-box" class="title-box">TL-Title / SL-Title</div>
+        <div id="drag-instruction" class="drag-instruction">Mobile Phone users: click 'Tools' then 'Full Screen'.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again.</div>
+
+        <!-- Tools Menu -->
+        <div class="tools-menu">
+            <div class="tools-button">Tools</div>
+            <div class="tools-dropdown">
+                <div class="tool-item" id="toggleFullscreen">Full Screen</div>
+                <div class="tool-item" id="loadConcept">Load Concept</div>
+                <div class="tool-item" id="startQuiz">Quick Quiz</div>
+            </div>
+            <div class="tools-row">
+                <button id="showAllBtn" class="show-all-btn" type="button" title="Quick reference: show every word at once, in TL or in SL. Click any word to flip just that word between TL and SL. Keep clicking to reach Hide All, which clears every word off the screen.">Show All</button>
+                <button id="modeToggle" class="mode-toggle" type="button">Toggle Mode</button>
+            </div>
+        </div>
+
+        <!-- Vocabulary Array: ONE combined list of learned Transitions items, kept in path order -->
+        <div id="vocabulary-array" class="vocabulary-array">
+            <div class="array-title">Learned Vocabulary</div>
+            <button class="toggle-visibility" id="toggle-vocabulary">Hide All</button>
+            <div id="vocabulary-items"></div>
+        </div>
+
+        <svg id="svgCanvas" viewBox="-30 0 160 60" preserveAspectRatio="xMidYMid meet">
+            <defs>
+                <linearGradient id="conceptGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#4a4a4a;stop-opacity:1" />
+                    <stop offset="66.67%" style="stop-color:#ff4444;stop-opacity:1" />
+                    <stop offset="66.67%" style="stop-color:#4a4a4a;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#4a4a4a;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+
+            <path id="hybridPath" class="path-line"></path>
+            <path id="conceptBackground"></path>
+
+            <!-- States Mode Elements -->
+            <circle id="draggableFrame" cx="-28.5" cy="10" r="1.5"/>
+
+            <!-- Transitions Mode Elements -->
+            <text id="interactiveText" class="sliding-text">
+                <textPath id="slidingText" href="#hybridPath" startOffset="0%" dy="-5">
+                    TL-T1
+                </textPath>
+            </text>
+        </svg>
+        <div class="watermark">
+            &copy; 2026 Alan William Preston
+        </div>
+    </div>
+
+    <!-- Quiz Container -->
+    <div id="quizContainer" class="quiz-container">
+        <input type="text" id="quizInput" placeholder="Enter the target language word">
+        <button id="quizCheck">Check</button>
+        <div id="quizFeedback"></div>
+    </div>
+
+    <script>
+        // ════════════════════════════════════════════════════════════════
+        // HTCVSI - Hybrid Temporary: Curve dip, then Sudden return (Inverted)
+        //
+        // The vertical mirror of HTCVS: the left half of a GTCVI curve (a
+        // smooth, gradual descent) meets the right half of an IT5LI (an
+        // instant vertical jump straight back up to the starting condition).
+        // Read left to right:
+        //   1. flat baseline (the "normal" state), across the top
+        //   2. a smooth curve dipping to a SHARP trough (no plateau)
+        //   3. an instant vertical rise back up to the baseline
+        //   4. the baseline again, to the right edge
+        //
+        // GEOMETRY. viewBox -30 0 160 60, baseline y=10, trough y=40.
+        // The dipping curve is GTCVI's left half stretched horizontally by
+        // 4/3 (GTCVI: trough at x=50, c=15  ->  here: trough at x=76.67,
+        // c=20), so the trough sits 2/3 of the way across, where IT5LI's
+        // jump sits. Path length ~198.8 units: curve ~58.1%, rise ~15.1%,
+        // baseline ~26.8% (the same lengths as HTCVS, so every position and
+        // zone number below is identical to its HTCVS partner). If any of
+        // the constants below change, the position numbers in the two data
+        // arrays must be recomputed.
+        //
+        // DATA. Position = percent along the WHOLE path (length), not x.
+        //   States rows       [TL, SL, Quiz prompt, position]
+        //     9 states: 6 on the dip (position 5 ... 58.09; the last one
+        //     IS the trough), 2 on the sudden return (halfway up = 65.63, and
+        //     the top = 73.18) and 1 halfway along the baseline that follows
+        //     it (86.59).
+        //   Transitions rows  [TL, SL, Quiz prompt, zoneStart, zoneEnd]
+        //     7 transitions: five gradual verbs on the dip, one for the
+        //     whole of the sudden return (58.09 - 73.18) and one spanning the
+        //     whole of the baseline after it (73.18 - 100). Each zone is the
+        //     stretch of path over which that item shows while the sliding
+        //     word's START is inside it; zones run 0-100 with no gaps.
+        //   Column [0] is ALWAYS TL, column [1] SL.
+        // ════════════════════════════════════════════════════════════════
+        const SVG_NS = "http://www.w3.org/2000/svg";
+        const VB_MIN_X = -30;
+        const VB_MAX_X = 130;
+        const BASELINE_Y = 10;
+        const APEX_HEIGHT = 30;     // the trough (the curve's apex, inverted) is at y = BASELINE_Y + APEX_HEIGHT = 40
+        const APEX_X = 76.67;       // 2/3 across the viewBox; the sudden return is at this x
+        const CURVE_WIDTH_C = 20;   // GTCVI's c=15 stretched by 4/3
+        const CURVE_STEPS = 107;    // ~1 viewBox unit per step
+        const MAX_TEXT_OFFSET_FALLBACK = 95;
+
+        // Generic placeholder data - 9 states (6 on the dip incl. the trough, 2 on the sudden return, 1 on the baseline after it)
+        const conceptData = [
+            ["TL1", "SL1", "What is the TL word for 'SL1'?", 5],        // flat lead-in: the normal state
+            ["TL2", "SL2", "What is the TL word for 'SL2'?", 20],
+            ["TL3", "SL3", "What is the TL word for 'SL3'?", 33],       // the dip begins
+            ["TL4", "SL4", "What is the TL word for 'SL4'?", 42],
+            ["TL5", "SL5", "What is the TL word for 'SL5'?", 50],
+            ["TL6", "SL6", "What is the TL word for 'SL6'?", 58.09],    // THE TROUGH (bottom of the dip, end of the curve)
+            ["TL7", "SL7", "What is the TL word for 'SL7'?", 65.63],    // halfway up the sudden return ("springing back")
+            ["TL8", "SL8", "What is the TL word for 'SL8'?", 73.18],    // the top of the sudden return (back at the baseline)
+            ["TL9", "SL9", "What is the TL word for 'SL9'?", 86.59]     // halfway along the baseline after the return: back to normal
+        ];
+
+        // 7 transitions: five gradual (the dip), one for the whole sudden return and one for the whole baseline after it
+        const transitionsData = [
+            ["TL-T1", "SL-T1", "What is the TL word for 'SL-T1'?", 0, 20],
+            ["TL-T2", "SL-T2", "What is the TL word for 'SL-T2'?", 20, 33],
+            ["TL-T3", "SL-T3", "What is the TL word for 'SL-T3'?", 33, 42],
+            ["TL-T4", "SL-T4", "What is the TL word for 'SL-T4'?", 42, 50],
+            ["TL-T5", "SL-T5", "What is the TL word for 'SL-T5'?", 50, 58.09],
+            ["TL-T6", "SL-T6", "What is the TL word for 'SL-T6'?", 58.09, 73.18],  // the whole sudden return
+            ["TL-T7", "SL-T7", "What is the TL word for 'SL-T7'?", 73.18, 100]     // the whole baseline after the return
+        ];
+
+        // Where each state's label sits relative to its point on the path.
+        // Hand-tuned so labels do not overlap each other or the curve (the
+        // vertical mirror of HTCVS): the flat lead-in labels alternate
+        // below/above the baseline, the dipping labels stack diagonally down
+        // and to the left of the curve, the trough label sits under the
+        // trough. The two labels on the sudden return sit on its left, inside
+        // the dip (the right side is kept for the Tools column and the title
+        // box), and the last one sits above the baseline. States beyond these
+        // nine use the default.
+        const STATE_LABELS = [
+            { dx: -3, dy: 6,  anchor: "start"  },   // S1: below the flat lead-in
+            { dx: 0,  dy: -4, anchor: "middle" },   // S2: above the baseline
+            { dx: -2, dy: 7,  anchor: "end"    },   // S3: down-left of the curve
+            { dx: -2, dy: 7,  anchor: "end"    },   // S4
+            { dx: -2, dy: 7,  anchor: "end"    },   // S5
+            { dx: 0,  dy: 6,  anchor: "middle" },   // S6: under the trough
+            { dx: -3, dy: -7, anchor: "end"    },   // S7: up the sudden return, on its left (high, where the dip is widest, so a long word clears the curve)
+            { dx: -2, dy: -3, anchor: "end"    },   // S8: top of the return, just above the baseline on its left
+            { dx: 0,  dy: -3, anchor: "middle" }    // S9: above the baseline after the return
+        ];
+        const DEFAULT_STATE_LABEL = { dx: 0, dy: -3, anchor: "middle" };
+
+        // Title text options: [TL + SL combined, TL, SL] per mode
+        const titleTexts = {
+            states: ["TL-Title / SL-Title", "TL-Title", "SL-Title"],
+            transitions: ["TL-Transitions-Title / SL-Transitions-Title", "TL-Transitions-Title", "SL-Transitions-Title"]
+        };
+        let currentTextIndex = 0;
+
+        // Global state
+        let isStatesMode = true;
+        let pathLength = 0;
+        let currentQuizIndex = -1;
+        let slidingTextMode = 0;              // 0: TL, 1: SL, 2: Quiz
+        let statesLearnedItems = [];          // separate tracking per mode - no cross-contamination
+        let transitionsLearnedItems = [];
+        let addedVocabularyItems = [];        // by transition index
+        let textBoxElements = [];
+        let currentTextLayer = [];            // per state box: 0 TL, 1 SL, 2 Quiz
+        let currentOffset = 0;                // where the sliding word STARTS, percent of path length
+        let isDraggingText = false;
+        let hasMovedDuringDrag = false;
+        let dragStartClientX = 0;
+        let dragStartClientY = 0;
+        let dragGrabOffset = 0;               // path-length between the grab point and the word's start
+        const DRAG_THRESHOLD_PX = 8;          // movement below this is a tap, not a drag
+        let quizJustDragged = false;          // swallows the synthetic click a quiz-box drag-release makes
+        let quizPosition = { x: null, y: null };   // null = default centred spot
+
+        // DOM elements
+        let svg, pathEl, conceptBackground, titleBox, modeToggleBtn, frame;
+        let quizContainer, quizInput, quizCheck, quizFeedback;
+        let vocabularyArray, vocabularyItems, toggleVocabularyBtn;
+        let interactiveText, slidingText, dragInstruction;
+        let showAllBtn, showAllGroup = null;
+
+        // ── Path ────────────────────────────────────────────────────────
+        function buildPathData() {
+            const pts = [];
+            for (let k = 0; k <= CURVE_STEPS; k++) {
+                const x = VB_MIN_X + (APEX_X - VB_MIN_X) * k / CURVE_STEPS;
+                const y = BASELINE_Y + APEX_HEIGHT * Math.exp(-Math.pow(x - APEX_X, 2) / (2 * CURVE_WIDTH_C * CURVE_WIDTH_C));
+                pts.push(x.toFixed(3) + ',' + y.toFixed(3));
+            }
+            pts.push(APEX_X + ',' + BASELINE_Y);       // the sudden return, straight up from the trough
+            pts.push(VB_MAX_X + ',' + BASELINE_Y);     // the baseline runs on to the right edge
+            return 'M ' + pts.join(' L ');
+        }
+
+        // Client (screen) point -> SVG user units, via the live transform
+        // matrix (robust against letterboxing from preserveAspectRatio).
+        function getSvgPoint(clientX, clientY) {
+            const p = svg.createSVGPoint();
+            p.x = clientX;
+            p.y = clientY;
+            const m = svg.getScreenCTM();
+            return m ? p.matrixTransform(m.inverse()) : { x: 0, y: 0 };
+        }
+
+        // Nearest point on the path to an SVG-space point, as a length along
+        // the path plus its distance. With aroundLength, only a window of the
+        // path around it is searched, so a dragged word cannot teleport when
+        // the pointer strays; null searches the whole path.
+        function closestOnPath(x, y, aroundLength) {
+            const total = pathLength;
+            const WINDOW = 45;
+            const lo = aroundLength === null ? 0 : Math.max(0, aroundLength - WINDOW);
+            const hi = aroundLength === null ? total : Math.min(total, aroundLength + WINDOW);
+            const step = aroundLength === null ? 0.5 : 0.25;
+            let best = lo;
+            let bestDist = Infinity;
+            for (let L = lo; L <= hi + 1e-9; L += step) {
+                const p = pathEl.getPointAtLength(Math.min(L, total));
+                const d = Math.hypot(p.x - x, p.y - y);
+                if (d < bestDist) {
+                    bestDist = d;
+                    best = L;
+                }
+            }
+            return { len: Math.min(best, total), dist: bestDist };
+        }
+
+        // ── Which transition is this? ───────────────────────────────────
+        // The zone each transition owns comes from the data (real path
+        // positions), and ONE helper feeds the word shown, the item quizzed,
+        // the item marked learned and the array entry, so they cannot
+        // disagree.
+        function getTransitionIndexForOffset(offset) {
+            for (let i = 0; i < transitionsData.length; i++) {
+                if (offset >= transitionsData[i][3] && offset <= transitionsData[i][4]) return i;
+            }
+            return transitionsData.length - 1;
+        }
+
+        function getTransitionItem(offset) {
+            const index = getTransitionIndexForOffset(offset);
+            return { index: index, data: transitionsData[index] };
+        }
+
+        // ── Frame (yellow circle) ───────────────────────────────────────
+        // Kept fully inside the viewBox at both ends of the path (the circle
+        // doubles on touch screens, matching the CSS rule).
+        function getFrameRadius() {
+            const r = parseFloat(frame.getAttribute('r')) || 1.5;
+            return (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ? r * 2 : r;
+        }
+
+        function placeFrameAt(pt) {
+            const r = getFrameRadius();
+            frame.setAttribute('cx', Math.max(VB_MIN_X + r, Math.min(VB_MAX_X - r, pt.x)));
+            frame.setAttribute('cy', pt.y);
+        }
+
+        function initializeFramePosition() {
+            // Start at the extreme left of the path: the baseline / normal state
+            placeFrameAt(pathEl.getPointAtLength(0));
+            updateVisibleTextBoxes(0);
+        }
+
+        // ── States mode ─────────────────────────────────────────────────
+        function createTextBoxes() {
+            if (!isStatesMode) return;
+
+            document.querySelectorAll('.textBox').forEach(box => {
+                if (box && box.parentNode) box.parentNode.removeChild(box);
+            });
+            textBoxElements = [];
+            // Every box is rebuilt showing TL - a box left at the Quiz step must not come back showing the quiz prompt
+            currentTextLayer = new Array(conceptData.length).fill(0);
+
+            for (let i = 0; i < conceptData.length; i++) {
+                const point = pathEl.getPointAtLength((conceptData[i][3] / 100) * pathLength);
+                const cfg = STATE_LABELS[i] || DEFAULT_STATE_LABEL;
+
+                const textBox = document.createElementNS(SVG_NS, "text");
+                textBox.setAttribute("class", "textBox");
+                textBox.setAttribute("x", point.x + cfg.dx);
+                textBox.setAttribute("y", point.y + cfg.dy);
+                textBox.setAttribute("data-index", i);
+                // Inline style, not the attribute: the shared .textBox class declares
+                // text-anchor, and a CSS declaration beats an SVG presentation attribute.
+                textBox.style.textAnchor = cfg.anchor;
+                textBox.textContent = conceptData[i][0];   // TL first
+
+                if (statesLearnedItems[i]) textBox.classList.add('learned');
+
+                // Per-box click cycle: TL -> SL -> Quiz (unlearned); TL <-> SL (learned)
+                textBox.addEventListener('click', function () {
+                    const index = parseInt(this.getAttribute('data-index'), 10);
+
+                    if (statesLearnedItems[index]) {
+                        currentTextLayer[index] = (currentTextLayer[index] === 0) ? 1 : 0;
+                        this.textContent = conceptData[index][currentTextLayer[index]];
+                    } else if (currentTextLayer[index] === 0) {
+                        currentTextLayer[index] = 1;
+                        this.textContent = conceptData[index][1];
+                    } else if (currentTextLayer[index] === 1) {
+                        currentTextLayer[index] = 2;
+                        showQuiz(index);
+                    } else {
+                        currentTextLayer[index] = 0;
+                        this.textContent = conceptData[index][0];
+                        if (currentQuizIndex === index) closeQuiz();
+                    }
+                });
+
+                svg.appendChild(textBox);
+                textBoxElements.push(textBox);
+            }
+
+            // SVG stacking is document order: keep the frame last so it always
+            // renders - and receives touches - above every label.
+            svg.appendChild(frame);
+        }
+
+        // The label of the state nearest the frame ALONG THE PATH is the active
+        // one; learned labels stay visible. An unlearned label that is no longer
+        // active goes back to TL, so a newly focused item always starts fresh.
+        function updateVisibleTextBoxes(framePercent) {
+            if (!isStatesMode) return -1;
+
+            let closestIndex = -1;
+            let minDistance = Infinity;
+            conceptData.forEach((row, index) => {
+                const distance = Math.abs(row[3] - framePercent);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestIndex = index;
+                }
+            });
+
+            textBoxElements.forEach((textBox, index) => {
+                if (!textBox) return;
+                textBox.classList.toggle('active', index === closestIndex);
+                textBox.classList.toggle('learned', !!statesLearnedItems[index]);
+                if (index !== closestIndex && !statesLearnedItems[index] && currentTextLayer[index] !== 0) {
+                    currentTextLayer[index] = 0;
+                    textBox.textContent = conceptData[index][0];
+                }
+            });
+            return closestIndex;
+        }
+
+        // Frame dragging
+        let isDragging = false;
+
+        function startDrag(e) {
+            if (!isStatesMode) return;
+            isDragging = true;
+            frame.classList.add('dragging');
+
+            // Fade out the instruction on first interaction
+            if (dragInstruction && !dragInstruction.classList.contains('fade')) {
+                dragInstruction.classList.add('fade');
+            }
+            e.preventDefault();
+        }
+
+        function dragMove(e) {
+            if (!isDragging || !isStatesMode) return;
+            const src = e.touches ? e.touches[0] : e;
+            const pt = getSvgPoint(src.clientX, src.clientY);
+
+            // Nearest point on the WHOLE path (both x and y: the sudden return
+            // is vertical, so x alone cannot place the frame on it)
+            const best = closestOnPath(pt.x, pt.y, null);
+            placeFrameAt(pathEl.getPointAtLength(best.len));
+            updateVisibleTextBoxes((best.len / pathLength) * 100);
+
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function endDrag(e) {
+            if (isDragging) {
+                isDragging = false;
+                frame.classList.remove('dragging');
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+        }
+
+        // ── Transitions mode ────────────────────────────────────────────
+        function updateTextContent() {
+            if (isStatesMode) return;
+            const item = getTransitionItem(currentOffset);
+            // TL first; then SL (which also stays on show while the quiz is open)
+            slidingText.textContent = (slidingTextMode === 0) ? item.data[0] : item.data[1];
+            interactiveText.classList.toggle('learned', !!transitionsLearnedItems[item.index]);
+        }
+
+        // Keep the whole sliding word on the path: glyphs beyond the end of a
+        // path are not drawn, so the word would be cut off. The offset is where
+        // the word STARTS, so it must stop short of the end by the word's own
+        // length. If the word cannot be measured, fall back to a fixed cap.
+        function getMaxTextStartPercent() {
+            try {
+                const len = interactiveText.getComputedTextLength();
+                if (len > 0 && pathLength > 0) return Math.max(0, 100 - (len / pathLength) * 100);
+            } catch (e) { /* not measurable: keep the fallback */ }
+            return MAX_TEXT_OFFSET_FALLBACK;
+        }
+
+        function startTextDrag(e) {
+            if (isStatesMode) return;
+            isDraggingText = true;
+            hasMovedDuringDrag = false;
+            interactiveText.classList.add('dragging');
+
+            const src = e.touches ? e.touches[0] : e;
+            dragStartClientX = src.clientX;
+            dragStartClientY = src.clientY;
+
+            // Remember where on the word the learner grabbed it, so the word
+            // does not jump to put its start under the pointer.
+            const pt = getSvgPoint(src.clientX, src.clientY);
+            const startLen = (currentOffset / 100) * pathLength;
+            dragGrabOffset = closestOnPath(pt.x, pt.y, null).len - startLen;
+
+            if (dragInstruction && !dragInstruction.classList.contains('fade')) {
+                dragInstruction.classList.add('fade');
+            }
+            e.preventDefault();
+        }
+
+        function dragText(e) {
+            if (!isDraggingText || isStatesMode) return;
+            const src = e.touches ? e.touches[0] : e;
+
+            if (!hasMovedDuringDrag) {
+                // Distance from where the drag STARTED (not from the last event),
+                // so slow drags still register, and touchscreen jitter on a
+                // stationary tap does not count as a drag.
+                if (Math.hypot(src.clientX - dragStartClientX, src.clientY - dragStartClientY) <= DRAG_THRESHOLD_PX) {
+                    if (e.cancelable) e.preventDefault();
+                    return;
+                }
+                hasMovedDuringDrag = true;
+            }
+
+            const pt = getSvgPoint(src.clientX, src.clientY);
+            // Search only a window of the path around the word, so it cannot
+            // leap across to a distant stretch of the path.
+            const curStartLen = (currentOffset / 100) * pathLength;
+            const cur = closestOnPath(pt.x, pt.y, curStartLen + dragGrabOffset);
+            const startLen = Math.min(pathLength, Math.max(0, cur.len - dragGrabOffset));
+
+            currentOffset = (startLen / pathLength) * 100;
+            updateTextContent();   // the word (and so its length) for this spot, so it can be measured
+            currentOffset = Math.min(getMaxTextStartPercent(), currentOffset);
+            slidingText.setAttribute('startOffset', currentOffset + '%');
+
+            if (e.cancelable) e.preventDefault();
+        }
+
+        function endTextDrag() {
+            if (isDraggingText) {
+                isDraggingText = false;
+                interactiveText.classList.remove('dragging');
+            }
+            setTimeout(() => { hasMovedDuringDrag = false; }, 100);
+        }
+
+        function toggleTextFormat() {
+            if (isStatesMode || isDraggingText || hasMovedDuringDrag) return;
+            const item = getTransitionItem(currentOffset);
+
+            if (transitionsLearnedItems[item.index]) {
+                // Learned: TL <-> SL
+                slidingTextMode = (slidingTextMode === 0) ? 1 : 0;
+                updateTextContent();
+            } else if (slidingTextMode === 0) {
+                slidingTextMode = 1;              // TL -> SL
+                updateTextContent();
+            } else if (slidingTextMode === 1) {
+                slidingTextMode = 2;              // SL -> Quiz (the SL word stays on show)
+                showQuiz(item.index);
+            } else {
+                slidingTextMode = 0;              // Quiz -> back to TL
+                if (currentQuizIndex === item.index) closeQuiz();
+                updateTextContent();
+            }
+        }
+
+        // ── Quiz ────────────────────────────────────────────────────────
+        function showQuiz(index) {
+            const currentData = isStatesMode ? conceptData : transitionsData;
+            if (!currentData[index]) {
+                console.error("Invalid quiz index:", index);
+                return;
+            }
+            currentQuizIndex = index;
+
+            quizInput.placeholder = currentData[index][2];
+            quizInput.value = '';
+            quizFeedback.textContent = '';
+
+            // Open where the learner last left it (or centred, the first time)
+            if (quizPosition.x !== null && quizPosition.y !== null) {
+                quizContainer.style.left = quizPosition.x + 'px';
+                quizContainer.style.top = quizPosition.y + 'px';
+                quizContainer.style.transform = 'none';
+            } else {
+                quizContainer.style.left = '50%';
+                quizContainer.style.top = '40%';
+                quizContainer.style.transform = 'translate(-50%, -50%)';
+            }
+
+            quizContainer.style.display = 'block';
+            quizContainer.style.visibility = 'visible';
+            quizContainer.style.opacity = '1';
+            quizContainer.style.zIndex = '9999';
+
+            setTimeout(() => {
+                try {
+                    quizInput.focus();
+                } catch (e) {
+                    console.error("Error focusing quiz input:", e);
+                }
+            }, 100);
+        }
+
+        function closeQuiz() {
+            quizContainer.style.display = 'none';
+            currentQuizIndex = -1;
+        }
+
+        function checkQuizAnswer() {
+            if (currentQuizIndex < 0) return;
+
+            // The item is fixed when the quiz opens (currentQuizIndex), so moving
+            // the frame or the sliding word meanwhile cannot make the answer be
+            // checked against a different item.
+            const currentData = isStatesMode ? conceptData : transitionsData;
+            const entry = currentData[currentQuizIndex];
+            if (!entry) return;
+
+            const userAnswer = quizInput.value.trim().toLowerCase();
+            const correctAnswer = entry[0].toLowerCase();   // the quiz tests TL
+
+            if (userAnswer === correctAnswer) {
+                quizFeedback.textContent = 'Correct!';
+                quizFeedback.style.color = 'green';
+                const answeredIndex = currentQuizIndex;
+
+                if (isStatesMode) {
+                    statesLearnedItems[answeredIndex] = true;
+                    currentTextLayer[answeredIndex] = 0;
+                    const textBox = textBoxElements[answeredIndex];
+                    if (textBox) {
+                        textBox.classList.add('learned');
+                        textBox.textContent = entry[0];
+                    }
+                } else {
+                    transitionsLearnedItems[answeredIndex] = true;
+                    slidingTextMode = 0;
+                    updateTextContent();
+                    if (!addedVocabularyItems[answeredIndex]) addToVocabularyArray(answeredIndex);
+                }
+
+                setTimeout(() => {
+                    // Only close OUR quiz - the learner may have opened another meanwhile
+                    if (currentQuizIndex === answeredIndex) closeQuiz();
+                }, 1500);
+            } else {
+                quizFeedback.textContent = 'Try again';
+                quizFeedback.style.color = 'red';
+            }
+        }
+
+        // ── Learned Vocabulary array ────────────────────────────────────
+        // One combined list, kept in path order whatever order the items were
+        // learned in: each entry carries data-index and is inserted before the
+        // first existing entry with a larger one. Each item is filed once.
+        function addToVocabularyArray(index) {
+            try {
+                const row = transitionsData[index];
+                if (!row) return;
+
+                const itemElement = document.createElement('div');
+                itemElement.className = 'vocabulary-item';
+                itemElement.setAttribute('data-index', index);
+
+                const targetSpan = document.createElement('span');
+                targetSpan.className = 'target-language';
+                targetSpan.textContent = row[0];
+
+                const sourceSpan = document.createElement('span');
+                sourceSpan.className = 'source-language';
+                sourceSpan.textContent = row[1];
+
+                targetSpan.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    this.classList.toggle('hidden');
+                });
+                sourceSpan.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    this.classList.toggle('hidden');
+                });
+
+                itemElement.appendChild(targetSpan);
+                itemElement.appendChild(sourceSpan);
+
+                let insertBeforeEl = null;
+                for (const child of vocabularyItems.children) {
+                    if (parseInt(child.getAttribute('data-index'), 10) > index) {
+                        insertBeforeEl = child;
+                        break;
+                    }
+                }
+                vocabularyItems.insertBefore(itemElement, insertBeforeEl);
+                addedVocabularyItems[index] = true;
+                vocabularyArray.style.display = 'block';
+                if (arrayCollapsed) setVocabularyCollapsed(false);
+            } catch (error) {
+                console.error("Error adding vocabulary item:", error);
+            }
+        }
+
+        // Hide All / Show All. Hide All draws the whole list up into the title
+        // bar (clearing the page); Show All rolls it back down and uncovers any
+        // word the learner had covered by tapping it. An entry added while the
+        // array is rolled up reopens it, so a newly learned word is never
+        // hidden from the learner.
+        let arrayCollapsed = false;
+        let arrayAnimTimer = null;
+        const ARRAY_ANIM_MS = 600;
+
+        function setVocabularyCollapsed(collapse) {
+            try {
+                if (!vocabularyItems || !toggleVocabularyBtn || collapse === arrayCollapsed) return;
+                arrayCollapsed = collapse;
+                clearTimeout(arrayAnimTimer);
+                const list = vocabularyItems;
+
+                if (collapse) {
+                    list.style.overflow = 'hidden';
+                    list.style.maxHeight = list.scrollHeight + 'px';   // from natural height...
+                    void list.offsetHeight;                            // ...commit it, then animate to 0
+                    list.style.transition = 'max-height ' + ARRAY_ANIM_MS + 'ms ease-in-out, opacity ' + (ARRAY_ANIM_MS - 100) + 'ms ease-in-out';
+                    list.style.maxHeight = '0px';
+                    list.style.opacity = '0';
+                    vocabularyArray.classList.add('collapsed');
+                    toggleVocabularyBtn.textContent = 'Show All';
+                } else {
+                    list.querySelectorAll('.hidden').forEach(function (el) { el.classList.remove('hidden'); });
+                    list.style.overflow = 'hidden';
+                    list.style.transition = 'max-height ' + ARRAY_ANIM_MS + 'ms ease-in-out, opacity ' + ARRAY_ANIM_MS + 'ms ease-in-out';
+                    list.style.maxHeight = list.scrollHeight + 'px';
+                    list.style.opacity = '1';
+                    vocabularyArray.classList.remove('collapsed');
+                    toggleVocabularyBtn.textContent = 'Hide All';
+                    arrayAnimTimer = setTimeout(function () {          // back to natural height so later entries fit
+                        list.style.maxHeight = 'none';
+                        list.style.overflow = '';
+                        list.style.transition = '';
+                    }, ARRAY_ANIM_MS + 50);
+                }
+            } catch (error) {
+                console.error("Error in setVocabularyCollapsed:", error);
+            }
+        }
+
+        // ── Show All (quick reference) ───────────────────────────────────
+        // One button, just below Tools. Each click steps to the next language
+        // layer and the last click switches it off again:
+        //   Show All -> Show All (TL) -> Show All (SL) -> Hide All -> Show All (off)
+        // "Hide All" is the last level before the loop returns to the normal
+        // interactive view: it clears EVERY word off the page - including the
+        // state labels a learner has already completed the Quiz on, which
+        // otherwise stay on screen - leaving only the path, the title and the
+        // buttons. Like the other levels it does not touch the learned /
+        // quizzed status of anything; it is only a view.
+        // It works on the CURRENT mode: in States mode every state label is
+        // shown at once; in Transitions mode every transition word is laid
+        // along the path, centred in its own zone. It does not touch the
+        // learned / quizzed status of anything, and it is independent of the
+        // frame, the state boxes, the sliding word and the Quiz, which step
+        // aside while it is on.
+        //
+        // Each word can also be clicked on its own to flip it to the next
+        // layer (TL -> SL -> TL ...), with no Quiz step. That choice is kept
+        // per word - across a Toggle Mode and back - until the Show All
+        // button is pressed again, which sets every word to its layer.
+        // Every word carries data-kind / data-index / data-layer so audio can
+        // later be attached to mouseover.
+        // (The LOG family inserts { label: 'TLR', column: <TLR column>,
+        // cls: 'layer-tlr' } between TL and SL.)
+        const SHOW_ALL_LAYERS = [
+            { label: 'TL', column: 0, cls: 'layer-tl' },
+            { label: 'SL', column: 1, cls: 'layer-sl' }
+        ];
+        // -1 = off (the normal interactive view); 0 ... SHOW_ALL_LAYERS.length-1 =
+        // a language layer; SHOW_ALL_LAYERS.length = the Hide All level
+        let showAllLayer = -1;
+        // Per-word layer chosen by clicking the word itself; undefined = follow the button
+        let showAllOverride = { state: [], transition: [] };
+
+        function clearShowAll() {
+            if (showAllGroup && showAllGroup.parentNode) showAllGroup.parentNode.removeChild(showAllGroup);
+            showAllGroup = null;
+        }
+
+        function showAllLayerFor(kind, index) {
+            const own = showAllOverride[kind][index];
+            return (own === undefined) ? showAllLayer : own;
+        }
+
+        // Show a word in its layer: text, colour class, data-layer; a
+        // transition word is re-centred in its zone because its length changes.
+        function applyShowAllWord(word) {
+            const row = (word.kind === 'state') ? conceptData[word.index] : transitionsData[word.index];
+            const layer = SHOW_ALL_LAYERS[showAllLayerFor(word.kind, word.index)];
+            SHOW_ALL_LAYERS.forEach(function (l) { word.el.classList.remove(l.cls); });
+            word.el.classList.add(layer.cls);
+            word.el.setAttribute('data-layer', layer.label);
+            (word.tp || word.el).textContent = row[layer.column];
+
+            if (word.kind === 'transition') {
+                let lenPct = 0;
+                try { lenPct = (word.el.getComputedTextLength() / pathLength) * 100; } catch (e) { /* keep 0 */ }
+                const centre = (row[3] + row[4]) / 2;
+                const start = Math.max(0, Math.min(100 - lenPct, centre - lenPct / 2));
+                word.tp.setAttribute('startOffset', start + '%');
+            }
+        }
+
+        function flipShowAllWord(word) {
+            showAllOverride[word.kind][word.index] = (showAllLayerFor(word.kind, word.index) + 1) % SHOW_ALL_LAYERS.length;
+            applyShowAllWord(word);
+        }
+
+        function renderShowAll() {
+            clearShowAll();
+            const on = showAllLayer >= 0;
+            const hideAll = (showAllLayer === SHOW_ALL_LAYERS.length);   // the Hide All level: no words at all
+            const page = document.querySelector('.a4-page');
+            if (page) page.classList.toggle('show-all-on', on);
+            showAllBtn.classList.toggle('active', on);
+            showAllBtn.textContent = !on ? 'Show All' : (hideAll ? 'Hide All' : 'Show All (' + SHOW_ALL_LAYERS[showAllLayer].label + ')');
+            if (!on) return;
+
+            closeQuiz();
+            if (isDragging) endDrag();
+            if (isDraggingText) endTextDrag();
+            if (hideAll) return;   // .show-all-on already hides the frame, state labels, sliding word and note
+
+            showAllGroup = document.createElementNS(SVG_NS, 'g');
+            showAllGroup.setAttribute('id', 'showAllLayer');
+            const words = [];
+
+            if (isStatesMode) {
+                conceptData.forEach(function (row, i) {
+                    const point = pathEl.getPointAtLength((row[3] / 100) * pathLength);
+                    const cfg = STATE_LABELS[i] || DEFAULT_STATE_LABEL;
+                    const t = document.createElementNS(SVG_NS, 'text');
+                    t.setAttribute('class', 'showall-word showall-state');
+                    t.setAttribute('x', point.x + cfg.dx);
+                    t.setAttribute('y', point.y + cfg.dy);
+                    t.style.textAnchor = cfg.anchor;   // inline style, not the attribute (CSS specificity)
+                    t.setAttribute('data-kind', 'state');
+                    t.setAttribute('data-index', i);
+                    showAllGroup.appendChild(t);
+                    words.push({ kind: 'state', index: i, el: t, tp: null });
+                });
+            } else {
+                transitionsData.forEach(function (row, i) {
+                    const t = document.createElementNS(SVG_NS, 'text');
+                    t.setAttribute('class', 'showall-word showall-trans');
+                    t.setAttribute('data-kind', 'transition');
+                    t.setAttribute('data-index', i);
+                    const tp = document.createElementNS(SVG_NS, 'textPath');
+                    tp.setAttribute('href', '#hybridPath');
+                    tp.setAttribute('dy', '-5');            // same lift as the sliding word
+                    tp.setAttribute('startOffset', '0%');
+                    t.appendChild(tp);
+                    showAllGroup.appendChild(t);
+                    words.push({ kind: 'transition', index: i, el: t, tp: tp });
+                });
+            }
+
+            svg.insertBefore(showAllGroup, frame);   // the frame stays last in document order
+
+            // Fill and position the words once they are in the DOM (transition
+            // words are measured to centre them in their zones)
+            words.forEach(function (w) {
+                applyShowAllWord(w);
+                w.el.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    flipShowAllWord(w);
+                });
+            });
+        }
+
+        function cycleShowAll() {
+            showAllLayer = (showAllLayer + 1 > SHOW_ALL_LAYERS.length) ? -1 : showAllLayer + 1;   // ... last layer -> Hide All -> off
+            showAllOverride = { state: [], transition: [] };   // the button sets every word afresh
+            renderShowAll();
+        }
+
+        // ── Mode switching and title ────────────────────────────────────
+        function toggleMode() {
+            isStatesMode = !isStatesMode;
+            // The title restarts at its default (combined) view in the new mode
+            currentTextIndex = 0;
+
+            if (isStatesMode) {
+                frame.style.display = 'block';
+                interactiveText.style.display = 'none';
+                titleBox.textContent = titleTexts.states[currentTextIndex];
+
+                createTextBoxes();
+                initializeFramePosition();
+
+                // The array holds Transitions items only
+                vocabularyArray.style.display = 'none';
+            } else {
+                frame.style.display = 'none';
+                interactiveText.style.display = 'block';
+                titleBox.textContent = titleTexts.transitions[currentTextIndex];
+
+                document.querySelectorAll('.textBox').forEach(box => {
+                    if (box && box.parentNode) box.parentNode.removeChild(box);
+                });
+                textBoxElements = [];
+
+                slidingTextMode = 0;
+                currentOffset = 0;
+                slidingText.setAttribute('startOffset', '0%');
+                updateTextContent();
+
+                if (vocabularyItems.children.length > 0) vocabularyArray.style.display = 'block';
+            }
+            closeQuiz();
+            if (showAllLayer >= 0) renderShowAll();   // Show All follows the mode
+        }
+
+        function switchTitleText() {
+            titleBox.classList.add('hidden');
+            setTimeout(() => {
+                currentTextIndex = (currentTextIndex + 1) % 3;
+                const modeKey = isStatesMode ? 'states' : 'transitions';
+                titleBox.textContent = titleTexts[modeKey][currentTextIndex];
+                titleBox.classList.remove('hidden');
+            }, 500);
+        }
+
+        // ── Event wiring ────────────────────────────────────────────────
+        function setupEventListeners() {
+            // Frame dragging
+            frame.addEventListener('mousedown', startDrag);
+            frame.addEventListener('touchstart', startDrag, { passive: false });
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('touchmove', dragMove, { passive: false });
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+
+            // Sliding-text dragging (mousedown/touchstart on the <text>; the
+            // <textPath> inside it bubbles up to it)
+            interactiveText.addEventListener('mousedown', startTextDrag);
+            interactiveText.addEventListener('touchstart', startTextDrag, { passive: false });
+            document.addEventListener('mousemove', dragText);
+            document.addEventListener('touchmove', dragText, { passive: false });
+            document.addEventListener('mouseup', endTextDrag);
+            document.addEventListener('touchend', endTextDrag);
+
+            // Mobile tap-to-cycle. Registered on document AFTER endTextDrag, so
+            // it runs once isDraggingText has been reset. It replaces the desktop
+            // 'click', which never fires on touch here because startTextDrag's
+            // preventDefault() suppresses the synthetic click.
+            document.addEventListener('touchend', function (e) {
+                if (!isDraggingText && !isStatesMode && !hasMovedDuringDrag && interactiveText.contains(e.target)) {
+                    toggleTextFormat();
+                }
+            });
+            interactiveText.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleTextFormat();
+            });
+
+            // Other UI controls
+            if (showAllBtn) {
+                showAllBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    cycleShowAll();
+                });
+            }
+            titleBox.addEventListener('click', switchTitleText);
+            modeToggleBtn.addEventListener('click', toggleMode);
+            quizCheck.addEventListener('click', checkQuizAnswer);
+            quizInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') checkQuizAnswer();
+            });
+
+            // Keyboard-avoidance for the Quiz box: window.innerHeight does NOT
+            // change when the on-screen keyboard opens, but visualViewport does.
+            if (window.visualViewport) {
+                const KEYBOARD_HEIGHT_THRESHOLD = 150;
+                window.visualViewport.addEventListener('resize', function () {
+                    const heightDiff = window.innerHeight - window.visualViewport.height;
+                    quizContainer.classList.toggle('keyboard-open', heightDiff > KEYBOARD_HEIGHT_THRESHOLD);
+                });
+            }
+
+            // Tools menu
+            const toolsButton = document.querySelector('.tools-button');
+            const toolsDropdown = document.querySelector('.tools-dropdown');
+            const fullscreenToggle = document.getElementById('toggleFullscreen');
+            const loadConceptBtn = document.getElementById('loadConcept');
+            const startQuizBtn = document.getElementById('startQuiz');
+            let dropdownOpen = false;
+
+            function closeDropdown() {
+                dropdownOpen = false;
+                if (toolsDropdown) toolsDropdown.classList.remove('active');
+            }
+
+            if (toolsButton) {
+                toolsButton.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    dropdownOpen = !dropdownOpen;
+                    toolsDropdown.classList.toggle('active', dropdownOpen);
+                });
+            }
+
+            document.addEventListener('click', function (e) {
+                if (toolsButton && toolsDropdown &&
+                    !toolsButton.contains(e.target) && !toolsDropdown.contains(e.target)) {
+                    closeDropdown();
+                }
+            });
+
+            // Full Screen. NOTE: iOS Safari does not implement the Fullscreen
+            // API; the PWA build (display: standalone) is the real fix there.
+            if (fullscreenToggle) {
+                fullscreenToggle.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    if (!document.fullscreenElement) {
+                        if (document.documentElement.requestFullscreen) {
+                            document.documentElement.requestFullscreen().catch(function (err) {
+                                console.log('Full screen request failed or unsupported:', err);
+                            });
+                        }
+                        fullscreenToggle.textContent = 'Exit Full Screen';
+                    } else {
+                        if (document.exitFullscreen) document.exitFullscreen();
+                        fullscreenToggle.textContent = 'Full Screen';
+                    }
+                    closeDropdown();
+                });
+                // Keep the label right if fullscreen is exited via the browser's own UI
+                document.addEventListener('fullscreenchange', function () {
+                    fullscreenToggle.textContent = document.fullscreenElement ? 'Exit Full Screen' : 'Full Screen';
+                });
+            }
+
+            if (loadConceptBtn) {
+                loadConceptBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    closeDropdown();
+                    alert("Load Concept feature will integrate with API to fetch vocabulary for any conceptual spectrum.");
+                });
+            }
+
+            if (startQuizBtn) {
+                startQuizBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    closeDropdown();
+                    const currentData = isStatesMode ? conceptData : transitionsData;
+                    showQuiz(Math.floor(Math.random() * currentData.length));
+                });
+            }
+
+            // The array's own Hide All / Show All button (there is no Tools-menu
+            // item for the array any more: Hide All clears it off the page).
+            if (toggleVocabularyBtn) {
+                toggleVocabularyBtn.addEventListener('click', function () {
+                    setVocabularyCollapsed(!arrayCollapsed);
+                });
+            }
+
+            // Document click: close the quiz when the learner clicks elsewhere
+            document.addEventListener('click', function (e) {
+                // Swallow the one synthetic click that follows a quiz-box drag-release
+                if (quizJustDragged) {
+                    quizJustDragged = false;
+                    return;
+                }
+                if (quizContainer.style.display !== 'none' &&
+                    !quizContainer.contains(e.target) &&
+                    !(e.target.classList && e.target.classList.contains('textBox')) &&
+                    !interactiveText.contains(e.target)) {
+
+                    closeQuiz();
+
+                    // Back to TL if the sliding word was sitting at the Quiz step
+                    if (!isStatesMode && slidingTextMode === 2) {
+                        slidingTextMode = 0;
+                        updateTextContent();
+                    }
+                }
+            });
+
+            setupArrayDrag();
+            setupQuizDrag();
+            setupTitleDrag();
+        }
+
+        // ── Learned Vocabulary array: default position + drag anywhere ──────
+        // Default spot: 5% across / 30% down the template box (.a4-page), below the baseline words. The array is
+        // position:fixed so it can be dragged anywhere on the screen, e.g. clear of the
+        // quiz box. Once the learner has moved it, it stays where they put it (also
+        // across hide/show). It grows downward as entries are added.
+        function setupArrayDrag() {
+            const arr = document.getElementById('vocabulary-array');
+            const list = document.getElementById('vocabulary-items');
+            const page = document.querySelector('.a4-page');
+            if (!arr) return;
+            const ARRAY_DRAG_THRESHOLD_PX = 5;   // below this a press is a click (Hide All, tapping an entry)
+            let userMoved = false, dragging = false, moved = false, wasShown = false;
+            let offX = 0, offY = 0, startX = 0, startY = 0, activeId = null, justDragged = false;
+
+            function place(left, top) {
+                const maxLeft = Math.max(0, window.innerWidth - arr.offsetWidth);
+                const maxTop = Math.max(0, window.innerHeight - arr.offsetHeight);
+                arr.style.left = Math.min(Math.max(0, left), maxLeft) + 'px';
+                arr.style.top = Math.min(Math.max(0, top), maxTop) + 'px';
+            }
+            function placeDefault() {
+                const r = page ? page.getBoundingClientRect()
+                               : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+                place(r.left + r.width * 0.05, r.top + r.height * 0.30);
+            }
+            function updateScrollable() {
+                arr.classList.toggle('scrollable', arr.scrollHeight > arr.clientHeight + 1);
+            }
+            function isShown() { return arr.style.display === 'block'; }
+            // Re-place after the content (and so the height) or the window changes; nudged
+            // up if the bottom edge would otherwise fall off the screen.
+            function refit() {
+                if (!isShown()) return;
+                if (userMoved) place(parseFloat(arr.style.left) || 0, parseFloat(arr.style.top) || 0);
+                else placeDefault();
+                updateScrollable();
+            }
+
+            // Watch for the array being shown (the JS shows it from several places), and
+            // for entries being added, rather than patching every call site.
+            new MutationObserver(function () {
+                const shown = isShown();
+                if (shown && !wasShown) {
+                    wasShown = true;
+                    if (userMoved) place(parseFloat(arr.style.left) || 0, parseFloat(arr.style.top) || 0);
+                    else placeDefault();
+                } else if (!shown) {
+                    wasShown = false;
+                }
+                if (shown) updateScrollable();
+            }).observe(arr, { attributes: true, attributeFilter: ['style'] });
+            if (list) new MutationObserver(refit).observe(list, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+
+            window.addEventListener('resize', refit);
+
+            arr.addEventListener('pointerdown', function (e) {
+                if (e.button) return;                                          // primary button / touch / pen only
+                if (e.target.closest && e.target.closest('button')) return;    // let Hide All click through
+                const r = arr.getBoundingClientRect();
+                dragging = true; moved = false; activeId = e.pointerId;
+                startX = e.clientX; startY = e.clientY;
+                offX = e.clientX - r.left; offY = e.clientY - r.top;
+            });
+            document.addEventListener('pointermove', function (e) {
+                if (!dragging || e.pointerId !== activeId) return;
+                if (!moved) {
+                    if (Math.hypot(e.clientX - startX, e.clientY - startY) < ARRAY_DRAG_THRESHOLD_PX) return;
+                    moved = true;
+                    arr.classList.add('dragging');
+                    try { arr.setPointerCapture(activeId); } catch (_) {}
+                }
+                place(e.clientX - offX, e.clientY - offY);
+                userMoved = true;
+                if (e.cancelable) e.preventDefault();
+            });
+            function endArrayDrag(e) {
+                if (!dragging || e.pointerId !== activeId) return;
+                dragging = false;
+                arr.classList.remove('dragging');
+                try { arr.releasePointerCapture(activeId); } catch (_) {}
+                if (moved) {
+                    // The release fires a click; swallow it so it cannot dismiss the quiz
+                    // box, close the Tools menu or toggle an entry (reset after 100ms if none arrives).
+                    justDragged = true;
+                    setTimeout(function () { justDragged = false; }, 100);
+                }
+                moved = false;
+            }
+            document.addEventListener('pointerup', endArrayDrag);
+            document.addEventListener('pointercancel', endArrayDrag);
+            document.addEventListener('click', function (e) {
+                if (justDragged) { justDragged = false; e.stopPropagation(); e.preventDefault(); }
+            }, true);
+        }
+
+        // ── Quiz box: drag to reposition anywhere on screen ─────────────
+        // Grab it from anywhere except the input field and the Check button, so
+        // typing and tapping Check still work. Mouse and touch alike.
+        function setupQuizDrag() {
+            let isDraggingQuiz = false;
+            let dragMoved = false;
+            let quizDragOffsetX = 0;
+            let quizDragOffsetY = 0;
+
+            function quizDragStart(e) {
+                if (e.target === quizInput || e.target === quizCheck) return;
+                isDraggingQuiz = true;
+                dragMoved = false;
+                const rect = quizContainer.getBoundingClientRect();
+                const point = e.touches ? e.touches[0] : e;
+                quizDragOffsetX = point.clientX - rect.left;
+                quizDragOffsetY = point.clientY - rect.top;
+                // Switch from centred (transform-based) to explicit pixel positioning
+                quizContainer.style.left = rect.left + 'px';
+                quizContainer.style.top = rect.top + 'px';
+                quizContainer.style.transform = 'none';
+                quizContainer.classList.add('dragging');
+                if (e.touches) e.preventDefault();
+            }
+
+            function quizDragMove(e) {
+                if (!isDraggingQuiz) return;
+                const point = e.touches ? e.touches[0] : e;
+                let newLeft = point.clientX - quizDragOffsetX;
+                let newTop = point.clientY - quizDragOffsetY;
+                const maxLeft = window.innerWidth - quizContainer.offsetWidth;
+                const maxTop = window.innerHeight - quizContainer.offsetHeight;
+                newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                newTop = Math.max(0, Math.min(newTop, maxTop));
+                quizContainer.style.left = newLeft + 'px';
+                quizContainer.style.top = newTop + 'px';
+                // Remember where the learner put it, so the next quiz opens there
+                quizPosition.x = newLeft;
+                quizPosition.y = newTop;
+                dragMoved = true;
+                if (e.touches) e.preventDefault();
+            }
+
+            function quizDragEnd() {
+                if (!isDraggingQuiz) return;
+                isDraggingQuiz = false;
+                quizContainer.classList.remove('dragging');
+                // A drag-release fires a click at whatever is under the cursor; if that
+                // lands just outside the box, the outside-click handler would close the
+                // quiz. Flag it so that one click is swallowed.
+                if (dragMoved) {
+                    quizJustDragged = true;
+                    setTimeout(function () { quizJustDragged = false; }, 100);
+                }
+            }
+
+            quizContainer.addEventListener('mousedown', quizDragStart);
+            document.addEventListener('mousemove', quizDragMove);
+            document.addEventListener('mouseup', quizDragEnd);
+
+            quizContainer.addEventListener('touchstart', quizDragStart, { passive: false });
+            document.addEventListener('touchmove', quizDragMove, { passive: false });
+            document.addEventListener('touchend', quizDragEnd);
+        }
+
+        // ── Title box: drag to reposition anywhere on screen ────────────
+        // A movement threshold lets a short tap still cycle the title text
+        // (switchTitleText) while a real drag repositions it and suppresses that click.
+        function setupTitleDrag() {
+            const tb = document.getElementById('title-box');
+            let isDraggingTitle = false;
+            let titleHasMoved = false;
+            let titleDragStartX = 0;
+            let titleDragStartY = 0;
+            let titleDragOffsetX = 0;
+            let titleDragOffsetY = 0;
+            const TITLE_DRAG_THRESHOLD = 8; // screen pixels
+
+            function titleDragStart(e) {
+                const point = e.touches ? e.touches[0] : e;
+                titleDragStartX = point.clientX;
+                titleDragStartY = point.clientY;
+                titleHasMoved = false;
+                isDraggingTitle = true;
+                const rect = tb.getBoundingClientRect();
+                titleDragOffsetX = point.clientX - rect.left;
+                titleDragOffsetY = point.clientY - rect.top;
+            }
+
+            function titleDragMove(e) {
+                if (!isDraggingTitle) return;
+                const point = e.touches ? e.touches[0] : e;
+                const dx = point.clientX - titleDragStartX;
+                const dy = point.clientY - titleDragStartY;
+
+                if (!titleHasMoved && Math.hypot(dx, dy) > TITLE_DRAG_THRESHOLD) {
+                    titleHasMoved = true;
+                    tb.style.position = 'fixed';
+                    tb.style.transform = 'none';
+                    tb.classList.add('dragging');
+                }
+
+                if (titleHasMoved) {
+                    let newLeft = point.clientX - titleDragOffsetX;
+                    let newTop = point.clientY - titleDragOffsetY;
+                    const maxLeft = window.innerWidth - tb.offsetWidth;
+                    const maxTop = window.innerHeight - tb.offsetHeight;
+                    newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                    newTop = Math.max(0, Math.min(newTop, maxTop));
+                    tb.style.left = newLeft + 'px';
+                    tb.style.top = newTop + 'px';
+                    if (e.touches) e.preventDefault();
+                }
+            }
+
+            function titleDragEnd() {
+                isDraggingTitle = false;
+                tb.classList.remove('dragging');
+            }
+
+            tb.addEventListener('mousedown', titleDragStart);
+            document.addEventListener('mousemove', titleDragMove);
+            document.addEventListener('mouseup', titleDragEnd);
+
+            tb.addEventListener('touchstart', titleDragStart, { passive: true });
+            document.addEventListener('touchmove', titleDragMove, { passive: false });
+            document.addEventListener('touchend', titleDragEnd);
+
+            // Capture phase, so this runs before switchTitleText's own
+            // (bubble-phase) click listener and can stop it.
+            tb.addEventListener('click', function (e) {
+                if (titleHasMoved) {
+                    e.stopImmediatePropagation();
+                    e.preventDefault();
+                }
+            }, true);
+        }
+
+        // ── Initialisation ──────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', function () {
+            try {
+                svg = document.getElementById("svgCanvas");
+                pathEl = document.getElementById("hybridPath");
+                conceptBackground = document.getElementById("conceptBackground");
+                titleBox = document.getElementById("title-box");
+                modeToggleBtn = document.getElementById("modeToggle");
+                frame = document.getElementById("draggableFrame");
+                dragInstruction = document.getElementById("drag-instruction");
+                interactiveText = document.getElementById("interactiveText");
+                slidingText = document.getElementById("slidingText");
+                quizContainer = document.getElementById("quizContainer");
+                quizInput = document.getElementById("quizInput");
+                quizCheck = document.getElementById("quizCheck");
+                quizFeedback = document.getElementById("quizFeedback");
+                vocabularyArray = document.getElementById("vocabulary-array");
+                vocabularyItems = document.getElementById("vocabulary-items");
+                toggleVocabularyBtn = document.getElementById("toggle-vocabulary");
+                showAllBtn = document.getElementById("showAllBtn");
+
+                if (!svg || !pathEl || !titleBox || !modeToggleBtn || !frame || !interactiveText) {
+                    console.error("Critical elements are missing from the DOM");
+                    return;
+                }
+
+                statesLearnedItems = new Array(conceptData.length).fill(false);
+                transitionsLearnedItems = new Array(transitionsData.length).fill(false);
+                addedVocabularyItems = new Array(transitionsData.length).fill(false);
+
+                // Build the path and the background fill beneath it
+                const pathD = buildPathData();
+                pathEl.setAttribute('d', pathD);
+                conceptBackground.setAttribute('d', pathD + ' L ' + VB_MAX_X + ',60 L ' + VB_MIN_X + ',60 Z');
+                pathLength = pathEl.getTotalLength();
+
+                setupEventListeners();
+
+                titleBox.textContent = titleTexts.states[0];
+                createTextBoxes();
+                initializeFramePosition();
+
+                interactiveText.style.display = 'none';
+                quizContainer.style.display = 'none';
+                vocabularyArray.style.display = 'none';
+                slidingText.setAttribute('startOffset', '0%');
+
+                // Fade the instruction after 20 s if the first drag has not already done so
+                if (dragInstruction) {
+                    setTimeout(() => { dragInstruction.classList.add('fade'); }, 20000);
+                }
+
+                console.log("HTCVSI template initialised: " + conceptData.length + " states, " +
+                            transitionsData.length + " transitions, path length " + pathLength.toFixed(1));
+            } catch (error) {
+                console.error("Error initializing application:", error);
+            }
+        });
+    </script>
+</body>
+</html>
