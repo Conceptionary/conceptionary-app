@@ -2,10 +2,10 @@
   "meta": {
     "project": "Conceptionary",
     "description": "Master registry of all GPCV (General Purpose Conceptionary Vocabulary) templates. Each entry maps a template file to its path type, learning track, supported language pairs, and pedagogical metadata.",
-    "version": "1.1.0",
-    "last_updated": "2026-09-10 @11am",
+    "version": "1.2.0",
+    "last_updated": "2026-09-22 @ 8:29 a.m.",
     "author": "Alan William Preston",
-    "total_templates": 72,
+    "total_templates": 80,
     "tracks": {
       "phonographic": {
         "description": "Templates for phonographic / romanized-alphabet languages (English, German, Spanish, French, Bahasa Indonesia, Te Reo Māori, etc.)",
@@ -13,7 +13,7 @@
         "cycle_levels": 3,
         "cycle_sequence": ["TL", "SL", "Quiz"],
         "quiz_tests": "TL",
-        "count": 35
+        "count": 39
       },
       "logographic": {
         "description": "Templates for logographic / non-romanized languages (Japanese, Mandarin Chinese, Korean, etc.)",
@@ -22,7 +22,7 @@
         "cycle_sequence": ["TLR", "TL", "SL", "Quiz"],
         "quiz_tests": "TLR",
         "default_display": "TLR",
-        "count": 37
+        "count": 41
       }
     },
     "path_families": [
@@ -31,7 +31,8 @@
       "gradual_change",
       "bell_curve",
       "circular_cyclical",
-      "bidirectional"
+      "bidirectional",
+      "hybrid_temporary"
     ]
   },
 
@@ -1031,6 +1032,134 @@
       "language_pairs_available": [
         { "sl": "English", "tl": "Japanese", "card": "CC-0012", "note": "Vocabulary newly generated 2026-07-11, not yet validated by Alan" }
       ]
+    },
+
+    {
+      "id": "ROM-HTCVS",
+      "file": "ROM-HTCVS-Generic.html",
+      "path": "templates/phonographic/ROM-HTCVS-Generic.html",
+      "track": "phonographic",
+      "family": "hybrid_temporary",
+      "path_type": "Hybrid Temporary — Curve then Sudden",
+      "description": "3-level cycle (TL→SL→Quiz), quiz tests TL. Baseline, then a gradual ascending curve to a peak, then an instant vertical crash back to baseline. Reversible. Mirror of HTSCV in time. 9 states plus 7 transition zones; positions and zones are fixed by the template.",
+      "modes": ["states", "transitions"],
+      "textbox_count": { "states": 9, "transitions": 7 },
+      "architecture": "fixed_geometry_zones",
+      "notes": "2026-09-22: Built and user-tested 2026-09-21/22. Positions (percent of path length) and transition zones are fixed by the template, not the concept card: the App reads them from the template's own conceptData/transitionsData and injects only the words. Cards must supply exactly 9 states and 7 transitions.",
+      "suitable_for": ["gradual build then sudden collapse", "an economic bubble", "a wave building then breaking", "a reputation built then destroyed", "pressure building then bursting"],
+      "language_pairs_available": []
+    },
+
+    {
+      "id": "ROM-HTSCV",
+      "file": "ROM-HTSCV-Generic.html",
+      "path": "templates/phonographic/ROM-HTSCV-Generic.html",
+      "track": "phonographic",
+      "family": "hybrid_temporary",
+      "path_type": "Hybrid Temporary — Sudden then Curve",
+      "description": "3-level cycle (TL→SL→Quiz), quiz tests TL. Baseline, then an instant vertical rise to a peak, then a gradual descending curve back to baseline. Reversible. 9 states plus 7 transition zones; positions and zones are fixed by the template.",
+      "modes": ["states", "transitions"],
+      "textbox_count": { "states": 9, "transitions": 7 },
+      "architecture": "fixed_geometry_zones",
+      "notes": "2026-09-22: Built and user-tested 2026-09-21/22. Positions (percent of path length) and transition zones are fixed by the template, not the concept card: the App reads them from the template's own conceptData/transitionsData and injects only the words. Cards must supply exactly 9 states and 7 transitions.",
+      "suitable_for": ["sudden onset then gradual fading", "acute pain then healing", "a loud noise fading", "power surge then gradual restoration", "acute shock response"],
+      "language_pairs_available": []
+    },
+
+    {
+      "id": "ROM-HTCVSI",
+      "file": "ROM-HTCVSI-Generic.html",
+      "path": "templates/phonographic/ROM-HTCVSI-Generic.html",
+      "track": "phonographic",
+      "family": "hybrid_temporary",
+      "path_type": "Hybrid Temporary — Curve then Sudden, Inverted",
+      "description": "3-level cycle (TL→SL→Quiz), quiz tests TL. Baseline (high), then a gradual descending curve to a trough, then an instant vertical recovery to baseline. Reversible. Mirror of HTSCVI in time; vertical mirror of HTCVS. 9 states plus 7 transition zones; positions and zones are fixed by the template.",
+      "modes": ["states", "transitions"],
+      "textbox_count": { "states": 9, "transitions": 7 },
+      "architecture": "fixed_geometry_zones",
+      "notes": "2026-09-22: Built and user-tested 2026-09-21/22. Positions (percent of path length) and transition zones are fixed by the template, not the concept card: the App reads them from the template's own conceptData/transitionsData and injects only the words. Cards must supply exactly 9 states and 7 transitions.",
+      "suitable_for": ["gradual worsening then sudden resolution", "a power outage restored by a switch", "a situation deteriorating then suddenly resolved"],
+      "language_pairs_available": []
+    },
+
+    {
+      "id": "ROM-HTSCVI",
+      "file": "ROM-HTSCVI-Generic.html",
+      "path": "templates/phonographic/ROM-HTSCVI-Generic.html",
+      "track": "phonographic",
+      "family": "hybrid_temporary",
+      "path_type": "Hybrid Temporary — Sudden then Curve, Inverted",
+      "description": "3-level cycle (TL→SL→Quiz), quiz tests TL. Baseline (high), then an instant vertical drop to a trough, then a gradual ascending curve back to baseline. Reversible. Vertical mirror of HTSCV. 9 states plus 7 transition zones; positions and zones are fixed by the template.",
+      "modes": ["states", "transitions"],
+      "textbox_count": { "states": 9, "transitions": 7 },
+      "architecture": "fixed_geometry_zones",
+      "notes": "2026-09-22: Built and user-tested 2026-09-21/22. Positions (percent of path length) and transition zones are fixed by the template, not the concept card: the App reads them from the template's own conceptData/transitionsData and injects only the words. Cards must supply exactly 9 states and 7 transitions.",
+      "suitable_for": ["sudden loss then gradual recovery", "loss of confidence", "bereavement", "a power cut then gradual restoration", "sudden fright then calming"],
+      "language_pairs_available": []
+    },
+
+    {
+      "id": "LOG-HTCVS",
+      "file": "LOG-HTCVS-Generic.html",
+      "path": "templates/logographic/LOG-HTCVS-Generic.html",
+      "track": "logographic",
+      "family": "hybrid_temporary",
+      "path_type": "Hybrid Temporary — Curve then Sudden",
+      "description": "Logographic version. 4-level cycle (TLR→TL→SL→Quiz), quiz tests TLR. Baseline, then a gradual ascending curve to a peak, then an instant vertical crash back to baseline. Reversible. Mirror of HTSCV in time. 9 states plus 7 transition zones; positions and zones are fixed by the template.",
+      "modes": ["states", "transitions"],
+      "textbox_count": { "states": 9, "transitions": 7 },
+      "architecture": "fixed_geometry_zones",
+      "notes": "2026-09-22: Built and user-tested 2026-09-21/22. Positions (percent of path length) and transition zones are fixed by the template, not the concept card: the App reads them from the template's own conceptData/transitionsData and injects only the words. Cards must supply exactly 9 states and 7 transitions.",
+      "suitable_for": ["gradual build then sudden collapse", "an economic bubble", "a wave building then breaking", "a reputation built then destroyed", "pressure building then bursting"],
+      "language_pairs_available": []
+    },
+
+    {
+      "id": "LOG-HTSCV",
+      "file": "LOG-HTSCV-Generic.html",
+      "path": "templates/logographic/LOG-HTSCV-Generic.html",
+      "track": "logographic",
+      "family": "hybrid_temporary",
+      "path_type": "Hybrid Temporary — Sudden then Curve",
+      "description": "Logographic version. 4-level cycle (TLR→TL→SL→Quiz), quiz tests TLR. Baseline, then an instant vertical rise to a peak, then a gradual descending curve back to baseline. Reversible. 9 states plus 7 transition zones; positions and zones are fixed by the template.",
+      "modes": ["states", "transitions"],
+      "textbox_count": { "states": 9, "transitions": 7 },
+      "architecture": "fixed_geometry_zones",
+      "notes": "2026-09-22: Built and user-tested 2026-09-21/22. Positions (percent of path length) and transition zones are fixed by the template, not the concept card: the App reads them from the template's own conceptData/transitionsData and injects only the words. Cards must supply exactly 9 states and 7 transitions.",
+      "suitable_for": ["sudden onset then gradual fading", "acute pain then healing", "a loud noise fading", "power surge then gradual restoration", "acute shock response"],
+      "language_pairs_available": []
+    },
+
+    {
+      "id": "LOG-HTCVSI",
+      "file": "LOG-HTCVSI-Generic.html",
+      "path": "templates/logographic/LOG-HTCVSI-Generic.html",
+      "track": "logographic",
+      "family": "hybrid_temporary",
+      "path_type": "Hybrid Temporary — Curve then Sudden, Inverted",
+      "description": "Logographic version. 4-level cycle (TLR→TL→SL→Quiz), quiz tests TLR. Baseline (high), then a gradual descending curve to a trough, then an instant vertical recovery to baseline. Reversible. Mirror of HTSCVI in time; vertical mirror of HTCVS. 9 states plus 7 transition zones; positions and zones are fixed by the template.",
+      "modes": ["states", "transitions"],
+      "textbox_count": { "states": 9, "transitions": 7 },
+      "architecture": "fixed_geometry_zones",
+      "notes": "2026-09-22: Built and user-tested 2026-09-21/22. Positions (percent of path length) and transition zones are fixed by the template, not the concept card: the App reads them from the template's own conceptData/transitionsData and injects only the words. Cards must supply exactly 9 states and 7 transitions.",
+      "suitable_for": ["gradual worsening then sudden resolution", "a power outage restored by a switch", "a situation deteriorating then suddenly resolved"],
+      "language_pairs_available": []
+    },
+
+    {
+      "id": "LOG-HTSCVI",
+      "file": "LOG-HTSCVI-Generic.html",
+      "path": "templates/logographic/LOG-HTSCVI-Generic.html",
+      "track": "logographic",
+      "family": "hybrid_temporary",
+      "path_type": "Hybrid Temporary — Sudden then Curve, Inverted",
+      "description": "Logographic version. 4-level cycle (TLR→TL→SL→Quiz), quiz tests TLR. Baseline (high), then an instant vertical drop to a trough, then a gradual ascending curve back to baseline. Reversible. Vertical mirror of HTSCV. 9 states plus 7 transition zones; positions and zones are fixed by the template.",
+      "modes": ["states", "transitions"],
+      "textbox_count": { "states": 9, "transitions": 7 },
+      "architecture": "fixed_geometry_zones",
+      "notes": "2026-09-22: Built and user-tested 2026-09-21/22. Positions (percent of path length) and transition zones are fixed by the template, not the concept card: the App reads them from the template's own conceptData/transitionsData and injects only the words. Cards must supply exactly 9 states and 7 transitions.",
+      "suitable_for": ["sudden loss then gradual recovery", "loss of confidence", "bereavement", "a power cut then gradual restoration", "sudden fright then calming"],
+      "language_pairs_available": []
     }
 
   ]

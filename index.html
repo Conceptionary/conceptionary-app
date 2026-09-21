@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-08-17 @ 5:00 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-09-22 @ 8:29 a.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <!--
   CONCEPTIONARY — Standalone Web Application
@@ -1678,6 +1678,20 @@ async function injectAndOpen(templatePath, langConfig, card) {
     //   Remap: [r[1], r[0], r[4], r[2], r[3]]
     //   (TLR moves from column 4 in the card to column 2 in the template)
     //
+    // HT family (HTSCV, HTSCVI, HTCVS, HTCVSI — ROM and LOG):
+    //   The template OWNS the geometry. Every HT template has 9 states and
+    //   7 transitions whose positions (states) and zones (transitions) are
+    //   fixed by the shape, so the App reads those numbers out of the
+    //   template's own conceptData/transitionsData and injects only the
+    //   WORDS from the card. The card's Position column is ignored for HT.
+    //   ROM native: [TL, SL, Quiz, pos]        / transitions [.., zs, ze]
+    //   LOG native: [TLR, TL, SL, Quiz, pos]   / transitions [.., zs, ze]
+    //   Remap:  ROM -> [r[0], r[1], r[2], ...template numbers]
+    //           LOG -> [r[4], r[0], r[1], r[2], ...template numbers]
+    //   A card must supply exactly 9 states and 7 transitions (LOG rows
+    //   also need TLR in column 4), otherwise injection stops with a clear
+    //   message instead of opening a half-populated template.
+    //
     // All other templates: no remap needed (inject as-is)
     // ═══════════════════════════════════════════════════════════
     const isRomGTCV = /GTCV|GTCVI|GPCVP|GPCVN/i.test(templatePath) &&
@@ -1690,6 +1704,51 @@ async function injectAndOpen(templatePath, langConfig, card) {
     const isHLBI    = /HL-BI/i.test(templatePath);
     const isCVBI    = /CV-BI/i.test(templatePath);
     const isLogTemplate = /^templates\/logographic\//i.test(templatePath);
+    const isHT      = /-HT(?:SCV|CVS)I?-/i.test(templatePath);
+    const isLogHT   = isHT && /(?:^|\/)LOG-HT/i.test(templatePath);
+
+    // ── HT family: read the template's own geometry (numbers only) ───────
+    // Returns one array of numbers per row: [pos] for states, [zs, ze] for
+    // transitions. Strings and // comments are stripped in a single pass so
+    // a quote inside a comment (or // inside a string) cannot confuse it.
+    function htNumbers(src, name) {
+      const m = src.match(new RegExp('const ' + name + '\\s*=\\s*\\[([\\s\\S]*?)\\];'));
+      if (!m) throw new Error('HT template has no ' + name + ' block');
+      const body = m[1].replace(/"(?:[^"\\]|\\.)*"|\/\/[^\n]*/g, t => t[0] === '"' ? '""' : '');
+      const rows = body.match(/\[[^\[\]]*\]/g) || [];
+      return rows.map(row => row.slice(1, -1).split(',')
+        .map(x => x.trim()).filter(x => x !== '' && x !== '""').map(Number));
+    }
+    // Compute BEFORE any replacement below alters `html`.
+    let ht = null;
+    if (isHT) {
+      ht = { states: htNumbers(html, 'conceptData'), trans: htNumbers(html, 'transitionsData') };
+      const nS = ht.states.length, nT = ht.trans.length;
+      if (ht.states.some(n => n.length !== 1 || n.some(isNaN)) ||
+          ht.trans.some(n => n.length !== 2 || n.some(isNaN))) {
+        throw new Error('Could not read the positions/zones from ' + templatePath);
+      }
+      if (!langConfig.conceptData || !langConfig.transitionsData) {
+        throw new Error('This card has no states/transitions for ' + templatePath);
+      }
+      if (langConfig.conceptData.length !== nS || langConfig.transitionsData.length !== nT) {
+        throw new Error(templatePath.split('/').pop() + ' needs exactly ' + nS + ' states and ' + nT +
+          ' transitions, but this card has ' + langConfig.conceptData.length + ' and ' +
+          langConfig.transitionsData.length);
+      }
+      if (isLogHT) {
+        const noTLR = [...langConfig.conceptData, ...langConfig.transitionsData]
+          .findIndex(r => !r || r[4] === undefined || r[4] === null || r[4] === '');
+        if (noTLR !== -1) throw new Error('A logographic HT card needs a TLR (romanization) in column 5 of every row');
+      }
+      if (langConfig.titles && (!Array.isArray(langConfig.titles.states) || langConfig.titles.states.length < 3 ||
+          !Array.isArray(langConfig.titles.transitions) || langConfig.titles.transitions.length < 3)) {
+        throw new Error('An HT card needs titles.states and titles.transitions, each with 3 entries');
+      }
+    }
+    function remapHTRow(r, nums) {
+      return isLogHT ? [r[4], r[0], r[1], r[2], ...nums] : [r[0], r[1], r[2], ...nums];
+    }
 
     // ── HL-BI and CV-BI: replace the entire LANG config object ──────────
     if ((isHLBI || isCVBI) && langConfig.conceptData) {
@@ -1784,11 +1843,15 @@ async function injectAndOpen(templatePath, langConfig, card) {
 
     // Inject conceptData (skip for HL-BI/CV-BI — handled above via LANG object)
     if (langConfig.conceptData && !isHLBI && !isCVBI) {
-      const data = langConfig.conceptData.map(remapRow);
+      const data = isHT
+        ? langConfig.conceptData.map((r, i) => remapHTRow(r, ht.states[i]))
+        : langConfig.conceptData.map(remapRow);
       // Try const declaration format first
+      // (function replacer: a "$" in vocabulary must not be read as a
+      //  replacement pattern such as $& or $')
       let newHtml = html.replace(
         /const conceptData\s*=\s*\[[\s\S]*?\];/,
-        `const conceptData = ${JSON.stringify(data, null, 12)};`
+        () => `const conceptData = ${JSON.stringify(data, null, 12)};`
       );
       // Fallback: object-property format
       if (newHtml === html) {
@@ -1827,7 +1890,10 @@ async function injectAndOpen(templatePath, langConfig, card) {
     // Inject transitionsData (skip for HL-BI/CV-BI — handled above via LANG object)
     if (langConfig.transitionsData && !isHLBI && !isCVBI) {
       let data;
-      if (isLogGTCV) {
+      if (isHT) {
+        // HT: words from the card, zone start/end from the template
+        data = langConfig.transitionsData.map((r, i) => remapHTRow(r, ht.trans[i]));
+      } else if (isLogGTCV) {
         // LOG-GTCV transitionsData is an array of OBJECTS, not flat arrays.
         // Card format: [TL, SL, Quiz, Position, TLR]
         // After remap:  [SL, TL, TLR, Quiz, Position]
@@ -1847,14 +1913,14 @@ async function injectAndOpen(templatePath, langConfig, card) {
       }
       html = html.replace(
         /const transitionsData\s*=\s*\[[\s\S]*?\];/,
-        `const transitionsData = ${JSON.stringify(data, null, 12)};`
+        () => `const transitionsData = ${JSON.stringify(data, null, 12)};`
       );
     }
     // Inject titleTexts
     if (langConfig.titles) {
       html = html.replace(
         /const titleTexts\s*=\s*\{[\s\S]*?\};/,
-        `const titleTexts = ${JSON.stringify(langConfig.titles, null, 10)};`
+        () => `const titleTexts = ${JSON.stringify(langConfig.titles, null, 10)};`
       );
     }
     // Inject UI strings
