@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-09-21 @ 10:04 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-09-21 @ 11:30 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -611,7 +611,7 @@
                 <div class="tool-item" id="startQuiz">Quick Quiz</div>
             </div>
             <div class="tools-row">
-                <button id="showAllBtn" class="show-all-btn" type="button" title="Quick reference: show every word at once, in TL, TLR or SL. Click any word to flip just that word to the next layer.">Show All</button>
+                <button id="showAllBtn" class="show-all-btn" type="button" title="Quick reference: show every word at once, in TL, TLR or SL. Click any word to flip just that word to the next layer. Keep clicking to reach Hide All, which clears every word off the screen.">Show All</button>
                 <button id="modeToggle" class="mode-toggle" type="button">Toggle Mode</button>
             </div>
         </div>
@@ -1297,7 +1297,13 @@
         // ── Show All (quick reference) ───────────────────────────────────
         // One button, just below Tools. Each click steps to the next language
         // layer and the last click switches it off again:
-        //   Show All -> Show All (TL) -> Show All (TLR) -> Show All (SL) -> Show All (off)
+        //   Show All -> Show All (TL) -> Show All (TLR) -> Show All (SL) -> Hide All -> Show All (off)
+        // "Hide All" is the last level before the loop returns to the normal
+        // interactive view: it clears EVERY word off the page - including the
+        // state labels a learner has already completed the Quiz on, which
+        // otherwise stay on screen - leaving only the path, the title and the
+        // buttons. Like the other levels it does not touch the learned /
+        // quizzed status of anything; it is only a view.
         // It works on the CURRENT mode: in States mode every state label is
         // shown at once; in Transitions mode every transition word is laid
         // along the path, centred in its own zone. It does not touch the
@@ -1319,7 +1325,9 @@
             { label: 'TLR', column: 0, cls: 'layer-tlr' },
             { label: 'SL',  column: 2, cls: 'layer-sl'  }
         ];
-        let showAllLayer = -1;   // -1 = off
+        // -1 = off (the normal interactive view); 0 ... SHOW_ALL_LAYERS.length-1 =
+        // a language layer; SHOW_ALL_LAYERS.length = the Hide All level
+        let showAllLayer = -1;
         // Per-word layer chosen by clicking the word itself; undefined = follow the button
         let showAllOverride = { state: [], transition: [] };
 
@@ -1360,15 +1368,17 @@
         function renderShowAll() {
             clearShowAll();
             const on = showAllLayer >= 0;
+            const hideAll = (showAllLayer === SHOW_ALL_LAYERS.length);   // the Hide All level: no words at all
             const page = document.querySelector('.a4-page');
             if (page) page.classList.toggle('show-all-on', on);
             showAllBtn.classList.toggle('active', on);
-            showAllBtn.textContent = on ? 'Show All (' + SHOW_ALL_LAYERS[showAllLayer].label + ')' : 'Show All';
+            showAllBtn.textContent = !on ? 'Show All' : (hideAll ? 'Hide All' : 'Show All (' + SHOW_ALL_LAYERS[showAllLayer].label + ')');
             if (!on) return;
 
             closeQuiz();
             if (isDragging) endDrag();
             if (isDraggingText) endTextDrag();
+            if (hideAll) return;   // .show-all-on already hides the frame, state labels, sliding word and note
 
             showAllGroup = document.createElementNS(SVG_NS, 'g');
             showAllGroup.setAttribute('id', 'showAllLayer');
@@ -1418,7 +1428,7 @@
         }
 
         function cycleShowAll() {
-            showAllLayer = (showAllLayer + 1 >= SHOW_ALL_LAYERS.length) ? -1 : showAllLayer + 1;
+            showAllLayer = (showAllLayer + 1 > SHOW_ALL_LAYERS.length) ? -1 : showAllLayer + 1;   // ... last layer -> Hide All -> off
             showAllOverride = { state: [], transition: [] };   // the button sets every word afresh
             renderShowAll();
         }
