@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-09-22 @ 9:31 a.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-09-22 @ 4:00 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -215,6 +215,26 @@
             font-size: 0.8em;
             cursor: pointer;
             white-space: nowrap;
+        }
+
+        /* Reset: a full fresh start (position, Show All, Quiz progress) for
+           a learner who has got stuck or wants to start the concept over.
+           Kept visible next to Toggle Mode, not tucked inside Tools, so
+           it's easy to find when frustrated. */
+        .reset-btn {
+            background-color: #fff4e0;
+            border: 1px solid #e0a030;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-family: inherit;
+            font-size: 0.8em;
+            cursor: pointer;
+            white-space: nowrap;
+            color: #8a5a00;
+        }
+
+        .reset-btn:hover {
+            background-color: #ffe6b3;
         }
 
         /* Quiz container styles */
@@ -502,13 +522,38 @@
         }
 
         .showall-state {
-            font-size: 0.2em;
+            /* Fixed SVG unit, not em - and NOT simply "whatever 0.2em
+               used to compute to" either. Measured directly: despite
+               getComputedStyle reporting 0.2em as 6px on desktop, the
+               words' ACTUAL rendered glyph size (getComputedTextLength/
+               getBBox, i.e. what really painted) was consistently ~1.88x
+               SMALLER than a literal 6px - a genuine Chromium quirk where
+               em-sized SVG <text> created via createElementNS resolves
+               against a stale/default font context at paint time, not the
+               value getComputedStyle later reports. 3.5px reproduces the
+               size that was ACTUALLY being rendered all along (already
+               proven overlap-free at desktop/small in testing), and - like
+               .showall-trans below - needs no separate touch-viewport
+               value, which removes the 0.3em touch bump that was the real
+               cause of the narrow-viewport overlap this was fixing. */
+            font-size: 3.5px;
             font-weight: bold;
         }
 
         .showall-trans {
             font-size: 3.5px;
             font-weight: bold;
+        }
+
+        /* Show All (Transitions): a word whose default placement would
+           overlap a neighbour is shrunk by resolveShowAllTransitionCollisions()
+           below, in the same pass that also tries moving it below the path. */
+        .showall-trans.shrink {
+            font-size: 2px;
+        }
+
+        .showall-trans.shrink2 {
+            font-size: 1.3px;
         }
 
         .showall-word.layer-tl  { fill: #0b3d91; }
@@ -555,10 +600,11 @@
             #draggableFrame {
                 r: 3;
             }
-            .textBox,
-            .showall-state {
+            .textBox {
                 font-size: 0.3em;
             }
+            /* .showall-state intentionally NOT bumped here any more - see
+               the base rule above. */
             .sliding-text {
                 font-size: 3.5px;
             }
@@ -580,14 +626,16 @@
             }
             .tools-button,
             .show-all-btn,
-            .mode-toggle {
+            .mode-toggle,
+            .reset-btn {
                 box-sizing: border-box;   /* so min-height 48px is the real height */
                 min-height: 48px;
                 padding: 12px 16px;
                 font-size: 1em;
             }
             .show-all-btn,
-            .mode-toggle {
+            .mode-toggle,
+            .reset-btn {
                 padding: 12px 10px;
                 font-size: 0.85em;
             }
@@ -598,7 +646,8 @@
                     max-width: 32%;
                 }
                 .show-all-btn,
-                .mode-toggle {
+                .mode-toggle,
+                .reset-btn {
                     padding: 12px 7px;
                     font-size: 0.75em;
                 }
@@ -632,7 +681,8 @@
             </div>
             <div class="tools-row">
                 <button id="showAllBtn" class="show-all-btn" type="button" title="Quick reference: show every word at once, in TL, TLR or SL. Click any word to flip just that word to the next layer. Keep clicking to reach Hide All, which clears every word off the screen.">Show All</button>
-                <button id="modeToggle" class="mode-toggle" type="button">Toggle Mode</button>
+                <button id="modeToggle" class="mode-toggle" type="button">Show Transitions</button>
+                <button id="resetBtn" class="reset-btn" type="button" title="Start this concept over from the beginning: clears Quiz progress and returns to the start of the line.">Reset</button>
             </div>
         </div>
 
@@ -781,6 +831,22 @@
         };
         let currentTextIndex = 0;
 
+        // ── Toggle Mode label: a loop, not a static caption ──────────────
+        // Reads "Show Transitions" while in States mode and "Show States"
+        // while in Transitions mode - i.e. it always names the mode a click
+        // will switch TO. Defaults are English placeholders; the App
+        // overwrites this block from the concept card's lang_config.ui
+        // (show_transitions_label / show_states_label), same pattern as
+        // titleTexts / answerConfig.
+        const modeToggleLabels = {
+            toTransitions: "Show Transitions",
+            toStates: "Show States"
+        };
+
+        function updateModeToggleLabel() {
+            modeToggleBtn.textContent = isStatesMode ? modeToggleLabels.toTransitions : modeToggleLabels.toStates;
+        }
+
         // ── Answer checking: spelling conventions for the Quiz ───────────
         // The Quiz compares what the learner types with column 0 of the row
         // (the TLR, i.e. the romanisation). BOTH sides pass through the same normalisation, so any
@@ -852,11 +918,11 @@
         let quizPosition = { x: null, y: null };   // null = default centred spot
 
         // DOM elements
-        let svg, pathEl, conceptBackground, titleBox, modeToggleBtn, frame;
+        let svg, pathEl, conceptBackground, titleBox, modeToggleBtn, resetBtn, frame;
         let quizContainer, quizInput, quizCheck, quizFeedback;
         let vocabularyArray, vocabularyItems, toggleVocabularyBtn;
         let interactiveText, slidingText, dragInstruction;
-        let showAllBtn, showAllGroup = null;
+        let showAllBtn, showAllGroup = null, showAllWords = [];   // showAllWords: the live Show All word list, for collision re-resolution on flip
 
         // ── Path ────────────────────────────────────────────────────────
         function buildPathData() {
@@ -1404,6 +1470,7 @@
         function clearShowAll() {
             if (showAllGroup && showAllGroup.parentNode) showAllGroup.parentNode.removeChild(showAllGroup);
             showAllGroup = null;
+            showAllWords = [];
         }
 
         function showAllLayerFor(kind, index) {
@@ -1422,6 +1489,12 @@
             (word.tp || word.el).textContent = row[layer.column];
 
             if (word.kind === 'transition') {
+                // dy / shrink may have been set by resolveShowAllTransitionCollisions()
+                // below to move this word clear of a neighbour; default is
+                // the original placement (above the path, full size).
+                word.el.classList.remove('shrink', 'shrink2');
+                if (word.size) word.el.classList.add(word.size);
+                word.tp.setAttribute('dy', word.dy === undefined ? -5 : word.dy);
                 let lenPct = 0;
                 try { lenPct = (word.el.getComputedTextLength() / pathLength) * 100; } catch (e) { /* keep 0 */ }
                 const centre = (row[4] + row[5]) / 2;
@@ -1433,6 +1506,93 @@
         function flipShowAllWord(word) {
             showAllOverride[word.kind][word.index] = (showAllLayerFor(word.kind, word.index) + 1) % SHOW_ALL_LAYERS.length;
             applyShowAllWord(word);
+            if (word.kind === 'transition') resolveShowAllTransitionCollisions();   // its length just changed - reflow around it
+        }
+
+        // ── Show All (Transitions): collision avoidance ───────────────────
+        // Real vocabulary varies wildly in length against the curve zones,
+        // which run to only about 9-14 characters. Two measures keep
+        // neighbours apart: words alternate sides of the path by default -
+        // odd/even in path order, the usual way to fit a crowded row of
+        // labels - and any pair that still overlaps has its least-adjusted
+        // member try progressively smaller type on its OWN side, crossing to
+        // the other side only as a last resort (so a long run of crowded
+        // words spreads across both sides instead of all retreating to one).
+        // A word with no collision keeps its default placement untouched.
+        // Runs once after Show All (Transitions) is built, and again after
+        // any word is flipped TL/TLR/SL, since that changes its length.
+        // States mode does not run this solver: user testing found overlap
+        // there was a .showall-state font-sizing bug (see its CSS rule),
+        // not a spacing/collision problem - fixing the sizing removed it.
+        const SHOW_ALL_ABOVE = [
+            { dy: -5, size: ''        },   // default: above the path, full size
+            { dy: -5, size: 'shrink'  },   // above, shrunk
+            { dy: -5, size: 'shrink2' },   // above, smallest
+            { dy: 8,  size: 'shrink2' }    // last resort: cross to below, smallest
+        ];
+        const SHOW_ALL_BELOW = [
+            { dy: 8,  size: ''        },   // default: below the path, full size
+            { dy: 8,  size: 'shrink'  },   // below, shrunk
+            { dy: 8,  size: 'shrink2' },   // below, smallest
+            { dy: -5, size: 'shrink2' }    // last resort: cross to above, smallest
+        ];
+        const SHOW_ALL_COLLISION_TOLERANCE = 2;   // px; ignores the near-touches rotated glyphs report
+
+        function showAllBBox(el) {
+            try {
+                const b = el.getBBox();
+                return { left: b.x, top: b.y, right: b.x + b.width, bottom: b.y + b.height };
+            } catch (e) {
+                return null;   // not yet in the DOM / not rendered - treat as no box, no collision
+            }
+        }
+
+        function showAllBoxesOverlap(a, b, tol) {
+            if (!a || !b) return false;
+            return !(a.right <= b.left + tol || a.left >= b.right - tol ||
+                     a.bottom <= b.top + tol || a.top >= b.bottom - tol);
+        }
+
+        function resolveShowAllTransitionCollisions() {
+            // Settles by relaxation: every colliding PAIR escalates whichever
+            // of the two has moved the least so far (each along its own
+            // side's candidate list), repeating until nothing collides or
+            // every word has tried its last candidate.
+            const items = showAllWords
+                .filter(function (w) { return w.kind === 'transition'; })
+                .slice()
+                .sort(function (a, b) {
+                    const rowA = transitionsData[a.index], rowB = transitionsData[b.index];
+                    return (rowA[4] + rowA[5]) - (rowB[4] + rowB[5]);   // path order, by zone centre
+                });
+            const maxC = SHOW_ALL_ABOVE.length - 1;   // SHOW_ALL_BELOW is the same length
+            items.forEach(function (w, i) {
+                w._candidates = (i % 2 === 0) ? SHOW_ALL_ABOVE : SHOW_ALL_BELOW;   // stagger by default
+                w._candidate = 0;
+                w.dy = w._candidates[0].dy;
+                w.size = w._candidates[0].size;
+                applyShowAllWord(w);
+            });
+            for (let round = 0; round <= maxC; round++) {
+                const boxes = items.map(function (w) { return showAllBBox(w.el); });
+                let escalated = false;
+                for (let i = 0; i < items.length; i++) {
+                    for (let j = i + 1; j < items.length; j++) {
+                        if (!showAllBoxesOverlap(boxes[i], boxes[j], SHOW_ALL_COLLISION_TOLERANCE)) continue;
+                        const a = items[i], b = items[j];
+                        const target = (a._candidate <= b._candidate) ? a : b;
+                        if (target._candidate >= maxC) continue;   // both out of room - leave the pair as the last-resort placement
+                        target._candidate++;
+                        const cand = target._candidates[target._candidate];
+                        target.dy = cand.dy;
+                        target.size = cand.size;
+                        applyShowAllWord(target);
+                        boxes[items.indexOf(target)] = showAllBBox(target.el);
+                        escalated = true;
+                    }
+                }
+                if (!escalated) break;   // stable - nothing left to gain from another round
+            }
         }
 
         function renderShowAll() {
@@ -1495,6 +1655,8 @@
                     flipShowAllWord(w);
                 });
             });
+            showAllWords = words;
+            if (!isStatesMode) resolveShowAllTransitionCollisions();   // transitions only - user testing found states mode has no overlap
         }
 
         function cycleShowAll() {
@@ -1506,6 +1668,7 @@
         // ── Mode switching and title ────────────────────────────────────
         function toggleMode() {
             isStatesMode = !isStatesMode;
+            updateModeToggleLabel();
             // The title restarts at its default (TLR) view in the new mode
             currentTextIndex = 0;
 
@@ -1538,6 +1701,48 @@
             }
             closeQuiz();
             if (showAllLayer >= 0) renderShowAll();   // Show All follows the mode
+        }
+
+        // ── Reset ──────────────────────────────────────────────────────
+        // A full fresh start: the same state as the page's very first load,
+        // for a learner who has got stuck (e.g. Show All -> Hide All, with
+        // no obvious way back to the states view) or simply wants to start
+        // the concept over. Unlike Toggle Mode or Show All, this DOES clear
+        // Quiz progress - every state and transition goes back to "not
+        // learned", and the Learned Vocabulary list is emptied.
+        function resetTemplate() {
+            closeQuiz();
+            if (isDragging) endDrag();
+            if (isDraggingText) endTextDrag();
+
+            showAllLayer = -1;
+            showAllOverride = { state: [], transition: [] };
+            renderShowAll();   // clears the Show All layer and the .show-all-on class
+
+            statesLearnedItems = new Array(conceptData.length).fill(false);
+            transitionsLearnedItems = new Array(transitionsData.length).fill(false);
+            addedVocabularyItems = new Array(transitionsData.length).fill(false);
+            if (vocabularyItems) vocabularyItems.innerHTML = '';
+            arrayCollapsed = false;
+            if (toggleVocabularyBtn) toggleVocabularyBtn.textContent = 'Hide All';
+            if (vocabularyArray) {
+                vocabularyArray.classList.remove('collapsed');
+                vocabularyArray.style.display = 'none';
+            }
+
+            isStatesMode = true;
+            currentTextIndex = 0;
+            titleBox.textContent = titleTexts.states[0];
+            frame.style.display = 'block';
+            interactiveText.style.display = 'none';
+            createTextBoxes();
+            initializeFramePosition();
+
+            slidingTextMode = 0;
+            currentOffset = 0;
+            slidingText.setAttribute('startOffset', '0%');
+
+            updateModeToggleLabel();
         }
 
         function switchTitleText() {
@@ -1593,6 +1798,7 @@
             }
             titleBox.addEventListener('click', switchTitleText);
             modeToggleBtn.addEventListener('click', toggleMode);
+            if (resetBtn) resetBtn.addEventListener('click', resetTemplate);
             quizCheck.addEventListener('click', checkQuizAnswer);
             quizInput.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') checkQuizAnswer();
@@ -1953,6 +2159,7 @@
                 conceptBackground = document.getElementById("conceptBackground");
                 titleBox = document.getElementById("title-box");
                 modeToggleBtn = document.getElementById("modeToggle");
+                resetBtn = document.getElementById("resetBtn");
                 frame = document.getElementById("draggableFrame");
                 dragInstruction = document.getElementById("drag-instruction");
                 interactiveText = document.getElementById("interactiveText");
@@ -1986,6 +2193,7 @@
                 titleBox.textContent = titleTexts.states[0];
                 createTextBoxes();
                 initializeFramePosition();
+                updateModeToggleLabel();
 
                 interactiveText.style.display = 'none';
                 quizContainer.style.display = 'none';

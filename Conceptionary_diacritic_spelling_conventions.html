@@ -1,0 +1,114 @@
+# Conceptionary — Diacritic Spelling Conventions
+
+*Author: Alan William Preston. © 2026 Alan William Preston.*
+
+*Last updated: 2026-09-22 @ 2:08 p.m. (Mangawhai, NZ)*
+
+## Purpose
+
+This is the single reference for the Quiz-level spelling conventions used
+across Conceptionary concept cards. Until now these conventions existed
+only inline, twice over: as a generic mechanism comment inside each HT
+template (`answerConfig` / `AnswerUtils`, see the ROM/LOG-HT*-Generic.html
+files) and as per-card `diacritic_map` / `digraph_map` values buried in
+each concept card's `lang_config`. Neither place is somewhere a new card
+gets checked against an existing one, so nothing stopped two cards for the
+same language drifting apart. This file is the canonical convention per
+language: when building a new card, copy the block for its language pair
+here rather than inventing one from scratch.
+
+## How it works (mechanism, not per-language)
+
+Every HT template's Quiz compares what the learner types against the TL (ROM)
+or TLR (LOG) column, after both sides pass through the same normalisation:
+NFC, lower-cased, then `diacritic_map`, then `digraph_map`, then
+`collapse_double_vowels`, then whitespace/hyphen/punctuation stripped. A
+concept card supplies these four values (plus `diacritic_instructions`, the
+short note shown in the Quiz box) per language pair, in
+`language_pairs.<PAIR>.lang_config`. The App copies that block onto the
+template's `answerConfig` at injection time — see `Conceptionary_Template_
+Definitions.md`, "Quiz spelling conventions", for the full mechanism.
+
+## German (DE)
+
+```json
+"diacritic_map": [["ä","ae"], ["ö","oe"], ["ü","ue"], ["ß","ss"]],
+"diacritic_instructions": "No umlaut keys? Type ae, oe, ue and ss for ä, ö, ü and ß."
+```
+
+No `digraph_map` or `collapse_double_vowels` needed. Status: **in use** —
+built into CC-0017–CC-0020 (EN-DE) and exercised by the automated quiz
+test (27 alternate-spelling checks, all passing).
+
+## Japanese (JA, romaji / Hepburn)
+
+```json
+"diacritic_map": [["ā","a"], ["ī","i"], ["ū","u"], ["ē","e"], ["ō","o"]],
+"digraph_map": [["ou","o"]],
+"collapse_double_vowels": true,
+"diacritic_instructions": "Long vowels: type ō as o, oo or ou (likewise ū as u or uu). All are accepted."
+```
+
+`collapse_double_vowels` accepts the doubled-vowel alternative some
+learners type for a long vowel (e.g. "koukeiki" for "kōkeiki"); the
+`digraph_map` entry additionally accepts the "ou" spelling specific to
+Hepburn ō. Status: **in use** — built into CC-0017–CC-0020 (EN-JA) and
+exercised by the automated quiz test.
+
+## Te Reo Māori (MI)
+
+```json
+"diacritic_map": [["ā","a"], ["ē","e"], ["ī","i"], ["ō","o"], ["ū","u"]],
+"digraph_map": [["a1","a"], ["e1","e"], ["i1","i"], ["o1","o"], ["u1","u"]],
+"collapse_double_vowels": true,
+"diacritic_instructions": "No macron keys? Type the vowel doubled (aa), plain (a), or a1 - all are accepted. Colon notation (a:) also works."
+```
+
+Source: `Te-Reo-Maori-Standards.md` (Alan William Preston, v1.0, 2025-10-06)
+sets out three accepted macron-input variants beyond the macron itself —
+double vowel (`aa`), numeric (`a1`), and colon (`a:`). Mapped onto the
+existing mechanism:
+
+- **Double vowel** (`aa` → `ā`) — `collapse_double_vowels: true`, as before.
+- **Numeric** (`a1` → `ā`) — needs the `digraph_map` entries above; digits
+  aren't touched by the generic punctuation strip, so without this a
+  learner typing "wha1nau" would be marked wrong.
+- **Colon** (`a:` → `ā`) — needs **no config at all**. `AnswerUtils.normalize`
+  already strips `:` (along with `.,!?;`) as its last step, on both sides
+  of the comparison, so "wha:nau" already normalises to the same string as
+  "whanau" today. Confirmed by direct test of the current `AnswerUtils`
+  code.
+
+No `digraph_map` entry is needed for `wh` or `ng` — they're ordinary
+consonant digraphs, not alternate spellings of an accented letter.
+
+Status: **draft — not yet exercised by any built card.** No MI concept
+card exists yet to confirm this block in practice; treat it as a starting
+point to validate against your own material, not as tested.
+
+### Not yet covered by the answerConfig mechanism
+
+`Te-Reo-Maori-Standards.md` also describes a **two-tier strict/relaxed
+matching mode** (§3.4, §5.2) — a `requireMacrons` flag that either ignores
+macrons entirely or requires them exactly, with a third, in-between
+outcome: "right word, wrong macron" partial-credit feedback (its
+worked example: "kaka" = to swear / a parrot's name, vs "kākā" = parrot
+specifically — cases where the macron changes meaning, not just
+pronunciation). Today's `answerConfig` only supports the single relaxed
+mode — every card's correct answer is normalised the same way as the
+learner's input, so macrons are always ignored, with no path to a
+"right word, wrong macron" message. Adding that would mean the Quiz
+keeping the *original*, un-normalised correct answer alongside the
+normalised one, and a new feedback state in `checkQuizAnswer` across every
+template that uses it — not a small change, and worth deciding on
+its own before it's built into anything.
+
+## Adding a new language
+
+1. Check this file first for the language's convention.
+2. If none exists, work out the accented-letter fallbacks a learner
+   without special keys would reasonably type, add a block here in the
+   same shape, and note its status (draft / in use).
+3. Copy that block into the new card's `lang_config` for that language pair.
+4. If practical, run the card through the App's quiz test harness (or a
+   manual pass through Show All + Quiz) before marking it "in use" here.
