@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-09-23 @ 1:56 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-09-23 @ 8:45 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -429,11 +429,34 @@
             opacity: 0.85;
         }
 
+        /* .array-header wraps .array-title + the Hide All button in a flex
+           row. It used to be just .array-title, with the button absolutely
+           positioned on top of its top-right corner - fine on a wide
+           desktop sidebar, but on a narrow phone .vocabulary-array's width
+           (22.5vw) shrinks to under 90px while the Hide All button (bumped
+           to a 48px touch target under the coarse-pointer rule below) is
+           itself ~83px wide, so the button covered nearly the whole title.
+           Putting them side by side in a real flex row means there is no
+           position left for them to occupy at the same time - the title
+           just wraps to a second line on the narrowest phones instead. */
+        .array-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            transition: margin-bottom 0.6s ease-in-out;
+        }
+
+        .vocabulary-array.collapsed .array-header {
+            margin-bottom: 0;
+        }
+
         .array-title {
+            flex: 1;
+            min-width: 0;   /* lets the text wrap/shrink instead of forcing the row wider */
             font-size: 0.85em;
             font-weight: bold;
             text-align: center;
-            margin-bottom: 8px;
             padding: 5px;
             background-color: #e8f4fd;
             border-radius: 3px;
@@ -445,16 +468,6 @@
 
         .vocabulary-array.dragging .array-title {
             cursor: grabbing;
-        }
-
-        /* Hide All rolls the list up into the title bar (Show All rolls it
-           back down); the bar stays so the array can always be reopened. */
-        .array-title {
-            transition: margin-bottom 0.6s ease-in-out;
-        }
-
-        .vocabulary-array.collapsed .array-title {
-            margin-bottom: 0;
         }
 
         .vocabulary-item {
@@ -488,16 +501,16 @@
         }
 
         .toggle-visibility {
-            position: absolute;
-            top: 5px;
-            right: 5px;
+            /* No longer position: absolute - see .array-header above. flex:
+               none keeps it its own natural size instead of sharing space
+               with .array-title's flex: 1. */
+            flex: none;
             font-size: 0.65em;
             padding: 3px 8px;
             background-color: #e0e0e0;
             border: 1px solid #999;
             border-radius: 3px;
             cursor: pointer;
-            z-index: 5;
         }
 
         /* Tools Menu */
@@ -818,6 +831,16 @@
                 padding: 12px 16px;
                 font-size: 0.9em;
             }
+            /* 22.5vw (the desktop sidebar width) is under 90px on a phone -
+               too narrow for "Learned Vocabulary" beside a 48px-tall Hide
+               All button without the title wrapping down to one word per
+               line (found in testing once the overlap above was fixed: no
+               more overlap, but the title text was squeezed to ~10px wide).
+               Wider here gives both room to sit on one line on anything but
+               the narrowest phones, and to wrap sensibly on those. */
+            .vocabulary-array {
+                width: min(65vw, 280px);
+            }
         }
     </style>
 </head>
@@ -838,8 +861,10 @@
 
         <!-- Vocabulary Array: ONE combined list of learned Transitions items, kept in path order -->
         <div id="vocabulary-array" class="vocabulary-array">
-            <div class="array-title">Learned Vocabulary</div>
-            <button class="toggle-visibility" id="toggle-vocabulary">Hide All</button>
+            <div class="array-header">
+                <div class="array-title">Learned Vocabulary</div>
+                <button class="toggle-visibility" id="toggle-vocabulary">Hide All</button>
+            </div>
             <div id="vocabulary-items"></div>
         </div>
 
