@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-09-22 @ 4:00 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-09-23 @ 1:56 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,13 +18,58 @@
             overflow: hidden;
         }
 
+        :root {
+            /* Named once so .page-wrapper (below) can size itself to match
+               this box exactly - see the .page-wrapper rule for why. */
+            --page-w: min(90vw, 70vh * 160 / 60);
+            --page-h: min(70vh, 90vw * 60 / 160);
+        }
+
+        .page-wrapper {
+            /* Wraps .a4-page together with its .tools-menu button bar,
+               which is now a SIBLING of .a4-page in the HTML rather than a
+               child (see the HTML comment where .tools-menu is defined).
+               That is what lets the bar render OUTSIDE the frame's own box
+               on touch devices - it stops sharing coordinate space with
+               the diagram entirely, so it can never again overlap diagram
+               content at any viewport width, closing the ~28px shortfall
+               that was still possible at the narrowest phones under the
+               previous "bottom strip inside the frame" fix.
+               Width = --page-w + 10px: .a4-page uses content-box sizing
+               with a 5px border on all sides, so its full rendered
+               (border-box) width is --page-w + 10px; matching that here is
+               what keeps this wrapper's centring (via the body's flexbox)
+               pixel-identical to when .a4-page was centred directly. */
+            position: relative;
+            width: calc(var(--page-w) + 10px);
+        }
+
+        .template-id-badge {
+            /* Build/test-phase only: tells YOU which template file you're
+               looking at (there is no other visual cue once the title box
+               still reads its generic placeholder text). A language
+               learner has no reason to ever know the internal template
+               code name, so index.html's injectAndOpen() strips this whole
+               element out of the HTML before the live, LLM-populated page
+               is ever opened - see the html.replace() call right before
+               the Blob is created. If you're seeing this, you're looking
+               at the raw generic file directly, which is exactly when
+               it's useful. */
+            text-align: center;
+            font-family: monospace;
+            font-size: 11px;
+            color: #999;
+            padding: 2px 0 4px;
+            user-select: none;
+        }
+
         .a4-page {
             /* Locked to the SVG viewBox's exact 160:60 ratio so the curve
                always reaches the frame edges (same approach as the GTCV
                family). content-box is deliberate: the width/height apply
                to the content area the SVG actually fills. */
-            width: min(90vw, 70vh * 160 / 60);
-            height: min(70vh, 90vw * 60 / 160);
+            width: var(--page-w);
+            height: var(--page-h);
             border: 5px solid black;
             background-color: white;
             box-sizing: content-box;
@@ -457,9 +502,23 @@
 
         /* Tools Menu */
         .tools-menu {
+            /* .tools-menu is now a sibling of .a4-page, not a child
+               (see the HTML). Its containing block for this absolute
+               rule is therefore .page-wrapper, not .a4-page - and
+               .page-wrapper is 10px wider/taller than .a4-page's own
+               content box (its border-box, see .page-wrapper's
+               comment). right here is bumped by the 5px border so
+               it reproduces the exact desktop pixel position this had
+               when it was measured from .a4-page's content edge
+               directly - verified pixel-for-pixel against the
+               pre-restructure layout. top is left as it was: a fixed
+               10px gets the same +5px bump, but a percentage (used by
+               the *I variants to sit "just below the baseline") is
+               already just an approximate visual anchor, and the ~1%
+               drift from the taller containing block is imperceptible. */
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 15px;
+            right: 15px;
             z-index: 5;
             display: flex;              /* Tools button, with Show All directly beneath it */
             flex-direction: column;
@@ -613,16 +672,71 @@
                 padding: 6px 8px;
                 max-width: 30%;
             }
+            /* Button column moved from its desktop top-right corner to a
+               full-width row along the BOTTOM on touch devices. Squeezing
+               the column narrow (the old max-width: 34% approach) was not
+               enough to keep it clear of the diagram - user testing on a
+               real phone still found the Show All button sitting on top of
+               path text near the curve's own busy areas. A centred bottom
+               strip sits in the buffer zone already reserved for the
+               watermark and for "below path" Show All placements, so it is
+               structurally clear of diagram content instead of relying on
+               there happening to be enough room. Desktop is untouched -
+               everything below is coarse-pointer only. */
             .tools-dropdown {
-                top: 52px;   /* below the enlarged Tools button, not over it */
+                top: auto;
+                bottom: 52px;   /* opens upward now, above the enlarged Tools button */
+                left: 50%;
+                right: auto;
+                transform: translateX(-50%);   /* centred under the bar, not tied to where Tools lands in it */
             }
             .tools-menu {
-                max-width: 34%;   /* keeps the column over the empty tail of the curve; wraps to a stack if too narrow */
+                /* Switched from absolute to relative: .tools-menu is now a
+                   normal in-flow block sibling below .a4-page (see the
+                   HTML), so it needs to stay IN flow to actually push
+                   itself below the frame and grow .page-wrapper's height
+                   to fit - "static" would do that too, but "relative"
+                   additionally keeps .tools-menu itself as the positioning
+                   context for .tools-dropdown's own absolute rule (below),
+                   exactly as it always was. No more manual bottom/clearance
+                   math needed - it structurally cannot overlap the frame
+                   any more, at any width. */
+                position: relative;
+                /* top/right MUST be reset here: the desktop rule above
+                   sets top: 15px; right: 15px; for the (unrelated)
+                   position: absolute placement, and those two properties
+                   are NOT reset by switching position to relative - they
+                   cascade straight through and get reinterpreted as
+                   relative-offset shifts (found via testing: without this,
+                   the bar rendered 15px lower than intended, floating with
+                   a gap below the frame instead of sitting flush under it).
+                   auto on a relative element means "no offset on this
+                   axis", which is what an in-flow bar needs. */
+                top: auto;
+                right: auto;
+                margin-top: 8px;
+                max-width: 100%;
+                flex-direction: row;
+                align-items: center;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                justify-content: center;
+                padding: 0 4px 4px;   /* room for the scrollbar/thumb without clipping button borders */
             }
             .tools-row {
                 flex-direction: row;
-                flex-wrap: wrap;
-                justify-content: flex-end;
+                flex-wrap: nowrap;
+                justify-content: center;
+                /* Rendered first (left) in the bottom bar - Show All, Toggle
+                   and Reset are what a learner actually needs during
+                   practice, so they should be reachable without scrolling.
+                   Tools (Full Screen / Load Concept / Start Quiz) is used
+                   far less often and is fine sitting after them. */
+                order: 1;
+            }
+            .tools-button {
+                order: 2;
+                flex: none;   /* never shrunk to make room for tools-row */
             }
             .tools-button,
             .show-all-btn,
@@ -630,25 +744,30 @@
             .reset-btn {
                 box-sizing: border-box;   /* so min-height 48px is the real height */
                 min-height: 48px;
-                padding: 12px 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                /* Padding trimmed to what the text needs - min-height above
+                   already guarantees the full 48px touch target, so the old
+                   12px top/bottom padding on top of that was pure excess
+                   (reported in user testing as ~30% empty space above and
+                   below the button text). */
+                padding: 4px 16px;
                 font-size: 1em;
             }
             .show-all-btn,
             .mode-toggle,
             .reset-btn {
-                padding: 12px 10px;
+                padding: 4px 10px;
                 font-size: 0.85em;
             }
-            /* Narrow phones (landscape ~ 667px): squeeze the two words so the
-               pair still fits side by side over the tail */
+            /* Narrow phones (landscape ~ 667px): keep squeezing so the row
+               still fits without excessive wrapping */
             @media (max-width: 760px) {
-                .tools-menu {
-                    max-width: 32%;
-                }
                 .show-all-btn,
                 .mode-toggle,
                 .reset-btn {
-                    padding: 12px 7px;
+                    padding: 4px 7px;
                     font-size: 0.75em;
                 }
             }
@@ -667,24 +786,19 @@
     </style>
 </head>
 <body>
+    <!-- .page-wrapper: groups the diagram frame with its Tools /
+         Show All / Toggle / Reset button bar so the bar can render
+         OUTSIDE the frame's own box on touch devices (see the
+         .tools-menu coarse-pointer override in <style> above) instead
+         of overlapping diagram content - the root cause of the Show
+         All button blocking text that user testing found on narrow
+         phones (states TL7, transitions T6). See .page-wrapper /
+         .a4-page / .tools-menu in <style> for the full picture. -->
+    <div class="page-wrapper">
+    <div class="template-id-badge">ROM-HTSCV</div>
     <div class="a4-page">
         <div id="title-box" class="title-box">TL-Title / SL-Title</div>
         <div id="drag-instruction" class="drag-instruction">Mobile Phone users: click 'Tools' then 'Full Screen'.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again.</div>
-
-        <!-- Tools Menu -->
-        <div class="tools-menu">
-            <div class="tools-button">Tools</div>
-            <div class="tools-dropdown">
-                <div class="tool-item" id="toggleFullscreen">Full Screen</div>
-                <div class="tool-item" id="loadConcept">Load Concept</div>
-                <div class="tool-item" id="startQuiz">Quick Quiz</div>
-            </div>
-            <div class="tools-row">
-                <button id="showAllBtn" class="show-all-btn" type="button" title="Quick reference: show every word at once, in TL or in SL. Click any word to flip just that word between TL and SL. Keep clicking to reach Hide All, which clears every word off the screen.">Show All</button>
-                <button id="modeToggle" class="mode-toggle" type="button">Show Transitions</button>
-                <button id="resetBtn" class="reset-btn" type="button" title="Start this concept over from the beginning: clears Quiz progress and returns to the start of the line.">Reset</button>
-            </div>
-        </div>
 
         <!-- Vocabulary Array: ONE combined list of learned Transitions items, kept in path order -->
         <div id="vocabulary-array" class="vocabulary-array">
@@ -719,6 +833,26 @@
         <div class="watermark">
             &copy; 2026 Alan William Preston
         </div>
+    </div>
+
+    <!-- Tools Menu: now a SIBLING of .a4-page, not a child (see the
+         .page-wrapper comment above). Desktop keeps its old top-right
+         overlay position (position: absolute, visually unchanged);
+         touch devices render it as a normal block below the frame
+         instead (see the coarse-pointer override in <style>). -->
+    <div class="tools-menu">
+        <div class="tools-button">Tools</div>
+        <div class="tools-dropdown">
+            <div class="tool-item" id="toggleFullscreen">Full Screen</div>
+            <div class="tool-item" id="loadConcept">Load Concept</div>
+            <div class="tool-item" id="startQuiz">Quick Quiz</div>
+        </div>
+        <div class="tools-row">
+            <button id="showAllBtn" class="show-all-btn" type="button" title="Quick reference: show every word at once, in TL or in SL. Click any word to flip just that word between TL and SL. Keep clicking to reach Hide All, which clears every word off the screen.">Show All</button>
+            <button id="modeToggle" class="mode-toggle" type="button">Show Transitions</button>
+            <button id="resetBtn" class="reset-btn" type="button" title="Start this concept over from the beginning: clears Quiz progress and returns to the start of the line.">Reset</button>
+        </div>
+    </div>
     </div>
 
     <!-- Quiz Container -->
