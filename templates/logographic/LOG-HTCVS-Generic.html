@@ -1,10 +1,10 @@
-<!-- Last updated: 2026-09-23 @ 8:45 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-09-24 @ 6:30 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hybrid Temporary: Sudden Rise then Curve Return (HTSCV) - Logographic Template</title>
+    <title>Hybrid Temporary: Curve then Sudden Return (HTCVS) - Logographic Template</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -104,9 +104,9 @@
             fill: none;
         }
 
-        /* Background gradient: dark grey for the "normal" baseline before
-           the concept, a hard edge at the sudden rise, then sky blue fading
-           gradually back to dark grey as the concept subsides. */
+        /* Background gradient: sky blue while the concept builds, dark grey
+           for the "normal" baseline on either side of it, with a hard edge
+           at the sudden drop. */
         #conceptBackground {
             fill: url(#conceptGradient);
             opacity: 0.2;
@@ -173,13 +173,12 @@
         }
 
         .drag-instruction {
-            /* The ground area below the baseline, right of centre: clear of
-               the path, every state label (all sit above the baseline), the
-               title box (below-left) and the buttons (top right). It fades
+            /* Left-middle of the page: clear of the path start (bottom
+               left), of the title box (right) and of the curve. It fades
                after 20 s or on the first drag. */
             position: absolute;
-            top: 70%;
-            left: 35%;
+            top: 28%;
+            left: 4%;
             font-size: 0.85em;
             padding: 6px 12px;
             background-color: rgba(255, 255, 255, 0.95);
@@ -189,21 +188,13 @@
             opacity: 1;
             transition: opacity 2s ease;
             text-align: left;
-            max-width: 60%;
+            max-width: 34%;
             animation: pulsateAttention 0.6s ease-in-out 3;
         }
 
         .drag-instruction.fade {
             opacity: 0;
             pointer-events: none;
-        }
-
-        /* Small screens: the ground area is short, so the note is smaller. */
-        @media (max-width: 760px) {
-            .drag-instruction {
-                font-size: 0.72em;
-                padding: 4px 8px;
-            }
         }
 
         /* Transitions Template Elements */
@@ -226,16 +217,15 @@
         }
 
         /* Common Title Box Styling. Default spot: the empty ground area
-           below the baseline, to the left of the sudden rise - clear of
-           every state label, the enlarged Tools button on phones (top
-           right), the Learned Vocabulary array (top left) and the sliding
-           word. */
+           below the baseline, to the right of the sudden drop - clear of
+           every state label, the enlarged Tools button on phones, the
+           Learned Vocabulary array (top left) and the sliding word. */
         .title-box {
             position: absolute;
             top: 70%;
-            left: 16%;
+            left: 84%;
             transform: translateX(-50%);
-            width: max-content;   /* else the space right of left:16% would squeeze it into a narrow tall box */
+            width: max-content;   /* else the space right of left:84% (16%) squeezes it into a narrow tall box */
             max-width: 26%;
             box-sizing: border-box;
             font-size: 1em;
@@ -397,7 +387,7 @@
 
         /* Vocabulary array: ONE combined "Learned Vocabulary" list, kept in
            path order. This concept has a gradual increasing progression but
-           no increasing one (the rise is a single sudden jump), so the
+           no decreasing one (the return is a single sudden drop), so the
            Increasing/Decreasing split used by the GTCV family has no
            meaning here. Behaviour matches the Instant Change family. */
         .vocabulary-array {
@@ -560,7 +550,7 @@
         /* Show All and Toggle Mode: one under the other on a desktop. On a
            touch screen (see the coarse-pointer block) they sit side by side,
            so the whole column stays short enough to clear the labels
-           over the empty tail of the curve on the right. */
+           right of the sudden drop. */
         .tools-row {
             display: flex;
             flex-direction: column;
@@ -828,7 +818,7 @@
          phones (states TL7, transitions T6). See .page-wrapper /
          .a4-page / .tools-menu in <style> for the full picture. -->
     <div class="page-wrapper">
-    <div class="template-id-badge">LOG-HTSCV</div>
+    <div class="template-id-badge">LOG-HTCVS</div>
     <div class="a4-page">
         <div id="title-box" class="title-box">TL-Title / SL-Title</div>
         <div id="drag-instruction" class="drag-instruction">Mobile Phone users: click 'Tools' then 'Full Screen'.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again.</div>
@@ -846,8 +836,8 @@
             <defs>
                 <linearGradient id="conceptGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" style="stop-color:#4a4a4a;stop-opacity:1" />
-                    <stop offset="33.33%" style="stop-color:#4a4a4a;stop-opacity:1" />
-                    <stop offset="33.33%" style="stop-color:#87ceeb;stop-opacity:1" />
+                    <stop offset="66.67%" style="stop-color:#87ceeb;stop-opacity:1" />
+                    <stop offset="66.67%" style="stop-color:#4a4a4a;stop-opacity:1" />
                     <stop offset="100%" style="stop-color:#4a4a4a;stop-opacity:1" />
                 </linearGradient>
             </defs>
@@ -900,39 +890,38 @@
 
     <script>
         // ════════════════════════════════════════════════════════════════
-        // LOG-HTSCV - Hybrid Temporary: Sudden rise, then Curve return
+        // LOG-HTCVS - Hybrid Temporary: Curve rise, then Sudden return
         // LOGOGRAPHIC version (4 steps: TLR -> TL -> SL -> Quiz). Built from the
-        // tested LOG-HTCVS by mirroring the geometry; the data model is
-        // unchanged: column [0] is ALWAYS TLR (what the Quiz tests), [1] TL,
-        // [2] SL. The Quiz tests the TLR (learners cannot type logographic
-        // characters).
+        // tested ROM-HTCVS by adding the TLR layer: every data row gains a TLR
+        // in column [0], so every other column moves up by one. The Quiz tests
+        // the TLR (learners cannot type logographic characters).
         //
-        // The mirror image of HTCVS: the left half of an IT5L (an instant
-        // vertical jump up from the starting condition) meets the right half
-        // of a GTCV curve (a smooth, gradual return). Read left to right:
+        // The left half of a GTCV curve (gradual, continuous build) meets
+        // the right half of an IT5L (sudden drop straight back to the
+        // starting condition). Read left to right:
         //   1. flat baseline (the "normal" state)
-        //   2. an instant vertical rise to a SHARP apex (no plateau)
-        //   3. a smooth curve descending gradually back to the baseline
+        //   2. a smooth curve rising to a SHARP apex (no plateau)
+        //   3. an instant vertical drop back to the baseline
         //   4. the baseline again, to the right edge
         //
         // GEOMETRY. viewBox -30 0 160 60, baseline y=40, apex y=10.
-        // The falling curve is GTCV's right half stretched horizontally by
-        // 4/3 (GTCV: apex at x=50, c=15  ->  here: apex at x=23.33, c=20),
-        // so the sudden rise sits 1/3 of the way across, where IT5L's rise
-        // sits. Path length ~198.8 units: baseline ~26.8%, rise ~15.1%,
-        // curve ~58.1% (an exact mirror of HTCVS: every position here is 100
-        // minus its HTCVS partner). If any of the constants below change, the
-        // position numbers in the two data arrays must be recomputed.
+        // The rising curve is GTCV's left half stretched horizontally by
+        // 4/3 (GTCV: apex at x=50, c=15  ->  here: apex at x=76.67, c=20),
+        // so the apex sits 2/3 of the way across, where IT5L's drop sits.
+        // Path length ~198.8 units: curve ~58.1%, drop ~15.1%, baseline
+        // ~26.8%. If any of the constants below change, the position
+        // numbers in the two data arrays must be recomputed.
         //
         // DATA. Position = percent along the WHOLE path (length), not x.
         //   States rows       [TLR, TL, SL, Quiz prompt, position]
-        //     9 states: 1 halfway along the baseline before the rise (13.41),
-        //     2 on the sudden rise (its bottom = 26.82, and halfway up =
-        //     34.37) and 6 on the way down (the apex = 41.91, then 50 ... 95).
+        //     9 states: 6 on the rise (position 5 ... 58.09; the last one
+        //     IS the apex), 2 on the sudden drop (halfway down = 65.63, and
+        //     the bottom = 73.18) and 1 halfway along the baseline that
+        //     follows it (86.59).
         //   Transitions rows  [TLR, TL, SL, Quiz prompt, zoneStart, zoneEnd]
-        //     7 transitions: one spanning the whole of the baseline before the
-        //     rise (0 - 26.82), one for the whole of the sudden rise (26.82 -
-        //     41.91) and five gradual verbs on the way down. Each zone is the
+        //     7 transitions: five gradual verbs on the rise, one for the
+        //     whole of the sudden drop (58.09 - 73.18) and one spanning the
+        //     whole of the baseline after it (73.18 - 100). Each zone is the
         //     stretch of path over which that item shows while the sliding
         //     word's START is inside it; zones run 0-100 with no gaps.
         //   Column [0] is ALWAYS TLR (what the Quiz tests), [1] TL, [2] SL.
@@ -942,53 +931,53 @@
         const VB_MAX_X = 130;
         const BASELINE_Y = 40;
         const APEX_HEIGHT = 30;     // apex is at y = BASELINE_Y - APEX_HEIGHT = 10
-        const APEX_X = 23.33;       // 1/3 across the viewBox; the sudden rise is at this x
+        const APEX_X = 76.67;       // 2/3 across the viewBox; the drop is at this x
         const CURVE_WIDTH_C = 20;   // GTCV's c=15 stretched by 4/3
         const CURVE_STEPS = 107;    // ~1 viewBox unit per step
         const MAX_TEXT_OFFSET_FALLBACK = 95;
 
-        // Generic placeholder data - 9 states (1 on the baseline, 2 on the sudden rise, the apex, 5 on the way down)
+        // Generic placeholder data - 9 states (6 rising incl. the apex, 2 on the drop, 1 on the baseline after it)
         const conceptData = [
-            ["TLR1", "TL1", "SL1", "What is the TLR word for 'SL1'?", 13.41],    // halfway along the baseline before the rise: the normal state
-            ["TLR2", "TL2", "SL2", "What is the TLR word for 'SL2'?", 26.82],    // the bottom of the sudden rise (the instant it starts)
-            ["TLR3", "TL3", "SL3", "What is the TLR word for 'SL3'?", 34.37],    // halfway up the sudden rise
-            ["TLR4", "TL4", "SL4", "What is the TLR word for 'SL4'?", 41.91],    // THE APEX (top of the sudden rise, start of the curve)
-            ["TLR5", "TL5", "SL5", "What is the TLR word for 'SL5'?", 50],    // the gradual return begins
-            ["TLR6", "TL6", "SL6", "What is the TLR word for 'SL6'?", 58],
-            ["TLR7", "TL7", "SL7", "What is the TLR word for 'SL7'?", 67],
-            ["TLR8", "TL8", "SL8", "What is the TLR word for 'SL8'?", 80],
-            ["TLR9", "TL9", "SL9", "What is the TLR word for 'SL9'?", 95]    // nearly back to normal
+            ["TLR1", "TL1", "SL1", "What is the TLR word for 'SL1'?", 5],        // flat lead-in: the normal state
+            ["TLR2", "TL2", "SL2", "What is the TLR word for 'SL2'?", 20],
+            ["TLR3", "TL3", "SL3", "What is the TLR word for 'SL3'?", 33],       // the rise begins
+            ["TLR4", "TL4", "SL4", "What is the TLR word for 'SL4'?", 42],
+            ["TLR5", "TL5", "SL5", "What is the TLR word for 'SL5'?", 50],
+            ["TLR6", "TL6", "SL6", "What is the TLR word for 'SL6'?", 58.09],    // THE APEX (end of the curve)
+            ["TLR7", "TL7", "SL7", "What is the TLR word for 'SL7'?", 65.63],    // halfway down the sudden drop ("in free fall")
+            ["TLR8", "TL8", "SL8", "What is the TLR word for 'SL8'?", 73.18],    // the bottom of the drop (landing)
+            ["TLR9", "TL9", "SL9", "What is the TLR word for 'SL9'?", 86.59]     // halfway along the baseline after the drop: back to normal
         ];
 
-        // 7 transitions: one for the whole baseline before the rise, one for the whole sudden rise, and five gradual (the return)
+        // 7 transitions: five gradual (the rise), one for the whole sudden drop and one for the whole baseline after it
         const transitionsData = [
-            ["TLR-T1", "TL-T1", "SL-T1", "What is the TLR word for 'SL-T1'?", 0, 26.82],  // the whole baseline before the rise
-            ["TLR-T2", "TL-T2", "SL-T2", "What is the TLR word for 'SL-T2'?", 26.82, 41.91],  // the whole sudden rise
-            ["TLR-T3", "TL-T3", "SL-T3", "What is the TLR word for 'SL-T3'?", 41.91, 50],
-            ["TLR-T4", "TL-T4", "SL-T4", "What is the TLR word for 'SL-T4'?", 50, 58],
-            ["TLR-T5", "TL-T5", "SL-T5", "What is the TLR word for 'SL-T5'?", 58, 67],
-            ["TLR-T6", "TL-T6", "SL-T6", "What is the TLR word for 'SL-T6'?", 67, 80],
-            ["TLR-T7", "TL-T7", "SL-T7", "What is the TLR word for 'SL-T7'?", 80, 100]
+            ["TLR-T1", "TL-T1", "SL-T1", "What is the TLR word for 'SL-T1'?", 0, 20],
+            ["TLR-T2", "TL-T2", "SL-T2", "What is the TLR word for 'SL-T2'?", 20, 33],
+            ["TLR-T3", "TL-T3", "SL-T3", "What is the TLR word for 'SL-T3'?", 33, 42],
+            ["TLR-T4", "TL-T4", "SL-T4", "What is the TLR word for 'SL-T4'?", 42, 50],
+            ["TLR-T5", "TL-T5", "SL-T5", "What is the TLR word for 'SL-T5'?", 50, 58.09],
+            ["TLR-T6", "TL-T6", "SL-T6", "What is the TLR word for 'SL-T6'?", 58.09, 73.18],  // the whole sudden drop
+            ["TLR-T7", "TL-T7", "SL-T7", "What is the TLR word for 'SL-T7'?", 73.18, 100]     // the whole baseline after the drop
         ];
 
         // Where each state's label sits relative to its point on the path.
         // Hand-tuned so labels do not overlap each other or the curve: the
-        // baseline labels sit above the line, the two rise labels sit
-        // beside the vertical line (halfway up on its left; the bottom one on
-        // its right just above the baseline, under the curve), the apex label
-        // sits above the apex, and the descending labels stack diagonally up
-        // and to the right of the curve. States beyond these nine use the
-        // default.
+        // lead-in labels alternate below/above the flat baseline, the rising
+        // labels stack diagonally up and to the left of the curve, the apex
+        // label sits above the apex. The two drop labels sit beside the vertical
+        // line: halfway down on its right, the bottom one on its left just above
+        // the baseline (clear of the title box below-right and of the Toggle
+        // Mode button below). States beyond these nine use the default.
         const STATE_LABELS = [
-            { dx: 0,  dy: -4, anchor: "middle" },   // S1: above the baseline before the rise
-            { dx: 2,  dy: -2, anchor: "start"  },   // S2: bottom of the rise, just above the baseline on its right (under the curve)
-            { dx: -3, dy: 4,  anchor: "end"    },   // S3: halfway up the rise, on its left
-            { dx: 0,  dy: -4, anchor: "middle" },   // S4: above the apex
-            { dx: 2,  dy: -5, anchor: "start"  },   // S5: up-right of the curve
-            { dx: 2,  dy: -5, anchor: "start"  },   // S6
-            { dx: 2,  dy: -6, anchor: "start"  },   // S7 (a little higher, clear of S8)
-            { dx: -6, dy: -3, anchor: "middle" },   // S8: above the baseline (nudged left, clear of S9)
-            { dx: 6,  dy: -4, anchor: "end"    }    // S9: above the baseline tail, right-aligned so a long word grows leftwards, not off the page
+            { dx: -3, dy: 6,  anchor: "start"  },   // S1: below the flat lead-in
+            { dx: 0,  dy: -4, anchor: "middle" },   // S2: above the baseline
+            { dx: -2, dy: -5, anchor: "end"    },   // S3: up-left of the curve
+            { dx: -2, dy: -5, anchor: "end"    },   // S4
+            { dx: -2, dy: -5, anchor: "end"    },   // S5
+            { dx: 0,  dy: -4, anchor: "middle" },   // S6: above the apex
+            { dx: 3,  dy: 4,  anchor: "start" },    // S7: halfway down the drop, on its right (low enough to clear the Show All button on phones)
+            { dx: -2, dy: -2, anchor: "end"    },   // S8: bottom of the drop, just above the baseline on its left (clear of Toggle Mode and the title box)
+            { dx: 0,  dy: -4, anchor: "middle" }    // S9: above the baseline after the drop
         ];
         const DEFAULT_STATE_LABEL = { dx: 0, dy: -4, anchor: "middle" };
 
@@ -1097,13 +1086,13 @@
         // ── Path ────────────────────────────────────────────────────────
         function buildPathData() {
             const pts = [];
-            pts.push(VB_MIN_X + ',' + BASELINE_Y);     // the baseline starts at the left edge
-            pts.push(APEX_X + ',' + BASELINE_Y);       // ...runs to the foot of the sudden rise
-            for (let k = 0; k <= CURVE_STEPS; k++) {   // k = 0 is the apex, straight above the foot
-                const x = APEX_X + (VB_MAX_X - APEX_X) * k / CURVE_STEPS;
+            for (let k = 0; k <= CURVE_STEPS; k++) {
+                const x = VB_MIN_X + (APEX_X - VB_MIN_X) * k / CURVE_STEPS;
                 const y = BASELINE_Y - APEX_HEIGHT * Math.exp(-Math.pow(x - APEX_X, 2) / (2 * CURVE_WIDTH_C * CURVE_WIDTH_C));
                 pts.push(x.toFixed(3) + ',' + y.toFixed(3));
             }
+            pts.push(APEX_X + ',' + BASELINE_Y);       // the sudden drop
+            pts.push(VB_MAX_X + ',' + BASELINE_Y);     // the baseline runs on to the right edge
             return 'M ' + pts.join(' L ');
         }
 
@@ -1285,7 +1274,7 @@
             const src = e.touches ? e.touches[0] : e;
             const pt = getSvgPoint(src.clientX, src.clientY);
 
-            // Nearest point on the WHOLE path (both x and y: the sudden rise
+            // Nearest point on the WHOLE path (both x and y: the sudden drop
             // is vertical, so x alone cannot place the frame on it)
             const best = closestOnPath(pt.x, pt.y, null);
             placeFrameAt(pathEl.getPointAtLength(best.len));
@@ -2375,7 +2364,7 @@
                     setTimeout(() => { dragInstruction.classList.add('fade'); }, 20000);
                 }
 
-                console.log("LOG-HTSCV template initialised: " + conceptData.length + " states, " +
+                console.log("LOG-HTCVS template initialised: " + conceptData.length + " states, " +
                             transitionsData.length + " transitions, path length " + pathLength.toFixed(1));
             } catch (error) {
                 console.error("Error initializing application:", error);
