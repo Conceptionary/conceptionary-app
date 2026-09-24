@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-09-23 @ 8:45 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-09-24 @ 9:17 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -659,6 +659,26 @@
            Frame circle doubled (r 1.5 -> 3); text sizes as in the GTCV
            family; touch targets enlarged to the ~48px guideline. */
         @media (pointer: coarse) {
+            body {
+                /* Safety net for the restructured .tools-menu (see its
+                   comment above): it is now a normal in-flow sibling below
+                   .a4-page on touch devices, so .page-wrapper's rendered
+                   height is .a4-page's height PLUS the button bar's own
+                   height. On most phones that total still fits under the
+                   fixed 100vh body, but on short/landscape viewports it can
+                   exceed it - and with the desktop rule's height: 100vh +
+                   overflow: hidden still active, the overflow would be
+                   clipped symmetrically by the centering flexbox, cutting
+                   the Tools bar off along with it and making it completely
+                   unreachable (no scroll available to get to it). Letting
+                   the body grow to its content and scroll instead is what
+                   guarantees the bar can always be reached, at any
+                   viewport height. */
+                height: auto;
+                min-height: 100vh;
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
             #draggableFrame {
                 r: 3;
             }
