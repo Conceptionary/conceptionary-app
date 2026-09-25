@@ -543,7 +543,18 @@
             top: 22%;                   /* just below the baseline (y=10 of 60 is 16.7% down) */
             right: 15px;
             z-index: 5;
-            display: flex;              /* Tools button, with Show All directly beneath it */
+        }
+
+        .tools-bar {
+            /* Groups the Tools button with the Show All / Toggle / Reset row
+               so .tools-menu itself can stay free of layout/overflow rules.
+               .tools-dropdown is a DIRECT sibling of .tools-bar inside
+               .tools-menu (see the HTML), specifically so the dropdown is
+               never a descendant of whatever element scrolls/clips this bar.
+               See the coarse-pointer override below for why that separation
+               matters (it fixes a real bug: the dropdown was being clipped
+               by .tools-menu's own overflow-x: auto). */
+            display: flex;
             flex-direction: column;
             align-items: flex-end;
             gap: 4px;
@@ -759,6 +770,19 @@
                 top: auto;
                 right: auto;
                 margin-top: 8px;
+            }
+            .tools-bar {
+                /* Layout/overflow responsibility lives here, not on
+                   .tools-menu, so that .tools-dropdown (a sibling of
+                   .tools-bar, not a descendant) is never clipped by this
+                   bar's own scrolling. Per CSS 2.1 §11.1.1, an element with
+                   overflow-x: auto and no explicit overflow-y silently gets
+                   overflow-y: auto too - if this rule were still on
+                   .tools-menu, that computed overflow-y would clip
+                   .tools-dropdown, which opens upward via bottom: 52px and
+                   extends above .tools-menu's own box. Moving the
+                   scroll/flex/padding properties to .tools-bar keeps that
+                   clipping confined to the button row, where it belongs. */
                 max-width: 100%;
                 flex-direction: row;
                 align-items: center;
@@ -821,6 +845,8 @@
             @media (max-width: 480px) {
                 .tools-menu {
                     top: 18%;
+                }
+                .tools-bar {
                     gap: 3px;
                 }
                 .tools-row {
@@ -933,16 +959,18 @@
          touch devices render it as a normal block below the frame
          instead (see the coarse-pointer override in <style>). -->
     <div class="tools-menu">
-        <div class="tools-button">Tools</div>
         <div class="tools-dropdown">
             <div class="tool-item" id="toggleFullscreen">Full Screen</div>
             <div class="tool-item" id="loadConcept">Load Concept</div>
             <div class="tool-item" id="startQuiz">Quick Quiz</div>
         </div>
-        <div class="tools-row">
-            <button id="showAllBtn" class="show-all-btn" type="button" title="Quick reference: show every word at once, in TL, TLR or SL. Click any word to flip just that word to the next layer. Keep clicking to reach Hide All, which clears every word off the screen.">Show All</button>
-            <button id="modeToggle" class="mode-toggle" type="button">Show Transitions</button>
-            <button id="resetBtn" class="reset-btn" type="button" title="Start this concept over from the beginning: clears Quiz progress and returns to the start of the line.">Reset</button>
+        <div class="tools-bar">
+            <div class="tools-button">Tools</div>
+            <div class="tools-row">
+                <button id="showAllBtn" class="show-all-btn" type="button" title="Quick reference: show every word at once, in TL, TLR or SL. Click any word to flip just that word to the next layer. Keep clicking to reach Hide All, which clears every word off the screen.">Show All</button>
+                <button id="modeToggle" class="mode-toggle" type="button">Show Transitions</button>
+                <button id="resetBtn" class="reset-btn" type="button" title="Start this concept over from the beginning: clears Quiz progress and returns to the start of the line.">Reset</button>
+            </div>
         </div>
     </div>
     </div>

@@ -542,7 +542,18 @@
             top: 22%;                   /* just below the baseline (y=10 of 60 is 16.7% down) */
             right: 15px;
             z-index: 5;
-            display: flex;              /* Tools button, with Show All directly beneath it */
+        }
+
+        .tools-bar {
+            /* Groups the Tools button with the Show All / Toggle / Reset row
+               so .tools-menu itself can stay free of layout/overflow rules.
+               .tools-dropdown is a DIRECT sibling of .tools-bar inside
+               .tools-menu (see the HTML), specifically so the dropdown is
+               never a descendant of whatever element scrolls/clips this bar.
+               See the coarse-pointer override below for why that separation
+               matters (it fixes a real bug: the dropdown was being clipped
+               by .tools-menu's own overflow-x: auto). */
+            display: flex;
             flex-direction: column;
             align-items: flex-end;
             gap: 4px;
@@ -758,6 +769,22 @@
                 top: auto;
                 right: auto;
                 margin-top: 8px;
+            }
+            .tools-bar {
+                /* The horizontal-scroll behaviour (and the overflow-x: auto
+                   that drives it) lives here instead of on .tools-menu.
+                   overflow-x: auto with no overflow-y set forces the browser
+                   to compute overflow-y as auto too (CSS 2.1 S11.1.1) - fine
+                   for .tools-bar, which has nothing that needs to escape its
+                   own box, but it was clipping .tools-dropdown when this
+                   rule sat on .tools-menu, because .tools-dropdown
+                   (positioned via bottom: 52px, i.e. extending UPWARD past
+                   its container's own height so it can open above the bar)
+                   was a descendant of the very element doing the clipping.
+                   Moving the scrolling responsibility to this wrapper - a
+                   plain sibling of .tools-dropdown, not an ancestor of it -
+                   fixes that without changing how either one looks or
+                   behaves. */
                 max-width: 100%;
                 flex-direction: row;
                 align-items: center;
@@ -820,6 +847,8 @@
             @media (max-width: 480px) {
                 .tools-menu {
                     top: 18%;
+                }
+                .tools-bar {
                     gap: 3px;
                 }
                 .tools-row {
@@ -932,16 +961,18 @@
          touch devices render it as a normal block below the frame
          instead (see the coarse-pointer override in <style>). -->
     <div class="tools-menu">
-        <div class="tools-button">Tools</div>
         <div class="tools-dropdown">
             <div class="tool-item" id="toggleFullscreen">Full Screen</div>
             <div class="tool-item" id="loadConcept">Load Concept</div>
             <div class="tool-item" id="startQuiz">Quick Quiz</div>
         </div>
+        <div class="tools-bar">
+        <div class="tools-button">Tools</div>
         <div class="tools-row">
             <button id="showAllBtn" class="show-all-btn" type="button" title="Quick reference: show every word at once, in TL, TLR or SL. Click any word to flip just that word to the next layer. Keep clicking to reach Hide All, which clears every word off the screen.">Show All</button>
             <button id="modeToggle" class="mode-toggle" type="button">Show Transitions</button>
             <button id="resetBtn" class="reset-btn" type="button" title="Start this concept over from the beginning: clears Quiz progress and returns to the start of the line.">Reset</button>
+        </div>
         </div>
     </div>
     </div>
