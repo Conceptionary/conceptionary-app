@@ -1,0 +1,85 @@
+{
+  "id": "CC-0021",
+  "version": "1.0",
+  "created": "2026-09-26",
+  "last_updated": "2026-09-26",
+  "status": "active",
+  "concept": {
+    "name": "Injury to Recovery",
+    "description": "A sudden injury event followed by a gradual, curve-shaped recovery back to full health.",
+    "taxonomy_ref": null,
+    "taxonomy_path": "Not yet in the Master Taxonomy (nearest: Health & Body / physical condition)",
+    "shape": "instant_drop_gradual_recovery",
+    "template_family": "HTSCVI",
+    "template_id": "ROM-HTSCVI",
+    "modes_used": ["states", "transitions"],
+    "notes": "Use case built directly from Alan's own vocabulary list (2026-09-26), mapped 1:1 onto ROM-HTSCVI's fixed 9-state/7-transition position array (see Conceptionary_HT_Fixes_Changelog.md and the template's own inline geometry comments for the position numbers). Draft Bahasa Indonesia translations by Claude — not yet validated by a native speaker."
+  },
+  "template": {
+    "phonographic": {
+      "id": "ROM-HTSCVI",
+      "file": "templates/phonographic/ROM-HTSCVI-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-HTSCVI",
+      "file": "templates/logographic/LOG-HTSCVI-Generic.html",
+      "track": "logographic"
+    }
+  },
+  "language_pairs": {
+    "EN-ID": {
+      "source_language": "Bahasa Indonesia",
+      "target_language": "English",
+      "track": "phonographic",
+      "generated_by": "claude-sonnet-5",
+      "generated_date": "2026-09-26",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "lang_config": {
+        "titles": {
+          "states": [
+            "Injury to Recovery / Dari Cedera ke Pemulihan",
+            "Injury to Recovery",
+            "Dari Cedera ke Pemulihan"
+          ],
+          "transitions": [
+            "Injury to Recovery (verbs) / Dari Cedera ke Pemulihan (kata kerja)",
+            "Injury to Recovery (verbs)",
+            "Dari Cedera ke Pemulihan (kata kerja)"
+          ]
+        },
+        "ui": {
+          "quiz_button": "Check",
+          "quiz_correct": "Correct!",
+          "quiz_wrong": "Try again"
+        },
+        "conceptData": [
+          ["Pre-injury, uninjured", "Sebelum cedera, tidak terluka", "How do you say 'Sebelum cedera, tidak terluka' in English?", 13.41],
+          ["Cause of injury", "Penyebab cedera", "How do you say 'Penyebab cedera' in English?", 26.82],
+          ["Injury inflicted", "Cedera terjadi", "How do you say 'Cedera terjadi' in English?", 34.37],
+          ["Result of injury", "Akibat cedera", "How do you say 'Akibat cedera' in English?", 41.91],
+          ["Injured", "Terluka", "How do you say 'Terluka' in English?", 50],
+          ["Incapacitated", "Tidak berdaya", "How do you say 'Tidak berdaya' in English?", 58],
+          ["Out of action", "Tidak bisa beraktivitas", "How do you say 'Tidak bisa beraktivitas' in English?", 67],
+          ["In recovery", "Dalam pemulihan", "How do you say 'Dalam pemulihan' in English?", 80],
+          ["Full health", "Sehat sepenuhnya", "How do you say 'Sehat sepenuhnya' in English?", 95]
+        ],
+        "transitionsData": [
+          ["Enjoying full use", "Menikmati fungsi penuh", "How do you say 'Menikmati fungsi penuh' in English?", 0, 26.82],
+          ["Suffering in pain", "Menderita kesakitan", "How do you say 'Menderita kesakitan' in English?", 26.82, 41.91],
+          ["Treating the injury", "Mengobati cedera", "How do you say 'Mengobati cedera' in English?", 41.91, 50],
+          ["Recovering", "Berangsur pulih", "How do you say 'Berangsur pulih' in English?", 50, 58],
+          ["Convalescing", "Dalam masa penyembuhan", "How do you say 'Dalam masa penyembuhan' in English?", 58, 67],
+          ["Recuperating", "Memulihkan tenaga", "How do you say 'Memulihkan tenaga' in English?", 67, 80],
+          ["Getting back to normal", "Kembali normal", "How do you say 'Kembali normal' in English?", 80, 100]
+        ],
+        "diacritic_map": [],
+        "digraph_map": [],
+        "collapse_double_vowels": false,
+        "diacritic_instructions": ""
+      }
+    }
+  }
+}
