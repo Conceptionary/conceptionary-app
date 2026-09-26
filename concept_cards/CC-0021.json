@@ -2,7 +2,7 @@
   "id": "CC-0021",
   "version": "1.0",
   "created": "2026-09-26",
-  "last_updated": "2026-09-26",
+  "last_updated": "2026-09-27",
   "status": "active",
   "concept": {
     "name": "Injury to Recovery",
@@ -16,7 +16,7 @@
       "states",
       "transitions"
     ],
-    "notes": "Use case built directly from Alan's own vocabulary list (2026-09-26), mapped 1:1 onto ROM-HTSCVI's fixed 9-state/7-transition position array (see Conceptionary_HT_Fixes_Changelog.md and the template's own inline geometry comments for the position numbers). Draft Bahasa Indonesia translations by Claude — not yet validated by a native speaker. Reversed-direction pairing (ID-EN: TL=Bahasa Indonesia, SL=English) added 2026-09-26 at Alan's request, same vocabulary, quiz now tests the Indonesian word."
+    "notes": "Use case built directly from Alan's own vocabulary list (2026-09-26), mapped 1:1 onto ROM-HTSCVI's fixed 9-state/7-transition position array (see Conceptionary_HT_Fixes_Changelog.md and the template's own inline geometry comments for the position numbers). Draft Bahasa Indonesia translations by Claude — not yet validated by a native speaker. Reversed-direction pairing (ID-EN: TL=Bahasa Indonesia, SL=English) added 2026-09-26 at Alan's request, same vocabulary, quiz now tests the Indonesian word. CORRECTION 2026-09-27: the two language_pairs keys were originally swapped relative to the app's SRC-TGT (I-speak - I'm-learning) key convention (see index.html's lpCode()); fixed so 'ID-EN' = speaks Indonesian/learning English, 'EN-ID' = speaks English/learning Indonesian."
   },
   "template": {
     "phonographic": {
@@ -31,7 +31,7 @@
     }
   },
   "language_pairs": {
-    "EN-ID": {
+    "ID-EN": {
       "source_language": "Bahasa Indonesia",
       "target_language": "English",
       "track": "phonographic",
@@ -171,7 +171,7 @@
         "diacritic_instructions": ""
       }
     },
-    "ID-EN": {
+    "EN-ID": {
       "source_language": "English",
       "target_language": "Bahasa Indonesia",
       "track": "phonographic",
