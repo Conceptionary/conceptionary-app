@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-10-03 @ 4:19 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-10-06 @ 8:58 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,7 +161,8 @@
             font-weight: bold;
             text-align: center;
             cursor: pointer;
-            border: 1px solid black;
+            border: 1px solid rgba(0, 0, 0, 0.3);
+            color: rgba(0, 0, 0, 0.3);   /* same light shade as the watermark: visible, but never competes with the vocabulary */
             padding: 10px;
             background-color: white;
             z-index: 2;
@@ -193,7 +194,8 @@
             font-weight: bold;
             padding: 8px 16px;
             background-color: white;
-            border: 2px solid #3366cc;
+            border: 2px solid rgba(0, 0, 0, 0.3);
+            color: rgba(0, 0, 0, 0.3);   /* same light shade as the watermark */
             border-radius: 4px;
             cursor: pointer;
             z-index: 3;
@@ -650,6 +652,11 @@
             #draggableFrame {
                 r: 6;
             }
+
+            /* Phones: title box and mode indicator sit BEHIND the diagram's labels and sliding word */
+            .title-box, .mode-indicator { z-index: 0; }
+            #svgCanvas { position: relative; z-index: 1; pointer-events: none; }
+            #svgCanvas text, #svgCanvas circle, #svgCanvas rect, #svgCanvas .path-line, #svgCanvas .extension-path { pointer-events: auto; }
             .textBox {
                 font-size: 0.8em;
             }
@@ -740,7 +747,175 @@
             .vocabulary-array {
                 width: min(65vw, 280px);
             }
+
+            /* Phones: slimmer button bar (more room for the diagram) */
+            .tools-button,
+            .mode-toggle,
+            .show-all-btn,
+            .reset-btn {
+                min-height: 36px;
+                padding: 3px 7px;
+                font-size: 0.75em;
+            }
+            .tools-menu { margin-top: 4px; }
+            .tools-dropdown { bottom: 42px; }
+            /* Phones: compact dropdown items, so every item (Full Screen first) stays on screen in landscape */
+            .tools-dropdown button {
+                min-height: 30px;
+                padding: 4px 12px;
+                font-size: 0.8em;
+                line-height: 1.2;
+            }
+            .tools-dropdown { max-height: calc(100vh - 60px); overflow-y: auto; }
+
+            /* Phones: the Quiz box opens in the top-left corner, clear of the on-screen keyboard
+               (which covers the lower part of the screen). It can still be dragged anywhere. */
+            .quiz-container,
+            .quiz-container.keyboard-open {
+                top: 6px;
+                left: 6px;
+                transform: none;
+                width: min(300px, 62vw);
+                max-width: 62vw;
+            }
+
+            /* Phones: Learned Vocabulary list in two compact columns, so more entries stay on screen */
+            #vocabulary-items {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 3px;
+            }
+            .vocabulary-item {
+                margin: 0;
+                padding: 3px 4px;
+                font-size: 0.7em;
+            }
+            .vocabulary-array { width: min(80vw, 340px); }
+
+            /* Landscape phones: use the free space - a wider, taller frame (leaves room for the button bar below) */
+            @media (orientation: landscape) and (max-height: 600px) {
+                .page-wrapper { width: 96vw; }
+                .a4-page { width: 96vw; height: calc(100vh - 66px); }
+            }
+
+            /* States-mode text boxes: same size as the Sliding Text on a phone */
+            .textBox, .textBox.extension { font-size: 5.9px; }
         }
+
+        /* ===== 2026-10-05 refinements ===== */
+        :root {   /* colour scheme (Tools > Colours cycles these) - Classic by default */
+            --page-bg: #ffffff;
+            --grad-edge: #4a4a4a;
+            --grad-mid: #87ceeb;
+            --fill-op: 0.2;
+            --line: #000000;
+            --line-w: 0.35;
+            --ext-line: #008b8b;
+            --word: #000000;
+            --ext-word: #008b8b;
+            --slide: #0000ff;
+            --learned: #008000;
+            --ui: rgba(0, 0, 0, 0.3);
+            --wm: rgba(0, 0, 0, 0.3);
+            --wm-glow: #ffffff;
+            --sa-tl: #0b3d91;
+            --sa-tlr: #5b2c83;
+            --sa-sl: #8b1a1a;
+        }
+        /* The mode indicator was only a label: the mode button already names the other mode */
+        .mode-indicator { display: none !important; }
+        .a4-page { background-color: var(--page-bg); }
+        .path-line { stroke: var(--line); stroke-width: var(--line-w); stroke-linejoin: round; }
+        .extension-path { stroke: var(--ext-line); stroke-width: 0.45; stroke-dasharray: 2, 1.2; opacity: 0.95; }
+        .extension-path:hover { stroke-width: 0.65; opacity: 1; }
+        #conceptBackground { opacity: var(--fill-op); }
+        .textBox { fill: var(--word); }
+        .textBox.extension { fill: var(--ext-word); }
+        .textBox.learned { fill: var(--learned); }
+        .sliding-text { fill: var(--slide); }
+        .sliding-text.dragging { fill: darkorange; }
+        .sliding-text.learned { fill: var(--learned); }
+        .title-box { background-color: var(--page-bg); color: var(--ui); border-color: var(--ui); }
+        /* The fill block now runs down to the bottom of the frame: the watermark stays readable on top of it */
+        .watermark { z-index: 2; color: var(--wm); text-shadow: 0 0 3px var(--wm-glow), 0 0 3px var(--wm-glow); }
+
+        .showall-word.layer-tl  { fill: var(--sa-tl); }
+        .showall-word.layer-tlr { fill: var(--sa-tlr); }
+        .showall-word.layer-sl  { fill: var(--sa-sl); }
+
+        /* Desktop / laptop: a bigger frame, and the four buttons as one uniform block, top-left */
+        @media (pointer: fine) {
+            .page-wrapper { width: 97vw; }
+            .a4-page { width: 97vw; height: 95vh; }
+            .page-wrapper { margin-top: 2vh; }   /* leaves room above the frame for the template name marker, which is moved down with it */
+            .tools-menu { left: 15px; right: auto; }
+            .tools-bar, .tools-row { align-items: stretch; }
+            .tools-bar { width: 9.5em; font-size: 16px; }
+            .tools-button, .show-all-btn, .mode-toggle, .reset-btn {
+                box-sizing: border-box;
+                width: 100%;
+                text-align: center;
+                font-size: 0.8em;
+                padding: 7px 8px;
+            }
+            .tools-dropdown { left: 0; right: auto; }
+        }
+
+        /* Phones: the title box on one line where it fits, between 5% and 75% across the frame */
+        @media (pointer: coarse) {
+            .title-box {
+                left: 5%;
+                transform: none;
+                width: fit-content;
+                max-width: 70%;
+                box-sizing: border-box;
+                padding: 4px 10px;
+                font-size: 0.9em;
+            }
+            .title-box.hidden { transform: scale(0.9); }
+        }
+
+        /* ===== 2026-10-05 (late) refinements ===== */
+/* 2026-10-06 */
+/* 2026-10-06 (evening): desktop button block moves to the bottom-left corner (its menu opens upward);
+   the Text size panel opens in the bottom-right corner */
+@media (pointer: fine) {
+  .tools-menu { top: auto; bottom: 15px; left: 15px; right: auto; }
+  .tools-dropdown { top: auto; bottom: 100%; margin-bottom: 4px; left: 0; right: auto; }
+}
+#textSizePanel { top: auto; left: auto; bottom: 15px; right: 15px; transform: none; }
+@media (pointer: coarse) { #textSizePanel { bottom: 70px; right: 8px; } }
+
+
+.sliding-text, .sliding-text.dragging, .sliding-text.learned { font-weight: normal !important; }
+#textSizePanel{position:fixed;top:auto;left:auto;bottom:15px;right:15px;z-index:60;display:none;
+  background:rgba(255,255,255,.96);border:1px solid #888;border-radius:8px;padding:6px 10px 8px;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);font:13px sans-serif;color:#222;width:min(320px,88vw);touch-action:none}
+#textSizePanel .tsHead{cursor:grab;display:flex;justify-content:space-between;align-items:center;font-weight:bold;user-select:none;margin-bottom:4px}
+#textSizePanel .tsHead button{border:0;background:none;font-size:18px;cursor:pointer;line-height:1}
+#textSizePanel .tsTarget{margin:2px 0 4px;min-height:1.2em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#textSizePanel input[type=range]{width:100%;touch-action:pan-y}
+#textSizePanel .tsRow{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:4px}
+#textSizePanel button.tsReset{padding:3px 10px}
+@media (pointer: fine) { #textSizePanel { bottom: calc(15px + 2vh); right: calc(15px + 2vw); } }
+
+        /* Hidden state boxes must not catch clicks: a box scaled to 0.5 sits halfway to the SVG origin
+           (e.g. TL3 near the Line 1 / Line 2 corner) and was covering the yellow circle there */
+        .textBox[style*="opacity: 0"], .textBox:not([style*="opacity"]):not(.active):not(.learned) { pointer-events: none !important; }
+
+        /* Instruction panel: centred on screen, centred at 75% of the frame's height; drag it anywhere */
+        .drag-instruction {
+            position: fixed;
+            top: 75%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90vw;
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .drag-instruction.dragging { cursor: grabbing; }
     </style>
 </head>
 <body>
@@ -752,7 +927,7 @@
         <div id="concept-indicator" class="concept-indicator">SL1</div>
         <div id="level-indicator" class="level-indicator">Target Language</div>
         <div id="path-indicator" class="path-indicator">Main Path</div>
-        <div id="drag-instruction" class="drag-instruction">Mobile Phone users: click 'Tools' then 'Full Screen'.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again.</div>
+        <div id="drag-instruction" class="drag-instruction">Mobile Phone users: click 'Tools', then 'Full Screen' - and hold your phone horizontally.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again.</div>
         
         <!-- Vocabulary Array: ONE combined list of learned items, kept in path order (main path,
              then extension 1, then extension 2). Instant-change concepts have no "increasing"
@@ -769,9 +944,9 @@
             <!-- Concept Gradient -->
             <defs>
                 <linearGradient id="conceptGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:#4a4a4a;stop-opacity:1" />
-                    <stop offset="50%" style="stop-color:#87ceeb;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#4a4a4a;stop-opacity:1" />
+                    <stop offset="0%" style="stop-color:var(--grad-edge);stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:var(--grad-mid);stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:var(--grad-edge);stop-opacity:1" />
                 </linearGradient>
             </defs>
             
@@ -780,6 +955,7 @@
             
             <!-- Extension paths (horizontal continuations) -->
             <path id="extensionPath1" class="extension-path" d="M 23.33,15 L 130,15" />
+            <path id="sideLinePath" d="M 0,0 L 1,0" style="fill:none;stroke:none;pointer-events:none"></path>
             <path id="extensionPath2" class="extension-path" d="M 76.67,35 L 130,35" />
             
             <!-- States Mode Elements -->
@@ -801,11 +977,22 @@
          renders below the frame instead of over the diagram. .tools-dropdown is
          a sibling of .tools-bar so the bar's horizontal scrolling can never
          clip it. -->
+
+    <div id="textSizePanel">
+        <div class="tsHead"><span>Text size</span><button type="button" id="tsClose" aria-label="Close">&times;</button></div>
+        <div class="tsTarget" id="tsTarget">Click a word, then slide</div>
+        <input type="range" id="tsRange" min="50" max="300" step="5" value="100">
+        <div class="tsRow"><label><input type="checkbox" id="tsAll"> All words</label><span id="tsVal">100%</span><button type="button" class="tsReset" id="tsReset">Reset</button></div>
+    </div>
+
     <div class="tools-menu">
         <div class="tools-dropdown">
             <button id="toggleFullscreen">Full Screen</button>
             <button id="loadConcept">Load Concept</button>
             <button id="startQuiz">Start Random Quiz</button>
+            <button id="colourToggle" type="button" title="Try different colour schemes">Colours: Classic</button>
+            <button id="textSizeBtn" type="button" title="Enlarge or shrink any word">Text size…</button>
+            <button id="quizToggle" type="button" title="Quiz Off: clicking a word just cycles its languages. Quiz On: after the last language the Quiz box opens, and correct answers go into Learned Vocabulary.">Quiz: Off</button>
         </div>
         <div class="tools-bar">
             <button class="tools-button">Tools ▼</button>
@@ -869,6 +1056,7 @@
         };
         let pathLength = 0;
         let currentQuizIndex = -1;
+        let quizEnabled = false;   // Tools > Quiz On/Off. Off: a word click just cycles its layers; no quiz box, nothing added to the array
         let slidingTextMode = 0; // 0: TL, 1: SL, 2: Quiz
         let learnedItemsStates = []; // Separate tracking for States Mode
         let learnedItemsTransitions = []; // Separate tracking for Transitions Mode
@@ -917,7 +1105,7 @@
         let vocabularyArray, vocabularyItems;
         let toggleVocabularyBtn;
         let interactiveText, slidingText;
-        let ext1Path, ext2Path;
+        let ext1Path, ext2Path, sideLinePath;
 
         // TRANSITIONS MODE FUNCTIONS
         
@@ -1108,7 +1296,9 @@
             else if (length <= 100) baseSize = 0.9;
             else baseSize = 0.75;
             if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) baseSize *= 2;
-            const ratio = 1.4;   // 160x50 frame vs the 11TB's 100x50: gives the same on-screen size at a desktop window (and scales with the diagram)
+            // Desktop standard = the size of ROM-IT5L-Generic's words (6.4 units for a short word); phones keep their own sizes
+            const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+            const ratio = coarse ? 1.4 : (6.4 / 2.1);
             return baseSize * ratio;
         }
 
@@ -1146,6 +1336,31 @@
             return Math.min(Math.max(r[0], r[1] - lenPct), Math.max(r[0], offset));
         }
 
+        // Lines 2 and 4 are vertical. The sliding word used to run along them sideways (rotated);
+        // it now reads horizontally, centred on the line and sliding up / down it. Set this to
+        // false to return to the old sideways display - the old code below is still in place.
+        const SIDE_LINES_HORIZONTAL = true;
+        const SIDE_WORD_MAX_W = 90;     // widest the horizontal word may be (SVG units) before it is shrunk
+        let sideGrabActive = false;     // the drag began on a word already lying horizontally on a vertical line
+        let sideInDrag = false;         // the pointer has been on a vertical line during this drag
+
+        // Horizontal display of the sliding word on the vertical Lines 2 and 4: the word is laid
+        // on a short invisible horizontal path, centred on the line at the word's current height.
+        function placeSideLineWord(zone) {
+            shrinkToFit(SIDE_WORD_MAX_W);
+            const r = transitionRanges[zone];
+            const eps = 0.05;
+            currentOffset = Math.min(r[1] - eps, Math.max(r[0] + eps, currentOffset));
+            const pt = pathLine.getPointAtLength((currentOffset / 100) * pathLength);
+            const fs = parseFloat(interactiveText.style.fontSize) || 6.4;
+            const base = pt.y + 0.35 * fs;   // baseline: centres the word's height on that point
+            sideLinePath.setAttribute('d', 'M ' + (pt.x - 70) + ',' + base + ' L ' + (pt.x + 70) + ',' + base);
+            interactiveText.style.textAnchor = 'middle';
+            slidingText.setAttribute('href', '#sideLinePath');
+            slidingText.setAttribute('startOffset', '50%');
+            interactiveText.classList.add('side-line');
+        }
+
         // zoneOverride (given while dragging on the main path) says which line the
         // POINTER is on; the word belongs to that line.
         function updateTextContent(zoneOverride) {
@@ -1162,8 +1377,19 @@
             // TL first; then SL (which also stays on show while the quiz is open)
             const displayText = (slidingTextMode === 0) ? item.data[0] : item.data[1];
             slidingText.textContent = displayText;
-            interactiveText.style.fontSize = calculateFontSize(displayText) + "px";
+            interactiveText.style.fontSize = (calculateFontSize(displayText) * (window.__tsScale ? window.__tsScale("slide") : 1)) + "px";
             interactiveText.classList.toggle('learned', !!learnedItemsTransitions[item.index]);
+
+            // Lines 2 and 4 (vertical): the word lies horizontally, centred on the line
+            if (SIDE_LINES_HORIZONTAL && currentPath === 'main' && (zone === 1 || zone === 3)) {
+                placeSideLineWord(zone);
+                return;
+            }
+            interactiveText.classList.remove('side-line');
+            if (currentPath === 'main') {   // back on a horizontal line: the main path, left-aligned
+                slidingText.setAttribute('href', '#gradualChangePath');
+                interactiveText.style.textAnchor = 'start';
+            }
 
             // The word is now showing: keep ALL of it on its own line / path
             if (currentPath === 'main') {
@@ -1231,6 +1457,8 @@
             const el = getPathObject(currentPath);
             const startLen = (currentOffset / 100) * el.getTotalLength();
             dragGrabOffset = closestOnPathEl(el, pt.x, pt.y, null).len - startLen;
+            sideGrabActive = SIDE_LINES_HORIZONTAL && currentPath === 'main' && [1, 3].indexOf(zoneAtPercent(currentOffset)) >= 0;
+            sideInDrag = sideGrabActive;
 
             e.preventDefault();
         }
@@ -1277,10 +1505,19 @@
                 switchToPath(bestPath, Math.min(100, Math.max(0, (bestLen / total) * 100)));
                 dragGrabOffset = 0;
             } else {
-                const startLen = Math.min(curTotal, Math.max(0, bestLen - dragGrabOffset));
-                currentOffset = (startLen / curTotal) * 100;
-                // On the main path the word belongs to the line the POINTER is on
-                updateTextContent(currentPath === 'main' ? zoneAtPercent((bestLen / curTotal) * 100) : undefined);
+                const ptZone = (currentPath === 'main') ? zoneAtPercent((bestLen / curTotal) * 100) : -1;
+                if (SIDE_LINES_HORIZONTAL && (ptZone === 1 || ptZone === 3)) {
+                    // Pointer on a vertical line: the word lies horizontally, centred on the pointer's height
+                    currentOffset = (Math.min(curTotal, Math.max(0, bestLen - (sideGrabActive ? dragGrabOffset : 0))) / curTotal) * 100;
+                    sideInDrag = true;
+                    updateTextContent(ptZone);
+                } else {
+                    if (sideInDrag) { dragGrabOffset = 0; sideInDrag = false; sideGrabActive = false; }   // left a vertical line: the word starts at the pointer
+                    const startLen = Math.min(curTotal, Math.max(0, bestLen - dragGrabOffset));
+                    currentOffset = (startLen / curTotal) * 100;
+                    // On the main path the word belongs to the line the POINTER is on
+                    updateTextContent(currentPath === 'main' ? ptZone : undefined);
+                }
             }
 
             if (e.cancelable) e.preventDefault();
@@ -1298,7 +1535,7 @@
 
             const item = getTransitionItem(currentPath, currentOffset);
 
-            if (learnedItemsTransitions[item.index]) {
+            if (learnedItemsTransitions[item.index] || !quizEnabled) {
                 // Cycle TL <-> SL for learned items
                 slidingTextMode = (slidingTextMode === 0) ? 1 : 0;
                 updateTextContent();
@@ -1591,7 +1828,7 @@
             const textBoxConfig = [
                 { x: -3.33, y: 13, anchor: "middle" },     // TL1 - Line 1 centre, above the line
                 { x: 25.33, y: 25, anchor: "start" },      // TL2 - Line 2 (vertical, going down), to its right
-                { x: 50, y: 37, anchor: "middle" },        // TL3 - Line 3 centre, below the line
+                { x: 50, y: 34.4, anchor: "middle" },      // TL3 - sits ON Line 3 (was below the line, where it covered the yellow circle)
                 { x: 78.67, y: 25, anchor: "start" },      // TL4 - Line 4 (vertical, going up), to its right
                 { x: 103.33, y: 13, anchor: "middle" }     // TL5 - Line 5 centre, above the line
             ];
@@ -1614,7 +1851,7 @@
                 textBox.addEventListener('click', function() {
                     const index = parseInt(this.getAttribute('data-index'));
                     
-                    if (learnedItemsStates[index]) {
+                    if (learnedItemsStates[index] || !quizEnabled) {
                         // Cycle between TL and SL for learned items
                         if (currentTextLayer[index] === 0) {
                             currentTextLayer[index] = 1; // TL -> SL
@@ -1649,9 +1886,11 @@
         }
 
         function bringFrameToFront() {
-            // Move frame to end of SVG to ensure it's on top
+            // Keep the yellow circle BEHIND every word (text boxes, sliding text): a word parked under
+            // the circle can still be clicked. The circle sits just before the first word in the SVG.
             if (frame && frame.parentNode) {
-                frame.parentNode.appendChild(frame);
+                const firstWord = frame.parentNode.querySelector('.textBox, #interactiveText');
+                if (firstWord && firstWord !== frame) frame.parentNode.insertBefore(frame, firstWord);
                 // Re-apply cursor style to ensure it's visible
                 frame.style.cursor = 'grab';
                 console.log("Frame brought to front");
@@ -1685,7 +1924,7 @@
                 const extIndex = 0;
                 const dataIndex = 5;
                 
-                if (learnedItemsStates[dataIndex]) {
+                if (learnedItemsStates[dataIndex] || !quizEnabled) {
                     if (extensionTextLayers[extIndex] === 0) {
                         extensionTextLayers[extIndex] = 1;
                         this.textContent = extensionData[extIndex][1];
@@ -1728,7 +1967,7 @@
                 const extIndex = 1;
                 const dataIndex = 6;
                 
-                if (learnedItemsStates[dataIndex]) {
+                if (learnedItemsStates[dataIndex] || !quizEnabled) {
                     if (extensionTextLayers[extIndex] === 0) {
                         extensionTextLayers[extIndex] = 1;
                         this.textContent = extensionData[extIndex][1];
@@ -1772,7 +2011,7 @@
                 const extIndex = 2;
                 const dataIndex = 7;
                 
-                if (learnedItemsStates[dataIndex]) {
+                if (learnedItemsStates[dataIndex] || !quizEnabled) {
                     if (extensionTextLayers[extIndex] === 0) {
                         extensionTextLayers[extIndex] = 1;
                         this.textContent = extensionData[extIndex][1];
@@ -1838,6 +2077,9 @@
             quizContainer.style.visibility = 'visible';
             quizContainer.style.opacity = '1';
             quizContainer.style.zIndex = '9999';
+            if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
+                quizContainer.style.left = ''; quizContainer.style.top = ''; quizContainer.style.transform = '';   // back to the top-left default
+            }
 
             setTimeout(() => {
                 try {
@@ -2229,6 +2471,7 @@
                 let offX = 0, offY = 0, startX = 0, startY = 0, activeId = null, justDragged = false;
 
                 function place(left, top) {
+                    arr.style.maxHeight = Math.max(80, (window.visualViewport ? window.visualViewport.height : window.innerHeight) - 34) + 'px';   // never taller than what is visible
                     const maxLeft = Math.max(0, window.innerWidth - arr.offsetWidth);
                     const maxTop = Math.max(0, window.innerHeight - arr.offsetHeight);
                     arr.style.left = Math.min(Math.max(0, left), maxLeft) + 'px';
@@ -2237,7 +2480,11 @@
                 function placeDefault() {
                     const r = page ? page.getBoundingClientRect()
                                    : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
-                    place(r.left + r.width * 0.05, r.top + r.height * 0.02);
+                    if (window.matchMedia && window.matchMedia('(pointer: fine)').matches) {
+                        place(r.left + r.width * 0.97 - arr.offsetWidth, r.top + r.height * 0.02);   // desktop: top-right (the buttons are top-left)
+                    } else {
+                        place(r.left + r.width * 0.05, r.top + r.height * 0.02);
+                    }
                 }
                 function updateScrollable() {
                     arr.classList.toggle('scrollable', arr.scrollHeight > arr.clientHeight + 1);
@@ -2251,6 +2498,7 @@
                     if (userMoved) place(parseFloat(arr.style.left) || 0, parseFloat(arr.style.top) || 0);
                     else placeDefault();
                     updateScrollable();
+                    if (arr.scrollHeight > arr.clientHeight) arr.scrollTop = arr.scrollHeight;   // keep the newest entry in view
                 }
 
                 // Watch for the array being shown (the JS shows it from several places), and for
@@ -2390,6 +2638,132 @@
                 }
             });
             
+            // ── Tools > Colours: cycle through colour schemes (experimental) ──
+            const COLOUR_SCHEMES = [
+                { name: 'Classic', v: {} },
+                { name: 'Ocean',   v: { '--page-bg': '#f4fbff', '--grad-edge': '#1b4f72', '--grad-mid': '#aed6f1', '--fill-op': '0.4', '--line': '#0b3c5d', '--line-w': '0.4', '--ext-line': '#16a085', '--word': '#0b2e4f', '--ext-word': '#0e6655', '--slide': '#c0392b', '--learned': '#117a65' } },
+                { name: 'Sunrise', v: { '--page-bg': '#fffaf0', '--grad-edge': '#e67e22', '--grad-mid': '#f9e79f', '--fill-op': '0.45', '--line': '#7b241c', '--line-w': '0.4', '--ext-line': '#c0392b', '--word': '#4a235a', '--ext-word': '#a04000', '--slide': '#1a5276', '--learned': '#1e8449' } },
+                { name: 'Forest',  v: { '--page-bg': '#f7fff7', '--grad-edge': '#1e8449', '--grad-mid': '#d5f5e3', '--fill-op': '0.4', '--line': '#145a32', '--line-w': '0.4', '--ext-line': '#b9770e', '--word': '#0b3d20', '--ext-word': '#7d6608', '--slide': '#6c3483', '--learned': '#0b5345' } },
+                { name: 'High contrast', v: { '--page-bg': '#ffffff', '--grad-edge': '#000000', '--grad-mid': '#ffffff', '--fill-op': '0.12', '--line': '#000000', '--line-w': '0.6', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#6a0dad', '--slide': '#0000ff', '--learned': '#006400', '--ui': 'rgba(0,0,0,0.55)', '--wm': 'rgba(0,0,0,0.6)' } },
+                { name: 'Night',   v: { '--page-bg': '#14213d', '--grad-edge': '#000814', '--grad-mid': '#3a86ff', '--fill-op': '0.5', '--line': '#ffd60a', '--line-w': '0.4', '--ext-line': '#00f5d4', '--word': '#ffffff', '--ext-word': '#00f5d4', '--slide': '#ffd60a', '--learned': '#2ecc71', '--ui': 'rgba(255,255,255,0.55)', '--wm': 'rgba(255,255,255,0.6)', '--wm-glow': '#14213d', '--sa-tl': '#8ecae6', '--sa-tlr': '#e0c3fc', '--sa-sl': '#ffb3b3' } }
+            ];
+            let colourIndex = 0;
+            const colourBtn = document.getElementById('colourToggle');
+            if (colourBtn) {
+                colourBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();   // stays open, so schemes can be flicked through
+                    const root = document.documentElement;
+                    COLOUR_SCHEMES[colourIndex].v && Object.keys(COLOUR_SCHEMES[colourIndex].v).forEach(function (k) { root.style.removeProperty(k); });
+                    colourIndex = (colourIndex + 1) % COLOUR_SCHEMES.length;
+                    const sch = COLOUR_SCHEMES[colourIndex];
+                    Object.keys(sch.v).forEach(function (k) { root.style.setProperty(k, sch.v[k]); });
+                    colourBtn.textContent = 'Colours: ' + sch.name;
+                });
+            }
+
+
+            // ----- Text size slider (Tools > Text size) -----
+            (function () {
+                const panel = document.getElementById('textSizePanel');
+                const btn = document.getElementById('textSizeBtn');
+                if (!panel || !btn) return;
+                const range = document.getElementById('tsRange'), val = document.getElementById('tsVal'),
+                      tgt = document.getElementById('tsTarget'), all = document.getElementById('tsAll'),
+                      svg = document.getElementById('svgCanvas');
+                const scales = {};
+                let target = null;   // {key, el, label}
+                const keyOf = el => el.id === 'interactiveText' ? 'slide'
+                    : 'b' + el.getAttribute('data-index') + (el.hasAttribute('data-extension-index') ? 'x' + el.getAttribute('data-extension-index') : '');
+                const scaleOf = key => Math.min(3, Math.max(0.5, (scales[key] || 1) * (scales.all || 1)));
+                window.__tsScale = scaleOf;
+                function applyBox(el) {
+                    const s = scaleOf(keyOf(el));
+                    if (el.__base === undefined && el.style.fontSize) el.__base = parseFloat(el.style.fontSize);
+                    if (s === 1 && !el.__hadInline) { if (el.__base === undefined) { el.style.fontSize = ''; el.__applied = ''; return; } }
+                    let base = el.__base;
+                    if (base === undefined || isNaN(base)) { base = parseFloat(getComputedStyle(el).fontSize); el.__base = base; el.__hadInline = false; }
+                    el.__applied = (Math.round(base * s * 1000) / 1000) + 'px';
+                    el.style.fontSize = el.__applied;
+                }
+                function applyAll() {
+                    document.querySelectorAll('.textBox').forEach(applyBox);
+                    mo.takeRecords();   // discard the observer's records of our own writes (prevents re-scaling loops)
+                    if (typeof isStatesMode !== 'undefined' && !isStatesMode) updateTextContent();
+                }
+                function show() {
+                    const k = target ? target.key : null;
+                    const v = all.checked ? (scales.all || 1) : (k ? (scales[k] || 1) : 1);
+                    range.value = Math.round(v * 100); val.textContent = Math.round(v * 100) + '%';
+                    tgt.textContent = all.checked ? 'All words' : (target ? 'Word: ' + target.label : 'Click a word, then slide');
+                }
+                // watch for the template re-sizing a box itself (language cycling): keep the user's scale
+                const mo = new MutationObserver(function (muts) {
+                    muts.forEach(function (m) {
+                        const el = m.target;
+                        if (!el.classList || !el.classList.contains('textBox')) return;
+                        if (Math.abs(parseFloat(el.style.fontSize) - parseFloat(el.__applied)) < 0.002) return;   // our own write
+                        if (el.style.fontSize) { el.__base = parseFloat(el.style.fontSize); el.__hadInline = true; }
+                        if (scaleOf(keyOf(el)) !== 1) { applyBox(el); mo.takeRecords(); }
+                    });
+                });
+                mo.observe(svg, { attributes: true, attributeFilter: ['style'], subtree: true });
+                // which word is the slider for? the last one the user touched
+                document.addEventListener('pointerdown', function (e) {
+                    if (panel.contains(e.target)) return;
+                    const el = e.target.closest && e.target.closest('.textBox, #interactiveText');
+                    if (!el) return;
+                    target = { key: keyOf(el), el: el, label: (el.textContent || '').trim().slice(0, 30) };
+                    if (panel.style.display === 'block') { all.checked = false; show(); }
+                }, true);
+                if (!target) { const st = document.getElementById('interactiveText'); if (st) target = { key: 'slide', el: st, label: 'sliding word' }; }
+                range.addEventListener('input', function () {
+                    const v = range.value / 100;
+                    if (all.checked) scales.all = v; else if (target) scales[target.key] = v; else return;
+                    val.textContent = range.value + '%';
+                    applyAll();
+                });
+                all.addEventListener('change', show);
+                document.getElementById('tsReset').addEventListener('click', function () {
+                    Object.keys(scales).forEach(k => delete scales[k]);
+                    applyAll(); show();
+                });
+                document.getElementById('tsClose').addEventListener('click', function () { panel.style.display = 'none'; });
+                window.__tsReset = function () { Object.keys(scales).forEach(k => delete scales[k]); applyAll(); show(); };
+                btn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    panel.style.display = 'block';
+                    dropdownOpen = false; toolsDropdown.classList.remove('active');
+                    if (typeof isStatesMode !== 'undefined' && !isStatesMode && (!target || target.key !== 'slide')) target = { key: 'slide', el: null, label: 'sliding word' };
+                    show();
+                });
+                // drag the panel by its header
+                const head = panel.querySelector('.tsHead'); let d = null;
+                head.addEventListener('pointerdown', function (e) {
+                    if (e.target.id === 'tsClose') return;
+                    const r = panel.getBoundingClientRect();
+                    d = { dx: e.clientX - r.left, dy: e.clientY - r.top };
+                    panel.style.transform = 'none'; panel.style.right = 'auto'; panel.style.bottom = 'auto'; panel.style.left = r.left + 'px'; panel.style.top = r.top + 'px';
+                    head.setPointerCapture(e.pointerId);
+                });
+                head.addEventListener('pointermove', function (e) { if (d) { panel.style.left = (e.clientX - d.dx) + 'px'; panel.style.top = (e.clientY - d.dy) + 'px'; } });
+                head.addEventListener('pointerup', function () { d = null; });
+            })();
+
+            const quizToggleBtn = document.getElementById('quizToggle');
+            if (quizToggleBtn) {
+                quizToggleBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    quizEnabled = !quizEnabled;
+                    quizToggleBtn.textContent = quizEnabled ? 'Quiz: On' : 'Quiz: Off';
+                    dropdownOpen = false;
+                    toolsDropdown.classList.remove('active');
+                    if (!quizEnabled && quizContainer) {      // switching off closes any open quiz box
+                        quizContainer.style.display = 'none';
+                        currentQuizIndex = -1;
+                    }
+                });
+            }
+
             if (loadConceptBtn) {
                 loadConceptBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
@@ -2726,7 +3100,7 @@
                 });
             }
 
-            svg.insertBefore(showAllGroup, frame);   // the frame stays last in document order
+            svg.appendChild(showAllGroup);   // the circle is hidden during Show All; the words stay above it
             showAllWords = words;
             words.forEach(function (w) {
                 w.el.addEventListener('click', function (e) {
@@ -2750,6 +3124,7 @@
         // item goes back to "not learned" and the Learned Vocabulary list is
         // emptied.
         function resetTemplate() {
+            if (window.__tsReset) window.__tsReset();
             saCloseQuiz();
             if (isDragging) endDrag();
             if (isDraggingText) endTextDrag();
@@ -2803,6 +3178,57 @@
             if (resetBtn) resetBtn.addEventListener('click', resetTemplate);
         });
 
+
+        // ── Instruction panel: click / grab / drag / drop anywhere on the screen ──
+        // Default position: centred across the frame, centred at 75% of its height.
+        (function () {
+            document.addEventListener('DOMContentLoaded', function () {
+                const el = document.getElementById('drag-instruction');
+                const page = document.querySelector('.a4-page');
+                if (!el || !page) return;
+                let moved = false, dragging = false, offX = 0, offY = 0, pid = null;
+                function placeDefault() {
+                    if (moved) return;
+                    const r = page.getBoundingClientRect();
+                    el.style.left = (r.left + r.width / 2) + 'px';
+                    el.style.top = (r.top + r.height * 0.75) + 'px';
+                    el.style.transform = 'translate(-50%, -50%)';
+                }
+                placeDefault();
+                window.addEventListener('resize', placeDefault);
+                el.addEventListener('pointerdown', function (e) {
+                    if (e.button) return;
+                    const r = el.getBoundingClientRect();
+                    dragging = true; pid = e.pointerId;
+                    offX = e.clientX - r.left; offY = e.clientY - r.top;
+                    el.style.left = r.left + 'px'; el.style.top = r.top + 'px'; el.style.transform = 'none';
+                    moved = true;
+                    el.classList.add('dragging');
+                    el.style.transition = 'none';
+                    el.classList.remove('fade');   // being handled: keep it on screen
+                    try { el.setPointerCapture(pid); } catch (_) {}
+                    e.preventDefault();
+                });
+                el.addEventListener('pointermove', function (e) {
+                    if (!dragging || e.pointerId !== pid) return;
+                    const maxL = Math.max(0, window.innerWidth - el.offsetWidth);
+                    const maxT = Math.max(0, window.innerHeight - el.offsetHeight);
+                    el.style.left = Math.min(Math.max(0, e.clientX - offX), maxL) + 'px';
+                    el.style.top = Math.min(Math.max(0, e.clientY - offY), maxT) + 'px';
+                    e.preventDefault();
+                });
+                function end(e) {
+                    if (!dragging || (e && e.pointerId !== pid)) return;
+                    dragging = false;
+                    el.classList.remove('dragging');
+                    el.style.transition = '';
+                    try { el.releasePointerCapture(pid); } catch (_) {}
+                }
+                el.addEventListener('pointerup', end);
+                el.addEventListener('pointercancel', end);
+            });
+        })();
+
         // INITIALIZATION
         document.addEventListener('DOMContentLoaded', function() {
             try {
@@ -2829,6 +3255,7 @@
                 slidingText = document.getElementById("slidingText");
                 ext1Path = document.getElementById("extensionPath1");
                 ext2Path = document.getElementById("extensionPath2");
+                sideLinePath = document.getElementById("sideLinePath");
                 
                 if (!svg || !pathLine || !frame) {
                     console.error("Critical SVG elements missing");
@@ -2850,7 +3277,7 @@
                 pathLine.setAttribute('d', pathD);
                 
                 // Create background
-                const backgroundPath = `${pathD} L 130,45 L -30,45 Z`;
+                const backgroundPath = `${pathD} L 130,300 L -30,300 Z`;
                 conceptBackground.setAttribute('d', backgroundPath);
                 
                 // Get path length, and the Line 1-5 zones that go with it
