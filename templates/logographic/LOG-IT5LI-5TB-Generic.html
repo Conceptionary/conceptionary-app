@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-10-09 @ 3:31 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-10-11 @ 3:54 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1542,6 +1542,19 @@
             };
         })();
 
+        // 2026-10-10: when Transitions Mode opens, the sliding word sits centred on the MID-POINT of Line 1, its bottom edge on the line
+        function centreSlidingOnLineMid(zone) {
+            if (transitionRanges.length === 0) computeTransitionRanges();
+            const r = transitionRanges[zone];
+            if (!r) return;
+            updateTextContent(zone);
+            let lenPct = 0;
+            try { lenPct = (interactiveText.getComputedTextLength() / pathLength) * 100; } catch (e) { return; }
+            currentOffset = (r[0] + r[1]) / 2 - lenPct / 2;
+            currentOffset = fitMainWord(zone, currentOffset);
+            slidingText.setAttribute('startOffset', currentOffset + '%');
+        }
+
         function updateLevelIndicator() {
             if (isStatesMode) {
                 levelIndicator.style.display = 'none';
@@ -1898,7 +1911,7 @@
                 if (p && learned) {
                     const g = saGridToSvg(p);
                     const dx = g.x - parseFloat(box.getAttribute('x')), dy = g.y - parseFloat(box.getAttribute('y'));
-                    box.style.textAnchor = 'start';
+                    box.style.textAnchor = SA_FIXED_MIDDLE[key] ? 'middle' : 'start';
                     box.style.transform = 'translate(' + dx + 'px, ' + dy + 'px) scale(1)';
                     box.style.opacity = '1';
                 } else if (box.getAttribute('data-anchor')) {
@@ -2004,11 +2017,12 @@
             
             // INVERTED layout: Lines 1 and 5 at y=15, Line 3 at y=35. Each label sits beside its own line.
             const textBoxConfig = [
-                { x: -3.33, y: 13, anchor: "middle", index: 0 },     // TLR1 - Line 1 middle, above the line
-                { x: 25.33, y: 25, anchor: "start", index: 1 },      // TLR2 - Line 2 (vertical, going down), to its right
-                { x: 50, y: 34.4, anchor: "middle", index: 2 },      // TLR3 - sits ON Line 3 (was below the line, where it covered the yellow circle)
-                { x: 78.67, y: 25, anchor: "start", index: 3 },      // TLR4 - Line 4 (vertical, going up), to its right
-                { x: 103.33, y: 13, anchor: "middle", index: 4 }     // TLR5 - Line 5 middle, above the line
+                // 2026-10-10: every word is centred on the MID-POINT of its own line, its bottom edge (baseline) on the line
+                { x: -3.33, y: 15, anchor: "middle", index: 0 },     // TLR1 - mid-point of Line 1 (x -30 to 23.33, y 15)
+                { x: 23.33, y: 25, anchor: "middle", index: 1 },     // TLR2 - mid-point of Line 2 (vertical, x 23.33, y 15 to 35)
+                { x: 50, y: 35, anchor: "middle", index: 2 },        // TLR3 - mid-point of Line 3 (x 23.33 to 76.67, y 35)
+                { x: 76.67, y: 25, anchor: "middle", index: 3 },     // TLR4 - mid-point of Line 4 (vertical, x 76.67, y 35 to 15)
+                { x: 103.33, y: 15, anchor: "middle", index: 4 }     // TLR5 - mid-point of Line 5 (x 76.67 to 130, y 15)
             ];
             
             // Create text boxes with Phonographic 3-level cycling
@@ -2108,7 +2122,7 @@
             const ext1X = 50;   // INVERTED: mid-notch, just below the Line 1 continuation (y=15)
             const ext1Box = document.createElementNS("http://www.w3.org/2000/svg", "text");
             ext1Box.setAttribute("x", ext1X);
-            ext1Box.setAttribute("y", 19.5);
+            ext1Box.setAttribute("y", 15);   // 2026-10-10: on the Line 1 continuation, directly above TLR3
             ext1Box.setAttribute("text-anchor", "middle");
             ext1Box.setAttribute("data-anchor", "middle");
             ext1Box.setAttribute("class", "textBox extension");
@@ -2167,7 +2181,7 @@
             const ext2MidX = (76.67 + 130) / 2;   // 103.335: midpoint of the Line 3 continuation (x=76.67 to 130, y=35)
             const ext2Box = document.createElementNS("http://www.w3.org/2000/svg", "text");
             ext2Box.setAttribute("x", ext2MidX);
-            ext2Box.setAttribute("y", 39.5);
+            ext2Box.setAttribute("y", 35);   // 2026-10-10: on the Line 3 continuation, centred at its mid-point
             ext2Box.setAttribute("text-anchor", "middle");
             ext2Box.setAttribute("data-anchor", "middle");
             ext2Box.setAttribute("class", "textBox extension");
@@ -2585,6 +2599,7 @@
                 currentPath = 'main';
                 currentOffset = 0;
                 switchToPath('main', 0);
+                centreSlidingOnLineMid(0);
                 
                 if (vocabularyItems && vocabularyItems.children.length > 0) {
                     vocabularyArray.style.display = 'block';
@@ -3439,8 +3454,9 @@
         // Each word starts at its point (start anchor, baseline on y: i.e. bottom-left of the word).
         // A word with no entry keeps the position of its live label (none left in this file: every State word is plotted).
         // The same States points place a LEARNED box (see placeLearnedBoxes).
-        const SA_FIXED_STATE = { m0: [10, 30], m1: [27, 50], m2: [45, 70], m3: [63, 50], m4: [75, 30], e0: [45, 30], e1: [75, 70] };
-        const SA_FIXED_TRANS = { m0: [15, 30], m1: [25, 50], m2: [45, 70], e1_0: [45, 30], m3: [65, 50], m4: [75, 30], e2_0: [75, 70] };
+        const SA_FIXED_STATE = { m0: [16.67, 30], m1: [33.33, 50], m2: [50, 70], m3: [66.67, 50], m4: [83.33, 30], e0: [50, 30], e1: [83.33, 70] };   // 2026-10-11: every word ON its line, centred on the line's mid-point (5TB needs no stagger: nothing overlaps)
+        const SA_FIXED_MIDDLE = { m0: 1, m1: 1, m2: 1, m3: 1, m4: 1, e0: 1, e1: 1 };   // keys whose plotted point is the CENTRE of the word
+        const SA_FIXED_TRANS = { m0: [16.67, 30], m1: [33.33, 50], m2: [50, 70], e1_0: [50, 30], m3: [66.67, 50], m4: [83.33, 30], e2_0: [83.33, 70] };   // 2026-10-10: centred on each line's mid-point (Ext1-A above T3)
         function saGridToSvg(p) { return { x: -30 + 1.6 * p[0], y: 0.5 * p[1] }; }
 
         // Font size of a Show All word. A literal SVG-unit size, never em: em
@@ -3616,7 +3632,7 @@
                     src.push({ key: 'e' + j, row: extensionData[j], x: parseFloat(el.getAttribute('x')), y: parseFloat(el.getAttribute('y')), side: SA_EXT_SIDES[j] || 'above', anchor: el.style.textAnchor || el.getAttribute('text-anchor') || 'middle' });
                 });
                 src.forEach(function (s) {
-                    if (SA_FIXED_STATE[s.key]) { const g = saGridToSvg(SA_FIXED_STATE[s.key]); s.x = g.x; s.y = g.y; s.anchor = 'start'; s.side = 'at'; }
+                    if (SA_FIXED_STATE[s.key]) { const g = saGridToSvg(SA_FIXED_STATE[s.key]); s.x = g.x; s.y = g.y; s.anchor = SA_FIXED_MIDDLE[s.key] ? 'middle' : 'start'; s.side = 'at'; }
                     const t = document.createElementNS(SVG_NS_SA, 'text');
                     t.setAttribute('class', 'showall-word');
                     t.setAttribute('data-kind', 'state');
@@ -3643,7 +3659,7 @@
                     if (SA_FIXED_TRANS[s.key]) {   // placed by hand: ordinary horizontal text, not along the path
                         const g = saGridToSvg(SA_FIXED_TRANS[s.key]);
                         showAllGroup.appendChild(t);
-                        words.push({ kind: 'transition', key: s.key, row: s.row, x: g.x, y: g.y, anchor: 'start', side: 'at', fixed: true, el: t });
+                        words.push({ kind: 'transition', key: s.key, row: s.row, x: g.x, y: g.y, anchor: 'middle', side: 'at', fixed: true, el: t });
                         return;
                     }
                     const tp = document.createElementNS(SVG_NS_SA, 'textPath');

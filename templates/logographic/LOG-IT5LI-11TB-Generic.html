@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-10-09 @ 3:31 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-10-11 @ 3:27 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1547,6 +1547,19 @@
             };
         })();
 
+        // 2026-10-10: when Transitions Mode opens, the sliding word sits centred on the MID-POINT of Line 1, its bottom edge on the line
+        function centreSlidingOnLineMid(zone) {
+            if (transitionRanges.length === 0) computeTransitionRanges();
+            const r = transitionRanges[zone];
+            if (!r) return;
+            updateTextContent(zone);
+            let lenPct = 0;
+            try { lenPct = (interactiveText.getComputedTextLength() / pathLength) * 100; } catch (e) { return; }
+            currentOffset = (r[0] + r[1]) / 2 - lenPct / 2;
+            currentOffset = fitMainWord(zone, currentOffset);
+            slidingText.setAttribute('startOffset', currentOffset + '%');
+        }
+
         function updateLevelIndicator() {
             if (isStatesMode) {
                 levelIndicator.style.display = 'none';
@@ -1903,7 +1916,7 @@
                 if (p && learned) {
                     const g = saGridToSvg(p);
                     const dx = g.x - parseFloat(box.getAttribute('x')), dy = g.y - parseFloat(box.getAttribute('y'));
-                    box.style.textAnchor = 'start';
+                    box.style.textAnchor = SA_FIXED_END[key] ? 'end' : (SA_FIXED_MIDDLE[key] ? 'middle' : 'start');
                     box.style.transform = 'translate(' + dx + 'px, ' + dy + 'px) scale(1)';
                     box.style.opacity = '1';
                 } else if (box.getAttribute('data-anchor')) {
@@ -2009,17 +2022,20 @@
             
             // INVERTED layout: Lines 1 and 5 at y=15, Line 3 at y=35. Each label sits beside its own line.
             const textBoxConfig = [
-                { x: -30, y: 13, anchor: "start", index: 0 },        // TLR1 - Line 1 start (higher)
-                { x: -3.33, y: 13, anchor: "middle", index: 1 },     // TLR2 - Line 1 centre (higher)
-                { x: 23.33, y: 13, anchor: "middle", index: 2 },     // TLR3 - Line 1 end / Line 2 start (higher)
-                { x: 25.33, y: 25, anchor: "start", index: 3 },      // TLR4 - Line 2 middle (vertical, going down)
-                { x: 23.33, y: 34.4, anchor: "middle", index: 4 },     // TLR5 - Line 2 end / Line 3 start (lower)
-                { x: 50, y: 34.4, anchor: "middle", index: 5 },        // TLR6 - Line 3 centre (lower)
-                { x: 76.67, y: 34.4, anchor: "middle", index: 6 },     // TLR7 - Line 3 end / Line 4 start (lower)
-                { x: 78.67, y: 25, anchor: "start", index: 7 },      // TLR8 - Line 4 middle (vertical, going up)
-                { x: 76.67, y: 13, anchor: "middle", index: 8 },     // TLR9 - Line 4 end / Line 5 start (higher)
-                { x: 103.33, y: 13, anchor: "middle", index: 9 },    // TLR10 - Line 5 centre (higher)
-                { x: 130, y: 13, anchor: "end", index: 10 }          // TLR11 - Line 5 end (higher)
+                // 2026-10-11 DISPLAY LEVEL: one word at a time, every word sitting ON its line (baseline on the line).
+                // 11TB: one word at each end of each line, i.e. one per intersection. A word that would be crossed by a
+                // vertical line is anchored beside it (TLR5 starts at the corner, TLR7 ends at it).
+                { x: -30, y: 15, anchor: "start", index: 0 },         // TLR1 - Line 1 start
+                { x: -3.33, y: 15, anchor: "middle", index: 1 },      // TLR2 - Line 1 mid-point
+                { x: 23.33, y: 15, anchor: "end", index: 2 },         // TLR3 - Line 1 end / Line 2 start (word runs back along Line 1)
+                { x: 23.33, y: 25, anchor: "middle", index: 3 },      // TLR4 - Line 2 mid-point (vertical)
+                { x: 23.33, y: 35, anchor: "start", index: 4 },       // TLR5 - Line 2 end / Line 3 start (word runs along Line 3)
+                { x: 50, y: 35, anchor: "middle", index: 5 },         // TLR6 - Line 3 mid-point
+                { x: 76.67, y: 35, anchor: "end", index: 6 },         // TLR7 - Line 3 end / Line 4 start (word runs back along Line 3)
+                { x: 76.67, y: 25, anchor: "middle", index: 7 },      // TLR8 - Line 4 mid-point (vertical)
+                { x: 76.67, y: 15, anchor: "start", index: 8 },       // TLR9 - Line 4 end / Line 5 start (word runs along Line 5)
+                { x: 103.33, y: 15, anchor: "middle", index: 9 },     // TLR10 - Line 5 mid-point
+                { x: 129, y: 15, anchor: "end", index: 10 }           // TLR11 - near the end of Line 5, grows towards the left
             ];
             
             // Create text boxes with Phonographic 3-level cycling
@@ -2119,7 +2135,7 @@
             const ext1X = 50;   // INVERTED: mid-notch, just below the Line 1 continuation (y=15)
             const ext1Box = document.createElementNS("http://www.w3.org/2000/svg", "text");
             ext1Box.setAttribute("x", ext1X);
-            ext1Box.setAttribute("y", 19.5);
+            ext1Box.setAttribute("y", 15);   // 2026-10-10: on the Line 1 continuation, directly above TLR3
             ext1Box.setAttribute("text-anchor", "middle");
             ext1Box.setAttribute("data-anchor", "middle");
             ext1Box.setAttribute("class", "textBox extension");
@@ -2178,7 +2194,7 @@
             const ext2MidX = (76.67 + 130) / 2;   // 103.335: midpoint of the Line 3 continuation (x=76.67 to 130, y=35)
             const ext2Box = document.createElementNS("http://www.w3.org/2000/svg", "text");
             ext2Box.setAttribute("x", ext2MidX);
-            ext2Box.setAttribute("y", 39.5);
+            ext2Box.setAttribute("y", 35);   // 2026-10-10: on the Line 3 continuation, centred at its mid-point
             ext2Box.setAttribute("text-anchor", "middle");
             ext2Box.setAttribute("data-anchor", "middle");
             ext2Box.setAttribute("class", "textBox extension");
@@ -2597,6 +2613,7 @@
                 currentPath = 'main';
                 currentOffset = 0;
                 switchToPath('main', 0);
+                centreSlidingOnLineMid(0);
                 
                 if (vocabularyItems && vocabularyItems.children.length > 0) {
                     vocabularyArray.style.display = 'block';
@@ -3450,8 +3467,10 @@
         // percentages [x%, y%]; converted to SVG units (viewBox -30 0 160 50): x = -30 + 1.6 * x%, y = 0.5 * y%.
         // Each word starts at its point (start anchor, baseline on y: i.e. bottom-left of the word).
         // A word with no entry (TLR+1, TLR5, TLR7, TLR+3 ...) keeps the position of its live label.
-        const SA_FIXED_STATE = { m0: [2, 10], m1: [15, 20], m2: [25, 30], m3: [30, 50], m5: [45, 80], m7: [63, 50], m8: [63, 30], m9: [75, 20], m10: [80, 10] };
-        const SA_FIXED_TRANS = { m0: [10, 30], m1: [33, 50], m2: [43, 70], e1_0: [43, 30], m3: [65, 50], m4: [75, 30], e2_0: [73, 70] };
+        const SA_FIXED_STATE = { m0: [2, 10], m1: [16.67, 20], m2: [25, 30], m3: [33.33, 50], m4: [38, 60], m5: [50, 70], m6: [62, 60], m7: [66.67, 50], m8: [63, 30], m9: [83.33, 20], m10: [99.4, 10] };   // 2026-10-11 LEARNED / SHOW ALL levels: a descending then ascending staggered slope. TLR10 sits at the mid-point of Line 5; TLR11 is right-anchored and grows leftwards
+        const SA_FIXED_MIDDLE = { m1: 1, m3: 1, m5: 1, m7: 1, m9: 1 };
+        const SA_FIXED_END = { m6: 1, m10: 1 };   // right-anchored: the word ends at its point and grows towards the left   // keys whose plotted point is the CENTRE of the word
+        const SA_FIXED_TRANS = { m0: [16.67, 30], m1: [33.33, 50], m2: [50, 70], e1_0: [50, 30], m3: [66.67, 50], m4: [83.33, 30], e2_0: [83.33, 70] };   // 2026-10-10: centred on each line's mid-point (Ext1-A above T3)
         function saGridToSvg(p) { return { x: -30 + 1.6 * p[0], y: 0.5 * p[1] }; }
 
         // Font size of a Show All word. A literal SVG-unit size, never em: em
@@ -3627,7 +3646,7 @@
                     src.push({ key: 'e' + j, row: extensionData[j], x: parseFloat(el.getAttribute('x')), y: parseFloat(el.getAttribute('y')), side: SA_EXT_SIDES[j] || 'above', anchor: el.style.textAnchor || el.getAttribute('text-anchor') || 'middle' });
                 });
                 src.forEach(function (s) {
-                    if (SA_FIXED_STATE[s.key]) { const g = saGridToSvg(SA_FIXED_STATE[s.key]); s.x = g.x; s.y = g.y; s.anchor = 'start'; s.side = 'at'; }
+                    if (SA_FIXED_STATE[s.key]) { const g = saGridToSvg(SA_FIXED_STATE[s.key]); s.x = g.x; s.y = g.y; s.anchor = SA_FIXED_END[s.key] ? 'end' : (SA_FIXED_MIDDLE[s.key] ? 'middle' : 'start'); s.side = 'at'; }
                     const t = document.createElementNS(SVG_NS_SA, 'text');
                     t.setAttribute('class', 'showall-word');
                     t.setAttribute('data-kind', 'state');
@@ -3654,7 +3673,7 @@
                     if (SA_FIXED_TRANS[s.key]) {   // placed by hand: ordinary horizontal text, not along the path
                         const g = saGridToSvg(SA_FIXED_TRANS[s.key]);
                         showAllGroup.appendChild(t);
-                        words.push({ kind: 'transition', key: s.key, row: s.row, x: g.x, y: g.y, anchor: 'start', side: 'at', fixed: true, el: t });
+                        words.push({ kind: 'transition', key: s.key, row: s.row, x: g.x, y: g.y, anchor: 'middle', side: 'at', fixed: true, el: t });
                         return;
                     }
                     const tp = document.createElementNS(SVG_NS_SA, 'textPath');
