@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-10-11 @ 4:45 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-10-11 @ 11:45 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2598,7 +2598,8 @@
                 }).observe(dd, { attributes: true, attributeFilter: ['class'] });
                 window.addEventListener('resize', function () { if (dd.classList.contains('active')) fitToolsMenu(); });
             })();
-            const USER_MANUAL_URL = '';
+            // USER_MANUAL_URL: the single place to change the User Manual web address.
+            const USER_MANUAL_URL = 'https://sites.google.com/view/conceptionary/home/user-manual';
             // ----- Tools > Print (2026-10-09): opens the browser's print dialog; the @media print rules lay the template out on one A4 landscape page
             (function () {
                 const pb = document.getElementById('printBtn');

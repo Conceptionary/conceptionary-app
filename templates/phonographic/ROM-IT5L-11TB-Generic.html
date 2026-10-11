@@ -1,10 +1,10 @@
-<!-- Last updated: 2026-10-11 @ 4:45 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-10-11 @ 11:45 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instant Change - Phonographic 11-Box Template (Enhanced)</title>
+    <title>Instant Change - Phonographic 11-Box Template (Inverted)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -1011,9 +1011,9 @@
 </head>
 <body>
     <div class="page-wrapper">
-    <div class="template-id-badge">ROM-IT5L-11TB</div>
+    <div class="template-id-badge">ROM-IT5LI-11TB</div>
     <div class="a4-page">
-        <div id="title-box" class="title-box">Instant Change Template - Phonographic 11-Box</div>
+        <div id="title-box" class="title-box">Instant Change - Phonographic 11-Box (Inverted)</div>
         <div id="mode-indicator" class="mode-indicator">SL States Mode</div>
         <div id="concept-indicator" class="concept-indicator">SL1</div>
         <div id="level-indicator" class="level-indicator">Target Language</div>
@@ -1045,12 +1045,12 @@
             <path id="conceptBackground"></path>
             
             <!-- Extension paths (horizontal continuations) -->
-            <path id="extensionPath1" class="extension-path" d="M 23.33,40 L 130,40" />
+            <path id="extensionPath1" class="extension-path" d="M 23.33,15 L 130,15" />
             <path id="sideLinePath" d="M 0,0 L 1,0" style="fill:none;stroke:none;pointer-events:none"></path>
-            <path id="extensionPath2" class="extension-path" d="M 76.67,20 L 130,20" />
+            <path id="extensionPath2" class="extension-path" d="M 76.67,35 L 130,35" />
             
             <!-- States Mode Elements -->
-            <circle id="draggableFrame" cx="-24" cy="37.5" r="3"/>
+            <circle id="draggableFrame" cx="-24" cy="17.5" r="3"/>
             
             <!-- Transitions Mode Elements - Single Draggable Text -->
             <text id="interactiveText" class="sliding-text">
@@ -1060,7 +1060,7 @@
             </text>
         </svg>
         <div class="watermark">
-            &copy; 2026 Alan William Preston - Instant Change Template (Phonographic 11-Box)
+            &copy; 2026 Alan William Preston - Instant Change Template (Phonographic 11-Box) - Inverted
         </div>
     </div>
 
@@ -1186,8 +1186,8 @@
         
         // Title text options
         const titleTexts = {
-            states: ["Instant Change Template - Phonographic 11-Box", "Target Language View", "Source Language View"],
-            transitions: ["Instant Change Transitions - Phonographic", "Dynamic Changes", "Temporal Progression"]
+            states: ["Instant Change - Phonographic 11-Box (Inverted)", "Target Language View", "Source Language View"],
+            transitions: ["Instant Change Transitions - Phonographic (Inverted)", "Dynamic Changes", "Temporal Progression"]
         };
         let currentTextIndex = 0;
         
@@ -1196,12 +1196,12 @@
 
         // CENTERED: Rebuilt 5-line system with perfect center alignment
         const pathPoints = [
-            `-30,40`, 
-            `23.33,40`,
-            `23.33,20`,
-            `76.67,20`,
-            `76.67,40`,
-            `130,40`
+            `-30,15`, 
+            `23.33,15`,
+            `23.33,35`,
+            `76.67,35`,
+            `76.67,15`,
+            `130,15`
         ];
 
         // DOM elements
@@ -1996,23 +1996,23 @@
             // The boxes are rebuilt showing TL, so the click cycle restarts at TL too
             currentTextLayer = new Array(conceptData.length).fill(0);
 
-            // UPRIGHT layout: Lines 1 and 5 at y=40, Line 3 at y=20 (the vertical lines are 20 units).
+            // INVERTED layout: Lines 1 and 5 at y=15, Line 3 at y=35 (the vertical lines are 20 units).
             // Each label sits beside its own line, so it never lies on top of the path.
             const textBoxConfig = [
                 // 2026-10-11 DISPLAY LEVEL: one word at a time, every word sitting ON its line (baseline on the line).
                 // 11TB: one word at each end of each line, i.e. one per intersection. A word that would be crossed by a
                 // vertical line is anchored beside it (TL5 starts at the corner, TL7 ends at it).
-                { x: -30, y: 40, anchor: "start"},         // TL1 - Line 1 start
-                { x: -3.33, y: 40, anchor: "middle"},      // TL2 - Line 1 mid-point
-                { x: 23.33, y: 40, anchor: "end"},         // TL3 - Line 1 end / Line 2 start (word runs back along Line 1)
-                { x: 23.33, y: 30, anchor: "middle"},      // TL4 - Line 2 mid-point (vertical)
-                { x: 23.33, y: 20, anchor: "start"},       // TL5 - Line 2 end / Line 3 start (word runs along Line 3)
-                { x: 50, y: 20, anchor: "middle"},         // TL6 - Line 3 mid-point
-                { x: 76.67, y: 20, anchor: "end"},         // TL7 - Line 3 end / Line 4 start (word runs back along Line 3)
-                { x: 76.67, y: 30, anchor: "middle"},      // TL8 - Line 4 mid-point (vertical)
-                { x: 76.67, y: 40, anchor: "start"},       // TL9 - Line 4 end / Line 5 start (word runs along Line 5)
-                { x: 103.33, y: 40, anchor: "middle"},     // TL10 - Line 5 mid-point
-                { x: 129, y: 40, anchor: "end"}           // TL11 - near the end of Line 5, grows towards the left
+                { x: -30, y: 15, anchor: "start"},         // TL1 - Line 1 start
+                { x: -3.33, y: 15, anchor: "middle"},      // TL2 - Line 1 mid-point
+                { x: 23.33, y: 15, anchor: "end"},         // TL3 - Line 1 end / Line 2 start (word runs back along Line 1)
+                { x: 23.33, y: 25, anchor: "middle"},      // TL4 - Line 2 mid-point (vertical)
+                { x: 23.33, y: 35, anchor: "start"},       // TL5 - Line 2 end / Line 3 start (word runs along Line 3)
+                { x: 50, y: 35, anchor: "middle"},         // TL6 - Line 3 mid-point
+                { x: 76.67, y: 35, anchor: "end"},         // TL7 - Line 3 end / Line 4 start (word runs back along Line 3)
+                { x: 76.67, y: 25, anchor: "middle"},      // TL8 - Line 4 mid-point (vertical)
+                { x: 76.67, y: 15, anchor: "start"},       // TL9 - Line 4 end / Line 5 start (word runs along Line 5)
+                { x: 103.33, y: 15, anchor: "middle"},     // TL10 - Line 5 mid-point
+                { x: 129, y: 15, anchor: "end"}           // TL11 - near the end of Line 5, grows towards the left
             ];
 
             for (let i = 0; i < conceptData.length; i++) {
@@ -2095,7 +2095,7 @@
             const ext1X = 50; // 2026-10-09: directly above TL3 (x 50), on Line 1+ (y 15)
             const ext1Box = document.createElementNS("http://www.w3.org/2000/svg", "text");
             ext1Box.setAttribute("x", ext1X);
-            ext1Box.setAttribute("y", 40);   // on the Line 1 continuation (y=40)
+            ext1Box.setAttribute("y", 15);   // on the Line 1 continuation (y=15)
             ext1Box.setAttribute("text-anchor", "middle");
             ext1Box.setAttribute("data-anchor", "middle");
             ext1Box.setAttribute("class", "textBox extension");
@@ -2139,7 +2139,7 @@
             const ext2MidX = (76.67 + 130) / 2; // 103.335
             const ext2Box = document.createElementNS("http://www.w3.org/2000/svg", "text");
             ext2Box.setAttribute("x", ext2MidX);
-            ext2Box.setAttribute("y", 20);   // on the Line 3 continuation (y=20)
+            ext2Box.setAttribute("y", 35);   // on the Line 3 continuation (y=35)
             ext2Box.setAttribute("text-anchor", "middle");
             ext2Box.setAttribute("data-anchor", "middle");
             ext2Box.setAttribute("class", "textBox extension");
@@ -2185,7 +2185,7 @@
             const ext3X = 114; // 90% on x-axis
             const ext3Box = document.createElementNS("http://www.w3.org/2000/svg", "text");
             ext3Box.setAttribute("x", ext3X);
-            ext3Box.setAttribute("y", 33.5);   // below Line 5 (y=40); TL5 sits above it
+            ext3Box.setAttribute("y", 21.5);   // below Line 5 (y=15); TL5 sits above it
             ext3Box.setAttribute("text-anchor", "middle");
             ext3Box.setAttribute("class", "textBox extension");
             ext3Box.setAttribute("data-extension-index", 2);
@@ -2641,7 +2641,8 @@
                 }).observe(dd, { attributes: true, attributeFilter: ['class'] });
                 window.addEventListener('resize', function () { if (dd.classList.contains('active')) fitToolsMenu(); });
             })();
-            const USER_MANUAL_URL = '';
+            // USER_MANUAL_URL: the single place to change the User Manual web address.
+            const USER_MANUAL_URL = 'https://sites.google.com/view/conceptionary/home/user-manual';
             // ----- Tools > Print (2026-10-09): opens the browser's print dialog; the @media print rules lay the template out on one A4 landscape page
             (function () {
                 const pb = document.getElementById('printBtn');
@@ -3234,7 +3235,7 @@
         // percentages [x%, y%]; converted to SVG units (viewBox -30 0 160 50): x = -30 + 1.6 * x%, y = 0.5 * y%.
         // Each word starts at its point (start anchor, baseline on y: i.e. bottom-left of the word).
         // A word with no entry (TLR+1, TLR5, TLR7, TLR+3 ...) keeps the position of its live label.
-        const SA_FIXED_STATE = { m0: [2, 60], m1: [16.67, 70], m2: [25, 80], m3: [33.33, 60], m4: [38, 50], m5: [50, 40], m6: [62, 50], m7: [66.67, 60], m8: [63, 80], m9: [83.33, 70], m10: [99.4, 60] };   // 2026-10-11 LEARNED / SHOW ALL levels: a descending then ascending staggered slope. TLR10 sits at the mid-point of Line 5; TLR11 is right-anchored and grows leftwards
+        const SA_FIXED_STATE = { m0: [2, 10], m1: [16.67, 20], m2: [25, 30], m3: [33.33, 50], m4: [38, 60], m5: [50, 70], m6: [62, 60], m7: [66.67, 50], m8: [63, 30], m9: [83.33, 20], m10: [99.4, 10] };   // 2026-10-11 LEARNED / SHOW ALL levels: a descending then ascending staggered slope. TLR10 sits at the mid-point of Line 5; TLR11 is right-anchored and grows leftwards
         const SA_FIXED_MIDDLE = { m1: 1, m3: 1, m5: 1, m7: 1, m9: 1 };
         const SA_FIXED_END = { m6: 1, m10: 1 };   // right-anchored: the word ends at its point and grows towards the left   // keys whose plotted point is the CENTRE of the word
                 function saGridToSvg(p) { return { x: -30 + 1.6 * p[0], y: 0.5 * p[1] }; }
@@ -3431,7 +3432,7 @@
                 const src = [];
                 transitionsData.forEach(function (row, i) {
                     // Lines 2 and 4 are vertical: their words lie on a short invisible horizontal path through the line's mid-point
-                    const sideMid = (i === 1) ? [23.33, 30] : ((i === 3) ? [76.67, 30] : null);
+                    const sideMid = (i === 1) ? [23.33, 25] : ((i === 3) ? [76.67, 25] : null);
                     src.push({ key: 'm' + i, row: row, pathId: 'gradualChangePath', zone: saMainZone(i), side: 'above', sideMid: sideMid });
                 });
                 [[extension1TransitionData, 'extensionPath1', 'e1_', 'above'], [extension2TransitionData, 'extensionPath2', 'e2_', 'above']].forEach(function (g) {
