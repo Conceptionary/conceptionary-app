@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-10-16 @ 4:03 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-10-16 @ 5:30 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -502,6 +502,12 @@ body { height: 100vh; height: 100dvh; }
 .quiz-container input { touch-action: manipulation; }
 #quizGrab { cursor: grab; text-align: center; font: 11px Arial, sans-serif; opacity: .65; user-select: none; margin-bottom: 4px; letter-spacing: .03em; }
 .quiz-container.qdrag, .quiz-container.qdrag #quizGrab { cursor: grabbing; }
+/* Quiz: a small tick button at the right end of the text field replaces the Check button, so it is never hidden behind the phone keyboard */
+.quiz-container .quizRow { display: flex; gap: 6px; align-items: stretch; margin-bottom: 4px; }
+.quiz-container .quizRow input { flex: 1 1 auto; min-width: 0; margin-bottom: 0; }
+.quiz-container button#quizCheck { display: none; }
+.quiz-container button#quizTick { flex: none; width: 46px; padding: 0; font-size: 24px; line-height: 1; border-radius: 6px; }
+#quizFeedback { min-height: 1.2em; margin-top: 4px; }
 /* Short windows (phones held sideways): the Tools menu becomes two columns so it still fits */
 @media (max-height: 520px) {
   .tools-dropdown.active { display: grid; grid-template-columns: 1fr 1fr; width: 25em; font-size: 12px; }
@@ -634,12 +640,12 @@ body { height: 100vh; height: 100dvh; }
         // Transitions data with two-level naming convention (no TLR)
         const directionalVocab = {
             downward: [
-                {tl: "TL increasing1", sl: "SL increasing1", learned: false, addedToArray: false},
-                {tl: "TL increasing2", sl: "SL increasing2", learned: false, addedToArray: false}
-            ],
-            upward: [
                 {tl: "TL decreasing1", sl: "SL decreasing1", learned: false, addedToArray: false},
                 {tl: "TL decreasing2", sl: "SL decreasing2", learned: false, addedToArray: false}
+            ],
+            upward: [
+                {tl: "TL increasing1", sl: "SL increasing1", learned: false, addedToArray: false},
+                {tl: "TL increasing2", sl: "SL increasing2", learned: false, addedToArray: false}
             ],
             stationary: [
                 {tl: "TL stationary1", sl: "SL stationary1", learned: false, addedToArray: false}
@@ -795,18 +801,7 @@ body { height: 100vh; height: 100dvh; }
             
             // Determine direction with proper sensitivity
             const tDifference = currentT - previousT;
-            
-            // Only change direction on significant movement
-            if (Math.abs(tDifference) > 0.02) {
-                if (tDifference > 0) {
-                    newDirection = 'downward';   // Moving down the diagonal (increasing t)
-                } else {
-                    newDirection = 'upward'; // Moving up the diagonal (decreasing t)  
-                }
-            } else {
-                // Keep current direction if minimal movement
-                newDirection = currentDirection;
-            }
+            newDirection = dgDirection(currentT);
             
             debugLog(`Current T: ${currentT}, Previous T: ${previousT}, T Diff: ${tDifference}, Direction: ${newDirection}`);
             
@@ -1570,7 +1565,7 @@ body { height: 100vh; height: 100dvh; }
                 statesRows().forEach(function (r, i) { addWord(g, r, 'b' + i, (function () { const q = calculateDiagonalPosition(r.t); return { x: q.x + (i % 2 === 0 ? -8 : 8), y: q.y + (i % 2 === 0 ? 3 : -3), 'text-anchor': i % 2 === 0 ? 'end' : 'start' }; })()); });
             } else {
                 directionalVocab.stationary.forEach(function (r, i) { addWord(g, r, 'z' + i, (function () { const q = calculateDiagonalPosition(0.95); return { x: q.x - 12, y: q.y + 6 + i * 6, 'text-anchor': 'end' }; })()); });
-                [['upward', 'increasing-items', 'u'], ['downward', 'decreasing-items', 'd']].forEach(function (p) {
+                [['upward', 'decreasing-items', 'u'], ['downward', 'increasing-items', 'd']].forEach(function (p) {
                     directionalVocab[p[0]].forEach(function (r, i) {
                         const item = document.createElement('div'); item.className = 'vocabulary-item sa-temp';
                         addWord(item, r, p[2] + i, null); $(p[1]).appendChild(item);
@@ -1581,7 +1576,20 @@ body { height: 100vh; height: 100dvh; }
         }
         showBtn.addEventListener('click', function (e) { e.stopPropagation(); saLayer = (saLayer + 1 > LAYERS.length) ? -1 : saLayer + 1; saOver = {}; renderSA(); });
 
-        // The moving word sits to the right of the yellow frame; near the right-hand edge it flips to the left so it is never cut off
+        
+        // Direction of travel along the line (2026-10-16): decided by the overall movement, not by one small step, so a wobble of the
+        // hand can no longer flip Increasing/Decreasing. Dragging UP the screen = 'upward' = Increasing words only; DOWN = 'downward' = Decreasing words only.
+        window.DG_UP_SIGN = -1;   // +1: moving up the screen means t increases (DU); -1: it means t decreases (DD)
+        window.dgSt = { dir: 'stationary', ref: 0 };
+        window.dgDirection = function (t) {
+            const u = DG_UP_SIGN * t;
+            if (currentDirection === 'stationary') { dgSt.dir = 'stationary'; dgSt.ref = DG_UP_SIGN * previousT; }
+            if (dgSt.dir === 'stationary') { if (Math.abs(u - dgSt.ref) > 0.03) { dgSt.dir = u > dgSt.ref ? 'upward' : 'downward'; dgSt.ref = u; } }
+            else if (dgSt.dir === 'upward') { if (u > dgSt.ref) dgSt.ref = u; else if (dgSt.ref - u > 0.035) { dgSt.dir = 'downward'; dgSt.ref = u; } }
+            else { if (u < dgSt.ref) dgSt.ref = u; else if (u - dgSt.ref > 0.035) { dgSt.dir = 'upward'; dgSt.ref = u; } }
+            return dgSt.dir === 'stationary' ? currentDirection : dgSt.dir;
+        };
+// The moving word sits to the right of the yellow frame; near the right-hand edge it flips to the left so it is never cut off
         window.vlPlaceTT = function () {
             if (isStatesMode) return;
             const tx = $('transitionText'); if (!tx || getComputedStyle(tx).display === 'none') return;
@@ -1670,6 +1678,14 @@ body { height: 100vh; height: 100dvh; }
                 const fr = frame.getBoundingClientRect(), tb = titleEl ? titleEl.getBoundingClientRect() : { bottom: fr.top };
                 put(fr.left + 10, Math.max(tb.bottom, fr.top) + 8);
             }
+            (function () {
+                const inp = $('quizInput'), row = document.createElement('div'); row.className = 'quizRow';
+                inp.parentNode.insertBefore(row, inp); row.appendChild(inp);
+                const tick = document.createElement('button'); tick.id = 'quizTick'; tick.type = 'button'; tick.textContent = '\u2713'; tick.title = 'Check my answer'; tick.setAttribute('aria-label', 'Check my answer');
+                row.appendChild(tick);
+                tick.addEventListener('mousedown', function (e) { e.preventDefault(); });   // keep the keyboard open and the cursor in the text field
+                tick.addEventListener('click', function () { $('quizCheck').click(); });
+            })();
             let d = null;
             quizEl.addEventListener('pointerdown', function (e) {
                 if (e.target.closest('input, button')) return;
@@ -1749,9 +1765,16 @@ body { height: 100vh; height: 100dvh; }
                 const cs = getComputedStyle(el);
                 if (cs.display === 'none' || parseFloat(cs.opacity) < 0.25) return;
                 const shown = el.textContent.trim(), rows = allRows();
+                if (el.id === 'titleBox' || el.id === 'title-box') { const t = titleTL(); if (t.say && t.shown.indexOf(shown) >= 0) speak(t.say); return; }
                 for (let i = 0; i < rows.length; i++) { if (rows[i].tl === shown || (!ROM && rows[i].tlr === shown)) { speak(rows[i].tl); return; } }
             }
-            const SEL = '.textBox,.showall-word,#transitionText,.vocabulary-item span';
+            // the title box: spoken while it shows the target-language title (ROM: the first title; LOG: the TL title, also while it shows the TLR)
+            const titleEl = $('titleBox') || $('title-box'); const firstTitle = titleEl ? titleEl.textContent.trim() : '';
+            function titleTL() {
+                if (typeof titleTexts !== 'undefined') { const a = titleTexts[isStatesMode ? 'states' : 'transitions']; return ROM ? { shown: [a[0]], say: a[0] } : { shown: [a[0], a[1]], say: a[1] }; }
+                return { shown: [firstTitle], say: firstTitle };   // ROM-VL: its first title is the TL title
+            }
+            const SEL = '.textBox,.showall-word,#transitionText,.vocabulary-item span,#titleBox,#title-box';
             const find = function (e) { const t = e.target; return (t && t.closest) ? t.closest(SEL) : null; };
             document.addEventListener('mouseover', function (e) { if (!st.on) return; const el = find(e); if (!el) return; clearTimeout(st.timer); st.timer = setTimeout(function () { speakEl(el); }, 130); });
             document.addEventListener('mouseout', function () { clearTimeout(st.timer); });
