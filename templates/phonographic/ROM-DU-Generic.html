@@ -1,3 +1,4 @@
+<!-- Last updated: 2026-10-16 @ 4:03 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -350,6 +351,176 @@
             opacity: 0;
         }
     </style>
+<style>
+/* ===== 2026-10-16 Vertical Line upgrade: colour schemes, button row, panels ===== */
+:root {
+    --page-bg: #ffffff; --grad-edge: #4a4a4a; --grad-mid: #87ceeb; --fill-op: 0.2; --line: #000000; --line-w: 0.5;
+    --word: #000000; --slide: #0000ff; --learned: #008000; --ui: rgba(0,0,0,0.3); --wm: rgba(0,0,0,0.3); --wm-glow: #ffffff;
+    --sa-tl: #0b3d91; --sa-tlr: #5b2c83; --sa-sl: #8b1a1a;
+}
+/* 2026-10-09: metallic 'Ocean' buttons (Tools, Show All, Show Transitions/States, Reset and the Tools drop-down items):
+   glossy two-tone surface, bevelled/rounded corners, drop shadow, top reflection; sky blue on mouse-over.
+   Colour/shape only here; sizes stay with the phone rules, desktop is enlarged 50% in the pointer:fine block below. */
+/* 2026-10-09 (later): the button fill follows the colour scheme chosen in Tools > Colours (--grad-edge / --grad-mid) */
+:root { --mb-body: color-mix(in srgb, color-mix(in srgb, var(--grad-edge) 60%, var(--grad-mid)) calc(var(--fill-op) * 100%), var(--page-bg));   /* = the colour the frame's fill actually shows */
+        --mb-top: color-mix(in srgb, var(--mb-body) 78%, white); --mb-mid: var(--mb-body);
+        --mb-low: color-mix(in srgb, var(--mb-body) 90%, black); --mb-bot: color-mix(in srgb, var(--mb-body) 96%, black);
+        --mb-edge: color-mix(in srgb, var(--mb-body) 62%, black); --mb-text: #0b2e4f; --mb-shadow: rgba(255,255,255,.65);
+        --mh-top: #d6f0fc; --mh-mid: #9bd6f3; --mh-low: #7ccaee; --mh-bot: #a9defa; --mh-edge: #4a9fcb; --mh-text: #0b2e4f; }
+.tools-button, .show-all-btn, .mode-toggle, .reset-btn, .tools-dropdown button {
+    color: var(--mb-text); font-weight: 600; letter-spacing: .02em; text-shadow: 0 1px 0 var(--mb-shadow);
+    background: linear-gradient(180deg, var(--mb-top) 0%, var(--mb-mid) 48%, var(--mb-low) 52%, var(--mb-bot) 100%);
+    border: 1px solid var(--mb-edge); border-radius: 10px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.55), inset 0 -2px 3px rgba(0,0,0,.28), 0 2px 4px rgba(0,0,0,.35);
+    position: relative; isolation: isolate;
+    transition: color .45s ease, text-shadow .45s ease, border-color .45s ease, box-shadow .3s ease, transform .2s ease;
+}
+/* the sky-blue surface sits behind the text and fades in/out, so the change is smooth rather than abrupt */
+.tools-button::before, .show-all-btn::before, .mode-toggle::before, .reset-btn::before, .tools-dropdown button::before {
+    content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+    background: linear-gradient(180deg, var(--mh-top) 0%, var(--mh-mid) 48%, var(--mh-low) 52%, var(--mh-bot) 100%);
+    opacity: 0; transition: opacity .45s ease;
+}
+.tools-button:hover::before, .show-all-btn:hover::before, .mode-toggle:hover::before, .reset-btn:hover::before, .tools-dropdown button:hover::before { opacity: 1; }
+.tools-button:hover, .show-all-btn:hover, .mode-toggle:hover, .reset-btn:hover, .tools-dropdown button:hover {
+    color: var(--mh-text); text-shadow: 0 1px 0 rgba(255,255,255,.6); border-color: var(--mh-edge);
+}
+/* 2026-10-09: when the window / embed is short, the Tools drop-down shrinks to fit (see fitToolsMenu) so Full Screen is never cut off */
+.tools-dropdown.tools-compact button { font-size: 0.8em !important; padding: 4px 10px !important; min-height: 0 !important; line-height: 1.2 !important; }
+.tools-dropdown.tools-scroll { overflow-y: auto; }
+/* the Tools drop-down eases in */
+.tools-dropdown.active { animation: toolsFadeIn .25s ease; }
+@keyframes toolsFadeIn { from { opacity: 0; } to { opacity: 1; } }
+/* sliding text: colour changes ease too */
+.sliding-text { transition: fill .3s ease; }
+.tools-button:active, .show-all-btn:active, .mode-toggle:active, .reset-btn:active, .tools-dropdown button:active {
+    box-shadow: inset 0 2px 5px rgba(0,0,0,.4); transform: translateY(1px);
+}
+.show-all-btn.active { font-weight: 700; box-shadow: inset 0 2px 5px rgba(0,0,0,.45), 0 0 0 2px #87ceeb; }
+.tools-dropdown { background-color: var(--mb-edge); border: 1px solid var(--mb-edge); border-radius: 12px; overflow: hidden; }
+.tools-dropdown button { text-align: center; border-radius: 0; border-width: 0 0 1px 0; border-bottom: 1px solid var(--mb-edge); box-shadow: inset 0 1px 0 rgba(255,255,255,.45), inset 0 -2px 3px rgba(0,0,0,.25); }
+.tools-dropdown button:nth-child(even) { filter: brightness(1.12); }
+.tools-dropdown button:last-child { border-bottom: none; }
+.a4-page { background-color: var(--page-bg); }
+body { background-color: var(--page-bg); }
+.path-line { stroke: var(--line); stroke-width: var(--line-w); }
+#conceptBackground { opacity: var(--fill-op); }
+.textBox { fill: var(--word); }
+.textBox.learned { fill: var(--learned); }
+.transition-text, #transitionText { fill: var(--slide) !important; }
+.transition-text.learned, #transitionText.learned { fill: var(--learned) !important; }
+.title-box { background-color: var(--page-bg); color: var(--mb-text); border-color: var(--mb-edge); }
+.watermark { color: var(--wm); text-shadow: 0 0 3px var(--wm-glow), 0 0 3px var(--wm-glow); }
+/* the draggable frame is yellow in every colour scheme, including No colour */
+#draggableFrame { fill: rgba(255,255,0,0.3) !important; stroke: #DAA520 !important; stroke-width: 0.5px; }
+#draggableFrame:hover { fill: rgba(255,255,0,0.5) !important; }
+#draggableFrame.dragging { fill: rgba(255,255,0,0.65) !important; stroke: #b8860b !important; }
+/* hidden state words must not catch clicks */
+.textBox:not(.active):not(.learned) { pointer-events: none !important; }
+/* the diagram leaves room underneath for the button row */
+.a4-page svg { position: absolute; left: 0; top: 0; width: 100%; height: calc(100% - 72px); }
+/* 2026-10-16: the frame uses almost the whole window (it was 90vw x 70vh); printing is still forced to A4 landscape below */
+body { height: 100vh; height: 100dvh; }
+.a4-page { width: 98vw; height: calc(100vh - 24px); height: calc(100dvh - 24px); }
+#transitionText { font-size: 6px; }
+@media (pointer: coarse) {
+  .a4-page { width: 99vw; height: calc(100vh - 10px); height: calc(100dvh - 10px); }
+  .a4-page svg { height: calc(100% - 58px); }
+  .tools-menu { bottom: 24px; }
+  /* phones: state words and the moving word 50% larger */
+  .textBox, .showall-word { font-size: 0.48em; }
+  .transition-text, #transitionText { font-size: 9px; }
+}
+/* words and the yellow frame stay on top of the two arrays, and the empty parts of the diagram let clicks through to the arrays */
+.a4-page svg { z-index: 5; pointer-events: none; }
+.a4-page svg .textBox, .a4-page svg .showall-word, .a4-page svg #transitionText, .a4-page svg #draggableFrame, .a4-page svg #transitionFrame { pointer-events: all; }
+.show-all-on .level-indicator { display: none !important; }
+.drag-instruction { z-index: 12; }
+.level-indicator { background-color: var(--page-bg); color: var(--mb-text); border-color: var(--mb-edge); }
+#increasing-array { top: 28%; left: 20%; }
+#decreasing-array { top: 50%; left: 75%; }
+.title-box { font-size: clamp(9px, 1.4vw, 16px); padding: clamp(4px, 0.7vw, 10px); }
+.level-indicator { top: 5% !important; bottom: auto !important; left: 75% !important; right: auto; }
+.diagonal-line { stroke: var(--line); stroke-width: var(--line-w); }
+/* the position indicator was redundant: hidden in all templates */
+#concept-indicator, .concept-indicator { display: none !important; }
+
+/* Button row, inside the frame above the watermark: Audio | Show Transitions/States | Show All | Tools | Reset */
+.tools-menu { position: absolute; top: auto; right: auto; bottom: 34px; left: 50%; transform: translateX(-50%); width: max-content; z-index: 20; }
+.tools-bar { display: grid; grid-template-columns: repeat(5, minmax(0, 11.7em)); align-items: center; gap: 10px; font-size: clamp(7px, calc((98vw * 0.92 - 40px) / 58.5), 14px); }
+.tools-bar button { width: 100%; min-width: 0; font-family: inherit; font-size: 0.87em; padding: 6px 4px; white-space: nowrap; box-sizing: border-box; text-align: center; cursor: pointer; position: relative; }
+.tools-bar #modeButton, .tools-bar #modeToggle { position: relative; left: auto; bottom: auto; transform: none; margin: 0; }
+.tools-bar #modeButton { border: 1px solid var(--mb-edge); border-radius: 10px; font-size: 0.87em; padding: 6px 4px; background-color: transparent; }
+.tools-bar #modeButton:hover { background-color: transparent; }
+.tools-dropdown #displayButton { position: relative; left: auto; bottom: auto; transform: none; border-radius: 0; border-width: 0 0 1px 0; font-size: 1em; padding: 9px 14px; display: block; width: 100%; background-color: transparent; }
+#transitionFrame { stroke-width: 0.5px !important; }
+.tools-dropdown { display: none; position: absolute; bottom: 100%; right: 0; margin-bottom: 4px; width: 13em; font-size: 14px; z-index: 30; }
+.tools-dropdown.active { display: block; }
+.tools-dropdown button { display: block; width: 100%; font-family: inherit; font-size: 1em; padding: 9px 14px; cursor: pointer; margin: 0; position: relative; transform: none; left: auto; bottom: auto; }
+@media (max-width: 700px) {
+  .tools-menu { left: 4px; right: 4px; transform: none; width: auto; }
+  .tools-bar { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; font-size: clamp(7px, 2.5vw, 12px); }
+  .tools-bar button { white-space: normal; line-height: 1.12; padding: 5px 2px; }
+  .drag-instruction { left: 50% !important; width: max-content; max-width: 86%; text-align: center; }
+  .concept-indicator { left: 8px !important; transform: none !important; }
+  .level-indicator { top: auto !important; bottom: 78px; right: 8px; left: auto !important; transform: none !important; }
+}
+/* Text size and Audio panels: filled with the frame's colour */
+#textSizePanel, #audioPanel { position: fixed; z-index: 60; display: none; background: var(--mb-body); color: var(--mb-text); border: 1px solid var(--mb-edge); border-radius: 8px; padding: 6px 10px 8px; box-shadow: 0 2px 8px rgba(0,0,0,.3); font: 13px sans-serif; width: min(320px, 88vw); touch-action: none; left: 10px; top: 10px; }
+#textSizePanel .tsHead, #audioPanel .auHead { cursor: grab; display: flex; justify-content: space-between; align-items: center; font-weight: bold; user-select: none; margin-bottom: 4px; }
+#textSizePanel .tsHead button, #audioPanel .auHead button { border: 0; background: none; font-size: 18px; cursor: pointer; line-height: 1; color: var(--mb-text); }
+#textSizePanel .tsTarget { margin: 2px 0 4px; min-height: 1.2em; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+#textSizePanel input[type=range], #audioPanel input[type=range] { width: 100%; touch-action: pan-y; }
+#textSizePanel .tsRow { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; }
+#textSizePanel button.tsReset { padding: 3px 10px; }
+#audioPanel .auRow { display: flex; gap: 18px; align-items: center; margin: 4px 0 8px; }
+#audioPanel .auRow label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+#audioPanel .auVol { display: flex; align-items: center; gap: 8px; }
+#audioPanel .auVol input[type=range] { flex: 1; }
+#audioPanel .auStatus { margin-top: 6px; font-size: 11.5px; opacity: .85; min-height: 1.3em; }
+/* Show All */
+.showall-word { font-size: 0.32em; cursor: pointer; pointer-events: all; }
+.showall-word.layer-tl, .sa-w.layer-tl { fill: var(--sa-tl); color: var(--sa-tl); }
+.showall-word.layer-tlr, .sa-w.layer-tlr { fill: var(--sa-tlr); color: var(--sa-tlr); }
+.showall-word.layer-sl, .sa-w.layer-sl { fill: var(--sa-sl); color: var(--sa-sl); }
+.sa-w { cursor: pointer; font-weight: bold; padding: 2px 5px; display: block; }
+.show-all-on #draggableFrame, .show-all-on #transitionFrame, .show-all-on .textBox, .show-all-on #transitionText, .show-all-on .drag-instruction { display: none !important; }
+.show-all-on .vocabulary-item:not(.sa-temp) { display: none; }
+.sa-hide .vocabulary-array { display: none !important; }
+/* No colour: everything uncoloured except the yellow frame */
+[data-nc] .quiz-container { border-color: #000; }
+[data-nc] .quiz-container button { background: #555; }
+[data-nc] .quiz-container button:hover { background: #333; }
+[data-nc] .vocabulary-item .tl, [data-nc] .vocabulary-item .tlr { color: #000; }
+[data-nc] .vocabulary-item:hover { background-color: #eee; }
+[data-nc] .vocabulary-item .sl { color: #555; }
+/* Quiz box: opens top-left below the title box; grab it anywhere except the text field and button to move it */
+.quiz-container { top: 10px; left: 10px; transform: none !important; width: min(360px, 94vw); max-width: none; box-sizing: border-box; touch-action: none; padding-top: 6px; }
+.quiz-container input { touch-action: manipulation; }
+#quizGrab { cursor: grab; text-align: center; font: 11px Arial, sans-serif; opacity: .65; user-select: none; margin-bottom: 4px; letter-spacing: .03em; }
+.quiz-container.qdrag, .quiz-container.qdrag #quizGrab { cursor: grabbing; }
+/* Short windows (phones held sideways): the Tools menu becomes two columns so it still fits */
+@media (max-height: 520px) {
+  .tools-dropdown.active { display: grid; grid-template-columns: 1fr 1fr; width: 25em; font-size: 12px; }
+  .tools-dropdown button { padding: 6px 8px; }
+}
+/* Phones only: softly rounded frame corners (the clipping is done by overflow:hidden on the frame) */
+@media (pointer: coarse) { .a4-page { border-radius: 24px; } }
+/* Vertical Line, phone held upright: the line is stretched to fill the height, so words and frames are squashed back to normal shape */
+.vl-portrait svg .textBox { transform-box: fill-box; transform-origin: center; transform: scale(0.5, calc(0.5 * var(--k, 1))); }
+.vl-portrait svg .textBox.active, .vl-portrait svg .textBox.learned { transform: scale(1, var(--k, 1)); }
+.vl-portrait svg .showall-word, .vl-portrait svg #transitionText, .vl-portrait svg #draggableFrame, .vl-portrait svg #transitionFrame { transform-box: fill-box; transform-origin: center; transform: scale(1, var(--k, 1)); }
+#vlRotateTip { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); z-index: 40; background: rgba(30,30,30,.88); color: #fff; font: bold 17px Arial, sans-serif; padding: 12px 20px; border-radius: 12px; pointer-events: none; opacity: 0; transition: opacity .6s ease; text-align: center; }
+#vlRotateTip.show { opacity: 1; }
+@media print {
+    @page { size: A4 landscape; margin: 0; }
+    .a4-page { border-radius: 0 !important; }
+    html, body { height: auto !important; overflow: visible !important; background: #fff !important; display: block !important; margin: 0 !important; padding-top: 8mm !important; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .a4-page { width: 274mm !important; height: 190mm !important; margin: 0 auto !important; }
+    .tools-menu, .drag-instruction, #textSizePanel, #audioPanel, .quiz-container { display: none !important; }
+}
+</style>
 </head>
 <body>
     <div class="a4-page">
@@ -360,7 +531,23 @@
         
         <!-- Tools Menu -->
         <div class="tools-menu">
-            <div class="tools-button" id="tools-button">Tools</div>
+            <div class="tools-dropdown">
+                <button id="toggleFullscreen" type="button">Full Screen</button>
+                <button id="userManualBtn" type="button" title="How to use these templates">User Manual</button>
+                <button id="loadConcept" type="button">Load Concept</button>
+                <button id="startQuiz" type="button">Start Random Quiz</button>
+                <button id="colourToggle" type="button" title="Try different colour schemes">Colours: Ocean</button>
+                <button id="textSizeBtn" type="button" title="Enlarge or shrink any word">Text size…</button>
+                <button id="quizToggle" type="button" title="Quiz is on: the Quiz box opens after the last language, and correct answers go into Learned Vocabulary. Turn it off and clicking a word just cycles its languages.">Turn Quiz OFF</button>
+                <button id="printBtn" type="button" title="Print this template on one A4 landscape page">Print</button>
+            </div>
+            <div class="tools-bar">
+                <button id="audioBtn" class="reset-btn audio-btn" type="button" title="Hear the target language: turn audio on or off and set the volume">Audio: Off</button>
+                <button id="modeToggle" class="mode-toggle" type="button">Show Transitions</button>
+                <button id="showAllBtn" class="show-all-btn" type="button" title="Quick reference: show every word at once. Click any word to flip just that word to its next language layer. Keep clicking the button to reach Hide All.">Show All</button>
+                <button id="tools-button" class="tools-button" type="button">Tools ▼</button>
+                <button id="resetBtn" class="reset-btn" type="button" title="Start this concept over from the beginning: clears Quiz progress and returns to the start of the line.">Reset</button>
+            </div>
         </div>
         
         <!-- Vocabulary Arrays -->
@@ -379,9 +566,9 @@
         <svg id="svgCanvas" viewBox="0 0 200 100" preserveAspectRatio="xMidYMid meet">
             <defs>
                 <linearGradient id="conceptGradient" x1="0%" y1="100%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:#4a4a4a;stop-opacity:1" />
-                    <stop offset="50%" style="stop-color:#87ceeb;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#4a4a4a;stop-opacity:1" />
+                    <stop offset="0%" style="stop-color:var(--grad-edge);stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:var(--grad-mid);stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:var(--grad-edge);stop-opacity:1" />
                 </linearGradient>
             </defs>
             
@@ -394,17 +581,30 @@
             
             <!-- Transitions Mode Elements -->
             <rect id="transitionFrame" x="185" y="5" width="10" height="8" rx="2" style="fill: rgba(255,255,0,0.3); stroke: #DAA520; display: none;" class="yellow-frame"/>
-            <text id="transitionText" x="200" y="9" text-anchor="start" style="font-size: 6px; fill: blue; display: none; cursor: pointer;">TL increasing1</text>
+            <text id="transitionText" x="200" y="9" text-anchor="start" style="fill: blue; display: none; cursor: pointer;">TL increasing1</text>
         </svg>
         
-        <button id="modeToggle" class="mode-toggle">Toggle Mode</button>
         
         <div class="watermark">
-            &copy; 2025 Alan William Preston - Diagonal Line for Phonographic Languages - Generic
+            &copy; 2026 Alan William Preston - Diagonal Line for Phonographic Languages - Generic
         </div>
     </div>
 
     <!-- Quiz Container -->
+    <div id="textSizePanel">
+        <div class="tsHead"><span>Text size</span><button type="button" id="tsClose" aria-label="Close">&times;</button></div>
+        <div class="tsTarget" id="tsTarget">Click a word, then slide</div>
+        <input type="range" id="tsRange" min="50" max="300" step="5" value="100">
+        <div class="tsRow"><label><input type="checkbox" id="tsAll"> All words</label><span id="tsVal">100%</span><button type="button" class="tsReset" id="tsReset">Reset</button></div>
+    </div>
+
+    <div id="audioPanel">
+        <div class="auHead"><span>Audio</span><button type="button" id="auClose" aria-label="Close">&times;</button></div>
+        <div class="auRow"><label><input type="radio" name="auOnOff" id="auOn"> On</label><label><input type="radio" name="auOnOff" id="auOff" checked> Off</label></div>
+        <div class="auVol"><span>Volume</span><input type="range" id="auVol" min="0" max="100" step="5" value="80"><span id="auVolVal">80%</span></div>
+        <div class="auStatus" id="auStatus">Audio is off.</div>
+    </div>
+
     <div id="quizContainer" class="quiz-container">
         <input type="text" id="quizInput" placeholder="Enter the TL word">
         <button id="quizCheck">Check</button>
@@ -929,6 +1129,7 @@
             
             const activeFrame = isStatesMode ? blueFrame : redFrame;
             const currentT = isStatesMode ? 0.05 : 0.95;
+            { const _p = calculateDiagonalPosition(currentT); activeFrame.setAttribute('x', _p.x - 5); activeFrame.setAttribute('y', _p.y - 4); }
             updateTextVisibility(currentT);
             
             if (!isStatesMode) {
@@ -986,8 +1187,9 @@
             const svgRect = document.getElementById('svgCanvas').getBoundingClientRect();
             
             // Convert to SVG coordinates
-            const svgX = ((clientX - svgRect.left) / svgRect.width) * 200;
-            const svgY = ((clientY - svgRect.top) / svgRect.height) * 100;
+            const _pt = vlSvgPt(clientX, clientY);
+            const svgX = _pt.x;
+            const svgY = _pt.y;
             
             // Project point onto diagonal line
             // Line goes from (10, 90) to (190, 10)
@@ -1197,6 +1399,392 @@
             
             console.log("Diagonal Line Phonographic Template Initialized Successfully");
         });
+    </script>
+    <script>
+    // ===== VERTICAL LINE UI LAYER (2026-10-16) =============================================================
+    // Button row (Audio | Show Transitions/States | Show All | Tools | Reset), Text size, Audio, colour schemes, Show All, Reset.
+    // The learning behaviour of the template (states, transitions, quiz, arrays) is unchanged.
+    window.vlSvgPt = function (cx, cy) {
+        const svg = document.querySelector('svg'); const p = svg.createSVGPoint(); p.x = cx; p.y = cy;
+        return p.matrixTransform(svg.getScreenCTM().inverse());
+    };
+    window.vlSvgY = function (cx, cy) {   // screen -> SVG coordinates, correct whatever the shape of the window
+        const svg = document.querySelector('svg'); const p = svg.createSVGPoint(); p.x = cx; p.y = cy;
+        return p.matrixTransform(svg.getScreenCTM().inverse()).y;
+    };
+    (function () {
+        const ROM = true;
+        const $ = function (id) { return document.getElementById(id); };
+        const frame = document.querySelector('.a4-page');
+        const SF = document.querySelector('#draggableFrame'), TF = document.querySelector('#transitionFrame');
+        const statesRows = function () { return statesData; };
+        const allRows = function () { return statesRows().concat(Object.keys(directionalVocab).reduce(function (a, k) { return a.concat(directionalVocab[k]); }, [])); };
+        const dd = document.querySelector('.tools-dropdown'), toolsBtn = document.querySelector('.tools-button');
+        const modeBtn = $('modeToggle'), resetBtn = $('resetBtn'), showBtn = $('showAllBtn');
+        const quizEl = $('quizContainer');
+        function closeQuiz() { quizEl.style.display = 'none'; currentQuizIndex = -1; }
+        function framePos() { return (parseFloat((isStatesMode ? SF : TF).getAttribute('x')) + 5 - 10) / 180; }
+        function refreshVisibility() { if (isStatesMode) updateTextVisibility(framePos()); }
+
+        // ----- Portrait phone: zoom the diagram in on the line so the words are readable -----
+        const svgEl = document.querySelector('svg');
+        
+
+        // ----- Tools drop-down -----
+        toolsBtn.addEventListener('click', function (e) { e.stopPropagation(); dd.classList.toggle('active'); });
+        document.addEventListener('click', function (e) { if (!dd.contains(e.target)) dd.classList.remove('active'); });
+        const fsBtn = $('toggleFullscreen');
+        fsBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (!document.fullscreenElement) { if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function () {}); }
+            else if (document.exitFullscreen) document.exitFullscreen();
+            dd.classList.remove('active');
+        });
+        document.addEventListener('fullscreenchange', function () { fsBtn.textContent = document.fullscreenElement ? 'Exit Full Screen' : 'Full Screen'; });
+        $('printBtn').addEventListener('click', function (e) { e.stopPropagation(); dd.classList.remove('active'); setTimeout(function () { window.print(); }, 50); });
+        const dispBtn = $('displayButton'); if (dispBtn) dispBtn.addEventListener('click', function (e) { e.stopPropagation(); });
+
+        // ----- Colour schemes (Tools > Colours) -----
+        const COLOUR_SCHEMES = [
+                { name: 'Classic', v: {} },
+                { name: 'Ocean',   v: { '--mb-text': '#0b2e4f', '--mb-shadow': 'rgba(255,255,255,.65)', '--page-bg': '#f4fbff', '--grad-edge': '#1b4f72', '--grad-mid': '#aed6f1', '--fill-op': '0.4', '--line': '#0b3c5d', '--line-w': '0.4', '--ext-line': '#16a085', '--word': '#0b2e4f', '--ext-word': '#0e6655', '--slide': '#c0392b', '--learned': '#117a65' } },
+                { name: 'Sunrise', v: { '--mb-text': '#4a2400', '--mb-shadow': 'rgba(255,255,255,.65)', '--page-bg': '#fffaf0', '--grad-edge': '#e67e22', '--grad-mid': '#f9e79f', '--fill-op': '0.45', '--line': '#7b241c', '--line-w': '0.4', '--ext-line': '#c0392b', '--word': '#4a235a', '--ext-word': '#a04000', '--slide': '#1a5276', '--learned': '#1e8449' } },
+                { name: 'Forest',  v: { '--mb-text': '#0e3b20', '--mb-shadow': 'rgba(255,255,255,.65)', '--page-bg': '#f7fff7', '--grad-edge': '#1e8449', '--grad-mid': '#d5f5e3', '--fill-op': '0.4', '--line': '#145a32', '--line-w': '0.4', '--ext-line': '#b9770e', '--word': '#0b3d20', '--ext-word': '#7d6608', '--slide': '#6c3483', '--learned': '#0b5345' } },
+                { name: 'High contrast', v: { '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.65)', '--page-bg': '#ffffff', '--grad-edge': '#000000', '--grad-mid': '#ffffff', '--fill-op': '0.12', '--line': '#000000', '--line-w': '0.6', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#6a0dad', '--slide': '#0000ff', '--learned': '#006400', '--ui': 'rgba(0,0,0,0.55)', '--wm': 'rgba(0,0,0,0.6)' } },
+                { name: 'Night',   v: { '--mb-text': '#ffffff', '--mb-shadow': 'rgba(0,0,0,.7)', '--page-bg': '#14213d', '--grad-edge': '#000814', '--grad-mid': '#3a86ff', '--fill-op': '0.5', '--line': '#ffd60a', '--line-w': '0.4', '--ext-line': '#00f5d4', '--word': '#ffffff', '--ext-word': '#00f5d4', '--slide': '#ffd60a', '--learned': '#2ecc71', '--ui': 'rgba(255,255,255,0.55)', '--wm': 'rgba(255,255,255,0.6)', '--wm-glow': '#14213d', '--sa-tl': '#8ecae6', '--sa-tlr': '#e0c3fc', '--sa-sl': '#ffb3b3' } },
+                { name: 'No colour', v: { '--mb-body': '#e6e6e6', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.65)', '--mh-top': '#f4f4f4', '--mh-mid': '#dcdcdc', '--mh-low': '#d0d0d0', '--mh-bot': '#e2e2e2', '--mh-edge': '#8a8a8a', '--mh-text': '#000000', '--page-bg': '#ffffff', '--grad-edge': '#ffffff', '--grad-mid': '#ffffff', '--fill-op': '0', '--line': '#000000', '--line-w': '0.5', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#555555', '--ui': 'rgba(0,0,0,0.55)', '--wm': 'rgba(0,0,0,0.6)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#555555' } }
+            ];
+        let colourIndex = 1;   // Ocean is the default
+        const colourBtn = $('colourToggle');
+        function setScheme(i) {
+            const root = document.documentElement;
+            Object.keys(COLOUR_SCHEMES[colourIndex].v).forEach(function (k) { root.style.removeProperty(k); });
+            colourIndex = i;
+            const sch = COLOUR_SCHEMES[i];
+            Object.keys(sch.v).forEach(function (k) { root.style.setProperty(k, sch.v[k]); });
+            if (sch.name === 'No colour') root.setAttribute('data-nc', ''); else root.removeAttribute('data-nc');
+            colourBtn.textContent = 'Colours: ' + sch.name;
+        }
+        (function () { const sch = COLOUR_SCHEMES[colourIndex]; Object.keys(sch.v).forEach(function (k) { document.documentElement.style.setProperty(k, sch.v[k]); }); colourBtn.textContent = 'Colours: ' + sch.name; })();
+        colourBtn.addEventListener('click', function (e) { e.stopPropagation(); setScheme((colourIndex + 1) % COLOUR_SCHEMES.length); });
+
+        // ----- Panels: open centred just above the button row; draggable by the header -----
+        function place(panel) {
+            if (panel.dataset.moved) return;
+            const fr = frame.getBoundingClientRect(), br = document.querySelector('.tools-bar').getBoundingClientRect();
+            const pr = panel.getBoundingClientRect();
+            panel.style.left = Math.max(4, fr.left + fr.width / 2 - pr.width / 2) + 'px';
+            panel.style.top = Math.max(4, br.top - 10 - pr.height) + 'px';
+        }
+        function dragPanel(panel, head, skipId) {
+            let d = null;
+            head.addEventListener('pointerdown', function (e) {
+                if (e.target.id === skipId) return;
+                const r = panel.getBoundingClientRect(); d = { dx: e.clientX - r.left, dy: e.clientY - r.top };
+                panel.dataset.moved = '1'; head.setPointerCapture(e.pointerId);
+            });
+            head.addEventListener('pointermove', function (e) { if (d) { panel.style.left = (e.clientX - d.dx) + 'px'; panel.style.top = (e.clientY - d.dy) + 'px'; } });
+            head.addEventListener('pointerup', function () { d = null; });
+        }
+
+        // ----- Text size -----
+        (function () {
+            const panel = $('textSizePanel'), btn = $('textSizeBtn'), range = $('tsRange'), val = $('tsVal'), tgt = $('tsTarget'), all = $('tsAll');
+            const scales = {}; let target = null;
+            const keyOf = function (el) { return el.id === 'transitionText' ? 'slide' : (el.__key || ('b' + textElements.indexOf(el))); };
+            const scaleOf = function (k) { return Math.min(3, Math.max(0.5, (scales[k] || 1) * (scales.all || 1))); };
+            function applyOne(el) {
+                const s = scaleOf(keyOf(el));
+                if (el.__base === undefined) { if (s === 1) return; el.__base = parseFloat(getComputedStyle(el).fontSize); }
+                el.style.fontSize = (Math.round(el.__base * s * 1000) / 1000) + 'px';
+            }
+            window.__tsApply = function () { document.querySelectorAll('.textBox, .showall-word, #transitionText').forEach(applyOne); if (window.vlPlaceTT) window.vlPlaceTT(); };
+            function show() {
+                const v = all.checked ? (scales.all || 1) : (target ? (scales[target.key] || 1) : 1);
+                range.value = Math.round(v * 100); val.textContent = Math.round(v * 100) + '%';
+                tgt.textContent = all.checked ? 'All words' : (target ? 'Word: ' + target.label : 'Click a word, then slide');
+            }
+            document.addEventListener('pointerdown', function (e) {
+                if (panel.contains(e.target)) return;
+                const el = e.target.closest && e.target.closest('.textBox, #transitionText, .showall-word');
+                if (!el) return;
+                target = { key: keyOf(el), label: (el.textContent || '').trim().slice(0, 30) };
+                if (panel.style.display === 'block') { all.checked = false; show(); }
+            }, true);
+            range.addEventListener('input', function () {
+                const v = range.value / 100;
+                if (all.checked) scales.all = v; else if (target) scales[target.key] = v; else return;
+                val.textContent = range.value + '%'; window.__tsApply();
+            });
+            all.addEventListener('change', show);
+            $('tsReset').addEventListener('click', function () { window.__tsReset(); });
+            $('tsClose').addEventListener('click', function () { panel.style.display = 'none'; });
+            window.__tsReset = function () { Object.keys(scales).forEach(function (k) { delete scales[k]; }); window.__tsApply(); show(); };
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation(); dd.classList.remove('active'); $('audioPanel').style.display = 'none';
+                panel.style.display = 'block'; place(panel);
+                if (!isStatesMode && (!target || target.key !== 'slide')) target = { key: 'slide', label: 'moving word' };
+                show();
+            });
+            dragPanel(panel, panel.querySelector('.tsHead'), 'tsClose');
+            const _cte = createTextElements;
+            createTextElements = function () { _cte.apply(this, arguments); window.__tsApply(); };
+        })();
+
+        // ----- Show All: Show All (layer 1) -> (layer 2) ... -> Hide All -> off -----
+        const LAYERS = ROM ? [{ label: 'TL', key: 'tl', cls: 'layer-tl' }, { label: 'SL', key: 'sl', cls: 'layer-sl' }]
+                           : [{ label: 'TLR', key: 'tlr', cls: 'layer-tlr' }, { label: 'TL', key: 'tl', cls: 'layer-tl' }, { label: 'SL', key: 'sl', cls: 'layer-sl' }];
+        let saLayer = -1, saOver = {};
+        const NS = 'http://www.w3.org/2000/svg';
+        function clearSA() {
+            const g = $('showAllLayer'); if (g) g.remove();
+            document.querySelectorAll('.sa-temp').forEach(function (n) { n.remove(); });
+        }
+        function paint(el, row, key) {
+            const li = saOver[key] !== undefined ? saOver[key] : saLayer;
+            const L = LAYERS[li];
+            el.textContent = row[L.key];
+            el.setAttribute('class', (el.namespaceURI === NS ? 'showall-word ' : 'sa-w ') + L.cls);
+        }
+        function addWord(host, row, key, svgAttrs) {
+            let el;
+            if (svgAttrs) { el = document.createElementNS(NS, 'text'); Object.keys(svgAttrs).forEach(function (k) { el.setAttribute(k, svgAttrs[k]); }); }
+            else { el = document.createElement('span'); }
+            el.__key = key;
+            paint(el, row, key);
+            el.addEventListener('click', function (e) {
+                e.stopPropagation(); closeQuiz();
+                const cur = saOver[key] !== undefined ? saOver[key] : saLayer;
+                saOver[key] = (cur + 1) % LAYERS.length; paint(el, row, key); window.__tsApply();
+            });
+            host.appendChild(el);
+            return el;
+        }
+        function renderSA() {
+            clearSA();
+            const on = saLayer >= 0, hideAll = saLayer === LAYERS.length;
+            frame.classList.toggle('show-all-on', on); frame.classList.toggle('sa-hide', hideAll);
+            document.body.classList.toggle('sa-hide', hideAll);
+            showBtn.classList.toggle('active', on);
+            showBtn.textContent = !on ? 'Show All' : (hideAll ? 'Hide All' : 'Show All (' + LAYERS[saLayer].label + ')');
+            if (!on) { refreshVisibility(); return; }
+            closeQuiz(); isDragging = false;
+            if (hideAll) return;
+            const svg = document.querySelector('svg'); const g = document.createElementNS(NS, 'g'); g.setAttribute('id', 'showAllLayer'); svg.appendChild(g);
+            if (isStatesMode) {
+                statesRows().forEach(function (r, i) { addWord(g, r, 'b' + i, (function () { const q = calculateDiagonalPosition(r.t); return { x: q.x + (i % 2 === 0 ? -8 : 8), y: q.y + (i % 2 === 0 ? -3 : 3), 'text-anchor': i % 2 === 0 ? 'end' : 'start' }; })()); });
+            } else {
+                directionalVocab.stationary.forEach(function (r, i) { addWord(g, r, 'z' + i, (function () { const q = calculateDiagonalPosition(0.95); return { x: q.x - 12, y: q.y + -1 - i * 6, 'text-anchor': 'end' }; })()); });
+                [['upward', 'increasing-items', 'u'], ['downward', 'decreasing-items', 'd']].forEach(function (p) {
+                    directionalVocab[p[0]].forEach(function (r, i) {
+                        const item = document.createElement('div'); item.className = 'vocabulary-item sa-temp';
+                        addWord(item, r, p[2] + i, null); $(p[1]).appendChild(item);
+                    });
+                });
+            }
+            window.__tsApply();
+        }
+        showBtn.addEventListener('click', function (e) { e.stopPropagation(); saLayer = (saLayer + 1 > LAYERS.length) ? -1 : saLayer + 1; saOver = {}; renderSA(); });
+
+        // The moving word sits to the right of the yellow frame; near the right-hand edge it flips to the left so it is never cut off
+        window.vlPlaceTT = function () {
+            if (isStatesMode) return;
+            const tx = $('transitionText'); if (!tx || getComputedStyle(tx).display === 'none') return;
+            const px = parseFloat(TF.getAttribute('x')) + 5, py = parseFloat(TF.getAttribute('y')) + 4;
+            tx.setAttribute('text-anchor', 'start'); tx.setAttribute('x', px + 15); tx.setAttribute('y', py);
+            if (px + 15 + tx.getComputedTextLength() > 196) { tx.setAttribute('text-anchor', 'end'); tx.setAttribute('x', px - 12); tx.setAttribute('y', py + (-1)); }
+        };
+        (function () {
+            const _utt = updateTransitionText; updateTransitionText = function () { _utt.apply(this, arguments); window.vlPlaceTT(); };
+            $('transitionText').addEventListener('click', function () { setTimeout(window.vlPlaceTT, 0); });
+        })();
+        // ----- Mode button label -----
+        function updMode() { modeBtn.textContent = isStatesMode ? 'Show Transitions' : 'Show States'; }
+        modeBtn.addEventListener('click', function () { setTimeout(function () { updMode(); if (saLayer >= 0) { saOver = {}; renderSA(); } }, 0); });
+        updMode();
+
+        // ----- Reset: back to the very first view, nothing learned -----
+        resetBtn.addEventListener('click', function () {
+            closeQuiz(); saLayer = -1; saOver = {}; renderSA();
+            statesRows().forEach(function (r) { r.learned = false; r.level = 0; });
+            Object.keys(directionalVocab).forEach(function (k) { directionalVocab[k].forEach(function (v) { v.learned = false; v.addedToArray = false; delete v.clickLevel; delete v.learnedDisplayMode; }); });
+            statesLearnedItems = new Array(statesData.length).fill(false); addedIncreasingItems.fill(false); addedDecreasingItems.fill(false); currentTextIndex = 0;
+            document.querySelectorAll('.vocabulary-array [id$="-items"]').forEach(function (n) { n.innerHTML = ''; });
+            document.querySelectorAll('.toggle-visibility').forEach(function (b) { b.textContent = 'Hide All'; });
+            isDragging = false;
+            if (!isStatesMode) toggleMode();
+            previousT = 0.05; currentDirection = 'stationary'; currentDirectionalIndex = 0;
+            $('title-box').textContent = titleTexts.states[0];
+            { const _a = calculateDiagonalPosition(0.05), _b = calculateDiagonalPosition(0.95); SF.setAttribute('x', _a.x - 5); SF.setAttribute('y', _a.y - 4); TF.setAttribute('x', _b.x - 5); TF.setAttribute('y', _b.y - 4); }
+            createTextElements(); updateTextVisibility(0.05); if (window.vlPlaceTT) window.vlPlaceTT();
+            window.__tsReset(); updMode();
+        });
+
+        // ----- Tools: User Manual, Load Concept, Start Random Quiz, Turn Quiz OFF/ON -----
+        const USER_MANUAL_URL = 'https://sites.google.com/view/conceptionary/home/user-manual';   // the single place to change the User Manual address
+        let quizOn = true, forceQuiz = false;
+        const realShowQuiz = showQuiz;
+        showQuiz = function () {
+            realShowQuiz.apply(this, arguments);
+            // Quiz OFF: the box never stays open; the word goes back to its first language exactly as when you click away from the box
+            if (!quizOn && !forceQuiz) document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        };
+        function note(msg) {
+            let n = $('toolNote');
+            if (!n) { n = document.createElement('div'); n.id = 'toolNote'; n.style.cssText = 'position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:80;background:#333;color:#fff;font:16px Arial,sans-serif;padding:12px 20px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.35);transition:opacity .4s ease;opacity:0;pointer-events:none;max-width:86vw;text-align:center'; document.body.appendChild(n); }
+            n.textContent = msg; n.style.opacity = '1'; clearTimeout(n.__t); n.__t = setTimeout(function () { n.style.opacity = '0'; }, 3000);
+        }
+        $('userManualBtn').addEventListener('click', function (e) {
+            e.stopPropagation(); dd.classList.remove('active');
+            if (USER_MANUAL_URL) window.open(USER_MANUAL_URL, '_blank', 'noopener'); else note('The User Manual is coming soon.');
+        });
+        $('loadConcept').addEventListener('click', function (e) {
+            e.stopPropagation(); dd.classList.remove('active');
+            note('Load Concept will fetch the vocabulary for a concept from the Conceptionary App. It is not connected in this generic template.');
+        });
+        $('startQuiz').addEventListener('click', function (e) {
+            e.stopPropagation(); dd.classList.remove('active');
+            if (saLayer >= 0) { saLayer = -1; saOver = {}; renderSA(); }
+            forceQuiz = true;
+            try {
+                if (isStatesMode) { showQuiz(Math.floor(Math.random() * statesRows().length), 'states'); }
+                else {
+                    const keys = Object.keys(directionalVocab); currentDirection = keys[Math.floor(Math.random() * keys.length)];
+                    currentDirectionalIndex = Math.floor(Math.random() * directionalVocab[currentDirection].length);
+                    updateTransitionTextDisplay(); showQuiz(currentDirectionalIndex, 'transitions');
+                }
+            } finally { forceQuiz = false; }
+        });
+        $('quizToggle').addEventListener('click', function (e) {
+            e.stopPropagation(); dd.classList.remove('active');
+            quizOn = !quizOn; $('quizToggle').textContent = quizOn ? 'Turn Quiz OFF' : 'Turn Quiz ON';
+            if (!quizOn && quizEl.style.display === 'block') document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        });
+
+        // ----- Quiz box: opens top-left below the title box; can be grabbed and moved anywhere (desktop and phone) -----
+        (function () {
+            const titleEl = $('titleBox') || $('title-box');
+            const grab = document.createElement('div'); grab.id = 'quizGrab'; grab.textContent = '✥  You can move this'; quizEl.insertBefore(grab, quizEl.firstChild);
+            function clamp(l, t) {
+                const r = quizEl.getBoundingClientRect();
+                return { l: Math.max(0, Math.min(l, window.innerWidth - r.width)), t: Math.max(0, Math.min(t, window.innerHeight - r.height)) };
+            }
+            function put(l, t) { const c = clamp(l, t); quizEl.style.left = c.l + 'px'; quizEl.style.top = c.t + 'px'; }
+            function placeQuiz() {
+                if (quizEl.dataset.moved) { const r = quizEl.getBoundingClientRect(); put(r.left, r.top); return; }
+                const fr = frame.getBoundingClientRect(), tb = titleEl ? titleEl.getBoundingClientRect() : { bottom: fr.top };
+                put(fr.left + 10, Math.max(tb.bottom, fr.top) + 8);
+            }
+            let d = null;
+            quizEl.addEventListener('pointerdown', function (e) {
+                if (e.target.closest('input, button')) return;
+                const r = quizEl.getBoundingClientRect(); d = { dx: e.clientX - r.left, dy: e.clientY - r.top };
+                quizEl.dataset.moved = '1'; quizEl.classList.add('qdrag');
+                try { quizEl.setPointerCapture(e.pointerId); } catch (_) {}
+                e.preventDefault();
+            });
+            quizEl.addEventListener('pointermove', function (e) { if (d) put(e.clientX - d.dx, e.clientY - d.dy); });
+            const end = function () { d = null; quizEl.classList.remove('qdrag'); };
+            quizEl.addEventListener('pointerup', end); quizEl.addEventListener('pointercancel', end);
+            let wasOpen = false;
+            new MutationObserver(function () {
+                const open = getComputedStyle(quizEl).display !== 'none';
+                if (open && !wasOpen) placeQuiz();
+                wasOpen = open;
+            }).observe(quizEl, { attributes: true, attributeFilter: ['style'] });
+            window.addEventListener('resize', function () { if (wasOpen) placeQuiz(); });
+            resetBtn.addEventListener('click', function () { delete quizEl.dataset.moved; });
+        })();
+
+        // ----- Audio -----
+        (function () {
+            const AUDIO_PROVIDER = 'browser';   // 'browser' | 'cloud'
+            const AUDIO_LANG = '';              // fallback language code when the App has not set window.CONCEPTIONARY_AUDIO_LANG
+            const AUDIO_API_URL = '';           // 'cloud' only: address of YOUR relay, called as ?text=...&lang=...
+            const st = { on: false, vol: 0.8, last: '', lastT: 0, timer: null, cur: null };
+            const panel = $('audioPanel'), btn = $('audioBtn'), onR = $('auOn'), offR = $('auOff'), vol = $('auVol'), volVal = $('auVolVal'), status = $('auStatus');
+            const setStatus = function (t) { status.textContent = t; };
+            const lang = function () { return window.CONCEPTIONARY_AUDIO_LANG || AUDIO_LANG; };
+            function pickVoice(code) {
+                const vs = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
+                if (!code) return null;
+                const c = code.toLowerCase(), base = c.split('-')[0]; let best = null, bs = -1;
+                vs.forEach(function (v) {
+                    const l = (v.lang || '').toLowerCase().replace('_', '-');
+                    if (l !== c && l.split('-')[0] !== base) return;
+                    const s = (l === c ? 4 : 0) + (/natural|neural|online/i.test(v.name) ? 3 : 0) + (/google/i.test(v.name) ? 2 : 0) + (v.localService ? 0 : 1);
+                    if (s > bs) { best = v; bs = s; }
+                });
+                return best;
+            }
+            function stop() { try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} if (st.cur) { try { st.cur.pause(); } catch (e) {} st.cur = null; } }
+            function playUrl(u) { stop(); const a = new Audio(u); a.volume = st.vol; st.cur = a; a.play().catch(function () { setStatus('The browser blocked the sound: click the page once and try again.'); }); }
+            function viaBrowser(text, code) {
+                if (!window.speechSynthesis) { setStatus('This browser cannot speak.'); return; }
+                const v = pickVoice(code);
+                if (code && !v) { setStatus('No ' + code + ' voice on this device.'); return; }
+                if (st.cur) { try { st.cur.pause(); } catch (e) {} st.cur = null; }
+                const u = new SpeechSynthesisUtterance(text);
+                if (code) u.lang = code; if (v) u.voice = v; u.volume = st.vol;
+                window.__auUtt = u;   // keep a reference: some phones drop the sound if the utterance is garbage-collected
+                u.onerror = function (ev) { if (ev.error && ev.error !== 'interrupted' && ev.error !== 'canceled') setStatus('The device could not speak (' + ev.error + ').'); };
+                const go = function () { try { speechSynthesis.resume(); } catch (e) {} speechSynthesis.speak(u); };
+                // phones (Android Chrome) drop a word that is spoken in the same instant as cancel(): wait a moment after cancelling
+                if (speechSynthesis.speaking || speechSynthesis.pending) { speechSynthesis.cancel(); setTimeout(go, 70); } else go();
+                setStatus(v ? 'Voice: ' + v.name : 'Using the device\'s default voice (no language code set).');
+            }
+            function viaCloud(text, code) {
+                fetch(AUDIO_API_URL + '?text=' + encodeURIComponent(text) + '&lang=' + encodeURIComponent(code))
+                    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
+                    .then(function (b) { playUrl(URL.createObjectURL(b)); })
+                    .catch(function () { setStatus('The audio service could not be reached.'); });
+            }
+            function speak(text) {
+                if (!st.on || !text) return;
+                const now = Date.now();
+                if (text === st.last && now - st.lastT < 1200) return;
+                st.last = text; st.lastT = now;
+                const files = window.CONCEPTIONARY_AUDIO_FILES;
+                if (files && files[text]) { playUrl(files[text]); return; }
+                if (AUDIO_PROVIDER === 'cloud' && AUDIO_API_URL) viaCloud(text, lang()); else viaBrowser(text, lang());
+            }
+            // Speaks the TARGET-LANGUAGE word only: the text must be the TL (or, for logographic templates, the TLR) of one of the data rows
+            function speakEl(el) {
+                if (!st.on) return;
+                const cs = getComputedStyle(el);
+                if (cs.display === 'none' || parseFloat(cs.opacity) < 0.25) return;
+                const shown = el.textContent.trim(), rows = allRows();
+                for (let i = 0; i < rows.length; i++) { if (rows[i].tl === shown || (!ROM && rows[i].tlr === shown)) { speak(rows[i].tl); return; } }
+            }
+            const SEL = '.textBox,.showall-word,#transitionText,.vocabulary-item span';
+            const find = function (e) { const t = e.target; return (t && t.closest) ? t.closest(SEL) : null; };
+            document.addEventListener('mouseover', function (e) { if (!st.on) return; const el = find(e); if (!el) return; clearTimeout(st.timer); st.timer = setTimeout(function () { speakEl(el); }, 130); });
+            document.addEventListener('mouseout', function () { clearTimeout(st.timer); });
+            // Touch screens have no hover, and the first tap on a word changes it from the TL to the SL before 'click' arrives:
+            // so a touch/pen press speaks the word at once, while it still shows the TL
+            document.addEventListener('pointerdown', function (e) { if (!st.on || e.pointerType === 'mouse') return; const el = find(e); if (el) speakEl(el); }, true);
+            ['click', 'touchend'].forEach(function (ev) { document.addEventListener(ev, function (e) { if (!st.on) return; const el = find(e); if (el) setTimeout(function () { speakEl(el); }, 80); }, true); });
+            function setOn(on) {
+                st.on = on; onR.checked = on; offR.checked = !on; btn.textContent = on ? 'Audio: On' : 'Audio: Off';
+                if (!on) { stop(); setStatus('Audio is off.'); }
+                else {
+                    // wake the phone's speech engine inside this tap (browsers only allow speech after a tap), with a silent word
+                    try { if (window.speechSynthesis) { const w = new SpeechSynthesisUtterance(' '); w.volume = 0; speechSynthesis.speak(w); } } catch (e) {}
+                    const c = lang(); setStatus(c ? ('Move over, or tap, a target-language word. Language: ' + c) : 'Move over, or tap, a target-language word. (No language code set yet.)'); if (window.speechSynthesis) speechSynthesis.getVoices(); }
+            }
+            onR.addEventListener('change', function () { if (onR.checked) setOn(true); });
+            offR.addEventListener('change', function () { if (offR.checked) setOn(false); });
+            vol.addEventListener('input', function () { st.vol = vol.value / 100; volVal.textContent = vol.value + '%'; if (st.cur) st.cur.volume = st.vol; });
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation(); dd.classList.remove('active'); $('textSizePanel').style.display = 'none';
+                if (panel.style.display === 'block') { panel.style.display = 'none'; return; }
+                panel.style.display = 'block'; place(panel);
+            });
+            $('auClose').addEventListener('click', function () { panel.style.display = 'none'; });
+            dragPanel(panel, panel.querySelector('.auHead'), 'auClose');
+            resetBtn.addEventListener('click', stop);
+        })();
+    })();
     </script>
 </body>
 </html>
