@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-10-15 @ 5:58 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-10-30 @ 12:08 a.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1045,6 +1045,54 @@
 #audioPanel .auVol{display:flex;align-items:center;gap:8px}
 #audioPanel .auVol input[type=range]{flex:1;touch-action:pan-y}
 #audioPanel .auStatus{margin-top:6px;font-size:11.5px;opacity:.85;min-height:1.3em}
+</style>
+<style>
+/* 2026-10-22 common patch: phones (touch screens) get softly rounded frame corners; desktop and print are unchanged */
+@media (pointer: coarse) { .a4-page { border-radius: 24px; } }
+@media print { .a4-page { border-radius: 0 !important; } }
+</style>
+<style>
+/* 2026-10-28 audio cycle + tick + timing: Audio button (TL+SL / TL / Silent) with the volume slider along the bottom of the button; Quiz tick button */
+#audioWrap { order: -1; position: relative; display: flex; align-items: stretch; justify-content: center; padding-bottom: 11px !important; overflow: hidden; }
+#audioWrap #auCycle { flex: 1 1 auto; min-width: 0; border: 0; background: transparent; color: inherit; font: inherit; padding: 0; margin: 0; cursor: pointer; white-space: nowrap; text-align: center; -webkit-tap-highlight-color: transparent; }
+#audioWrap #auVol2 { position: absolute; left: 7px; right: 7px; bottom: 1px; width: auto; height: 12px; margin: 0; padding: 0; background: transparent; -webkit-appearance: none; appearance: none; touch-action: none; cursor: pointer; z-index: 2; }
+#audioWrap #auVol2::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: currentColor; opacity: .5; }
+#audioWrap #auVol2::-moz-range-track { height: 4px; border-radius: 2px; background: currentColor; opacity: .5; }
+#audioWrap #auVol2::-webkit-slider-thumb { -webkit-appearance: none; width: 11px; height: 11px; margin-top: -3.5px; border-radius: 50%; background: currentColor; border: 0; }
+#audioWrap #auVol2::-moz-range-thumb { width: 11px; height: 11px; border-radius: 50%; background: currentColor; border: 0; }
+@media (pointer: coarse) { #audioWrap { padding-bottom: 15px !important; } #audioWrap #auVol2 { height: 16px; bottom: 0; } #audioWrap #auVol2::-webkit-slider-thumb { width: 14px; height: 14px; margin-top: -5.5px; } #audioWrap #auVol2::-moz-range-thumb { width: 14px; height: 14px; } }
+#auToast { position: fixed; z-index: 90; background: rgba(40,40,40,.92); color: #fff; font: 14px Arial, sans-serif; padding: 7px 12px; border-radius: 8px; max-width: min(92vw, 360px); text-align: center; pointer-events: none; opacity: 0; transition: opacity .25s ease; }
+@media print { #auToast { display: none !important; } }
+.quiz-container .quizRow { display: flex; gap: 6px; align-items: stretch; margin-bottom: 4px; }
+.quiz-container .quizRow input { flex: 1 1 auto; min-width: 0; width: auto; margin-bottom: 0; }
+.quiz-container button#quizCheck { display: none; }
+.quiz-container button#quizTick { flex: none; width: 46px; padding: 0; font-size: 24px; line-height: 1; border-radius: 6px; font-weight: bold; cursor: pointer; }
+</style>
+<style>
+/* 2026-10-29 audio button restyle */
+#audioWrap #auSpk { position: absolute; left: 7px; bottom: 0; width: 14px; height: 12px; cursor: pointer; z-index: 3; }
+#audioWrap #auSpk { background-color: currentColor; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain; }
+#audioWrap #auVol2 { left: 25px; --p: 80%; }
+#audioWrap #auVol2::-webkit-slider-runnable-track { height: 5px; border-radius: 3px; opacity: 1; background: linear-gradient(to right, #007FFF 0, #007FFF var(--p), #B0E0E6 var(--p), #B0E0E6 100%); }
+#audioWrap #auVol2::-moz-range-track { height: 5px; border-radius: 3px; opacity: 1; background: #B0E0E6; }
+#audioWrap #auVol2::-moz-range-progress { height: 5px; border-radius: 3px; background: #007FFF; }
+#audioWrap #auVol2::-webkit-slider-thumb { width: 14px; height: 14px; margin-top: -4.5px; border: 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c8fbff 0%, #2fd0e8 38%, #7fb8f0 68%, #ff9cc8 100%); box-shadow: 0 1px 2px rgba(0,0,0,.35); }
+#audioWrap #auVol2::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c8fbff 0%, #2fd0e8 38%, #7fb8f0 68%, #ff9cc8 100%); box-shadow: 0 1px 2px rgba(0,0,0,.35); }
+@media (pointer: coarse) {
+  #audioWrap { min-width: 82px; }
+  #audioWrap #auSpk { width: 18px; height: 16px; left: 8px; }
+  #audioWrap #auVol2 { left: 30px; }
+  #audioWrap #auVol2::-webkit-slider-runnable-track { height: 6px; }
+  #audioWrap #auVol2::-moz-range-track, #audioWrap #auVol2::-moz-range-progress { height: 6px; }
+  #audioWrap #auVol2::-webkit-slider-thumb { width: 18px; height: 18px; margin-top: -6px; }
+  #audioWrap #auVol2::-moz-range-thumb { width: 18px; height: 18px; }
+}
+</style>
+<style>
+/* 2026-10-30 light frame + SL once: lighter yellow fill so text under the frame stays readable (outline unchanged) */
+#draggableFrame, #statesFrame, #transitionsFrame, #transitionFrame, .frame, .transition-frame, .yellow-frame { fill: rgba(255, 255, 0, 0.16) !important; }
+#draggableFrame:hover, #statesFrame:hover, #transitionsFrame:hover, #transitionFrame:hover, .frame:hover, .transition-frame:hover, .yellow-frame:hover { fill: rgba(255, 255, 0, 0.26) !important; }
+#draggableFrame.dragging, #statesFrame.dragging, #transitionsFrame.dragging, #transitionFrame.dragging, .frame.dragging, .transition-frame.dragging, .yellow-frame.dragging { fill: rgba(255, 255, 0, 0.26) !important; }
 </style>
 </head>
 <body>
@@ -2253,7 +2301,7 @@
             // the circle can still be clicked. The circle sits just before the first word in the SVG.
             if (frame && frame.parentNode) {
                 const firstWord = frame.parentNode.querySelector('.textBox, #interactiveText');
-                if (firstWord && firstWord !== frame) frame.parentNode.insertBefore(frame, firstWord);
+                if (!frame.classList.contains('dragging') && frame !== frame.parentNode.lastElementChild) frame.parentNode.appendChild(frame);   // top level: always grabbable
                 // Re-apply cursor style to ensure it's visible
                 frame.style.cursor = 'grab';
             }
@@ -3126,7 +3174,7 @@
                 let quizDragOffsetY = 0;
 
                 function quizDragStart(e) {
-                    if (e.target === qInput || e.target === qCheck) return;
+                    if (e.target === qInput || e.target === qCheck || (e.target.closest && e.target.closest('#quizTick, .quizRow'))) return;
                     isDraggingQuiz = true;
                     dragMoved = false;
                     const rect = qc.getBoundingClientRect();
@@ -4074,7 +4122,7 @@
                             dragInstruction.style.display = 'none';
                         }, 2000);
                     }
-                }, 12000);
+                }, (window.matchMedia('(pointer: coarse)').matches ? Math.max(3000, Math.round(12000 * 0.3)) : 12000));
                 
                 // Final frame setup to ensure it's fully interactive
                 setTimeout(() => {
@@ -4127,12 +4175,21 @@
             if (!window.speechSynthesis) { setStatus('This browser cannot speak.'); return; }
             const v = pickVoice(code);
             if (code && !v) { setStatus('No ' + code + ' voice on this device.'); return; }
-            stop();
+            if (st.cur) { try { st.cur.pause(); } catch (e) {} st.cur = null; }
             const u = new SpeechSynthesisUtterance(text);
             if (code) u.lang = code;
             if (v) u.voice = v;
             u.volume = st.vol;
-            speechSynthesis.speak(u);
+            window.__auUtt = u;   // keep a reference: some phones drop the sound if the utterance is garbage-collected
+            let started = false; u.onstart = function () { started = true; };
+            u.onerror = function (ev) { if (ev.error && ev.error !== 'interrupted' && ev.error !== 'canceled') setStatus('The device could not speak (' + ev.error + ').'); };
+            const go = function () {
+                try { speechSynthesis.resume(); } catch (e) {}
+                speechSynthesis.speak(u);
+                // a phone whose speech queue is stuck never starts the word: clear the queue so the next tap works
+                setTimeout(function () { if (!started && window.__auUtt === u) { try { speechSynthesis.cancel(); } catch (e) {} } }, 2500);
+            };
+            if (speechSynthesis.speaking || speechSynthesis.pending) { speechSynthesis.cancel(); setTimeout(go, 120); } else go();
             setStatus(v ? 'Voice: ' + v.name : 'Using the device\'s default voice (no language code set).');
         }
         function viaCloud(text, code) {
@@ -4182,10 +4239,17 @@
             const tl = t.row[TL_COL], tlr = (TLR_COL >= 0) ? t.row[TLR_COL] : null;
             if (typeof tl === 'string' && (t.shown === tl || (tlr !== null && t.shown === tlr))) speak(tl);   // only while a target-language layer is showing
         }
+        window.__auApi = { info: function (el) {      // 2026-10-28 audio cycle + tick + timing
+            const t = target(el); if (!t) return null;
+            const r = t.row, tl = r[TL_COL], tlr = (TLR_COL >= 0) ? r[TLR_COL] : null, sl = r[TL_COL + 1];
+            return { shown: t.shown, tl: typeof tl === 'string' ? tl : null, tlr: typeof tlr === 'string' ? tlr : null, sl: typeof sl === 'string' ? sl : null };
+        } };
         const SEL = '.textBox,.showall-word,#interactiveText,#title-box';
         const find = function (e) { const t = e.target; return (t && t.closest) ? t.closest(SEL) : null; };
         document.addEventListener('mouseover', function (e) { if (!st.on) return; const el = find(e); if (!el) return; clearTimeout(st.timer); st.timer = setTimeout(function () { speakEl(el); }, 130); });
         document.addEventListener('mouseout', function () { clearTimeout(st.timer); });
+        // Touch screens have no hover, and the first tap on a word changes it to its next layer before 'click' arrives: a touch/pen press speaks at once
+        document.addEventListener('pointerdown', function (e) { if (!st.on || e.pointerType === 'mouse') return; const el = find(e); if (el) speakEl(el); }, true);
         ['click', 'touchend'].forEach(function (ev) {
             document.addEventListener(ev, function (e) { if (!st.on) return; const el = find(e); if (el) setTimeout(function () { speakEl(el); }, 80); }, true);   // after the tap has changed the layer
         });
@@ -4236,5 +4300,196 @@
     })();
 
     </script>
+<script>
+// 2026-10-22 common patch: the yellow draggable frame always sits on top of the words, so enlarged text can never block it
+(function () {
+    const svg = document.getElementById('svgCanvas') || document.querySelector('svg'); if (!svg) return;
+    const IDS = ['draggableFrame', 'statesFrame', 'transitionsFrame', 'transitionFrame'];
+    function raise() {
+        const fs = IDS.map(function (i) { return document.getElementById(i); }).filter(Boolean);
+        if (fs.some(function (f) { return f.classList.contains('dragging'); })) return;   // never move a frame that is being dragged
+        fs.forEach(function (f) {
+            if (f.parentNode !== svg) return;
+            let behind = false; for (let n = f.nextElementSibling; n; n = n.nextElementSibling) { if (fs.indexOf(n) < 0) { behind = true; break; } }
+            if (behind) svg.appendChild(f);   // only when a word is above it, so two frames never keep re-ordering each other
+        });
+    }
+    new MutationObserver(raise).observe(svg, { childList: true });
+    raise();
+    // A word resting under the frame must stay usable: a plain tap on the frame (no drag) is passed down to the word beneath it
+    IDS.forEach(function (id) {
+        const fr = document.getElementById(id); if (!fr) return;
+        let d = null;
+        fr.addEventListener('pointerdown', function (e) { d = { x: e.clientX, y: e.clientY, t: Date.now(), pt: e.pointerType }; }, true);
+        fr.addEventListener('pointerup', function (e) {
+            const o = d; d = null;
+            if (!o || Math.hypot(e.clientX - o.x, e.clientY - o.y) > 8 || Date.now() - o.t > 500) return;
+            const under = document.elementsFromPoint(e.clientX, e.clientY).find(function (n) { return n !== fr && n.matches && n.matches('.textBox, .showall-word, #interactiveText') && n.textContent.trim(); });
+            if (!under) return;
+            if (o.pt !== 'mouse') under.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, pointerType: o.pt, clientX: e.clientX, clientY: e.clientY }));   // lets the Audio code speak the word before it changes layer
+            under.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, clientX: e.clientX, clientY: e.clientY }));
+        }, true);
+    });
+})();
+</script>
+<script>
+// 2026-10-28 audio cycle + tick + timing ------------------------------------------------------------------------------------------------------------
+// AUDIO BUTTON. One click cycles:  TL + SL (default: hear the target language, then the source language on the next tap)
+//                                   ->  TL only  ->  Silent  ->  back to TL + SL.   The volume slider runs along the bottom of the button.
+// The language names on the button come from the App (window.CONCEPTIONARY_AUDIO_LANG / _SL_LANG codes, or the label overrides
+// window.CONCEPTIONARY_AUDIO_TL_LABEL / _SL_LABEL, e.g. 'IND' or '中文'). Logographic (LOG) templates stay silent on the TLR layer on purpose.
+(function () {
+    const api = window.__auApi, oldBtn = document.getElementById('audioBtn');
+    if (!api || !oldBtn || document.getElementById('auCycle')) return;
+    const AB = { en: 'ENG', id: 'IND', ms: 'MSA', ja: 'JPN', ko: 'KOR', zh: '中文', fr: 'FRA', de: 'DEU', es: 'SPA', it: 'ITA', pt: 'POR', ru: 'RUS', ar: 'ARA', hi: 'HIN', th: 'THA', vi: 'VIE', mi: 'MRI', fil: 'FIL', tl: 'FIL', nl: 'NLD', sv: 'SWE', tr: 'TUR', pl: 'POL', el: 'ELL', he: 'HEB', sm: 'SMO', to: 'TON', fj: 'FIJ' };
+    const AUDIO_API_URL = window.CONCEPTIONARY_AUDIO_API_URL || '';
+    const st = { mode: 0, vol: 0.8, last: '', lastT: 0, timer: null, cur: null, pt: 'mouse' };      // mode 0 = TL+SL, 1 = TL only, 2 = silent
+    const tlCode = function () { return window.CONCEPTIONARY_AUDIO_LANG || ''; };
+    const slCode = function () { return window.CONCEPTIONARY_AUDIO_SL_LANG || ''; };
+    function abbr(code, fallback, override) { if (override) return override; if (!code) return fallback; const b = code.toLowerCase().split(/[-_]/)[0]; return AB[b] || b.toUpperCase(); }
+    const tlName = function () { return abbr(tlCode(), 'TL', window.CONCEPTIONARY_AUDIO_TL_LABEL); };
+    const slName = function () { return abbr(slCode(), 'SL', window.CONCEPTIONARY_AUDIO_SL_LABEL); };
+
+    // ----- the button -----
+    const wrap = document.createElement('div'); wrap.id = 'audioWrap'; wrap.className = 'reset-btn audio-btn';
+    const cyc = document.createElement('button'); cyc.id = 'auCycle'; cyc.type = 'button';
+    const vol = document.createElement('input'); vol.type = 'range'; vol.id = 'auVol2'; vol.min = 0; vol.max = 100; vol.step = 5; vol.value = 80; vol.setAttribute('aria-label', 'Volume');
+    const ico = document.createElement('span'); ico.id = 'auSpk'; ico.title = 'Audio'; const SPK = {"0": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"black\" d=\"M2 9v6h4l5 4V5L6 9H2z\"/><g fill=\"none\" stroke=\"black\" stroke-width=\"2.2\" stroke-linecap=\"round\"><path d=\"M16 8.5a5 5 0 0 1 0 7M19 5.5a9 9 0 0 1 0 13\"/></g></svg>", "1": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"black\" d=\"M2 9v6h4l5 4V5L6 9H2z\"/><g fill=\"none\" stroke=\"black\" stroke-width=\"2.2\" stroke-linecap=\"round\"><path d=\"M16 8.5a5 5 0 0 1 0 7\"/></g></svg>", "2": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"black\" d=\"M2 9v6h4l5 4V5L6 9H2z\"/><g fill=\"none\" stroke=\"black\" stroke-width=\"2.2\" stroke-linecap=\"round\"><path d=\"M16 9l6 6M22 9l-6 6\"/></g></svg>"};
+    ico.addEventListener('click', function (e) { e.stopPropagation(); cyc.click(); });
+    wrap.appendChild(cyc); wrap.appendChild(ico); wrap.appendChild(vol); oldBtn.parentNode.insertBefore(wrap, oldBtn); oldBtn.style.display = 'none';
+    const toast = document.createElement('div'); toast.id = 'auToast'; document.body.appendChild(toast);
+    let toastT = null;
+    function note(text) {
+        toast.textContent = text; toast.style.opacity = '1';
+        const r = wrap.getBoundingClientRect();
+        toast.style.left = '0px'; toast.style.top = '0px';
+        const w = toast.offsetWidth, h = toast.offsetHeight;
+        toast.style.left = Math.max(6, Math.min(window.innerWidth - w - 6, r.left + r.width / 2 - w / 2)) + 'px';
+        toast.style.top = Math.max(6, r.top - h - 8) + 'px';
+        clearTimeout(toastT); toastT = setTimeout(function () { toast.style.opacity = '0'; }, 2600);
+    }
+    function label() {
+        cyc.textContent = st.mode === 0 ? tlName() + '+' + slName() : st.mode === 1 ? tlName() : 'Silent'; ico.style.webkitMaskImage = ico.style.maskImage = 'url(data:image/svg+xml,' + encodeURIComponent(SPK[st.mode]) + ')';   /* a mask, not an inline <svg>: pages look up the first <svg> in the document */ cyc.setAttribute('aria-label', 'Audio: ' + cyc.textContent);
+        cyc.title = 'Click to change: ' + tlName() + ' + ' + slName() + ' / ' + tlName() + ' only / Silent. The slider is the volume.';
+    }
+    function describe() { return st.mode === 0 ? 'Audio: hear the target language (' + tlName() + '), then the source language (' + slName() + ')' : st.mode === 1 ? 'Audio: target language (' + tlName() + ') only' : 'Audio: silent'; }
+
+    // ----- speaking -----
+    function pickVoice(code) {
+        const vs = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
+        if (!code) return null;
+        const c = code.toLowerCase(), base = c.split('-')[0]; let best = null, bs = -1;
+        vs.forEach(function (v) {
+            const l = (v.lang || '').toLowerCase().replace('_', '-');
+            if (l !== c && l.split('-')[0] !== base) return;
+            const s = (l === c ? 4 : 0) + (/natural|neural|online/i.test(v.name) ? 3 : 0) + (/google/i.test(v.name) ? 2 : 0) + (v.localService ? 0 : 1);
+            if (s > bs) { best = v; bs = s; }
+        });
+        return best;
+    }
+    function stop() { try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} if (st.cur) { try { st.cur.pause(); } catch (e) {} st.cur = null; } }
+    function playUrl(u) { stop(); const a = new Audio(u); a.volume = st.vol; st.cur = a; a.play().catch(function () { note('The browser blocked the sound: tap the page once and try again.'); }); }
+    function viaBrowser(text, code) {
+        if (!window.speechSynthesis) { note('This browser cannot speak.'); return; }
+        const v = pickVoice(code);
+        if (code && !v) { note('No ' + code + ' voice on this device.'); return; }
+        if (st.cur) { try { st.cur.pause(); } catch (e) {} st.cur = null; }
+        const u = new SpeechSynthesisUtterance(text);
+        if (code) u.lang = code; if (v) u.voice = v; u.volume = st.vol;
+        window.__auUtt = u;   // keep a reference: some phones drop the sound if the utterance is garbage-collected
+        let started = false; u.onstart = function () { started = true; };
+        u.onerror = function (ev) { if (ev.error && ev.error !== 'interrupted' && ev.error !== 'canceled') note('The device could not speak (' + ev.error + ').'); };
+        const go = function () {
+            try { speechSynthesis.resume(); } catch (e) {}
+            speechSynthesis.speak(u);
+            setTimeout(function () { if (!started && window.__auUtt === u) { try { speechSynthesis.cancel(); } catch (e) {} } }, 2500);   // stuck phone queue: clear it so the next tap works
+        };
+        if (speechSynthesis.speaking || speechSynthesis.pending) { speechSynthesis.cancel(); setTimeout(go, 120); } else go();
+    }
+    function viaCloud(text, code) {
+        fetch(AUDIO_API_URL + '?text=' + encodeURIComponent(text) + '&lang=' + encodeURIComponent(code))
+            .then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
+            .then(function (b) { playUrl(URL.createObjectURL(b)); })
+            .catch(function () { note('The audio service could not be reached.'); });
+    }
+    function speak(text, code) {
+        if (st.mode === 2 || !text) return;
+        const key = code + '|' + text, now = Date.now();
+        if (key === st.last && now - st.lastT < 1200) return;   // one word, one sound
+        st.last = key; st.lastT = now;
+        const files = window.CONCEPTIONARY_AUDIO_FILES;
+        if (files && files[text]) { playUrl(files[text]); return; }
+        if (AUDIO_API_URL && code) viaCloud(text, code); else viaBrowser(text, code);
+    }
+    // Speak what the word is showing right now: the TL layer, or (in TL+SL mode) the SL layer. The LOG romanisation layer is never spoken.
+    function speakEl(el) {
+        if (st.mode === 2) return;
+        const i = api.info(el); if (!i) return;
+        if (i.tl && i.shown === i.tl) { st.slDone = null; speak(i.tl, tlCode()); }
+        else if (i.tlr && i.shown === i.tlr) { st.slDone = null; return; }
+        else if (st.mode === 0 && i.sl && i.shown === i.sl) { if (st.slDone && st.slDone.el === el && st.slDone.text === i.sl) return; st.slDone = { el: el, text: i.sl }; speak(i.sl, slCode()); }   // the SL is heard once: the click on to the Quiz does not repeat it
+    }
+    const SEL = '.textBox,.showall-word,#interactiveText,#transitionText,.vocabulary-item span,#titleBox,#title-box';
+    const find = function (e) { const t = e.target; return (t && t.closest) ? t.closest(SEL) : null; };
+    document.addEventListener('pointerover', function (e) { st.pt = e.pointerType || 'mouse'; }, true);
+    document.addEventListener('pointerdown', function (e) { st.pt = e.pointerType || 'mouse'; if (e.pointerType === 'mouse' || st.mode === 2) return; const el = find(e); if (el) speakEl(el); }, true);   // touch: speak the word you tapped, before it changes layer
+    // MOUSEOVER = audio. One hover per arrival on a word (also a word lying under the yellow frame); leaving the word re-arms it.
+    const FRAMES = ['draggableFrame', 'statesFrame', 'transitionsFrame', 'transitionFrame'];
+    let curHover = null;
+    function wordAt(e) {
+        const el = find(e); if (el) return el;
+        const t = e.target;
+        if (t && t.id && FRAMES.indexOf(t.id) >= 0) { const hit = document.elementsFromPoint(e.clientX, e.clientY).find(function (n) { return n !== t && n.matches && n.matches(SEL) && n.textContent.trim(); }); return hit || null; }
+        return null;
+    }
+    document.addEventListener('mousemove', function (e) {
+        if (st.pt !== 'mouse') return;
+        const el = wordAt(e);
+        if (el === curHover) return;
+        curHover = el; st.slDone = null; clearTimeout(st.timer);
+        if (el && st.mode !== 2) st.timer = setTimeout(function () { speakEl(el); }, 130);
+    });
+    document.addEventListener('mouseleave', function () { curHover = null; clearTimeout(st.timer); });
+    document.addEventListener('click', function (e) { if (st.pt !== 'mouse' || st.mode === 2) return; const el = find(e); if (el) setTimeout(function () { speakEl(el); }, 80); }, true);   // mouse: after the click has changed the layer
+
+    cyc.addEventListener('click', function (e) {
+        e.stopPropagation();
+        st.mode = (st.mode + 1) % 3; label(); if (st.mode === 2) stop();
+        if (window.speechSynthesis) speechSynthesis.getVoices();
+        note(describe());
+    });
+    vol.addEventListener('input', function () { st.vol = vol.value / 100; if (st.cur) st.cur.volume = st.vol; });
+    vol.addEventListener('click', function (e) { e.stopPropagation(); });
+    const rb = document.getElementById('resetBtn'); if (rb) rb.addEventListener('click', stop);
+    window.addEventListener('load', label); label();
+    vol.style.setProperty('--p', vol.value + '%'); vol.addEventListener('input', function () { vol.style.setProperty('--p', vol.value + '%'); });
+    window.__auCycle = { get mode() { return st.mode; }, label: label };
+})();
+
+// 2026-10-28 audio cycle + tick + timing ------------------------------------------------------------------------------------------------------------
+// QUIZ TICK: a small tick button at the right end of the text field replaces the Check button (never hidden behind a phone keyboard)
+(function () {
+    const inp = document.getElementById('quizInput'), chk = document.getElementById('quizCheck');
+    if (!inp || !chk || document.getElementById('quizTick')) return;
+    const row = document.createElement('div'); row.className = 'quizRow';
+    inp.parentNode.insertBefore(row, inp); row.appendChild(inp);
+    const tick = document.createElement('button'); tick.id = 'quizTick'; tick.type = 'button'; tick.textContent = '✓'; tick.title = 'Check my answer'; tick.setAttribute('aria-label', 'Check my answer');
+    row.appendChild(tick);
+    tick.addEventListener('mousedown', function (e) { e.preventDefault(); });   // keep the keyboard open and the cursor in the text field
+    tick.addEventListener('click', function () { chk.click(); });
+})();
+</script>
+<script>
+// 2026-10-29b interaction standard: the click the browser sends to the yellow frame after a tap/click that was passed down to a word must not reach the page
+// (it would count as a click "outside" the Quiz box and close it).
+(function () {
+    let lastSyn = 0;
+    document.addEventListener('click', function (e) { if (!e.isTrusted) lastSyn = Date.now(); }, true);
+    ['draggableFrame', 'statesFrame', 'transitionsFrame', 'transitionFrame'].forEach(function (id) {
+        const fr = document.getElementById(id); if (!fr) return;
+        fr.addEventListener('click', function (e) { if (e.isTrusted && Date.now() - lastSyn < 500) { e.stopPropagation(); e.preventDefault(); } }, true);
+    });
+})();
+</script>
 </body>
 </html>
