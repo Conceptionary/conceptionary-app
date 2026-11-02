@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Conceptionary Template</title>
+<style>
+  :root { --bar:#0f3d63; --bar-ink:#fff; --btn:#1d6aa8; --btn-ink:#fff; --btn-off:#5b7088; }
+  html, body { margin:0; height:100%; background:#fff; overflow:hidden; }
+  body { display:flex; flex-direction:column; font:15px/1.2 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  #bar { flex:0 0 auto; display:flex; align-items:center; gap:6px; padding:4px 8px; background:var(--bar); color:var(--bar-ink); min-height:40px; }
+  #bar a, #bar button { font:inherit; color:var(--btn-ink); background:var(--btn); border:1px solid rgba(255,255,255,.25); border-radius:7px;
+    padding:6px 10px; min-height:32px; text-decoration:none; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; }
+  #bar a:hover, #bar button:hover, #bar a:focus, #bar button:focus { filter:brightness(1.2); outline:2px solid #fff; outline-offset:1px; }
+  #bar a[aria-disabled="true"] { background:var(--btn-off); opacity:.55; pointer-events:none; }
+  #title { flex:1 1 auto; min-width:0; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600; }
+  #title small { opacity:.75; font-weight:400; margin-left:6px; }
+  #frame { flex:1 1 auto; width:100%; border:0; min-height:0; background:#fff; }
+  /* collapsed: only a thin strip stays, so the template gets the full height (useful on a phone turned sideways) */
+  body.collapsed #bar { min-height:0; padding:0; height:16px; justify-content:center; }
+  body.collapsed #bar > :not(#toggle) { display:none; }
+  body.collapsed #toggle { min-height:14px; height:14px; padding:0 22px; border-radius:0 0 8px 8px; font-size:11px; line-height:1; }
+  @media (max-width:640px) {
+    #bar { gap:4px; padding:3px 6px; }
+    #bar a, #bar button { padding:6px 8px; }
+    #title small, .wide { display:none; }
+  }
+  #msg { padding:24px 16px; font-size:1.05rem; }
+  #msg a { color:#0f4c81; font-weight:700; }
+</style>
+</head>
+<body>
+<div id="bar" role="navigation" aria-label="Template navigation">
+  <a id="home" href="templates.html" title="All templates">&#8962; Home</a>
+  <a id="prev" href="#" title="Previous template">&#8249; Prev</a>
+  <div id="title"></div>
+  <a id="other" href="#" title="Switch between phonographic and logographic"></a>
+  <a id="next" href="#" title="Next template">Next &#8250;</a>
+  <a id="app" class="wide" href="index.html" title="Concept Browser (the App)">App</a>
+  <button id="toggle" type="button" title="Hide or show this bar" aria-label="Hide or show this bar">&#9650;</button>
+</div>
+<iframe id="frame" title="Conceptionary template" allow="fullscreen; autoplay" allowfullscreen></iframe>
+<div id="msg" hidden></div>
+
+<script src="conceptionary-templates.js"></script>
+<script>
+(function () {
+  var N = window.CONCEPTIONARY_NAV;
+  if (!N) { var m=document.createElement('p'); m.style.cssText='padding:16px;font-weight:600'; m.innerHTML='The template list (conceptionary-templates.js) did not load. Check that this file is in the same folder as this page on GitHub, spelled exactly like that in lower case.'; document.body.appendChild(m); return; }
+  var $ = function (id) { return document.getElementById(id); };
+  var file = new URLSearchParams(location.search).get('t') || '';
+  var ok = /^(ROM|LOG)-[A-Za-z0-9-]+$/.test(file);          /* only plain template names are accepted */
+  var hit = ok ? N.find(file) : null;
+  var kind = file.indexOf('ROM-') === 0 ? 'rom' : 'log';
+
+  function setLink(el, target) {
+    if (target) { el.href = 'view.html?t=' + encodeURIComponent(target); el.removeAttribute('aria-disabled'); }
+    else { el.href = '#'; el.setAttribute('aria-disabled', 'true'); }
+  }
+
+  if (!ok) {
+    $('bar').querySelectorAll('#prev,#next,#other,#title').forEach(function (e) { e.style.display = 'none'; });
+    $('frame').style.display = 'none';
+    $('msg').hidden = false;
+    $('msg').innerHTML = 'No template chosen. <a href="templates.html">Go to the template list</a>.';
+    return;
+  }
+
+  /* Previous / Next stay within the same kind (ROM or LOG), following the order of the list. */
+  var seq = N.flat.filter(function (t) { return t[kind]; });
+  var pos = -1;
+  for (var i = 0; i < seq.length; i++) { if (seq[i][kind] === file) { pos = i; break; } }
+  setLink($('prev'), pos > 0 ? seq[pos - 1][kind] : null);
+  setLink($('next'), pos >= 0 && pos < seq.length - 1 ? seq[pos + 1][kind] : null);
+
+  /* On the live site, skip neighbours whose file is not in the repo, so Prev/Next never lead to a blank page. */
+  function exists(f) {
+    return fetch(N.folder(f) + f + '.html', { method: 'HEAD', cache: 'no-cache' })
+      .then(function (r) { return r.ok; }, function () { return true; });
+  }
+  function seek(step, el) {
+    var j = pos + step;
+    (function tryNext() {
+      if (j < 0 || j >= seq.length) { setLink(el, null); return; }
+      var f = seq[j][kind];
+      exists(f).then(function (ok) { if (ok) setLink(el, f); else { j += step; tryNext(); } });
+    })();
+  }
+  if (pos >= 0 && (location.protocol === 'http:' || location.protocol === 'https:')) { seek(-1, $('prev')); seek(1, $('next')); }
+
+  var label = hit ? hit.t.label : file;
+  $('title').innerHTML = '';
+  $('title').appendChild(document.createTextNode(label));
+  var sm = document.createElement('small'); sm.textContent = kind === 'rom' ? 'ROM' : 'LOG'; $('title').appendChild(sm);
+  document.title = label + ' (' + kind.toUpperCase() + ') - Conceptionary';
+
+  /* ROM <-> LOG counterpart */
+  var counterpart = hit ? hit.t[kind === 'rom' ? 'log' : 'rom'] : null;
+  $('other').textContent = kind === 'rom' ? 'LOG version' : 'ROM version';
+  setLink($('other'), counterpart);
+
+  $('frame').src = N.folder(file) + file + '.html';
+
+  /* collapse state is only a convenience: if storage is unavailable the bar simply starts open */
+  function setCollapsed(c) {
+    document.body.classList.toggle('collapsed', c);
+    $('toggle').innerHTML = c ? '&#9660;' : '&#9650;';
+    try { localStorage.setItem('conceptionary-bar-collapsed', c ? '1' : '0'); } catch (e) {}
+  }
+  var start = false; try { start = localStorage.getItem('conceptionary-bar-collapsed') === '1'; } catch (e) {}
+  setCollapsed(start);
+  $('toggle').addEventListener('click', function () { setCollapsed(!document.body.classList.contains('collapsed')); });
+
+  /* keyboard: Alt+Left / Alt+Right would clash with the browser, so use [ and ] only when focus is on this page */
+  document.addEventListener('keydown', function (e) {
+    if (e.target && /input|textarea/i.test(e.target.tagName)) return;
+    if (e.key === '[' && $('prev').getAttribute('aria-disabled') !== 'true') location.href = $('prev').href;
+    if (e.key === ']' && $('next').getAttribute('aria-disabled') !== 'true') location.href = $('next').href;
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conceptionary Templates</title>
+<style>
+  :root { --bg:#f4f7fa; --card:#fff; --ink:#1b2a3a; --muted:#5b6b7b; --line:#d3dde7; --rom:#1a6fb5; --log:#b5481a; --accent:#0f4c81; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#10171e; --card:#18222c; --ink:#e6edf3; --muted:#9fb0c0; --line:#2b3a48; --rom:#5aaeea; --log:#f0905a; --accent:#7cc0f2; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  header, main, footer { max-width:1000px; margin:0 auto; padding:0 16px; }
+  header { padding-top:24px; padding-bottom:8px; }
+  h1 { margin:0 0 4px; font-size:1.6rem; color:var(--accent); }
+  .sub { margin:0 0 12px; color:var(--muted); }
+  .legend { display:flex; flex-wrap:wrap; gap:8px 18px; font-size:.9rem; color:var(--muted); margin-bottom:8px; }
+  .tag { display:inline-block; min-width:3.1em; text-align:center; padding:1px 6px; border-radius:6px; font-weight:700; font-size:.8rem; color:#fff; }
+  .tag.rom { background:var(--rom); } .tag.log { background:var(--log); }
+  .toplinks a { color:var(--accent); font-weight:600; margin-right:16px; }
+  h2 { font-size:1.05rem; margin:26px 0 8px; padding-bottom:4px; border-bottom:2px solid var(--line); color:var(--accent); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:10px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; display:flex; flex-direction:column; gap:8px; }
+  .card .name { font-weight:600; }
+  .btns { display:flex; gap:8px; }
+  .btns a { flex:1; text-align:center; padding:9px 4px; border-radius:8px; color:#fff; text-decoration:none; font-weight:700; min-height:40px; }
+  .btns a.rom { background:var(--rom); } .btns a.log { background:var(--log); }
+  .btns a:hover, .btns a:focus { filter:brightness(1.12); outline:2px solid var(--ink); outline-offset:1px; }
+  .btns a[hidden] { display:none; }
+  .card[hidden], section[hidden] { display:none; }
+  #status { font-size:.85rem; color:var(--muted); margin:10px 0 0; }
+  footer { padding:28px 16px 36px; font-size:.85rem; color:var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Conceptionary Templates</h1>
+  <p class="sub">Choose a template. Each opens with a small bar for returning here or moving to the next template.</p>
+  <div class="legend">
+    <span><span class="tag rom">ROM</span> phonographic: TL, then SL, then Quiz</span>
+    <span><span class="tag log">LOG</span> logographic: TLR, then TL, then SL, then Quiz</span>
+  </div>
+  <div class="toplinks"><a href="index.html">Concept Browser (the App)</a></div>
+  <p id="status" aria-live="polite"></p>
+</header>
+<main id="main"></main>
+<footer>&copy; 2026 Alan William Preston</footer>
+
+<script src="conceptionary-templates.js"></script>
+<script>
+(function () {
+  var N = window.CONCEPTIONARY_NAV, main = document.getElementById('main');
+  if (!N) { var m=document.createElement('p'); m.style.cssText='padding:16px;font-weight:600'; m.innerHTML='The template list (conceptionary-templates.js) did not load. Check that this file is in the same folder as this page on GitHub, spelled exactly like that in lower case.'; (document.getElementById('main')||document.body).appendChild(m); return; }
+  var links = [];
+  function viewUrl(file) { return 'view.html?t=' + encodeURIComponent(file); }
+
+  N.families.forEach(function (fam) {
+    var sec = document.createElement('section');
+    var h = document.createElement('h2'); h.textContent = fam.name; sec.appendChild(h);
+    var grid = document.createElement('div'); grid.className = 'grid'; sec.appendChild(grid);
+    fam.items.forEach(function (t) {
+      var card = document.createElement('div'); card.className = 'card';
+      var nm = document.createElement('div'); nm.className = 'name'; nm.textContent = t.label; card.appendChild(nm);
+      var b = document.createElement('div'); b.className = 'btns'; card.appendChild(b);
+      [['rom', 'ROM'], ['log', 'LOG']].forEach(function (k) {
+        if (!t[k[0]]) return;
+        var a = document.createElement('a');
+        a.className = k[0]; a.textContent = k[1]; a.href = viewUrl(t[k[0]]);
+        a.setAttribute('aria-label', t.label + ', ' + (k[0] === 'rom' ? 'phonographic' : 'logographic'));
+        b.appendChild(a);
+        links.push({ a: a, card: card, sec: sec, file: t[k[0]] });
+      });
+      grid.appendChild(card);
+    });
+    main.appendChild(sec);
+  });
+
+  /* On the live site, hide any link whose file is not in the repo (so there are no dead ends). */
+  var status = document.getElementById('status');
+  if (location.protocol !== 'http:' && location.protocol !== 'https:') { return; }
+  status.textContent = 'Checking which templates are available…';
+  var pending = links.length, missing = 0;
+  function done() {
+    if (--pending > 0) return;
+    document.querySelectorAll('.card').forEach(function (c) {
+      if (!c.querySelector('.btns a:not([hidden])')) c.hidden = true;
+    });
+    document.querySelectorAll('section').forEach(function (s) {
+      if (!s.querySelector('.card:not([hidden])')) s.hidden = true;
+    });
+    status.textContent = missing ? '' : '';
+  }
+  links.forEach(function (L) {
+    fetch(N.folder(L.file) + L.file + '.html', { method: 'HEAD', cache: 'no-cache' })
+      .then(function (r) { if (!r.ok) { L.a.hidden = true; missing++; } })
+      .catch(function () { /* network hiccup: leave the link visible */ })
+      .then(done);
+  });
+})();
+</script>
+</body>
+</html>
