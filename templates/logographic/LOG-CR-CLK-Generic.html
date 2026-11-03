@@ -81,6 +81,48 @@
         .tl-text { font-family: Arial, sans-serif; }
         .click-indicator { position: absolute; top: 5px; right: 5px; font-size: 10px; color: #666; pointer-events: none; }
     </style>
+    <style>
+    /* 2026-11-04 responsive clock: the face is always a true circle (--clk), and the hands, numerals and layout are all measured from its centre,
+       so nothing drifts or squashes on phones (portrait or landscape) or in short embeds */
+    :root { --clk: clamp(120px, min(300px, 100vh - 190px, 46vw), 300px); }
+    html { -webkit-text-size-adjust: 100%; }
+    .left-panel, .right-panel, .center-area { min-width: 0; }
+    .dynamic-text-box, .question-text { overflow-wrap: anywhere; }
+    .clock { width: var(--clk); height: var(--clk); box-sizing: border-box; flex: none; aspect-ratio: 1 / 1; border-width: calc(var(--clk) * 0.027); }
+    .hand { top: auto; bottom: 50%; left: 50%; transform-origin: 50% 100%; }
+    .hour-hand   { width: calc(var(--clk) * 0.02);  height: 27%; margin-left: calc(var(--clk) * -0.01);  top: auto; left: 50%; }
+    .minute-hand { width: calc(var(--clk) * 0.014); height: 37%; margin-left: calc(var(--clk) * -0.007); top: auto; left: 50%; }
+    .second-hand { width: calc(var(--clk) * 0.007); height: 40%; margin-left: calc(var(--clk) * -0.0035); top: auto; left: 50%; }
+    .clock-center { width: calc(var(--clk) * 0.04); height: calc(var(--clk) * 0.04); }
+    .number { transform: translate(-50%, -50%); width: 2em; height: 2em; font-size: clamp(10px, calc(var(--clk) * 0.06), 18px); }
+    .controls { flex-wrap: wrap; }
+    .center-area { padding-bottom: 18px; box-sizing: border-box; }
+    /* phone held upright: the two language panels sit above and below the clock, each as a 2 x 2 grid */
+    @media (max-width: 700px) and (orientation: portrait) {
+      :root { --clk: min(300px, 78vw, 100vh - 330px); }
+      body { flex-direction: column; overflow-y: auto; height: auto; min-height: 100vh; }
+      .left-panel, .right-panel { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px; border: 2px solid #333; }
+      .left-panel .question-text, .right-panel .question-text { grid-column: 1 / -1; margin-bottom: 0; padding: 8px; font-size: 14px; }
+      .dynamic-text-box { padding: 8px; font-size: 14px; min-height: 44px; }
+      .center-area { width: 100%; order: 0; padding: 10px 0 22px; border: 2px solid #333; border-left: 2px solid #333; border-right: 2px solid #333; }
+      .left-panel { order: -1; } .right-panel { order: 1; }
+      .digital-display { font-size: 1.5em; padding: 6px 14px; margin-bottom: 10px; }
+      .controls { margin-top: 12px !important; }
+      .watermark { position: static; padding: 6px 0 10px; width: 100%; }
+    }
+    /* phone held sideways, or a short embed: three columns, everything compact so the whole clock is visible */
+    @media (max-height: 520px) and (orientation: landscape) {
+      :root { --clk: clamp(100px, min(100vh - 96px, 40vw), 300px); }
+      .left-panel, .right-panel { padding: 6px; gap: 6px; overflow-y: auto; justify-content: flex-start; }
+      .question-text { padding: 5px; font-size: 12px; margin-bottom: 0; }
+      .dynamic-text-box { padding: 5px; font-size: 12px; min-height: 0; border-radius: 6px; }
+      .digital-display { font-size: 1.1em; padding: 3px 10px; margin-bottom: 6px; }
+      .controls { margin-top: 6px !important; gap: 4px; }
+      .controls button { padding: 4px 7px; font-size: 11px; }
+      .center-area { padding-bottom: 14px; }
+      .watermark { font-size: 9px; bottom: 2px; }
+    }
+    </style>
 </head>
 <body>
     <!-- Left Panel - Source Language -->
@@ -375,8 +417,8 @@
             number.textContent = i;
             const angle = (i * 30 - 90) * (Math.PI / 180);
             const radius = 120;
-            number.style.left = (Math.cos(angle) * radius + 135) + 'px';
-            number.style.top  = (Math.sin(angle) * radius + 135) + 'px';
+            number.style.left = (50 + Math.cos(angle) * 40) + '%';
+            number.style.top  = (50 + Math.sin(angle) * 40) + '%';
             clock.appendChild(number);
         }
     }
