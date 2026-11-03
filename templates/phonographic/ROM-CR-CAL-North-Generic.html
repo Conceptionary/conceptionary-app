@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-10-30 @ 12:29 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-11-04 @ 12:15 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -274,6 +274,31 @@ body { height: 100vh; height: 100dvh; }
 #draggableFrame, #statesFrame, #transitionsFrame, #transitionFrame, .frame, .transition-frame, .yellow-frame { fill: rgba(255, 255, 0, 0.16) !important; }
 #draggableFrame:hover, #statesFrame:hover, #transitionsFrame:hover, #transitionFrame:hover, .frame:hover, .transition-frame:hover, .yellow-frame:hover { fill: rgba(255, 255, 0, 0.26) !important; }
 #draggableFrame.dragging, #statesFrame.dragging, #transitionsFrame.dragging, #transitionFrame.dragging, .frame.dragging, .transition-frame.dragging, .yellow-frame.dragging { fill: rgba(255, 255, 0, 0.26) !important; }
+</style>
+<style>
+/* 2026-11-04 short landscape (phone held sideways, or a short embed): the ring takes the full height, the four buttons stand in a small column at the lower left,
+   the Tools menu opens to the right of that column, and the two Learned lists and the title shrink so nothing sits on top of the ring or the buttons */
+@media (max-height: 520px) and (orientation: landscape) {
+  .a4-page svg { height: 100% !important; }
+  .tools-menu { left: 6px !important; right: auto !important; bottom: 20px !important; transform: none !important; width: auto !important; }
+  .tools-bar { grid-template-columns: 1fr !important; width: 88px; gap: 3px !important; font-size: 9px !important; }
+  .tools-bar button { white-space: nowrap !important; padding: 3px 2px !important; line-height: 1.15 !important; border-radius: 7px; }
+  #audioWrap { padding-bottom: 13px !important; min-width: 0 !important; }
+  #audioWrap #auSpk { width: 13px !important; height: 11px !important; left: 5px !important; }
+  #audioWrap #auVol2 { left: 22px !important; right: 5px !important; height: 12px !important; }
+  #audioWrap #auVol2::-webkit-slider-runnable-track { height: 4px !important; }
+  #audioWrap #auVol2::-webkit-slider-thumb { width: 12px !important; height: 12px !important; margin-top: -4px !important; }
+  .tools-dropdown { right: auto !important; left: 100% !important; bottom: 0 !important; margin: 0 0 0 4px !important; }
+  .tools-dropdown.active { width: 24em !important; font-size: 11px !important; }
+  .tools-dropdown button { padding: 4px 6px !important; }
+  .learned-vocab { max-height: 30vh; width: 18%; font-size: .66em; padding: 3px 5px; }
+  .learned-vocab-left { left: 1%; } .learned-vocab-right { right: 1%; }
+  .title-box { left: calc(25% + 36px); font-size: .75em; padding: 3px 8px; }
+  #info-panel { right: 6px; padding: 5px 8px; font-size: .8em; min-width: 0; }
+  .drag-instruction { font-size: .68em; padding: 4px 10px; }
+  .watermark { font-size: 9px; bottom: 2px; }
+  .a4-page { border-width: 3px; }
+}
 </style>
 </head>
 <body>
