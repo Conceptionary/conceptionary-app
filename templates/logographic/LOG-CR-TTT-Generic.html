@@ -170,7 +170,6 @@
       #svgCanvas { grid-row: 3; min-height: 0; }
       #legend { position: static; text-align: center; font-size: .62em; line-height: 1.7; padding: 0 6px; }
       .watermark { position: static; padding: 2px 0 3px; }
-      .quiz-container { left: 50%; top: 24%; width: min(310px, 92vw); }
     }
     /* Phone held sideways (or any short window, e.g. inside the viewer): text column on the left, ring on the right at full height */
     @media (max-height: 520px) and (orientation: landscape) {
@@ -183,15 +182,24 @@
       #legend { grid-column: 1; grid-row: 3; position: static; align-self: start; font-size: .56em; line-height: 1.6; padding: 0 4px; }
       #legend span { width: 8px; height: 8px; }
       .watermark { grid-column: 1; grid-row: 4; position: static; font-size: 9px; padding: 0 0 2px; }
-      .quiz-container { left: 4px; right: auto; top: 4px; transform: none; width: max(176px, calc(38vw - 12px)); box-sizing: border-box; padding: 8px; }   /* over the text column, so the ring stays visible */
-      #quizQuestion { font-size: 11px; margin-bottom: 5px; }
-      .quiz-container input { padding: 4px; margin-bottom: 4px; }
-      #quizCheck { padding: 4px; font-size: 12px; }
-      #quizFeedback { margin-top: 3px; min-height: 12px; font-size: 11px; }
-      #quizHint { margin-top: 2px; }
-      #quizDiacriticNote { margin-top: 2px; padding-top: 2px; }
     }
     /* Print: the whole page on one A4 landscape sheet, without the buttons */
+    /* 2026-11-04 (6 p.m.) Quiz: compact + movable on the desktop, removed on a phone */
+    .quiz-container { top: 0; left: 0; transform: none !important; width: 250px; max-width: 94vw; box-sizing: border-box; padding: 6px 10px 8px; touch-action: none; }
+    .quiz-container input { touch-action: manipulation; }
+    #quizGrab { cursor: grab; text-align: center; font: 11px Arial, sans-serif; opacity: .65; user-select: none; margin-bottom: 3px; letter-spacing: .03em; }
+    .quiz-container.qdrag, .quiz-container.qdrag #quizGrab { cursor: grabbing; }
+    #quizQuestion { font-size: 12px; margin-bottom: 6px; }
+    .quiz-container .quizRow { display: flex; gap: 6px; align-items: stretch; margin-bottom: 2px; }
+    .quiz-container .quizRow input { flex: 1 1 auto; min-width: 0; margin-bottom: 0; padding: 6px 8px; font-size: 13px; }
+    .quiz-container button#quizCheck { display: none; }
+    .quiz-container button#quizTick { flex: none; width: 40px; padding: 0; background: #0d47a1; color: #fff; border: 0; border-radius: 4px; cursor: pointer; font-size: 22px; line-height: 1; }
+    .quiz-container button#quizTick:hover { background: #1565c0; }
+    #quizFeedback { margin-top: 4px; min-height: 16px; font-size: 12px; }
+    #quizHint { font-size: 10px; margin-top: 2px; }
+    #quizDiacriticNote { font-size: 9px; margin-top: 3px; padding-top: 3px; }
+    /* A phone (touch screen with a small screen): no Quiz at all; the ring is for looking, touching and listening */
+    html.ttt-phone .quiz-container { display: none !important; }
     @media print {
       @page { size: A4 landscape; margin: 8mm; }
       * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -763,6 +771,7 @@ function buildTooltip(d) {
 
 // --- Quiz -----------------------------------------------------------
 function launchQuiz(m) {
+    if (document.documentElement.classList.contains('ttt-phone')) return;   // no Quiz on a phone
     currentQuizMin = m;
     const d = MINUTES[m];
     document.getElementById('quizQuestion').textContent  = d.quizQ;
@@ -1024,6 +1033,51 @@ document.addEventListener('DOMContentLoaded', init);
             var sync = function () { if (fb) fb.textContent = (document.fullscreenElement || document.webkitFullscreenElement) ? 'Exit Full Screen' : 'Full Screen'; };
             document.addEventListener('fullscreenchange', sync); document.addEventListener('webkitfullscreenchange', sync);
         }
+    })();
+    </script>
+<script>
+    /* 2026-11-04 (6 p.m.) Quiz: a tick button, movable anywhere on the screen (desktop); no Quiz on a phone */
+    (function () {
+        var de = document.documentElement;
+        var phone = false;
+        try { phone = window.matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 600; } catch (e) {}
+        if (phone) { de.classList.add('ttt-phone'); return; }
+        var q = document.getElementById('quizContainer'), inp = document.getElementById('quizInput'); if (!q || !inp) return;
+        var grab = document.createElement('div'); grab.id = 'quizGrab'; grab.textContent = '\u2725  You can move this'; q.insertBefore(grab, q.firstChild);
+        var row = document.createElement('div'); row.className = 'quizRow'; inp.parentNode.insertBefore(row, inp); row.appendChild(inp);
+        var tick = document.createElement('button'); tick.id = 'quizTick'; tick.type = 'button'; tick.textContent = '\u2713'; tick.title = 'Check my answer'; tick.setAttribute('aria-label', 'Check my answer');
+        row.appendChild(tick);
+        tick.addEventListener('mousedown', function (e) { e.preventDefault(); });
+        tick.addEventListener('click', function () { document.getElementById('quizCheck').click(); });
+        function put(l, t) { var r = q.getBoundingClientRect(); q.style.left = Math.max(0, Math.min(l, window.innerWidth - r.width)) + 'px'; q.style.top = Math.max(0, Math.min(t, window.innerHeight - r.height)) + 'px'; }
+        function place() {
+            var r = q.getBoundingClientRect();
+            if (q.dataset.moved) { put(r.left, r.top); return; }
+            put(window.innerWidth * 0.73 - r.width / 2, window.innerHeight * 0.38 - r.height / 2);
+        }
+        var d = null;
+        q.addEventListener('pointerdown', function (e) {
+            if (e.target.closest('input, button')) return;
+            var r = q.getBoundingClientRect(); d = { dx: e.clientX - r.left, dy: e.clientY - r.top };
+            q.dataset.moved = '1'; q.classList.add('qdrag');
+            try { q.setPointerCapture(e.pointerId); } catch (_) {}
+            e.preventDefault();
+        });
+        q.addEventListener('pointermove', function (e) { if (d) put(e.clientX - d.dx, e.clientY - d.dy); });
+        var end = function () { d = null; q.classList.remove('qdrag'); };
+        q.addEventListener('pointerup', end); q.addEventListener('pointercancel', end);
+        var wasOpen = false;
+        new MutationObserver(function () {
+            var open = getComputedStyle(q).display !== 'none';
+            if (open && !wasOpen) {
+                place();
+                clearTimeout(window.__grabT1); clearTimeout(window.__grabT2);
+                grab.style.display = ''; grab.style.opacity = '.65'; grab.style.transition = 'opacity .4s ease';
+                window.__grabT1 = setTimeout(function () { grab.style.opacity = '0'; window.__grabT2 = setTimeout(function () { grab.style.display = 'none'; }, 420); }, 5000);
+            }
+            wasOpen = open;
+        }).observe(q, { attributes: true, attributeFilter: ['style'] });
+        window.addEventListener('resize', function () { if (wasOpen) place(); });
     })();
     </script>
 </body>
