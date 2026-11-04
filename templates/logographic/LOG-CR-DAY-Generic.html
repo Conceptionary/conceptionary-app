@@ -165,7 +165,11 @@
     @media (pointer: coarse) { .audio-wrap { width: 112px; } .audio-wrap #auVol2 { height: 20px; } .audio-wrap #auVol2::-webkit-slider-thumb { width: 18px; height: 18px; margin-top: -6.5px; } .audio-wrap #auVol2::-moz-range-thumb { width: 18px; height: 18px; } }
     @media (max-height: 520px) and (orientation: landscape) { .audio-wrap { width: 86px; padding: 1px 5px 0; } .audio-wrap #auCycle { font-size: 11px; padding: 2px 0 0; } .audio-wrap #auVol2 { height: 13px; } }
     #auToast { position: fixed; z-index: 1100; background: rgba(40,40,40,.92); color: #fff; font: 14px Arial, sans-serif; padding: 7px 12px; border-radius: 8px; max-width: min(92vw, 360px); text-align: center; pointer-events: none; opacity: 0; transition: opacity .25s ease; }
-        /* Phone held upright: title, buttons, the ring (as large as fits), the word box, then the 12/24-hour button and the watermark */
+        /* 2026-11-05 (later) Show All: every word on its own segment */
+    #showAllBtn { min-width: 98px; }
+    .text-box.sa { display: block; opacity: 1; white-space: nowrap; min-width: 0; padding: 2px 5px; border-width: 1px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,.25); z-index: 60; }
+    html.show-all-on .draggable-frame { display: none; }
+    /* Phone held upright: title, buttons, the ring (as large as fits), the word box, then the 12/24-hour button and the watermark */
     @media (max-width: 700px) and (min-height: 521px) {
       html, body { overflow: hidden; }
       body { display: block; padding: 0; min-height: 100vh; min-height: 100dvh; }
@@ -216,6 +220,7 @@
     <div id="title-box" class="title-box">TITLE_PLACEHOLDER</div>
 
     <div id="dayCtl">
+        <button id="showAllBtn" class="tb" type="button" title="Show every word on its own segment: first language layer, next layer ... then Hide All. Click a word to flip just that word to its next layer.">Show All</button>
         <button id="printBtn" class="tb" type="button" onclick="window.print()" title="Print this page on one A4 landscape sheet">Print</button>
         <button id="fsBtn" class="tb" type="button" onclick="toggleFullScreen()">Full Screen</button>
     </div>
@@ -533,6 +538,7 @@ function createTextBoxes() {
 function positionTextBox(item) {
     const box = document.getElementById(`box-${item.id}`);
     if (!box) return;
+    if (showAllState > 0) return;   // Show All: every word stays on its own segment
     let angle;
     if (item.type === 'point') {
         angle = (item.hour / 24) * 360 - 90;
@@ -757,6 +763,84 @@ titleBox.addEventListener('click', () => {
     }, 500);
 });
 
+// --- Show All: every word on its own segment (2026-11-05, later) ---
+// Cycle: Show All <first layer> -> Show All <next layer> ... -> Hide All. A click on one word flips just that word to its next layer.
+let showAllState = 0;   // 0 = off; k = showing layer SA_LAYERS[k-1]
+const SA_LAYERS = vocabularyData.some(v => v.tlr !== undefined) ? ['tlr', 'tl', 'sl'] : ['tl', 'sl'];
+const SA_LABELS = { tlr: 'Show All TLR', tl: 'Show All TL', sl: 'Show All SL' };
+function saButtonLabel() {
+    const b = document.getElementById('showAllBtn'); if (!b) return;
+    b.textContent = showAllState === 0 ? SA_LABELS[SA_LAYERS[0]]
+                  : showAllState < SA_LAYERS.length ? SA_LABELS[SA_LAYERS[showAllState]] : 'Hide All';
+}
+function layoutShowAll() {
+    const rect = circleContainer.getBoundingClientRect();
+    const sc = Math.min(rect.width, rect.height) / 500, cx = rect.width / 2, cy = rect.height / 2;
+    const bands = { outer: [150, 200], middle: [100, 150], inner: [50, 100] };
+    const ringOrder = { outer: 0, middle: 1, inner: 2 };
+    const items = vocabularyData.slice().sort((a, b) => {
+        const ra = a.type === 'point' ? 3 : ringOrder[a.ring], rb = b.type === 'point' ? 3 : ringOrder[b.ring];
+        return ra - rb;
+    });
+    const base = Math.max(8, Math.min(14, 11 * sc));
+    const T = [0.5, 0.4, 0.6, 0.3, 0.7, 0.2, 0.8, 0.1, 0.9, 0.03, 0.97];
+    const placed = [];
+    items.forEach(item => {
+        const box = document.getElementById(`box-${item.id}`); if (!box) return;
+        const cands = [];   // candidate centres, in ring units, nearest the middle of the segment first
+        if (item.type === 'point') {
+            const a = ((item.hour / 24) * 360 - 90) * Math.PI / 180;
+            [188, 176, 200, 164, 212].forEach(r => cands.push({ x: r * Math.cos(a), y: r * Math.sin(a), d: Math.abs(r - 188) }));   // just inside the dot, so the hour labels stay clear
+        } else {
+            const [r0, r1] = bands[item.ring], rm = (r0 + r1) / 2;
+            const a0 = (item.start / 24) * 360 - 90, a1 = (item.end / 24) * 360 - 90;
+            [0, -12, 12, -20, 20].forEach(dr => T.forEach(t => {
+                const a = (a0 + t * (a1 - a0)) * Math.PI / 180, r = rm + dr;
+                cands.push({ x: r * Math.cos(a), y: r * Math.sin(a), d: Math.hypot(dr, (t - 0.5) * (a1 - a0) * Math.PI / 180 * rm) });
+            }));
+        }
+        cands.sort((p, q) => p.d - q.d);
+        let chosen = null, last = null;
+        for (const f of [1, 0.85, 0.72, 0.6]) {
+            box.style.fontSize = `${base * f}px`;
+            const w = box.offsetWidth, h = box.offsetHeight;
+            last = { x: cx + cands[0].x * sc, y: cy + cands[0].y * sc, w, h };
+            for (const c of cands) {
+                const x = cx + c.x * sc, y = cy + c.y * sc;
+                if (!placed.some(p => Math.abs(p.x - x) < (p.w + w) / 2 + 2 && Math.abs(p.y - y) < (p.h + h) / 2 + 2)) { chosen = { x, y, w, h }; break; }
+            }
+            if (chosen) break;
+        }
+        const s = chosen || last;   // nothing free at the smallest size: stay centred on the segment
+        box.style.maxWidth = 'none';
+        box.style.left = `${s.x}px`; box.style.top = `${s.y}px`;
+        box.style.transform = 'translate(-50%, -50%)';
+        placed.push(s);
+    });
+}
+function applyShowAll() {
+    const on = showAllState > 0;
+    document.documentElement.classList.toggle('show-all-on', on);
+    const first = SA_LAYERS[0];
+    vocabularyData.forEach(item => {
+        const box = document.getElementById(`box-${item.id}`); if (!box) return;
+        if (on) {
+            const layer = SA_LAYERS[showAllState - 1];
+            box.textContent = item[layer]; displayMode[item.id] = layer; box.classList.add('sa');
+        } else {
+            box.classList.remove('sa'); box.style.fontSize = ''; box.style.maxWidth = '';
+            box.textContent = item[first]; displayMode[item.id] = first;
+        }
+    });
+    if (on) layoutShowAll(); else positionDraggableFrame(frameHour);
+    saButtonLabel();
+}
+(function () {
+    const b = document.getElementById('showAllBtn'); if (!b) return;
+    saButtonLabel();
+    b.addEventListener('click', () => { showAllState = (showAllState + 1) % (SA_LAYERS.length + 1); applyShowAll(); });
+})();
+
 // --- Print list: every word beside the ring (shown only when printing) ---
 (function () {
     const pl = document.getElementById('printList'); if (!pl) return;
@@ -770,7 +854,7 @@ titleBox.addEventListener('click', () => {
 
 // --- Keep the ring, frame and word box in step when the window or phone is turned ---
 let reflowT = null;
-function reflow() { clearTimeout(reflowT); reflowT = setTimeout(() => { positionDraggableFrame(frameHour); }, 120); }
+function reflow() { clearTimeout(reflowT); reflowT = setTimeout(() => { positionDraggableFrame(frameHour); if (showAllState > 0) layoutShowAll(); }, 120); }
 window.addEventListener('resize', reflow);
 window.addEventListener('orientationchange', reflow);
 
