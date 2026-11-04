@@ -149,6 +149,7 @@
             <button onclick="adjustMinute(-1)">Min -</button>
             <button onclick="adjustMinute(1)">Min +</button>
             <button onclick="resetToCurrentTime()">Reset</button>
+            <button id="fsBtn" type="button" onclick="toggleFullScreen()">Full Screen</button>
         </div>
     </div>
 
@@ -589,6 +590,21 @@
         initializeTooltips();
     });
 
+    </script>
+<script>
+    /* 2026-11-04 Full Screen button (hidden where the browser cannot do it, e.g. iPhone Safari) */
+    (function () {
+        var de = document.documentElement, btn = document.getElementById('fsBtn');
+        var req = de.requestFullscreen || de.webkitRequestFullscreen;
+        if (!req) { if (btn) btn.style.display = 'none'; return; }
+        window.toggleFullScreen = function () {
+            var on = document.fullscreenElement || document.webkitFullscreenElement;
+            if (!on) { try { var p = req.call(de); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
+            else { var ex = document.exitFullscreen || document.webkitExitFullscreen; if (ex) ex.call(document); }
+        };
+        function sync() { if (btn) btn.textContent = (document.fullscreenElement || document.webkitFullscreenElement) ? 'Exit Full Screen' : 'Full Screen'; }
+        document.addEventListener('fullscreenchange', sync); document.addEventListener('webkitfullscreenchange', sync);
+    })();
     </script>
 </body>
 </html>
