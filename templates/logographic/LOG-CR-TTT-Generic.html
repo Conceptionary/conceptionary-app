@@ -143,11 +143,75 @@
             color: rgba(0,0,0,0.25); font-weight: bold;
             pointer-events: none; user-select: none;
         }
+    /* 2026-11-04 Phone layout, Audio, Print and Full Screen on Telling the Time */
+    #ttCtl { position: absolute; top: 6px; right: 8px; z-index: 5; display: flex; gap: 6px; align-items: flex-start; }
+    #ttCtl button.tb { background: #4CAF50; color: #fff; border: 0; border-radius: 4px; padding: 7px 12px; font: 14px Arial, sans-serif; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+    #ttCtl button.tb:hover { background: #45a049; }
+    #svgCanvas { touch-action: none; }
+.audio-wrap { position: relative; display: flex; flex-direction: column; align-items: stretch; width: 104px; box-sizing: border-box; background-color: #4CAF50; color: #fff; border-radius: 4px; padding: 3px 6px 2px; }
+    .audio-wrap:hover { background-color: #45a049; }
+    .audio-wrap #auCycle { background: transparent; border: 0; color: inherit; font: inherit; font-size: 14px; padding: 4px 0 1px; margin: 0; cursor: pointer; white-space: nowrap; text-align: center; -webkit-tap-highlight-color: transparent; }
+    .controls .audio-wrap #auCycle:hover { background: transparent; }
+    .audio-wrap #auVol2 { width: 100%; height: 14px; margin: 0; padding: 0; background: transparent; -webkit-appearance: none; appearance: none; touch-action: none; cursor: pointer; --p: 80%; }
+    .audio-wrap #auVol2::-webkit-slider-runnable-track { height: 5px; border-radius: 3px; background: linear-gradient(to right, #007FFF 0, #007FFF var(--p), #B0E0E6 var(--p), #B0E0E6 100%); }
+    .audio-wrap #auVol2::-moz-range-track { height: 5px; border-radius: 3px; background: #B0E0E6; }
+    .audio-wrap #auVol2::-moz-range-progress { height: 5px; border-radius: 3px; background: #007FFF; }
+    .audio-wrap #auVol2::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: -4.5px; border: 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c8fbff 0%, #2fd0e8 38%, #7fb8f0 68%, #ff9cc8 100%); box-shadow: 0 1px 2px rgba(0,0,0,.35); }
+    .audio-wrap #auVol2::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c8fbff 0%, #2fd0e8 38%, #7fb8f0 68%, #ff9cc8 100%); box-shadow: 0 1px 2px rgba(0,0,0,.35); }
+    @media (pointer: coarse) { .audio-wrap { width: 112px; } .audio-wrap #auVol2 { height: 20px; } .audio-wrap #auVol2::-webkit-slider-thumb { width: 18px; height: 18px; margin-top: -6.5px; } .audio-wrap #auVol2::-moz-range-thumb { width: 18px; height: 18px; } }
+    @media (max-height: 520px) and (orientation: landscape) { .audio-wrap { width: 86px; padding: 1px 5px 0; } .audio-wrap #auCycle { font-size: 11px; padding: 2px 0 0; } .audio-wrap #auVol2 { height: 13px; } }
+    #auToast { position: fixed; z-index: 1100; background: rgba(40,40,40,.92); color: #fff; font: 14px Arial, sans-serif; padding: 7px 12px; border-radius: 8px; max-width: min(92vw, 360px); text-align: center; pointer-events: none; opacity: 0; transition: opacity .25s ease; }
+        /* Phone held upright: title, buttons, the ring (as large as fits), legend, watermark */
+    @media (max-width: 700px) and (orientation: portrait) {
+      body { height: 100vh; height: 100dvh; }
+      .a4-page { width: 100vw; height: 100vh; height: 100dvh; border-width: 3px; display: grid; grid-template-columns: 100%; grid-template-rows: auto auto minmax(0, 1fr) auto auto; }
+      .title-box { position: static; transform: none; justify-self: center; margin: 5px 0 0; font-size: .95em; max-width: 96%; white-space: normal; }
+      #ttCtl { position: static; justify-self: center; margin: 5px 0; flex-wrap: wrap; justify-content: center; }
+      #svgCanvas { grid-row: 3; min-height: 0; }
+      #legend { position: static; text-align: center; font-size: .62em; line-height: 1.7; padding: 0 6px; }
+      .watermark { position: static; padding: 2px 0 3px; }
+      .quiz-container { left: 50%; top: 24%; width: min(310px, 92vw); }
+    }
+    /* Phone held sideways (or any short window, e.g. inside the viewer): text column on the left, ring on the right at full height */
+    @media (max-height: 520px) and (orientation: landscape) {
+      body { height: 100vh; height: 100dvh; }
+      .a4-page { width: 99vw; height: 97vh; height: 97dvh; border-width: 3px; display: grid; grid-template-columns: minmax(170px, 38%) minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; }
+      .title-box { grid-column: 1; grid-row: 1; position: static; transform: none; justify-self: start; margin: 4px 4px 0; font-size: .8em; padding: 3px 8px; white-space: normal; }
+      #ttCtl { grid-column: 1; grid-row: 2; position: static; margin: 4px; gap: 4px; flex-wrap: wrap; }
+      #ttCtl button.tb { padding: 4px 8px; font-size: 11px; }
+      #svgCanvas { grid-column: 2; grid-row: 1 / 5; min-height: 0; }
+      #legend { grid-column: 1; grid-row: 3; position: static; align-self: start; font-size: .56em; line-height: 1.6; padding: 0 4px; }
+      #legend span { width: 8px; height: 8px; }
+      .watermark { grid-column: 1; grid-row: 4; position: static; font-size: 9px; padding: 0 0 2px; }
+      .quiz-container { left: 4px; right: auto; top: 4px; transform: none; width: max(176px, calc(38vw - 12px)); box-sizing: border-box; padding: 8px; }   /* over the text column, so the ring stays visible */
+      #quizQuestion { font-size: 11px; margin-bottom: 5px; }
+      .quiz-container input { padding: 4px; margin-bottom: 4px; }
+      #quizCheck { padding: 4px; font-size: 12px; }
+      #quizFeedback { margin-top: 3px; min-height: 12px; font-size: 11px; }
+      #quizHint { margin-top: 2px; }
+      #quizDiacriticNote { margin-top: 2px; padding-top: 2px; }
+    }
+    /* Print: the whole page on one A4 landscape sheet, without the buttons */
+    @media print {
+      @page { size: A4 landscape; margin: 8mm; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      html, body { height: auto !important; overflow: visible !important; display: block !important; background: #fff !important; }
+      .a4-page { display: block !important; width: 100% !important; height: 188mm !important; border-width: 3px !important; }
+      .title-box { position: absolute !important; top: 2% !important; left: 25% !important; transform: translateX(-50%) !important; }
+      #legend { position: absolute !important; bottom: 18px !important; left: 8px !important; text-align: left !important; }
+      .watermark { position: absolute !important; bottom: 5px !important; }
+      #svgCanvas { width: 100% !important; height: 100% !important; }
+      #ttCtl, #tip, #quizContainer, #auToast { display: none !important; }
+    }
     </style>
 </head>
 <body>
 
 <div class="a4-page">
+    <div id="ttCtl">
+        <button id="printBtn" class="tb" type="button" onclick="window.print()" title="Print this page on one A4 landscape sheet">Print</button>
+        <button id="fsBtn" class="tb" type="button" onclick="toggleFullScreen()">Full Screen</button>
+    </div>
     <div id="title-box" class="title-box">TITLE_TLR</div>
 
     <!-- Hover tooltip — TLR shown first/primary (logographic convention) -->
@@ -815,5 +879,152 @@ function init() {
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
+<script>
+    /* 2026-11-04 AUDIO, PRINT and FULL SCREEN on Telling the Time. The Audio button cycles: TL + SL (hear the target-language phrase, then the source-language phrase) -> TL only -> Silent.
+       The slider is the volume. Language codes come from the App: window.CONCEPTIONARY_AUDIO_LANG / _SL_LANG (e.g. 'id-ID', 'en-NZ'); label overrides window.CONCEPTIONARY_AUDIO_TL_LABEL / _SL_LABEL;
+       recorded files: window.CONCEPTIONARY_AUDIO_FILES[text]; cloud voice: window.CONCEPTIONARY_AUDIO_API_URL.
+       Mouse: hovering a segment speaks it. Touch: pressing or sliding a finger over the ring shows the tip, moves the hand and speaks. The romanised (TLR) line of the LOG file is never spoken. */
+    (function () {
+        var ctl = document.getElementById('ttCtl'); if (!ctl || document.getElementById('auCycle')) return;
+        var AB = { en: 'ENG', id: 'IND', ms: 'MSA', ja: 'JPN', ko: 'KOR', zh: '中文', fr: 'FRA', de: 'DEU', es: 'SPA', it: 'ITA', pt: 'POR', ru: 'RUS', ar: 'ARA', hi: 'HIN', th: 'THA', vi: 'VIE', mi: 'MRI', fil: 'FIL', tl: 'FIL', nl: 'NLD', sv: 'SWE', tr: 'TUR', pl: 'POL', el: 'ELL', he: 'HEB', sm: 'SMO', to: 'TON', fj: 'FIJ' };
+        var AUDIO_API_URL = window.CONCEPTIONARY_AUDIO_API_URL || '';
+        var st = { mode: 0, vol: 0.8, last: '', lastT: 0, timer: null, cur: null, pt: 'mouse', seq: 0 };   // mode 0 = TL+SL, 1 = TL only, 2 = silent
+        function tlCode() { return window.CONCEPTIONARY_AUDIO_LANG || ''; }
+        function slCode() { return window.CONCEPTIONARY_AUDIO_SL_LANG || ''; }
+        function abbr(code, fb, ov) { if (ov) return ov; if (!code) return fb; var b = code.toLowerCase().split(/[-_]/)[0]; return AB[b] || b.toUpperCase(); }
+        function tlName() { return abbr(tlCode(), 'TL', window.CONCEPTIONARY_AUDIO_TL_LABEL); }
+        function slName() { return abbr(slCode(), 'SL', window.CONCEPTIONARY_AUDIO_SL_LABEL); }
+
+        var wrap = document.createElement('div'); wrap.id = 'audioWrap'; wrap.className = 'audio-wrap';
+        var cyc = document.createElement('button'); cyc.id = 'auCycle'; cyc.type = 'button';
+        var vol = document.createElement('input'); vol.type = 'range'; vol.id = 'auVol2'; vol.min = 0; vol.max = 100; vol.step = 5; vol.value = 80; vol.setAttribute('aria-label', 'Volume');
+        wrap.appendChild(cyc); wrap.appendChild(vol); ctl.insertBefore(wrap, ctl.firstChild);
+        var toast = document.createElement('div'); toast.id = 'auToast'; document.body.appendChild(toast); var toastT = null;
+        function note(text) {
+            toast.textContent = text; toast.style.opacity = '1';
+            var r = wrap.getBoundingClientRect(); toast.style.left = '0px'; toast.style.top = '0px';
+            var w = toast.offsetWidth, h = toast.offsetHeight;
+            toast.style.left = Math.max(6, Math.min(window.innerWidth - w - 6, r.left + r.width / 2 - w / 2)) + 'px';
+            var t = r.top - h - 8; if (t < 6) t = Math.min(window.innerHeight - h - 6, r.bottom + 8);
+            toast.style.top = t + 'px';
+            clearTimeout(toastT); toastT = setTimeout(function () { toast.style.opacity = '0'; }, 2600);
+        }
+        function label() {
+            cyc.textContent = st.mode === 0 ? tlName() + '+' + slName() : st.mode === 1 ? tlName() : 'Silent';
+            cyc.setAttribute('aria-label', 'Audio: ' + cyc.textContent);
+            cyc.title = 'Click to change: ' + tlName() + ' + ' + slName() + ' / ' + tlName() + ' only / Silent. The slider is the volume.';
+        }
+        function describe() { return st.mode === 0 ? 'Audio: hear the target language (' + tlName() + '), then the source language (' + slName() + ')' : st.mode === 1 ? 'Audio: target language (' + tlName() + ') only' : 'Audio: silent'; }
+
+        function pickVoice(code) {
+            var vs = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
+            if (!code) return null;
+            var c = code.toLowerCase(), base = c.split('-')[0], best = null, bs = -1;
+            vs.forEach(function (v) {
+                var l = (v.lang || '').toLowerCase().replace('_', '-');
+                if (l !== c && l.split('-')[0] !== base) return;
+                var s = (l === c ? 4 : 0) + (/natural|neural|online/i.test(v.name) ? 3 : 0) + (/google/i.test(v.name) ? 2 : 0) + (v.localService ? 0 : 1);
+                if (s > bs) { best = v; bs = s; }
+            });
+            return best;
+        }
+        function stop() { st.seq++; try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} if (st.cur) { try { st.cur.pause(); } catch (e) {} st.cur = null; } }
+        function playUrl(u, done) { var a = new Audio(u); a.volume = st.vol; if (st.cur) { try { st.cur.pause(); } catch (e) {} } st.cur = a; if (done) a.onended = done; a.play().catch(function () { note('The browser blocked the sound: tap the page once and try again.'); }); }
+        function viaBrowser(text, code, done) {
+            if (!window.speechSynthesis) { note('This browser cannot speak.'); return; }
+            var v = pickVoice(code);
+            if (code && !v) { note('No ' + code + ' voice on this device.'); return; }
+            var u = new SpeechSynthesisUtterance(text);
+            if (code) u.lang = code; if (v) u.voice = v; u.volume = st.vol;
+            window.__auUtt = u;   // keep a reference: some phones drop the sound if the utterance is garbage-collected
+            var started = false; u.onstart = function () { started = true; };
+            if (done) u.onend = done;
+            u.onerror = function (ev) { if (ev.error && ev.error !== 'interrupted' && ev.error !== 'canceled') note('The device could not speak (' + ev.error + ').'); };
+            var go = function () {
+                try { speechSynthesis.resume(); } catch (e) {}
+                speechSynthesis.speak(u);
+                setTimeout(function () { if (!started && window.__auUtt === u) { try { speechSynthesis.cancel(); } catch (e) {} } }, 2500);   // stuck phone queue: clear it so the next tap works
+            };
+            if (speechSynthesis.speaking || speechSynthesis.pending) { speechSynthesis.cancel(); setTimeout(go, 120); } else go();
+        }
+        function viaCloud(text, code, done) {
+            fetch(AUDIO_API_URL + '?text=' + encodeURIComponent(text) + '&lang=' + encodeURIComponent(code))
+                .then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
+                .then(function (b) { playUrl(URL.createObjectURL(b), done); })
+                .catch(function () { note('The audio service could not be reached.'); });
+        }
+        function speak1(text, code, done) {
+            var files = window.CONCEPTIONARY_AUDIO_FILES;
+            if (files && files[text]) { playUrl(files[text], done); return; }
+            if (AUDIO_API_URL && code) viaCloud(text, code, done); else viaBrowser(text, code, done);
+        }
+        function speakMinute(m) {
+            if (st.mode === 2) return;
+            var d = (typeof MINUTES !== 'undefined') ? MINUTES[m] : null; if (!d) return;
+            var key = m + '|' + st.mode, now = Date.now();
+            if (key === st.last && now - st.lastT < 1200) return;   // one phrase, one sound
+            st.last = key; st.lastT = now;
+            var items = [[(d.tlSpecial && d.tlSpecialClass !== 'key') ? d.tlSpecial : d.tl, tlCode()]];   // the target-language phrase: the idiom for approaching / just gone, otherwise the plain phrase (the key-point display variant is not spoken); never the romanised line
+            if (st.mode === 0) items.push([d.slSpecial || d.sl, slCode()]);
+            st.seq++; var my = st.seq, i = 0;
+            try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
+            (function next() { if (my !== st.seq || i >= items.length) return; var it = items[i++]; if (!it[0]) { next(); return; } speak1(it[0], it[1], function () { setTimeout(next, 150); }); })();
+        }
+        function segOf(t) { return (t && t.closest) ? t.closest('.min-seg') : null; }
+        var tip = document.getElementById('tip'), hideT = null;
+        document.addEventListener('pointerover', function (e) { st.pt = e.pointerType || 'mouse'; }, true);
+        var curM = -1;
+        document.addEventListener('mousemove', function (e) {          // mouse: hovering a segment speaks it
+            if (st.pt !== 'mouse') return;
+            var s = segOf(e.target), m = s ? +s.getAttribute('data-min') : -1;
+            if (m === curM) return;
+            curM = m; clearTimeout(st.timer);
+            if (m >= 0 && st.mode !== 2) st.timer = setTimeout(function () { speakMinute(m); }, 130);
+        });
+        var svg = document.getElementById('svgCanvas'), touchM = -1, touching = false;
+        function touchAt(e) {                                          // touch: finger on the ring = tip + hand + sound
+            var el = document.elementFromPoint(e.clientX, e.clientY), s = segOf(el); if (!s) return;
+            var m = +s.getAttribute('data-min'); if (m === touchM) return; touchM = m;
+            var d = MINUTES[m]; if (!d) return;
+            clearTimeout(hideT);
+            try { buildTooltip(d); updateHand(m); } catch (x) {}
+            if (tip) { tip.style.display = 'block'; var w = tip.offsetWidth || 220, h = tip.offsetHeight || 90;
+                var l = Math.max(4, Math.min(window.innerWidth - w - 4, e.clientX - w / 2)), t = e.clientY - h - 28; if (t < 4) t = e.clientY + 28;
+                tip.style.left = l + 'px'; tip.style.top = t + 'px'; }
+            speakMinute(m);
+        }
+        if (svg) {
+            svg.addEventListener('pointerdown', function (e) { st.pt = e.pointerType || 'mouse'; if (e.pointerType === 'mouse') return; touching = true; touchM = -1; touchAt(e); });
+            svg.addEventListener('pointermove', function (e) { if (e.pointerType === 'mouse' || !touching) return; touchAt(e); });
+            var up = function (e) { if (e.pointerType === 'mouse') return; touching = false; clearTimeout(hideT); hideT = setTimeout(function () { if (tip) tip.style.display = 'none'; }, 1800); };
+            svg.addEventListener('pointerup', up); svg.addEventListener('pointercancel', up);
+        }
+
+        cyc.addEventListener('click', function (e) {
+            e.stopPropagation();
+            st.mode = (st.mode + 1) % 3; label(); if (st.mode === 2) stop();
+            if (window.speechSynthesis) speechSynthesis.getVoices();
+            note(describe());
+        });
+        vol.addEventListener('input', function () { st.vol = vol.value / 100; if (st.cur) st.cur.volume = st.vol; vol.style.setProperty('--p', vol.value + '%'); });
+        vol.addEventListener('click', function (e) { e.stopPropagation(); });
+        window.addEventListener('load', label); label(); vol.style.setProperty('--p', vol.value + '%');
+        window.__auCycle = { get mode() { return st.mode; }, label: label };
+
+        /* Full Screen (hidden where the browser cannot do it, e.g. iPhone Safari) */
+        var de = document.documentElement, fb = document.getElementById('fsBtn');
+        var req = de.requestFullscreen || de.webkitRequestFullscreen;
+        if (!req) { if (fb) fb.style.display = 'none'; }
+        else {
+            window.toggleFullScreen = function () {
+                var on = document.fullscreenElement || document.webkitFullscreenElement;
+                if (!on) { try { var p = req.call(de); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
+                else { var ex = document.exitFullscreen || document.webkitExitFullscreen; if (ex) ex.call(document); }
+            };
+            var sync = function () { if (fb) fb.textContent = (document.fullscreenElement || document.webkitFullscreenElement) ? 'Exit Full Screen' : 'Full Screen'; };
+            document.addEventListener('fullscreenchange', sync); document.addEventListener('webkitfullscreenchange', sync);
+        }
+    })();
+    </script>
 </body>
 </html>
