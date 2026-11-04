@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="ttt-phone">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -917,11 +917,15 @@ document.addEventListener('DOMContentLoaded', init);
     })();
     </script>
 <script>
-    /* 2026-11-04 (6 p.m.) Quiz: a tick button, movable anywhere on the screen (desktop); no Quiz on a phone */
+    /* 2026-11-04 (6 p.m., hidden everywhere 6.54 p.m.) Quiz: a tick button, movable anywhere on the screen (desktop); no Quiz on a phone */
     (function () {
         var de = document.documentElement;
+        /* THE QUIZ SWITCH. The Quiz is hidden on every device (decision 2026-11-04, 6.54 p.m.): the <html> tag carries class="ttt-phone" in the file itself,
+           so no device detection can fail. To bring the Quiz back on desktops, delete class="ttt-phone" from the <html> tag and set QUIZ_PHONE_ONLY = true below. */
+        var QUIZ_PHONE_ONLY = false;
         var phone = false;
-        try { phone = window.matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 600; } catch (e) {}
+        if (QUIZ_PHONE_ONLY) { try { phone = window.matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 600; } catch (e) {} }
+        else phone = true;
         if (phone) { de.classList.add('ttt-phone'); return; }
         var q = document.getElementById('quizContainer'), inp = document.getElementById('quizInput'); if (!q || !inp) return;
         var grab = document.createElement('div'); grab.id = 'quizGrab'; grab.textContent = '\u2725  You can move this'; q.insertBefore(grab, q.firstChild);
