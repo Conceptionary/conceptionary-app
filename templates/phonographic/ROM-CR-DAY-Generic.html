@@ -196,7 +196,7 @@
     }
     /* Show All: a word is pulled out of the cluster, magnified as it is pulled, and snaps back when let go */
     .text-box.sa { cursor: grab; user-select: none; -webkit-user-select: none; touch-action: none; -webkit-touch-callout: none; }
-    .text-box.sa:hover, .text-box.sa.grab { background: #fff176; border-color: #b8860b; }
+    .text-box.sa:hover, .text-box.sa.grab, .text-box.sa.held { background: #fff176; border-color: #b8860b; }
     .text-box.sa.lifted { z-index: 1000; box-shadow: 0 8px 24px rgba(0,0,0,.45); cursor: grabbing; }
     html.sa-grab .container > .circle-container { z-index: 1000; }
     /* Phone held upright: title, buttons, the ring (as large as fits), the word box, then the 12/24-hour button and the watermark */
@@ -766,6 +766,7 @@ function saButtonLabel() {
                   : showAllState < SA_LAYERS.length ? SA_LABELS[SA_LAYERS[showAllState]] : 'Hide All';
 }
 function layoutShowAll() {
+    if (window.__saReset) window.__saReset();
     const rect = circleContainer.getBoundingClientRect();
     const sc = Math.min(rect.width, rect.height) / 500, cx = rect.width / 2, cy = rect.height / 2;
     const bands = { outer: [150, 200], middle: [100, 150], inner: [50, 100] };
@@ -811,6 +812,7 @@ function layoutShowAll() {
     });
 }
 function applyShowAll() {
+    if (window.__saReset) window.__saReset();
     const on = showAllState > 0;
     document.documentElement.classList.toggle('show-all-on', on);
     const first = SA_LAYERS[0];
@@ -894,16 +896,42 @@ function applyShowAll() {
     })();
 })();
 
-// --- Show All: pull a word out of the cluster to inspect it (2026-11-05, later) ---
-// Mouse-over or touch turns the word yellow. Press and pull: it follows your finger or mouse and grows gradually to 200%. Hold it as long as you like. Let go and it snaps back to its place.
+// --- Show All: pull a word out of the cluster to inspect it (2026-11-05, later; hold 5 s and 300% added 2026-11-05 5 p.m.) ---
+// Mouse-over or touch turns the word yellow. Press and pull: it follows your finger or mouse and grows gradually, to 300%. Let go and it STAYS where it is, at that size, for 5 seconds
+// (time to study a character), then snaps back to its place. Press it again during the 5 seconds to move it; tap it to flip its layer and restart the 5 seconds.
 (function () {
     const holder = document.getElementById('text-boxes'); if (!holder) return;
+    const MAXS = 3, HOLD_MS = 5000;
+    const held = new Map();   // box -> { x, y, s, timer }  (x, y = offset from home in px, s = scale)
     let g = null, swallow = false;
+    const html = document.documentElement;
+    function tf(o) { return `translate(calc(-50% + ${o.x}px), calc(-50% + ${o.y}px)) scale(${o.s})`; }
+    function syncZ() { html.classList.toggle('sa-grab', held.size > 0 || !!(g && g.drag)); }
+    function snapBack(box) {
+        const o = held.get(box); if (o) { clearTimeout(o.timer); held.delete(box); }
+        box.classList.remove('grab', 'held');
+        box.style.transition = 'transform .3s cubic-bezier(.34,1.56,.64,1)';
+        box.style.transform = 'translate(-50%, -50%)';
+        setTimeout(() => { if (!held.has(box)) { box.style.transition = ''; box.classList.remove('lifted'); } syncZ(); }, 330);
+    }
+    function startHold(box) {
+        const o = held.get(box); if (!o) return;
+        clearTimeout(o.timer); o.timer = setTimeout(() => snapBack(box), HOLD_MS);
+        box.classList.add('held');
+    }
+    window.__saReset = function () {   // Show All changed or re-laid out: drop every held word at once
+        held.forEach((o, box) => { clearTimeout(o.timer); box.classList.remove('grab', 'held', 'lifted'); box.style.transition = ''; });
+        held.clear(); g = null; syncZ();
+    };
     holder.addEventListener('pointerdown', e => {
         const box = e.target.closest ? e.target.closest('.text-box.sa') : null;
         if (!box || (e.pointerType === 'mouse' && e.button !== 0)) return;
+        const o = held.get(box) || { x: 0, y: 0, s: 1 };
+        if (held.has(box)) clearTimeout(o.timer);   // grabbed again during the 5 seconds: it stays until let go
         const r = box.getBoundingClientRect();
-        g = { box, id: e.pointerId, x0: e.clientX, y0: e.clientY, cx: r.left + r.width / 2, cy: r.top + r.height / 2, w: r.width, h: r.height, drag: false };
+        g = { box, id: e.pointerId, x0: e.clientX, y0: e.clientY, ox: o.x, oy: o.y, s0: o.s, hadHold: held.has(box),
+              cx: r.left + r.width / 2 - o.x, cy: r.top + r.height / 2 - o.y,   // the word's HOME centre on screen
+              w: r.width / o.s, h: r.height / o.s, drag: false };
         box.classList.add('grab');
         try { box.setPointerCapture(e.pointerId); } catch (_) {}
     });
@@ -912,25 +940,29 @@ function applyShowAll() {
         const dx = e.clientX - g.x0, dy = e.clientY - g.y0, d = Math.hypot(dx, dy);
         if (!g.drag) {
             if (d < 6) return;
-            g.drag = true; g.box.classList.add('lifted'); g.box.style.transition = 'none';
-            document.documentElement.classList.add('sa-grab');
-            if (window.__daySpeak) { const id = g.box.id.replace('box-', ''); window.__daySpeak(vocabularyData.find(v => v.id === id)); }
+            g.drag = true; g.box.classList.add('lifted'); g.box.style.transition = 'none'; syncZ();
+            if (!g.hadHold && window.__daySpeak) { const id = g.box.id.replace('box-', ''); window.__daySpeak(vocabularyData.find(v => v.id === id)); }
         }
-        const dmax = Math.max(90, Math.min(170, 0.22 * Math.min(window.innerWidth, window.innerHeight)));
-        const s = 1 + Math.min(1, d / dmax);   // 100% at the starting place, 200% once pulled dmax away
+        const dmax = Math.max(120, Math.min(230, 0.30 * Math.min(window.innerWidth, window.innerHeight)));
+        let s = g.hadHold ? g.s0 : 1 + (MAXS - 1) * Math.min(1, d / dmax);   // 100% at the starting place, 300% once pulled dmax away (a word already held keeps its size while it is moved)
+        s = Math.min(s, (window.innerWidth - 8) / g.w, (window.innerHeight - 8) / g.h);   // never wider than the screen
         const hw = g.w * s / 2, hh = g.h * s / 2;
-        const cx = Math.min(Math.max(g.cx + dx, hw + 2), window.innerWidth - hw - 2);
-        const cy = Math.min(Math.max(g.cy + dy, hh + 2), window.innerHeight - hh - 2);
-        g.box.style.transform = `translate(calc(-50% + ${cx - g.cx}px), calc(-50% + ${cy - g.cy}px)) scale(${s})`;
+        const tx = g.cx + g.ox + dx, ty = g.cy + g.oy + dy;
+        const cx = Math.min(Math.max(tx, hw + 2), window.innerWidth - hw - 2);
+        const cy = Math.min(Math.max(ty, hh + 2), window.innerHeight - hh - 2);
+        g.last = { x: cx - g.cx, y: cy - g.cy, s: s };
+        g.box.style.transform = tf(g.last);
     });
     function release(e) {
         if (!g || e.pointerId !== g.id) return;
-        const { box, drag } = g; g = null; box.classList.remove('grab');
-        if (!drag) return;   // a plain tap: the click flips the word to its next layer, as before
-        swallow = true; setTimeout(() => { swallow = false; }, 60);
-        box.style.transition = 'transform .3s cubic-bezier(.34,1.56,.64,1)';
-        box.style.transform = 'translate(-50%, -50%)';
-        setTimeout(() => { box.style.transition = ''; box.classList.remove('lifted'); document.documentElement.classList.remove('sa-grab'); }, 330);
+        const { box, drag, hadHold, last } = g; g = null; box.classList.remove('grab');
+        if (drag && last) {
+            swallow = true; setTimeout(() => { swallow = false; }, 60);
+            held.set(box, { x: last.x, y: last.y, s: last.s, timer: null }); startHold(box);   // stays where it was dropped, at that size, for 5 seconds
+        } else if (hadHold) {
+            startHold(box);   // a tap on a held word: the click flips its layer, and the 5 seconds start again
+        }
+        syncZ();
     }
     holder.addEventListener('pointerup', release);
     holder.addEventListener('pointercancel', release);
