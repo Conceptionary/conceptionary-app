@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-quiz">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -417,17 +417,137 @@
         .toggle-visibility:hover {
             background-color: #e0e0e0;
         }
+    /* 2026-11-06 Phone layout, Audio, Print, Full Screen, Tools menu and no Quiz on the Compass */
+    html.no-quiz .quiz-container, html.no-quiz .vocabulary-array { display: none !important; }
+    .a4-page { height: 86vh; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr) auto; }
+    .a4-page > svg { grid-column: 1 / 3; grid-row: 2; min-height: 0; width: 100%; height: 100%; }
+    #cmpInfo { position: static; grid-column: 1; grid-row: 1; z-index: 3; display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; margin: 10px; }
+    #cmpInfo .title-box { position: static; transform: none; left: auto; top: auto; }
+    #cmpInfo .title-box.hidden { transform: scale(0.9); }
+    #cmpInfo .day-indicator, #cmpInfo .drag-instruction { position: static; transform: none; left: auto; top: auto; min-width: 0; white-space: normal; }
+    #cmpCtl { position: static; grid-column: 2; grid-row: 1; z-index: 200; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; align-items: flex-start; margin: 10px; }
+    .a4-page > .watermark { position: static; grid-column: 1 / 3; grid-row: 3; padding: 0 0 4px; }
+    #cmpCtl .tb { position: static; transform: none; left: auto; top: auto; min-width: 0; font-weight: normal; background: #3366cc; color: #fff; border: 0; border-radius: 4px; padding: 7px 12px; font: 14px Arial, sans-serif; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+    #cmpCtl .tb:hover { background: #254e9c; }
+    #printList { display: none; }
+    .textBox { -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+.audio-wrap { position: relative; display: flex; flex-direction: column; align-items: stretch; width: 104px; box-sizing: border-box; background-color: #3366cc; color: #fff; border-radius: 4px; padding: 3px 6px 2px; }
+    .audio-wrap:hover { background-color: #254e9c; }
+    .audio-wrap #auCycle { background: transparent; border: 0; color: inherit; font: inherit; font-size: 14px; padding: 4px 0 1px; margin: 0; cursor: pointer; white-space: nowrap; text-align: center; -webkit-tap-highlight-color: transparent; }
+    .controls .audio-wrap #auCycle:hover { background: transparent; }
+    .audio-wrap #auVol2 { width: 100%; height: 14px; margin: 0; padding: 0; background: transparent; -webkit-appearance: none; appearance: none; touch-action: none; cursor: pointer; --p: 80%; }
+    .audio-wrap #auVol2::-webkit-slider-runnable-track { height: 5px; border-radius: 3px; background: linear-gradient(to right, #007FFF 0, #007FFF var(--p), #B0E0E6 var(--p), #B0E0E6 100%); }
+    .audio-wrap #auVol2::-moz-range-track { height: 5px; border-radius: 3px; background: #B0E0E6; }
+    .audio-wrap #auVol2::-moz-range-progress { height: 5px; border-radius: 3px; background: #007FFF; }
+    .audio-wrap #auVol2::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: -4.5px; border: 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c8fbff 0%, #2fd0e8 38%, #7fb8f0 68%, #ff9cc8 100%); box-shadow: 0 1px 2px rgba(0,0,0,.35); }
+    .audio-wrap #auVol2::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c8fbff 0%, #2fd0e8 38%, #7fb8f0 68%, #ff9cc8 100%); box-shadow: 0 1px 2px rgba(0,0,0,.35); }
+    @media (pointer: coarse) { .audio-wrap { width: 112px; } .audio-wrap #auVol2 { height: 20px; } .audio-wrap #auVol2::-webkit-slider-thumb { width: 18px; height: 18px; margin-top: -6.5px; } .audio-wrap #auVol2::-moz-range-thumb { width: 18px; height: 18px; } }
+    @media (max-height: 520px) and (orientation: landscape) { .audio-wrap { width: 86px; padding: 1px 5px 0; } .audio-wrap #auCycle { font-size: 11px; padding: 2px 0 0; } .audio-wrap #auVol2 { height: 13px; } }
+    #auToast { position: fixed; z-index: 1100; background: rgba(40,40,40,.92); color: #fff; font: 14px Arial, sans-serif; padding: 7px 12px; border-radius: 8px; max-width: min(92vw, 360px); text-align: center; pointer-events: none; opacity: 0; transition: opacity .25s ease; }
+    .tools-wrap { position: relative; }
+    #toolsBtn { min-width: 74px; }
+    .tools-dd { display: none; position: absolute; top: 100%; left: 0; margin-top: 4px; min-width: 9.5em; background: #3366cc; border-radius: 6px; overflow: hidden; z-index: 400; box-shadow: 0 4px 12px rgba(0,0,0,.3); }
+    .tools-dd.active { display: block; }
+    .tools-dd button { display: block; width: 100%; text-align: left; background: #3366cc; color: #fff; border: 0; border-bottom: 1px solid rgba(255,255,255,.35); padding: 9px 14px; font: 14px Arial, sans-serif; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+    .tools-dd button:last-child { border-bottom: 0; }
+    .tools-dd button:hover { background: #254e9c; }
+    html[data-scheme="nocolour"] body { background: #e6e6e6; }
+    html[data-scheme="nocolour"] .a4-page { filter: grayscale(1); }
+    @media screen {
+      html[data-scheme="night"] body { background: #0b1330; }
+      html[data-scheme="night"] .a4-page { background: #14213d; border-color: #8a96b8; }
+      html[data-scheme="night"] .circle-path { stroke: #aab4d0; }
+      html[data-scheme="night"] .segment-label { fill: #c5cce0; }
+      html[data-scheme="night"] .textBox div { color: #fff !important; text-shadow: none !important; }
+      html[data-scheme="night"] .title-box, html[data-scheme="night"] .day-indicator { background: #1f2f55; color: #e8eefc; border-color: #8a96b8; }
+      html[data-scheme="night"] .watermark { color: rgba(255,255,255,.45); }
+    }
+    /* Phone held upright: title and direction, buttons, the compass as large as fits, then the watermark */
+    @media (max-width: 700px) and (min-height: 521px) {
+      html, body { overflow: hidden; }
+      body { display: block; height: 100vh; height: 100dvh; padding: 0; }
+      .a4-page { width: 100vw; height: 100vh; height: 100dvh; border: 0; display: grid; grid-template-columns: 100%; grid-template-rows: auto auto minmax(0, 1fr) auto; }
+      #cmpInfo { grid-column: 1; grid-row: 1; justify-content: center; max-width: 96%; margin: 6px 0 0; gap: 4px 6px; }
+      #cmpInfo .title-box { padding: 6px 12px; font-size: .95em; text-align: center; }
+      #cmpInfo .day-indicator { font-size: .95em; padding: 4px 10px; }
+      #cmpInfo .drag-instruction { font-size: .8em; max-width: 92vw; text-align: center; }
+      #cmpCtl { grid-column: 1; grid-row: 2; justify-content: center; margin: 6px 4px; }
+      #cmpCtl .tb { padding: 7px 10px; font-size: 13px; }
+      .a4-page > svg { grid-column: 1; grid-row: 3; }
+      .a4-page > .watermark { grid-column: 1; grid-row: 4; }
+    }
+    /* Phone held sideways (or any short window, e.g. inside the viewer, about 690 x 200): text column on the left, compass at full height on the right */
+    @media (max-height: 520px) and (orientation: landscape) {
+      html, body { overflow: hidden; }
+      body { display: block; height: 100vh; height: 100dvh; padding: 0; }
+      .a4-page { width: 100vw; height: 100vh; height: 100dvh; border: 0; display: grid; grid-template-columns: minmax(190px, 42%) minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; }
+      #cmpInfo { grid-column: 1; grid-row: 1; flex-direction: column; align-items: flex-start; margin: 4px; gap: 3px; }
+      #cmpInfo .title-box { padding: 3px 8px; font-size: .8em; }
+      #cmpInfo .day-indicator { font-size: .8em; padding: 2px 8px; }
+      #cmpInfo .drag-instruction { display: none; }
+      #cmpCtl { grid-column: 1; grid-row: 2; justify-content: flex-start; margin: 2px 4px; gap: 4px; }
+      #cmpCtl .tb { padding: 4px 8px; font-size: 11px; }
+      .a4-page > svg { grid-column: 2; grid-row: 1 / 5; }
+      .a4-page > .watermark { grid-column: 1; grid-row: 4; text-align: left; font-size: 9px; padding: 0 4px 2px; }
+    }
+    /* Print: the compass on the left and every direction listed on the right, on one A4 landscape sheet */
+    @media print {
+      @page { size: A4 landscape; margin: 8mm; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      html, body { height: auto !important; min-height: 0 !important; overflow: visible !important; background: #fff !important; padding: 0 !important; display: block !important; }
+      .a4-page { width: 100% !important; height: 188mm !important; border: 0 !important; overflow: visible !important; display: grid !important; grid-template-columns: 152mm 1fr; grid-template-rows: auto 1fr auto; column-gap: 6mm; filter: none !important; }
+      .a4-page > svg { grid-column: 1; grid-row: 1 / 4; width: 152mm !important; height: 152mm !important; align-self: center; }
+      #cmpInfo { position: static !important; grid-column: 2; grid-row: 1; max-width: none; margin: 0 0 3mm; }
+      #cmpInfo .title-box { font-size: 14pt; border: 0; padding: 0; }
+      #cmpInfo .day-indicator, #cmpInfo .drag-instruction { display: none !important; }
+      #printList { display: block !important; grid-column: 2; grid-row: 2; font: 8.5pt Arial, sans-serif; overflow: hidden; }
+      #printList .pl-row { display: grid; grid-template-columns: 14mm 1fr 1fr 1fr; gap: 2mm; padding: 0.6mm 0; border-bottom: 0.2mm solid #ddd; }
+      #printList .pl-row.rom { grid-template-columns: 14mm 1fr 1fr; }
+      #printList .pl-h { color: #777; }
+      .a4-page > .watermark { position: static !important; grid-column: 2; grid-row: 3; text-align: right; }
+      .textBox { display: block !important; opacity: 1 !important; transform: none !important; }
+      #cmpCtl, .quiz-container, .vocabulary-array, #auToast { display: none !important; }
+    }
+    @media (max-height: 520px) and (orientation: landscape) { .audio-wrap #auVol2::-webkit-slider-thumb { width: 13px; height: 13px; margin-top: -4px; } .audio-wrap #auVol2::-moz-range-thumb { width: 13px; height: 13px; } }
+    #textSizePanel { position: fixed; z-index: 700; display: none; background: #fff; color: #222; border: 1px solid #555; border-radius: 8px; padding: 6px 10px 8px; box-shadow: 0 2px 10px rgba(0,0,0,.35); font: 13px Arial, sans-serif; width: min(300px, 88vw); touch-action: none; }
+    #textSizePanel .tsHead { cursor: grab; display: flex; justify-content: space-between; align-items: center; font-weight: bold; user-select: none; margin-bottom: 4px; }
+    #textSizePanel .tsHead button { border: 0; background: none; font-size: 20px; cursor: pointer; line-height: 1; }
+    #textSizePanel .tsTarget { margin: 2px 0 4px; min-height: 1.2em; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    #textSizePanel input[type=range] { width: 100%; touch-action: pan-y; }
+    #textSizePanel .tsRow { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; }
+    #textSizePanel button.tsReset { padding: 3px 10px; cursor: pointer; }
+    .textBox:hover div { background: #fff176; border-radius: 4px; }
+    .cmp-ghost { position: fixed; z-index: 1000; left: 0; top: 0; background: #fff176; border: 1px solid #b8860b; border-radius: 5px; box-shadow: 0 8px 24px rgba(0,0,0,.45); font-family: Arial, sans-serif; font-weight: bold; color: #000; white-space: nowrap; padding: 2px 5px; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transform-origin: 50% 50%; }
+    @media print { #textSizePanel, .cmp-ghost { display: none !important; } }
+
+    .textBox.visible { display: block; transform: scale(1) translateY(0); }
+    #cmpCtl .today-indicator { font-weight: bold; }
+    #cmpCtl .today-indicator { background: #3366cc; }
     </style>
 </head>
 <body>
     <div class="a4-page">
-        <div id="title-box" class="title-box">Days of the Week</div>
-        <div id="day-indicator" class="day-indicator"></div>
-        <div id="today-indicator" class="today-indicator">Today is</div>
-        <div id="display-mode-toggle" class="display-mode-toggle">Show: TL</div>
-        <div id="sun-cycle-toggle" class="sun-cycle-toggle">Hide Sun Cycle</div>
-        <div id="day-labels-toggle" class="day-labels-toggle">Hide Day Labels</div>
-        <div id="drag-instruction" class="drag-instruction">💡 Drag the sun!</div>
+        <div id="cmpInfo">
+            <div id="title-box" class="title-box">Days of the Week</div>
+            <div id="day-indicator" class="day-indicator">Day 1</div>
+            <div id="drag-instruction" class="drag-instruction">&#128161; Drag the sun!</div>
+        </div>
+        <div id="cmpCtl">
+            <button id="today-indicator" class="today-indicator tb" type="button">Today is</button>
+            <button id="display-mode-toggle" class="display-mode-toggle tb" type="button" title="Change the language shown on every day">Show: TL</button>
+            <button id="show-all-toggle" class="tb" type="button" title="Show every day word at once">Show All</button>
+            <div class="tools-wrap" id="toolsWrap">
+                <button id="toolsBtn" class="tb" type="button" aria-haspopup="true" title="Colours, Text size, Sun cycle, Day labels and Print">Tools &#9660;</button>
+                <div class="tools-dd" id="toolsMenu">
+                    <button id="colourBtn" type="button" title="Try different colour schemes">Colours: Default</button>
+                    <button id="textSizeBtn" type="button" title="Enlarge or shrink any word">Text size&hellip;</button>
+                    <button id="sun-cycle-toggle" type="button">Hide Sun Cycle</button>
+                    <button id="day-labels-toggle" type="button">Hide Day Labels</button>
+                    <button id="printBtn" type="button" title="Print this page on one A4 landscape sheet">Print</button>
+                </div>
+            </div>
+            <button id="fsBtn" class="tb" type="button" onclick="toggleFullScreen()">Full Screen</button>
+        </div>
         
         <div id="learned-array" class="vocabulary-array">
             <div class="array-title">Learned Vocabulary</div>
@@ -454,9 +574,18 @@
             <circle id="draggableFrame" cx="50" cy="20" r="4"/>
         </svg>
         
+        <div id="printList"></div>
+
         <div class="watermark">
             &copy; 2026 Alan William Preston
         </div>
+    </div>
+
+    <div id="textSizePanel">
+        <div class="tsHead"><span>Text size</span><button type="button" id="tsClose" aria-label="Close">&times;</button></div>
+        <div class="tsTarget" id="tsTarget">Click a word, then slide</div>
+        <input type="range" id="tsRange" min="50" max="300" step="5" value="100">
+        <div class="tsRow"><label><input type="checkbox" id="tsAll"> All words</label><span id="tsVal">100%</span><button type="button" class="tsReset" id="tsReset">Reset</button></div>
     </div>
 
     <div id="quizContainer" class="quiz-container">
@@ -1082,24 +1211,9 @@
                 const clientY = e.clientY || (e.touches && e.touches[0].clientY);
                 
                 try {
-                    const svgRect = svg.getBoundingClientRect();
-
-                    // The SVG's viewBox is a square (0 0 100 100) with
-                    // preserveAspectRatio="xMidYMid meet", but the .a4-page
-                    // container is NOT square (90vw × 70vh) — so the square
-                    // content is letterboxed (centered, with blank padding
-                    // added to the wider dimension) rather than stretched.
-                    // Dividing directly by svgRect.width/height (which
-                    // includes that letterbox padding) miscalculates the
-                    // angle whenever the cursor drifts into the padding
-                    // while dragging — same root cause and fix as
-                    // ROM-CR-TTT-Generic.html's minute-hand tracking bug.
-                    const renderedSize = Math.min(svgRect.width, svgRect.height);
-                    const offsetX = svgRect.left + (svgRect.width  - renderedSize) / 2;
-                    const offsetY = svgRect.top  + (svgRect.height - renderedSize) / 2;
-
-                    const svgX = ((clientX - offsetX) / renderedSize) * 100;
-                    const svgY = ((clientY - offsetY) / renderedSize) * 100;
+                    const pt0 = svg.createSVGPoint(); pt0.x = clientX; pt0.y = clientY;
+                    const sp = pt0.matrixTransform(svg.getScreenCTM().inverse());
+                    const svgX = sp.x, svgY = sp.y;
                     
                     const centerX = 50;
                     const centerY = 50;
@@ -1135,6 +1249,7 @@
                     isDragging = false;
                     frame.classList.remove('dragging');
                     frame.style.cursor = 'grab';
+                    if (window.__cmpSpeak) window.__cmpSpeak(currentDay);
                     console.log("Drag ended");
                     
                     if (e) {
@@ -1155,6 +1270,18 @@
             
             frame.addEventListener('mousedown', startDrag);
             frame.addEventListener('touchstart', startDrag, { passive: false });
+            // 2026-11-06: touching or clicking anywhere on the ring grabs the sun (the sun itself is small, especially on a phone)
+            const faceDown = function (e) {
+                if (e.target.closest && e.target.closest('.textBox')) return;
+                const cx = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0].clientX);
+                const cy = e.clientY !== undefined ? e.clientY : (e.touches && e.touches[0].clientY);
+                const pt = svg.createSVGPoint(); pt.x = cx; pt.y = cy;
+                const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+                if (Math.hypot(p.x - 50, p.y - 50) > 35) return;
+                startDrag(e); dragMove(e);
+            };
+            svg.addEventListener('mousedown', faceDown);
+            svg.addEventListener('touchstart', faceDown, { passive: false });
             
             document.addEventListener('mousemove', dragMove);
             document.addEventListener('touchmove', dragMove, { passive: false });
@@ -1216,6 +1343,382 @@
         }
 
         document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+    <script>
+    /* 2026-11-06 DAYS OF THE WEEK: layout that fits any screen (each day word sits just outside the sun ring, whatever its length; the view box grows to hold the longest words),
+       layer cycle (ROM: TL > SL; LOG: TLR > TL > SL) that now works on every word, Show All, Tools menu, Print list. The Quiz is hidden (class no-quiz on the html tag) and its code is kept. */
+    (function () {
+        var SVGNS = 'http://www.w3.org/2000/svg';
+        var BASE = 5.25, R0 = 35.5, GAP = 0.8;
+        var svg = document.getElementById('svgCanvas');
+        var cv = document.createElement('canvas').getContext('2d');
+        var tmp = document.createElement('div');
+        function plain(s) { tmp.innerHTML = String(s == null ? '' : s); return tmp.textContent; }
+        function sizeOf(i) { return BASE * (window.tsScale ? window.tsScale(i) : 1); }
+        function wOf(i, txt) { cv.font = 'bold ' + sizeOf(i) + 'px Arial, sans-serif'; return cv.measureText(plain(txt)).width + 3; }
+        function hOf(i) { return sizeOf(i) * 1.35; }
+        function ang(i) { return ((i + 0.5) * 360 / 7 - 90) * Math.PI / 180; }
+        window.LOGV = daysOfWeekData[0].length >= 5;
+        window.MODES = LOGV ? [2, 1, 0] : [1, 0];
+        function modeLabel(m) { var row = MODES[m]; if (LOGV) return row === 2 ? 'Show: TLR' : row === 1 ? 'Show: TL' : 'Show: SL'; return row === 1 ? LANG.show_tl_label : LANG.show_sl_label; }
+        function dayWord(i, k) { return daysOfWeekData[i][MODES[k]]; }
+
+        function rectsFor(kOf) {
+            var out = [], placed = [];
+            for (var i = 0; i < 7; i++) {
+                var w = wOf(i, dayWord(i, kOf(i))), h = hOf(i), ux = Math.cos(ang(i)), uy = Math.sin(ang(i));
+                var d = R0 + (w / 2) * Math.abs(ux) + (h / 2) * Math.abs(uy), r;
+                for (var n = 0; n < 160; n++) {
+                    r = { x: 50 + d * ux, y: 50 + d * uy, w: w, h: h };
+                    if (!placed.some(function (p) { return Math.abs(p.x - r.x) < (p.w + w) / 2 + GAP && Math.abs(p.y - r.y) < (p.h + h) / 2 + GAP; })) break;
+                    d += 0.5;
+                }
+                placed.push(r); out[i] = r;
+            }
+            return out;
+        }
+        function applyRect(i, r) {
+            var fo = textBoxElements[i]; if (!fo) return;
+            fo.setAttribute('x', r.x - r.w / 2); fo.setAttribute('y', r.y - r.h / 2);
+            fo.setAttribute('width', r.w); fo.setAttribute('height', r.h); fo.style.overflow = 'visible';
+        }
+        function curK(i) { var d = textBoxElements[i] && textBoxElements[i].querySelector('div'); return d ? parseInt(d.dataset.k || '0') : 0; }
+        window.cmpPlaceAll = function () {
+            if (!svg || !textBoxElements.length) return;
+            var hx = 40, hy = 40;
+            MODES.forEach(function (_, k) { rectsFor(function () { return k; }).forEach(function (r) { hx = Math.max(hx, Math.abs(r.x - 50) + r.w / 2 + 1.5); hy = Math.max(hy, Math.abs(r.y - 50) + r.h / 2 + 1.5); }); });
+            svg.setAttribute('viewBox', (50 - hx) + ' ' + (50 - hy) + ' ' + (2 * hx) + ' ' + (2 * hy));
+            rectsFor(curK).forEach(function (r, i) { applyRect(i, r); });
+        };
+        window.cmpPlaceOne = function (i) {
+            var fo = textBoxElements[i]; if (!fo) return;
+            var w = wOf(i, fo.querySelector('div').innerHTML), h = hOf(i), ux = Math.cos(ang(i)), uy = Math.sin(ang(i)), d = R0 + (w / 2) * Math.abs(ux) + (h / 2) * Math.abs(uy);
+            var cx = parseFloat(fo.getAttribute('x')) + parseFloat(fo.getAttribute('width')) / 2, cy = parseFloat(fo.getAttribute('y')) + parseFloat(fo.getAttribute('height')) / 2;
+            var cur = Math.hypot(cx - 50, cy - 50); if (cur > d) d = cur;
+            applyRect(i, { x: 50 + d * ux, y: 50 + d * uy, w: w, h: h });
+        };
+        window.applyTierStyle = function (div, i) { div.style.fontSize = sizeOf(i) + 'px'; div.style.whiteSpace = 'nowrap'; };
+
+        window.cycleDisplayMode = function () {
+            displayMode = (displayMode + 1) % MODES.length;
+            document.getElementById('display-mode-toggle').textContent = modeLabel(displayMode);
+            window.updateAllTextBoxes();
+        };
+        window.updateAllTextBoxes = function () {
+            textBoxElements.forEach(function (tb, i) {
+                var div = tb && tb.querySelector('div'); if (!div) return;
+                div.dataset.k = displayMode; div.innerHTML = dayWord(i, displayMode); applyTierStyle(div, i);
+            });
+            window.cmpPlaceAll();
+        };
+        window.createTextBoxes = function () {
+            var holder = document.getElementById('textBoxContainer');
+            holder.innerHTML = ''; textBoxElements = [];
+            daysOfWeekData.forEach(function (item, i) {
+                var fo = document.createElementNS(SVGNS, 'foreignObject');
+                fo.setAttribute('class', 'textBox'); fo.setAttribute('data-index', i);
+                fo.setAttribute('x', 0); fo.setAttribute('y', 0); fo.setAttribute('width', 16); fo.setAttribute('height', 8);
+                fo.style.overflow = 'visible';
+                var div = document.createElement('div');
+                div.style.cssText = 'display:flex;align-items:center;justify-content:center;width:100%;height:100%;box-sizing:border-box;text-align:center;font-family:Arial,sans-serif;color:black;cursor:pointer;white-space:nowrap;font-weight:bold';
+                div.dataset.k = displayMode; div.innerHTML = dayWord(i, displayMode); applyTierStyle(div, i);
+                fo.appendChild(div);
+                if (learnedItems[i]) fo.classList.add('learned');
+                fo.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    var idx = parseInt(this.getAttribute('data-index')), d = this.querySelector('div');
+                    var qc = document.getElementById('quizContainer');
+                    if (qc.style.display === 'block' && currentQuizIndex === idx) return;
+                    var k = parseInt(d.dataset.k || '0') + 1;
+                    if (k >= MODES.length) {
+                        if (!document.documentElement.classList.contains('no-quiz') && !learnedItems[idx]) { showQuiz(idx, this); return; }
+                        k = 0;
+                    }
+                    d.dataset.k = k; d.innerHTML = dayWord(idx, k); applyTierStyle(d, idx); cmpPlaceOne(idx);
+                    if (window.__cmpSpeak) window.__cmpSpeak(idx, true);
+                });
+                holder.appendChild(fo); textBoxElements.push(fo);
+            });
+            window.cmpPlaceAll();
+        };
+
+        // Show All: every day word at once, each beside its own segment
+        var showAll = false, origUpdate = window.updateVisibleTextBoxes;
+        window.updateVisibleTextBoxes = function (dayIndex) {
+            origUpdate(dayIndex);
+            textBoxElements.forEach(function (tb, k) {
+                tb.style.display = ''; tb.style.opacity = '';
+                if (showAll && k !== dayIndex && !learnedItems[k]) { tb.classList.remove('hidden'); tb.classList.add('visible'); tb.style.display = 'block'; tb.style.opacity = '0.85'; }
+                else tb.classList.remove('visible');
+            });
+        };
+        var sab = document.getElementById('show-all-toggle');
+        function saLabel() { sab.textContent = showAll ? (typeof LANG !== 'undefined' && LANG.hide_all_label ? LANG.hide_all_label : 'Hide All') : (typeof LANG !== 'undefined' && LANG.show_all_label ? LANG.show_all_label : 'Show All'); }
+        sab.addEventListener('click', function () { showAll = !showAll; saLabel(); if (window.__cmpReset) window.__cmpReset(); window.updateVisibleTextBoxes(currentDay); });
+        saLabel();
+
+        var origShowQuiz = window.showQuiz;
+        window.showQuiz = function (i, el) { if (document.documentElement.classList.contains('no-quiz')) return; origShowQuiz(i, el); };
+        var rt = null;
+        function reflow() { clearTimeout(rt); rt = setTimeout(function () { window.cmpPlaceAll(); }, 120); }
+        window.addEventListener('resize', reflow); window.addEventListener('orientationchange', reflow);
+        // the mode button's first label (ROM sets it from LANG at load; LOG is static)
+        document.getElementById('display-mode-toggle').textContent = modeLabel(0);
+    })();
+
+    // --- Tools menu: Colours, Text size, Print ---
+    (function () {
+        var $ = function (id) { return document.getElementById(id); };
+        var wrap = $('toolsWrap'), menu = $('toolsMenu'), tb = $('toolsBtn'); if (!wrap) return;
+        tb.addEventListener('click', function (e) { e.stopPropagation(); menu.classList.toggle('active'); });
+        document.addEventListener('click', function (e) { if (!wrap.contains(e.target)) menu.classList.remove('active'); });
+        $('printBtn').addEventListener('click', function (e) { e.stopPropagation(); menu.classList.remove('active'); setTimeout(function () { window.print(); }, 50); });
+        // Text size: click a word then slide (that word), or tick All words
+        var panel = $('textSizePanel'), range = $('tsRange'), val = $('tsVal'), tgt = $('tsTarget'), all = $('tsAll');
+        var scales = {}, target = null;
+        window.tsScale = function (i) { return Math.min(3, Math.max(0.5, (scales[i] || 1) * (scales.all || 1))); };
+        window.tsApply = function () {
+            if (window.__cmpReset) window.__cmpReset();
+            textBoxElements.forEach(function (tb, i) { var d = tb && tb.querySelector('div'); if (d) applyTierStyle(d, i); });
+            window.cmpPlaceAll();
+        };
+        function show() {
+            var v = all.checked ? (scales.all || 1) : (target ? (scales[target.i] || 1) : 1);
+            range.value = Math.round(v * 100); val.textContent = Math.round(v * 100) + '%';
+            tgt.textContent = all.checked ? 'All words' : (target ? 'Word: ' + target.label : 'Click a word, then slide');
+        }
+        document.addEventListener('pointerdown', function (e) {
+            if (panel.contains(e.target)) return;
+            var bx = e.target.closest && e.target.closest('.textBox'); if (!bx) return;
+            var i = parseInt(bx.getAttribute('data-index'));
+            target = { i: i, label: (bx.textContent || '').trim().slice(0, 30) };
+            if (panel.style.display === 'block') { all.checked = false; show(); }
+        }, true);
+        range.addEventListener('input', function () {
+            var v = range.value / 100;
+            if (all.checked) scales.all = v; else if (target) scales[target.i] = v; else return;
+            val.textContent = range.value + '%'; window.tsApply();
+        });
+        all.addEventListener('change', show);
+        $('tsReset').addEventListener('click', function () { Object.keys(scales).forEach(function (k) { delete scales[k]; }); window.tsApply(); show(); });
+        $('tsClose').addEventListener('click', function () { panel.style.display = 'none'; });
+        $('textSizeBtn').addEventListener('click', function (e) {
+            e.stopPropagation(); menu.classList.remove('active'); panel.style.display = 'block';
+            if (!panel.dataset.moved) { var r = panel.getBoundingClientRect(); panel.style.left = Math.max(4, (window.innerWidth - r.width) / 2) + 'px'; panel.style.top = '70px'; }
+            show();
+        });
+        (function () {
+            var head = panel.querySelector('.tsHead'), d = null;
+            head.addEventListener('pointerdown', function (e) { if (e.target.id === 'tsClose') return; var r = panel.getBoundingClientRect(); d = { dx: e.clientX - r.left, dy: e.clientY - r.top }; panel.dataset.moved = '1'; head.setPointerCapture(e.pointerId); });
+            head.addEventListener('pointermove', function (e) { if (d) { panel.style.left = (e.clientX - d.dx) + 'px'; panel.style.top = (e.clientY - d.dy) + 'px'; } });
+            head.addEventListener('pointerup', function () { d = null; });
+        })();
+        var SCHEMES = [['Default', ''], ['No colour', 'nocolour'], ['Night', 'night']], ci = 0, cb = $('colourBtn');
+        cb.addEventListener('click', function (e) {
+            e.stopPropagation(); ci = (ci + 1) % SCHEMES.length;
+            if (SCHEMES[ci][1]) document.documentElement.setAttribute('data-scheme', SCHEMES[ci][1]); else document.documentElement.removeAttribute('data-scheme');
+            cb.textContent = 'Colours: ' + SCHEMES[ci][0];
+        });
+    })();
+
+
+    // --- Print list: every day beside the ring (shown only when printing) ---
+    (function () {
+        var pl = document.getElementById('printList'); if (!pl) return;
+        var esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;'); };
+        var plain = function (t) { var d = document.createElement('div'); d.innerHTML = t; return d.textContent; };
+        var row = function (a, b, c, d) { return '<div class="pl-row ' + (LOGV ? '' : 'rom') + '"><span class="pl-h">' + a + '</span>' + (LOGV ? '<span>' + b + '</span>' : '') + '<span>' + c + '</span><span>' + d + '</span></div>'; };
+        pl.innerHTML = daysOfWeekData.map(function (d, i) { return row(i + 1, esc(plain(LOGV ? d[2] : '')), esc(plain(d[1])), esc(plain(d[0]))); }).join('');
+    })();
+
+    // --- Pull a word out of the dial to inspect it: it follows the finger or mouse and grows (up to 300%); let go and it STAYS for 5 seconds, then snaps back ---
+    (function () {
+        var MAXS = 3, HOLD_MS = 5000, svg = document.getElementById('svgCanvas');
+        var held = new Map();   // index -> { ghost, box, x, y, s, hx, hy, w, h, timer }
+        var g = null, swallow = false;
+        function tf(o) { return 'translate(calc(-50% + ' + o.x + 'px), calc(-50% + ' + o.y + 'px)) scale(' + o.s + ')'; }
+        function makeGhost(box) {
+            var d = box.querySelector('div'), r = d.getBoundingClientRect(), k = svg.getScreenCTM().a;
+            var gh = document.createElement('div'); gh.className = 'cmp-ghost';
+            gh.textContent = d.textContent; gh.style.textTransform = d.style.textTransform; gh.style.fontSize = (parseFloat(d.style.fontSize) * k) + 'px';
+            document.body.appendChild(gh);
+            var w = gh.offsetWidth, h = gh.offsetHeight, hx = r.left + r.width / 2, hy = r.top + r.height / 2;
+            gh.style.left = hx + 'px'; gh.style.top = hy + 'px';
+            return { ghost: gh, box: box, hx: hx, hy: hy, w: w, h: h, x: 0, y: 0, s: 1, timer: null };
+        }
+        function snapBack(i) {
+            var o = held.get(i); if (!o) return; clearTimeout(o.timer); held.delete(i);
+            var gh = o.ghost; gh.style.transition = 'transform .3s cubic-bezier(.34,1.56,.64,1)';
+            gh.style.transform = 'translate(-50%, -50%) scale(1)';
+            setTimeout(function () { if (gh.parentNode) gh.parentNode.removeChild(gh); o.box.style.visibility = ''; }, 330);
+        }
+        function startHold(i) { var o = held.get(i); if (!o) return; clearTimeout(o.timer); o.timer = setTimeout(function () { snapBack(i); }, HOLD_MS); }
+        window.__cmpReset = function () { held.forEach(function (o) { clearTimeout(o.timer); if (o.ghost.parentNode) o.ghost.parentNode.removeChild(o.ghost); o.box.style.visibility = ''; }); held.clear(); g = null; };
+        ['display-mode-toggle', 'show-all-toggle'].forEach(function (id) { document.getElementById(id).addEventListener('click', function () { window.__cmpReset(); }); });
+        window.addEventListener('resize', function () { window.__cmpReset(); });
+
+        document.addEventListener('pointerdown', function (e) {
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+            var gh = e.target.closest && e.target.closest('.cmp-ghost'), box = null, i = -1;
+            if (gh) { held.forEach(function (o, k) { if (o.ghost === gh) { i = k; box = o.box; } }); }
+            else { box = e.target.closest && e.target.closest('.textBox'); if (!box) return; i = parseInt(box.getAttribute('data-index')); var dv = box.querySelector('div'); if (!dv || getComputedStyle(box).display === 'none') return; }
+            if (i < 0) return;
+            var o = held.get(i), hadHold = !!o;
+            if (!o) o = makeGhostFor(box); else clearTimeout(o.timer);
+            g = { i: i, box: box, o: o, id: e.pointerId, x0: e.clientX, y0: e.clientY, ox: o.x, oy: o.y, s0: o.s, hadHold: hadHold, drag: false, fresh: !hadHold };
+            if (gh) { try { gh.setPointerCapture(e.pointerId); } catch (_) {} e.preventDefault(); }
+        }, true);
+        function makeGhostFor(box) { var o = makeGhost(box); o.ghost.style.display = 'none'; held.set(parseInt(box.getAttribute('data-index')), o); o.pending = true; return o; }
+        document.addEventListener('pointermove', function (e) {
+            if (!g || e.pointerId !== g.id) return;
+            var dx = e.clientX - g.x0, dy = e.clientY - g.y0, d = Math.hypot(dx, dy), o = g.o;
+            if (!g.drag) {
+                if (d < 6) return;
+                g.drag = true; o.ghost.style.display = ''; o.ghost.style.transition = 'none'; g.box.style.visibility = 'hidden'; o.pending = false;
+                if (g.fresh && window.__cmpSpeak) window.__cmpSpeak(g.i, true);
+            }
+            var dmax = Math.max(120, Math.min(230, 0.30 * Math.min(window.innerWidth, window.innerHeight)));
+            var s = g.hadHold ? g.s0 : 1 + (MAXS - 1) * Math.min(1, d / dmax);
+            s = Math.min(s, (window.innerWidth - 8) / o.w, (window.innerHeight - 8) / o.h);
+            var hw = o.w * s / 2, hh = o.h * s / 2, tx = o.hx + g.ox + dx, ty = o.hy + g.oy + dy;
+            var cx = Math.min(Math.max(tx, hw + 2), window.innerWidth - hw - 2), cy = Math.min(Math.max(ty, hh + 2), window.innerHeight - hh - 2);
+            o.x = cx - o.hx; o.y = cy - o.hy; o.s = s; o.ghost.style.transform = tf(o);
+            e.preventDefault();
+        }, { passive: false });
+        function release(e) {
+            if (!g || e.pointerId !== g.id) return;
+            var cur = g; g = null;
+            if (cur.drag) { swallow = true; setTimeout(function () { swallow = false; }, 60); startHold(cur.i); return; }
+            if (cur.hadHold) {   // a tap on a held word: flip its layer and start the 5 seconds again
+                cur.box.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                cur.o.ghost.textContent = cur.box.querySelector('div').textContent; cur.o.ghost.style.textTransform = cur.box.querySelector('div').style.textTransform;
+                startHold(cur.i);
+            } else { var o = held.get(cur.i); if (o && o.pending) { if (o.ghost.parentNode) o.ghost.parentNode.removeChild(o.ghost); held.delete(cur.i); } }
+        }
+        document.addEventListener('pointerup', release, true);
+        document.addEventListener('pointercancel', release, true);
+        document.addEventListener('click', function (e) { if (swallow && e.target.closest && e.target.closest('.textBox')) { e.stopPropagation(); e.preventDefault(); swallow = false; } }, true);
+        document.addEventListener('contextmenu', function (e) { if (e.target.closest && (e.target.closest('.textBox') || e.target.closest('.cmp-ghost'))) e.preventDefault(); });
+    })();
+    </script>
+    <script>
+    /* 2026-11-06 AUDIO and FULL SCREEN on the Days of the Week. The Audio button cycles: TL + SL (hear the target-language day, then the source-language one) -> TL only -> Silent.
+       The slider is the volume. Language codes come from the App: window.CONCEPTIONARY_AUDIO_LANG / _SL_LANG (e.g. 'id-ID', 'en-NZ'); label overrides window.CONCEPTIONARY_AUDIO_TL_LABEL / _SL_LABEL;
+       recorded files: window.CONCEPTIONARY_AUDIO_FILES[text]; cloud voice: window.CONCEPTIONARY_AUDIO_API_URL.
+       Let go of the sun, or tap a day word: it is spoken. The romanised (TLR) line of the LOG file is never spoken. */
+    (function () {
+        var ctl = document.getElementById('cmpCtl'); if (!ctl || document.getElementById('auCycle')) return;
+        var AB = { en: 'ENG', id: 'IND', ms: 'MSA', ja: 'JPN', ko: 'KOR', zh: '中文', fr: 'FRA', de: 'DEU', es: 'SPA', it: 'ITA', pt: 'POR', ru: 'RUS', ar: 'ARA', hi: 'HIN', th: 'THA', vi: 'VIE', mi: 'MRI', fil: 'FIL', tl: 'FIL', nl: 'NLD', sv: 'SWE', tr: 'TUR', pl: 'POL', el: 'ELL', he: 'HEB', sm: 'SMO', to: 'TON', fj: 'FIJ' };
+        var AUDIO_API_URL = window.CONCEPTIONARY_AUDIO_API_URL || '';
+        var st = { mode: 0, vol: 0.8, last: '', lastT: 0, timer: null, cur: null, pt: 'mouse', seq: 0 };   // mode 0 = TL+SL, 1 = TL only, 2 = silent
+        function tlCode() { return window.CONCEPTIONARY_AUDIO_LANG || ''; }
+        function slCode() { return window.CONCEPTIONARY_AUDIO_SL_LANG || ''; }
+        function abbr(code, fb, ov) { if (ov) return ov; if (!code) return fb; var b = code.toLowerCase().split(/[-_]/)[0]; return AB[b] || b.toUpperCase(); }
+        function tlName() { return abbr(tlCode(), 'TL', window.CONCEPTIONARY_AUDIO_TL_LABEL); }
+        function slName() { return abbr(slCode(), 'SL', window.CONCEPTIONARY_AUDIO_SL_LABEL); }
+
+        var wrap = document.createElement('div'); wrap.id = 'audioWrap'; wrap.className = 'audio-wrap';
+        var cyc = document.createElement('button'); cyc.id = 'auCycle'; cyc.type = 'button';
+        var vol = document.createElement('input'); vol.type = 'range'; vol.id = 'auVol2'; vol.min = 0; vol.max = 100; vol.step = 5; vol.value = 80; vol.setAttribute('aria-label', 'Volume');
+        wrap.appendChild(cyc); wrap.appendChild(vol); ctl.insertBefore(wrap, ctl.firstChild);
+        var toast = document.createElement('div'); toast.id = 'auToast'; document.body.appendChild(toast); var toastT = null;
+        function note(text) {
+            toast.textContent = text; toast.style.opacity = '1';
+            var r = wrap.getBoundingClientRect(); toast.style.left = '0px'; toast.style.top = '0px';
+            var w = toast.offsetWidth, h = toast.offsetHeight;
+            toast.style.left = Math.max(6, Math.min(window.innerWidth - w - 6, r.left + r.width / 2 - w / 2)) + 'px';
+            var t = r.top - h - 8; if (t < 6) t = Math.min(window.innerHeight - h - 6, r.bottom + 8);
+            toast.style.top = t + 'px';
+            clearTimeout(toastT); toastT = setTimeout(function () { toast.style.opacity = '0'; }, 2600);
+        }
+        function label() {
+            cyc.textContent = st.mode === 0 ? tlName() + '+' + slName() : st.mode === 1 ? tlName() : 'Silent';
+            cyc.setAttribute('aria-label', 'Audio: ' + cyc.textContent);
+            cyc.title = 'Click to change: ' + tlName() + ' + ' + slName() + ' / ' + tlName() + ' only / Silent. The slider is the volume.';
+        }
+        function describe() { return st.mode === 0 ? 'Audio: hear the target language (' + tlName() + '), then the source language (' + slName() + ')' : st.mode === 1 ? 'Audio: target language (' + tlName() + ') only' : 'Audio: silent'; }
+
+        function pickVoice(code) {
+            var vs = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
+            if (!code) return null;
+            var c = code.toLowerCase(), base = c.split('-')[0], best = null, bs = -1;
+            vs.forEach(function (v) {
+                var l = (v.lang || '').toLowerCase().replace('_', '-');
+                if (l !== c && l.split('-')[0] !== base) return;
+                var s = (l === c ? 4 : 0) + (/natural|neural|online/i.test(v.name) ? 3 : 0) + (/google/i.test(v.name) ? 2 : 0) + (v.localService ? 0 : 1);
+                if (s > bs) { best = v; bs = s; }
+            });
+            return best;
+        }
+        function stop() { st.seq++; try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} if (st.cur) { try { st.cur.pause(); } catch (e) {} st.cur = null; } }
+        function playUrl(u, done) { var a = new Audio(u); a.volume = st.vol; if (st.cur) { try { st.cur.pause(); } catch (e) {} } st.cur = a; if (done) a.onended = done; a.play().catch(function () { note('The browser blocked the sound: tap the page once and try again.'); }); }
+        function viaBrowser(text, code, done) {
+            if (!window.speechSynthesis) { note('This browser cannot speak.'); return; }
+            var v = pickVoice(code);
+            if (code && !v) { note('No ' + code + ' voice on this device.'); return; }
+            var u = new SpeechSynthesisUtterance(text);
+            if (code) u.lang = code; if (v) u.voice = v; u.volume = st.vol;
+            window.__auUtt = u;   // keep a reference: some phones drop the sound if the utterance is garbage-collected
+            var started = false; u.onstart = function () { started = true; };
+            if (done) u.onend = done;
+            u.onerror = function (ev) { if (ev.error && ev.error !== 'interrupted' && ev.error !== 'canceled') note('The device could not speak (' + ev.error + ').'); };
+            var go = function () {
+                try { speechSynthesis.resume(); } catch (e) {}
+                speechSynthesis.speak(u);
+                setTimeout(function () { if (!started && window.__auUtt === u) { try { speechSynthesis.cancel(); } catch (e) {} } }, 2500);   // stuck phone queue: clear it so the next tap works
+            };
+            if (speechSynthesis.speaking || speechSynthesis.pending) { speechSynthesis.cancel(); setTimeout(go, 120); } else go();
+        }
+        function viaCloud(text, code, done) {
+            fetch(AUDIO_API_URL + '?text=' + encodeURIComponent(text) + '&lang=' + encodeURIComponent(code))
+                .then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
+                .then(function (b) { playUrl(URL.createObjectURL(b), done); })
+                .catch(function () { note('The audio service could not be reached.'); });
+        }
+        function speak1(text, code, done) {
+            var files = window.CONCEPTIONARY_AUDIO_FILES;
+            if (files && files[text]) { playUrl(files[text], done); return; }
+            if (AUDIO_API_URL && code) viaCloud(text, code, done); else viaBrowser(text, code, done);
+        }
+        var lastItem = '';
+        function speakItem(item) {
+            if (st.mode === 2 || !item) return;
+            var key = item.id + '|' + st.mode, now = Date.now();
+            if (key === st.last && now - st.lastT < 1200) return;   // one phrase, one sound
+            st.last = key; st.lastT = now;
+            var items = [[item.tl, tlCode()]];                      // the target-language word (the script in the LOG file; never the romanised line)
+            if (st.mode === 0) items.push([item.sl, slCode()]);     // then the source-language word
+            st.seq++; var my = st.seq, i = 0;
+            try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
+            (function next() { if (my !== st.seq || i >= items.length) return; var it = items[i++]; if (!it[0]) { next(); return; } speak1(it[0], it[1], function () { setTimeout(next, 150); }); })();
+        }
+        window.__cmpSpeak = function (i, force) { var d = daysOfWeekData[i]; if (!d) return; if (force) st.last = ''; speakItem({ id: i, tl: String(d[1]).replace(/<[^>]*>/g, ''), sl: d[0] }); };   // the TLR (romanised) line is never spoken
+
+        cyc.addEventListener('click', function (e) {
+            e.stopPropagation();
+            st.mode = (st.mode + 1) % 3; label(); if (st.mode === 2) stop();
+            if (window.speechSynthesis) speechSynthesis.getVoices();
+            note(describe());
+        });
+        vol.addEventListener('input', function () { st.vol = vol.value / 100; if (st.cur) st.cur.volume = st.vol; vol.style.setProperty('--p', vol.value + '%'); });
+        vol.addEventListener('click', function (e) { e.stopPropagation(); });
+        window.addEventListener('load', label); label(); vol.style.setProperty('--p', vol.value + '%');
+        window.__auCycle = { get mode() { return st.mode; }, label: label };
+
+        /* Full Screen (hidden where the browser cannot do it, e.g. iPhone Safari) */
+        var de = document.documentElement, fb = document.getElementById('fsBtn');
+        var req = de.requestFullscreen || de.webkitRequestFullscreen;
+        if (!req) { if (fb) fb.style.display = 'none'; }
+        else {
+            window.toggleFullScreen = function () {
+                var on = document.fullscreenElement || document.webkitFullscreenElement;
+                if (!on) { try { var p = req.call(de); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
+                else { var ex = document.exitFullscreen || document.webkitExitFullscreen; if (ex) ex.call(document); }
+            };
+            var sync = function () { if (fb) fb.textContent = (document.fullscreenElement || document.webkitFullscreenElement) ? 'Exit Full Screen' : 'Full Screen'; };
+            document.addEventListener('fullscreenchange', sync); document.addEventListener('webkitfullscreenchange', sync);
+        }
+    })();
     </script>
 </body>
 </html>
