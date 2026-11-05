@@ -169,6 +169,36 @@
     #showAllBtn { min-width: 98px; }
     .text-box.sa { display: block; opacity: 1; white-space: nowrap; min-width: 0; padding: 2px 5px; border-width: 1px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,.25); z-index: 60; }
     html.show-all-on .draggable-frame { display: none; }
+    /* 2026-11-05 (later) Tools menu, Text size panel, colour schemes; Show All words can be pulled out and magnified */
+    .tools-wrap { position: relative; }
+    #toolsBtn { min-width: 74px; }
+    .tools-dd { display: none; position: absolute; top: 100%; left: 0; margin-top: 4px; min-width: 9.5em; background: #4CAF50; border-radius: 6px; overflow: hidden; z-index: 400; box-shadow: 0 4px 12px rgba(0,0,0,.3); }
+    .tools-dd.active { display: block; }
+    .tools-dd button { display: block; width: 100%; text-align: left; background: #4CAF50; color: #fff; border: 0; border-bottom: 1px solid rgba(255,255,255,.35); padding: 9px 14px; font: 14px Arial, sans-serif; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+    .tools-dd button:last-child { border-bottom: 0; }
+    .tools-dd button:hover { background: #45a049; }
+    #textSizePanel { position: fixed; z-index: 700; display: none; background: #fff; color: #222; border: 1px solid #555; border-radius: 8px; padding: 6px 10px 8px; box-shadow: 0 2px 10px rgba(0,0,0,.35); font: 13px Arial, sans-serif; width: min(300px, 88vw); touch-action: none; }
+    #textSizePanel .tsHead { cursor: grab; display: flex; justify-content: space-between; align-items: center; font-weight: bold; user-select: none; margin-bottom: 4px; }
+    #textSizePanel .tsHead button { border: 0; background: none; font-size: 20px; cursor: pointer; line-height: 1; }
+    #textSizePanel .tsTarget { margin: 2px 0 4px; min-height: 1.2em; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    #textSizePanel input[type=range] { width: 100%; touch-action: pan-y; }
+    #textSizePanel .tsRow { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; }
+    #textSizePanel button.tsReset { padding: 3px 10px; cursor: pointer; }
+    html[data-scheme="nocolour"] body { background: #e6e6e6; }
+    html[data-scheme="nocolour"] #clock-svg { filter: grayscale(1); }
+    @media screen {
+      html[data-scheme="night"] body { background: #0b1330; }
+      html[data-scheme="night"] .container { background: #14213d; }
+      html[data-scheme="night"] #clock-svg circle[fill="#f5f5f5"] { fill: #1f2f55; }
+      html[data-scheme="night"] .hour-label { fill: #e8eefc; }
+      html[data-scheme="night"] .hour-line { stroke: #667; }
+      html[data-scheme="night"] .watermark { color: rgba(255,255,255,.45); }
+    }
+    /* Show All: a word is pulled out of the cluster, magnified as it is pulled, and snaps back when let go */
+    .text-box.sa { cursor: grab; user-select: none; -webkit-user-select: none; touch-action: none; -webkit-touch-callout: none; }
+    .text-box.sa:hover, .text-box.sa.grab { background: #fff176; border-color: #b8860b; }
+    .text-box.sa.lifted { z-index: 1000; box-shadow: 0 8px 24px rgba(0,0,0,.45); cursor: grabbing; }
+    html.sa-grab .container > .circle-container { z-index: 1000; }
     /* Phone held upright: title, buttons, the ring (as large as fits), the word box, then the 12/24-hour button and the watermark */
     @media (max-width: 700px) and (min-height: 521px) {
       html, body { overflow: hidden; }
@@ -211,7 +241,7 @@
       #printList .pl-row.rom { grid-template-columns: 11mm 1fr 1fr; }
       #printList .pl-h { color: #777; }
       .watermark { position: static !important; grid-column: 2; grid-row: 3; text-align: right; }
-      #dayCtl, .progress-bar, .time-toggle, .draggable-frame, #text-boxes, .quiz-container, #infoSlot, #auToast { display: none !important; }
+      #dayCtl, .progress-bar, .time-toggle, .draggable-frame, #text-boxes, .quiz-container, #infoSlot, #auToast, #textSizePanel { display: none !important; }
     }
     </style>
 </head>
@@ -221,7 +251,14 @@
 
     <div id="dayCtl">
         <button id="showAllBtn" class="tb" type="button" title="Show every word on its own segment: first language layer, next layer ... then Hide All. Click a word to flip just that word to its next layer.">Show All</button>
-        <button id="printBtn" class="tb" type="button" onclick="window.print()" title="Print this page on one A4 landscape sheet">Print</button>
+        <div class="tools-wrap" id="toolsWrap">
+            <button id="toolsBtn" class="tb" type="button" aria-haspopup="true" title="Colours, Text size and Print">Tools &#9660;</button>
+            <div class="tools-dd" id="toolsMenu">
+                <button id="colourBtn" type="button" title="Try different colour schemes">Colours: Default</button>
+                <button id="textSizeBtn" type="button" title="Enlarge or shrink any word">Text size&hellip;</button>
+                <button id="printBtn" type="button" title="Print this page on one A4 landscape sheet">Print</button>
+            </div>
+        </div>
         <button id="fsBtn" class="tb" type="button" onclick="toggleFullScreen()">Full Screen</button>
     </div>
 
@@ -264,6 +301,13 @@
     <div id="printList"></div>
 
     <div class="watermark">&copy; 2026 Alan William Preston</div>
+</div>
+
+<div id="textSizePanel">
+    <div class="tsHead"><span>Text size</span><button type="button" id="tsClose" aria-label="Close">&times;</button></div>
+    <div class="tsTarget" id="tsTarget">Click a word, then slide</div>
+    <input type="range" id="tsRange" min="50" max="300" step="5" value="100">
+    <div class="tsRow"><label><input type="checkbox" id="tsAll"> All words</label><span id="tsVal">100%</span><button type="button" class="tsReset" id="tsReset">Reset</button></div>
 </div>
 
 <div id="quiz-container" class="quiz-container">
@@ -750,7 +794,7 @@ function layoutShowAll() {
         cands.sort((p, q) => p.d - q.d);
         let chosen = null, last = null;
         for (const f of [1, 0.85, 0.72, 0.6]) {
-            box.style.fontSize = `${base * f}px`;
+            box.style.fontSize = `${base * f * (window.tsScale ? window.tsScale(item.id) : 1)}px`;
             const w = box.offsetWidth, h = box.offsetHeight;
             last = { x: cx + cands[0].x * sc, y: cy + cands[0].y * sc, w, h };
             for (const c of cands) {
@@ -776,17 +820,122 @@ function applyShowAll() {
             const layer = SA_LAYERS[showAllState - 1];
             box.textContent = item[layer]; displayMode[item.id] = layer; box.classList.add('sa');
         } else {
-            box.classList.remove('sa'); box.style.fontSize = ''; box.style.maxWidth = '';
+            box.classList.remove('sa'); box.style.fontSize = ''; box.style.maxWidth = ''; box.__base = undefined;
             box.textContent = item[first]; displayMode[item.id] = first;
         }
     });
-    if (on) layoutShowAll(); else positionDraggableFrame(frameHour);
+    if (on) layoutShowAll(); else { positionDraggableFrame(frameHour); if (window.tsApply) window.tsApply(); }
     saButtonLabel();
 }
 (function () {
     const b = document.getElementById('showAllBtn'); if (!b) return;
     saButtonLabel();
     b.addEventListener('click', () => { showAllState = (showAllState + 1) % (SA_LAYERS.length + 1); applyShowAll(); });
+})();
+
+// --- Tools menu: Colours, Text size, Print (2026-11-05, later) ---
+(function () {
+    const $ = id => document.getElementById(id);
+    const wrap = $('toolsWrap'), menu = $('toolsMenu'), tb = $('toolsBtn'); if (!wrap) return;
+    tb.addEventListener('click', e => { e.stopPropagation(); menu.classList.toggle('active'); });
+    document.addEventListener('click', e => { if (!wrap.contains(e.target)) menu.classList.remove('active'); });
+    $('printBtn').addEventListener('click', e => { e.stopPropagation(); menu.classList.remove('active'); setTimeout(() => window.print(), 50); });
+
+    // Colours: Default -> No colour -> Night
+    const SCHEMES = [['Default', ''], ['No colour', 'nocolour'], ['Night', 'night']];
+    let ci = 0; const cb = $('colourBtn');
+    cb.addEventListener('click', e => {
+        e.stopPropagation(); ci = (ci + 1) % SCHEMES.length;
+        if (SCHEMES[ci][1]) document.documentElement.setAttribute('data-scheme', SCHEMES[ci][1]); else document.documentElement.removeAttribute('data-scheme');
+        cb.textContent = 'Colours: ' + SCHEMES[ci][0];
+    });
+
+    // Text size: click a word then slide (that word), or tick All words
+    const panel = $('textSizePanel'), range = $('tsRange'), val = $('tsVal'), tgt = $('tsTarget'), all = $('tsAll');
+    const scales = {}; let target = null;
+    window.tsScale = id => Math.min(3, Math.max(0.5, (scales[id] || 1) * (scales.all || 1)));
+    window.tsApply = function () {
+        if (typeof showAllState !== 'undefined' && showAllState > 0) { layoutShowAll(); return; }
+        document.querySelectorAll('.text-box').forEach(b => {
+            const s = window.tsScale(b.id.replace('box-', ''));
+            if (b.__base === undefined) { if (s === 1) return; b.style.fontSize = ''; b.__base = parseFloat(getComputedStyle(b).fontSize); }
+            b.style.fontSize = (b.__base * s) + 'px';
+        });
+    };
+    function show() {
+        const v = all.checked ? (scales.all || 1) : (target ? (scales[target.id] || 1) : 1);
+        range.value = Math.round(v * 100); val.textContent = Math.round(v * 100) + '%';
+        tgt.textContent = all.checked ? 'All words' : (target ? 'Word: ' + target.label : 'Click a word, then slide');
+    }
+    document.addEventListener('pointerdown', e => {
+        if (panel.contains(e.target)) return;
+        const bx = e.target.closest && e.target.closest('.text-box'); if (!bx) return;
+        target = { id: bx.id.replace('box-', ''), label: (bx.textContent || '').trim().slice(0, 30) };
+        if (panel.style.display === 'block') { all.checked = false; show(); }
+    }, true);
+    range.addEventListener('input', () => {
+        const v = range.value / 100;
+        if (all.checked) scales.all = v; else if (target) scales[target.id] = v; else return;
+        val.textContent = range.value + '%'; window.tsApply();
+    });
+    all.addEventListener('change', show);
+    $('tsReset').addEventListener('click', () => { Object.keys(scales).forEach(k => delete scales[k]); window.tsApply(); show(); });
+    $('tsClose').addEventListener('click', () => { panel.style.display = 'none'; });
+    $('textSizeBtn').addEventListener('click', e => {
+        e.stopPropagation(); menu.classList.remove('active'); panel.style.display = 'block';
+        if (!panel.dataset.moved) { const r = panel.getBoundingClientRect(); panel.style.left = Math.max(4, (window.innerWidth - r.width) / 2) + 'px'; panel.style.top = '70px'; }
+        show();
+    });
+    (function () {   // the panel can be moved by its header
+        const head = panel.querySelector('.tsHead'); let d = null;
+        head.addEventListener('pointerdown', e => { if (e.target.id === 'tsClose') return; const r = panel.getBoundingClientRect(); d = { dx: e.clientX - r.left, dy: e.clientY - r.top }; panel.dataset.moved = '1'; head.setPointerCapture(e.pointerId); });
+        head.addEventListener('pointermove', e => { if (d) { panel.style.left = (e.clientX - d.dx) + 'px'; panel.style.top = (e.clientY - d.dy) + 'px'; } });
+        head.addEventListener('pointerup', () => { d = null; });
+    })();
+})();
+
+// --- Show All: pull a word out of the cluster to inspect it (2026-11-05, later) ---
+// Mouse-over or touch turns the word yellow. Press and pull: it follows your finger or mouse and grows gradually to 200%. Hold it as long as you like. Let go and it snaps back to its place.
+(function () {
+    const holder = document.getElementById('text-boxes'); if (!holder) return;
+    let g = null, swallow = false;
+    holder.addEventListener('pointerdown', e => {
+        const box = e.target.closest ? e.target.closest('.text-box.sa') : null;
+        if (!box || (e.pointerType === 'mouse' && e.button !== 0)) return;
+        const r = box.getBoundingClientRect();
+        g = { box, id: e.pointerId, x0: e.clientX, y0: e.clientY, cx: r.left + r.width / 2, cy: r.top + r.height / 2, w: r.width, h: r.height, drag: false };
+        box.classList.add('grab');
+        try { box.setPointerCapture(e.pointerId); } catch (_) {}
+    });
+    holder.addEventListener('pointermove', e => {
+        if (!g || e.pointerId !== g.id) return;
+        const dx = e.clientX - g.x0, dy = e.clientY - g.y0, d = Math.hypot(dx, dy);
+        if (!g.drag) {
+            if (d < 6) return;
+            g.drag = true; g.box.classList.add('lifted'); g.box.style.transition = 'none';
+            document.documentElement.classList.add('sa-grab');
+            if (window.__daySpeak) { const id = g.box.id.replace('box-', ''); window.__daySpeak(vocabularyData.find(v => v.id === id)); }
+        }
+        const dmax = Math.max(90, Math.min(170, 0.22 * Math.min(window.innerWidth, window.innerHeight)));
+        const s = 1 + Math.min(1, d / dmax);   // 100% at the starting place, 200% once pulled dmax away
+        const hw = g.w * s / 2, hh = g.h * s / 2;
+        const cx = Math.min(Math.max(g.cx + dx, hw + 2), window.innerWidth - hw - 2);
+        const cy = Math.min(Math.max(g.cy + dy, hh + 2), window.innerHeight - hh - 2);
+        g.box.style.transform = `translate(calc(-50% + ${cx - g.cx}px), calc(-50% + ${cy - g.cy}px)) scale(${s})`;
+    });
+    function release(e) {
+        if (!g || e.pointerId !== g.id) return;
+        const { box, drag } = g; g = null; box.classList.remove('grab');
+        if (!drag) return;   // a plain tap: the click flips the word to its next layer, as before
+        swallow = true; setTimeout(() => { swallow = false; }, 60);
+        box.style.transition = 'transform .3s cubic-bezier(.34,1.56,.64,1)';
+        box.style.transform = 'translate(-50%, -50%)';
+        setTimeout(() => { box.style.transition = ''; box.classList.remove('lifted'); document.documentElement.classList.remove('sa-grab'); }, 330);
+    }
+    holder.addEventListener('pointerup', release);
+    holder.addEventListener('pointercancel', release);
+    holder.addEventListener('click', e => { if (swallow) { e.stopPropagation(); e.preventDefault(); swallow = false; } }, true);
+    holder.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('.text-box.sa')) e.preventDefault(); });
 })();
 
 // --- Print list: every word beside the ring (shown only when printing) ---
@@ -899,6 +1048,7 @@ init();
             try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
             (function next() { if (my !== st.seq || i >= items.length) return; var it = items[i++]; if (!it[0]) { next(); return; } speak1(it[0], it[1], function () { setTimeout(next, 150); }); })();
         }
+        window.__daySpeak = speakItem;
         /* A tap on a ring segment or a time point speaks it; releasing the blue frame on a segment speaks it; a tap on a word box speaks it again */
         var origClick = window.handleItemClick;
         if (typeof origClick === 'function') window.handleItemClick = function (item) { origClick(item); speakItem(item); };
