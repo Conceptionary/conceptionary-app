@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-quiz">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -148,15 +148,122 @@
             border-radius: 3px; cursor: pointer; z-index: 5;
         }
         .compass-rose-decoration { fill: none; stroke: #666; stroke-width: 0.2; opacity: 0.3; }
+    /* 2026-11-06 Phone layout, Audio, Print, Full Screen, Tools menu and no Quiz on the Compass */
+    html.no-quiz .quiz-container, html.no-quiz .learned-vocabulary { display: none !important; }
+    .a4-page { height: 86vh; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr) auto; }
+    .a4-page > svg { grid-column: 1 / 3; grid-row: 2; min-height: 0; width: 100%; height: 100%; }
+    #cmpInfo { position: static; grid-column: 1; grid-row: 1; z-index: 3; display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; margin: 10px; }
+    #cmpInfo .title-box { position: static; transform: none; left: auto; top: auto; }
+    #cmpInfo .title-box.hidden { transform: scale(0.9); }
+    #cmpInfo .direction-indicator, #cmpInfo .drag-instruction { position: static; }
+    #cmpCtl { position: static; grid-column: 2; grid-row: 1; z-index: 200; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; align-items: flex-start; margin: 10px; }
+    .a4-page > .watermark { position: static; grid-column: 1 / 3; grid-row: 3; padding: 0 0 4px; }
+    #cmpCtl .tb { position: static; background: #3366cc; color: #fff; border: 0; border-radius: 4px; padding: 7px 12px; font: 14px Arial, sans-serif; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+    #cmpCtl .tb:hover { background: #254e9c; }
+    #printList { display: none; }
+    .needle-hit { stroke: transparent; stroke-width: 9; stroke-linecap: round; fill: none; }
+    .textBox { -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+.audio-wrap { position: relative; display: flex; flex-direction: column; align-items: stretch; width: 104px; box-sizing: border-box; background-color: #3366cc; color: #fff; border-radius: 4px; padding: 3px 6px 2px; }
+    .audio-wrap:hover { background-color: #254e9c; }
+    .audio-wrap #auCycle { background: transparent; border: 0; color: inherit; font: inherit; font-size: 14px; padding: 4px 0 1px; margin: 0; cursor: pointer; white-space: nowrap; text-align: center; -webkit-tap-highlight-color: transparent; }
+    .controls .audio-wrap #auCycle:hover { background: transparent; }
+    .audio-wrap #auVol2 { width: 100%; height: 14px; margin: 0; padding: 0; background: transparent; -webkit-appearance: none; appearance: none; touch-action: none; cursor: pointer; --p: 80%; }
+    .audio-wrap #auVol2::-webkit-slider-runnable-track { height: 5px; border-radius: 3px; background: linear-gradient(to right, #007FFF 0, #007FFF var(--p), #B0E0E6 var(--p), #B0E0E6 100%); }
+    .audio-wrap #auVol2::-moz-range-track { height: 5px; border-radius: 3px; background: #B0E0E6; }
+    .audio-wrap #auVol2::-moz-range-progress { height: 5px; border-radius: 3px; background: #007FFF; }
+    .audio-wrap #auVol2::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: -4.5px; border: 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c8fbff 0%, #2fd0e8 38%, #7fb8f0 68%, #ff9cc8 100%); box-shadow: 0 1px 2px rgba(0,0,0,.35); }
+    .audio-wrap #auVol2::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c8fbff 0%, #2fd0e8 38%, #7fb8f0 68%, #ff9cc8 100%); box-shadow: 0 1px 2px rgba(0,0,0,.35); }
+    @media (pointer: coarse) { .audio-wrap { width: 112px; } .audio-wrap #auVol2 { height: 20px; } .audio-wrap #auVol2::-webkit-slider-thumb { width: 18px; height: 18px; margin-top: -6.5px; } .audio-wrap #auVol2::-moz-range-thumb { width: 18px; height: 18px; } }
+    @media (max-height: 520px) and (orientation: landscape) { .audio-wrap { width: 86px; padding: 1px 5px 0; } .audio-wrap #auCycle { font-size: 11px; padding: 2px 0 0; } .audio-wrap #auVol2 { height: 13px; } }
+    #auToast { position: fixed; z-index: 1100; background: rgba(40,40,40,.92); color: #fff; font: 14px Arial, sans-serif; padding: 7px 12px; border-radius: 8px; max-width: min(92vw, 360px); text-align: center; pointer-events: none; opacity: 0; transition: opacity .25s ease; }
+    .tools-wrap { position: relative; }
+    #toolsBtn { min-width: 74px; }
+    .tools-dd { display: none; position: absolute; top: 100%; left: 0; margin-top: 4px; min-width: 9.5em; background: #3366cc; border-radius: 6px; overflow: hidden; z-index: 400; box-shadow: 0 4px 12px rgba(0,0,0,.3); }
+    .tools-dd.active { display: block; }
+    .tools-dd button { display: block; width: 100%; text-align: left; background: #3366cc; color: #fff; border: 0; border-bottom: 1px solid rgba(255,255,255,.35); padding: 9px 14px; font: 14px Arial, sans-serif; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+    .tools-dd button:last-child { border-bottom: 0; }
+    .tools-dd button:hover { background: #254e9c; }
+    html[data-scheme="nocolour"] body { background: #e6e6e6; }
+    html[data-scheme="nocolour"] .a4-page { filter: grayscale(1); }
+    @media screen {
+      html[data-scheme="night"] body { background: #0b1330; }
+      html[data-scheme="night"] .a4-page { background: #14213d; border-color: #8a96b8; }
+      html[data-scheme="night"] .compass-circle { stroke: #aab4d0; }
+      html[data-scheme="night"] .degree-marker { stroke: #667; }
+      html[data-scheme="night"] .major-marker { stroke: #99a; }
+      html[data-scheme="night"] .degree-label { fill: #c5cce0; }
+      html[data-scheme="night"] .textBox div { color: #fff !important; text-shadow: none !important; }
+      html[data-scheme="night"] .title-box, html[data-scheme="night"] .direction-indicator { background: #1f2f55; color: #e8eefc; border-color: #8a96b8; }
+      html[data-scheme="night"] .watermark { color: rgba(255,255,255,.45); }
+    }
+    /* Phone held upright: title and direction, buttons, the compass as large as fits, then the watermark */
+    @media (max-width: 700px) and (min-height: 521px) {
+      html, body { overflow: hidden; }
+      body { display: block; height: 100vh; height: 100dvh; padding: 0; }
+      .a4-page { width: 100vw; height: 100vh; height: 100dvh; border: 0; display: grid; grid-template-columns: 100%; grid-template-rows: auto auto minmax(0, 1fr) auto; }
+      #cmpInfo { grid-column: 1; grid-row: 1; justify-content: center; max-width: 96%; margin: 6px 0 0; gap: 4px 6px; }
+      #cmpInfo .title-box { padding: 6px 12px; font-size: .95em; text-align: center; }
+      #cmpInfo .direction-indicator { font-size: .95em; padding: 4px 10px; }
+      #cmpInfo .drag-instruction { font-size: .8em; max-width: 92vw; text-align: center; }
+      #cmpCtl { grid-column: 1; grid-row: 2; justify-content: center; margin: 6px 4px; }
+      #cmpCtl .tb { padding: 7px 10px; font-size: 13px; }
+      .a4-page > svg { grid-column: 1; grid-row: 3; }
+      .a4-page > .watermark { grid-column: 1; grid-row: 4; }
+    }
+    /* Phone held sideways (or any short window, e.g. inside the viewer, about 690 x 200): text column on the left, compass at full height on the right */
+    @media (max-height: 520px) and (orientation: landscape) {
+      html, body { overflow: hidden; }
+      body { display: block; height: 100vh; height: 100dvh; padding: 0; }
+      .a4-page { width: 100vw; height: 100vh; height: 100dvh; border: 0; display: grid; grid-template-columns: minmax(190px, 42%) minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; }
+      #cmpInfo { grid-column: 1; grid-row: 1; flex-direction: column; align-items: flex-start; margin: 4px; gap: 3px; }
+      #cmpInfo .title-box { padding: 3px 8px; font-size: .8em; }
+      #cmpInfo .direction-indicator { font-size: .8em; padding: 2px 8px; }
+      #cmpInfo .drag-instruction { display: none; }
+      #cmpCtl { grid-column: 1; grid-row: 2; justify-content: flex-start; margin: 2px 4px; gap: 4px; }
+      #cmpCtl .tb { padding: 4px 8px; font-size: 11px; }
+      .a4-page > svg { grid-column: 2; grid-row: 1 / 5; }
+      .a4-page > .watermark { grid-column: 1; grid-row: 4; text-align: left; font-size: 9px; padding: 0 4px 2px; }
+    }
+    /* Print: the compass on the left and every direction listed on the right, on one A4 landscape sheet */
+    @media print {
+      @page { size: A4 landscape; margin: 8mm; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      html, body { height: auto !important; min-height: 0 !important; overflow: visible !important; background: #fff !important; padding: 0 !important; display: block !important; }
+      .a4-page { width: 100% !important; height: 188mm !important; border: 0 !important; overflow: visible !important; display: grid !important; grid-template-columns: 152mm 1fr; grid-template-rows: auto 1fr auto; column-gap: 6mm; filter: none !important; }
+      .a4-page > svg { grid-column: 1; grid-row: 1 / 4; width: 152mm !important; height: 152mm !important; align-self: center; }
+      #cmpInfo { position: static !important; grid-column: 2; grid-row: 1; max-width: none; margin: 0 0 3mm; }
+      #cmpInfo .title-box { font-size: 14pt; border: 0; padding: 0; }
+      #cmpInfo .direction-indicator, #cmpInfo .drag-instruction { display: none !important; }
+      #printList { display: block !important; grid-column: 2; grid-row: 2; font: 8.5pt Arial, sans-serif; overflow: hidden; }
+      #printList .pl-row { display: grid; grid-template-columns: 14mm 1fr 1fr 1fr; gap: 2mm; padding: 0.6mm 0; border-bottom: 0.2mm solid #ddd; }
+      #printList .pl-row.rom { grid-template-columns: 14mm 1fr 1fr; }
+      #printList .pl-h { color: #777; }
+      .a4-page > .watermark { position: static !important; grid-column: 2; grid-row: 3; text-align: right; }
+      .textBox { display: block !important; opacity: 1 !important; transform: none !important; }
+      #cmpCtl, .quiz-container, .learned-vocabulary, #auToast { display: none !important; }
+    }
+    @media (max-height: 520px) and (orientation: landscape) { .audio-wrap #auVol2::-webkit-slider-thumb { width: 13px; height: 13px; margin-top: -4px; } .audio-wrap #auVol2::-moz-range-thumb { width: 13px; height: 13px; } }
     </style>
 </head>
 <body>
     <div class="a4-page">
+        <div id="cmpInfo">
         <div id="title-box" class="title-box">TITLE_PLACEHOLDER</div>
         <div id="direction-indicator" class="direction-indicator">DIRECTION_INDICATOR_PLACEHOLDER</div>
-        <div id="display-mode-toggle" class="display-mode-toggle">SHOW_TL_LABEL</div>
         <div id="drag-instruction" class="drag-instruction">DRAG_INSTRUCTION_PLACEHOLDER</div>
-        <button id="show-all-toggle" class="show-all-toggle">SHOW_ALL_DIRECTIONS_LABEL</button>
+    </div>
+    <div id="cmpCtl">
+        <button id="display-mode-toggle" class="display-mode-toggle tb" type="button" title="Change the language shown on every direction">SHOW_TL_LABEL</button>
+        <button id="show-all-toggle" class="show-all-toggle tb" type="button" title="Show every compass direction at once">SHOW_ALL_DIRECTIONS_LABEL</button>
+        <div class="tools-wrap" id="toolsWrap">
+            <button id="toolsBtn" class="tb" type="button" aria-haspopup="true" title="Colours and Print">Tools &#9660;</button>
+            <div class="tools-dd" id="toolsMenu">
+                <button id="colourBtn" type="button" title="Try different colour schemes">Colours: Default</button>
+                <button id="printBtn" type="button" title="Print this page on one A4 landscape sheet">Print</button>
+            </div>
+        </div>
+        <button id="fsBtn" class="tb" type="button" onclick="toggleFullScreen()">Full Screen</button>
+    </div>
 
         <div id="learned-vocabulary" class="learned-vocabulary">
             <div class="array-title">ARRAY_TITLE_PLACEHOLDER</div>
@@ -201,6 +308,7 @@
                  rim, per Alan's request 2026-07-22 to match a classic
                  magnetic-needle look (red=north tip, blue=south tip). -->
             <g id="compassArrow" class="compass-arrow">
+                <line class="needle-hit" x1="50" y1="19" x2="50" y2="81"/>
                 <path class="needle-north" d="M 50 21 L 48.6 50 L 51.4 50 Z"/>
                 <path class="needle-south" d="M 50 79 L 48.6 50 L 51.4 50 Z"/>
                 <line class="needle-highlight" x1="50" y1="21" x2="50" y2="79"/>
@@ -208,6 +316,8 @@
                 <circle class="needle-pivot-highlight" cx="49.2" cy="49.2" r="1"/>
             </g>
         </svg>
+
+        <div id="printList"></div>
 
         <div class="watermark">&copy; 2026 Alan William Preston</div>
     </div>
@@ -339,6 +449,9 @@ const AnswerUtils = {
     let isDragging       = false;
     let currentTextIndex = 0;
     let showAllTextBoxes = false;
+    const LOGV = directionsData[0].length >= 5;   // LOG rows carry a TLR line
+    const AI   = LOGV ? 4 : 3;                    // index of the angle in a row
+    const MODES = LOGV ? [2, 1, 0] : [1, 0];      // row indexes in cycle order: LOG TLR > TL > SL, ROM TL > SL
 
     // Textbox radius, per Alan's request 2026-07-22: every item — learned
     // or not — sits along its own radial line (through its own compass
@@ -369,7 +482,7 @@ const AnswerUtils = {
     //   Tier 3 (secondary: NNE/ENE/etc) — 50% size, lowercase
     const BASE_FONT_SIZE_PX = 7;
     function getCompassTier(index) {
-        const angle = ((directionsData[index][4] % 360) + 360) % 360;
+        const angle = ((directionsData[index][AI] % 360) + 360) % 360;
         if (angle % 90 === 0) return 1;
         if (angle % 45 === 0) return 2;
         return 3;
@@ -502,7 +615,7 @@ const AnswerUtils = {
         const center = { x: 50, y: 50 };
 
         directionsData.forEach((item, index) => {
-            const angle = (item[4] - 90) * Math.PI / 180;
+            const angle = (item[AI] - 90) * Math.PI / 180;
             let x = center.x + textBoxRadius * Math.cos(angle);
             let y = center.y + textBoxRadius * Math.sin(angle);
             if (positionOverrides[index]) {
@@ -593,7 +706,7 @@ const AnswerUtils = {
             }
         });
         const item = directionsData[directionIndex];
-        document.getElementById("direction-indicator").textContent = `${item[1]} (${item[4]}°)`;
+        document.getElementById("direction-indicator").textContent = `${item[1]} (${item[AI]}°)`;
     }
 
     function toggleShowAllTextBoxes() {
@@ -633,7 +746,7 @@ const AnswerUtils = {
                 const div = tb.querySelector('div');
                 if (div) { div.textContent = correct; applyTierStyle(div, currentQuizIndex); }
                 const center = { x: 50, y: 50 };
-                const angle = (directionsData[currentQuizIndex][4] - 90) * Math.PI / 180;
+                const angle = (directionsData[currentQuizIndex][AI] - 90) * Math.PI / 180;
                 let x = center.x + textBoxRadius * Math.cos(angle);
                 let y = center.y + textBoxRadius * Math.sin(angle);
                 if (positionOverrides[currentQuizIndex]) {
@@ -661,7 +774,7 @@ const AnswerUtils = {
     function positionArrowOnDirection(directionIndex) {
         const item = directionsData[directionIndex];
         const arrow = document.getElementById("compassArrow");
-        arrow.setAttribute('transform', `rotate(${item[4]}, 50, 50)`);
+        arrow.setAttribute('transform', `rotate(${item[AI]}, 50, 50)`);
         currentDirection = directionIndex;
         updateVisibleTextBoxes(directionIndex);
     }
@@ -670,7 +783,7 @@ const AnswerUtils = {
         const norm = ((angle % 360) + 360) % 360;
         let closest = 0, minDiff = 360;
         directionsData.forEach((item, i) => {
-            let diff = Math.abs(norm - item[4]);
+            let diff = Math.abs(norm - item[AI]);
             if (diff > 180) diff = 360 - diff;
             if (diff < minDiff) { minDiff = diff; closest = i; }
         });
@@ -724,11 +837,24 @@ const AnswerUtils = {
         const endDrag = (e) => {
             if (!isDragging) return;
             isDragging = false; arrow.classList.remove('dragging'); arrow.style.cursor = 'grab';
+            if (window.__cmpSpeak) window.__cmpSpeak(currentDirection);
             if (e) { e.preventDefault(); e.stopPropagation(); }
         };
 
         arrow.addEventListener('mousedown', startDrag);
         arrow.addEventListener('touchstart', startDrag, { passive: false });
+        // 2026-11-06: touching or clicking anywhere on the dial face grabs the needle (the needle itself is thin, especially on a phone)
+        const faceDown = (e) => {
+            if (e.target.closest && e.target.closest('.textBox')) return;
+            const cx = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0].clientX);
+            const cy = e.clientY !== undefined ? e.clientY : (e.touches && e.touches[0].clientY);
+            const pt = svg.createSVGPoint(); pt.x = cx; pt.y = cy;
+            const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+            if (Math.hypot(p.x - 50, p.y - 50) > 36) return;
+            startDrag(e); dragMove(e);
+        };
+        svg.addEventListener('mousedown', faceDown);
+        svg.addEventListener('touchstart', faceDown, { passive: false });
         document.addEventListener('mousemove', dragMove);
         document.addEventListener('touchmove', dragMove, { passive: false });
         document.addEventListener('mouseup', endDrag);
@@ -775,6 +901,290 @@ const AnswerUtils = {
 
     document.addEventListener('DOMContentLoaded', initializeApp);
 
+    </script>
+    <script>
+    /* 2026-11-06 COMPASS: layout that fits any screen (each word sits just outside the dial, whatever its length; the view box grows to hold the longest words),
+       layer cycle (ROM: TL > SL; LOG: TLR > TL > SL), Tools menu, Print list. The Quiz is hidden (class no-quiz on the html tag) and its code is kept. */
+    (function () {
+        var SVGNS = 'http://www.w3.org/2000/svg';
+        var BASE = 7, R0 = 36.5, GAP = 0.8;
+        var svg = document.getElementById('svgCanvas');
+        var cv = document.createElement('canvas').getContext('2d');
+        function tier(i) { return getCompassTier(i); }
+        function sizeOf(i) { var t = tier(i); return t === 1 ? BASE : t === 2 ? BASE * 0.75 : BASE * 0.5; }
+        function cased(i, s) {
+            var t = tier(i); s = String(s == null ? '' : s);
+            if (t === 1) return s.toUpperCase();
+            if (t === 2) return s.replace(/(^|\s)(\S)/g, function (m, a, b) { return a + b.toUpperCase(); });
+            return s.toLowerCase();
+        }
+        function wOf(i, txt) { var sz = sizeOf(i); cv.font = 'bold ' + sz + 'px Arial, sans-serif'; return cv.measureText(cased(i, txt)).width + 3; }
+        function hOf(i) { return sizeOf(i) * 1.35; }
+        function ang(i) { return (directionsData[i][AI] - 90) * Math.PI / 180; }
+
+        // Rectangles for one layer (row of directionsData) with every word showing: cardinal words first, later words pushed outward until nothing overlaps
+        function rectsFor(rowOf) {
+            var order = directionsData.map(function (_, i) { return i; }).sort(function (a, b) { return tier(a) - tier(b); });
+            var out = new Array(directionsData.length), placed = [];
+            order.forEach(function (i) {
+                var txt = typeof rowOf === 'function' ? rowOf(i) : directionsData[i][rowOf];
+                var w = wOf(i, txt), h = hOf(i), ux = Math.cos(ang(i)), uy = Math.sin(ang(i));
+                var sup = (w / 2) * Math.abs(ux) + (h / 2) * Math.abs(uy), d = R0 + sup, r;
+                for (var n = 0; n < 160; n++) {
+                    r = { x: 50 + d * ux, y: 50 + d * uy, w: w, h: h };
+                    if (!placed.some(function (p) { return Math.abs(p.x - r.x) < (p.w + w) / 2 + GAP && Math.abs(p.y - r.y) < (p.h + h) / 2 + GAP; })) break;
+                    d += 0.5;
+                }
+                var o = positionOverrides[i]; if (o) { if (o.x !== undefined) r.x = o.x; if (o.y !== undefined) r.y = o.y; }
+                placed.push(r); out[i] = r;
+            });
+            return out;
+        }
+        function applyRect(i, r) {
+            var fo = textBoxElements[i]; if (!fo) return;
+            fo.setAttribute('x', r.x - r.w / 2); fo.setAttribute('y', r.y - r.h / 2);
+            fo.setAttribute('width', r.w); fo.setAttribute('height', r.h);
+            fo.style.overflow = 'visible';
+        }
+        window.cmpPlaceAll = function () {
+            if (!svg || !textBoxElements.length) return;
+            var hx = 42, hy = 42;
+            MODES.forEach(function (row) {
+                rectsFor(row).forEach(function (r) { hx = Math.max(hx, Math.abs(r.x - 50) + r.w / 2 + 1.5); hy = Math.max(hy, Math.abs(r.y - 50) + r.h / 2 + 1.5); });
+            });
+            svg.setAttribute('viewBox', (50 - hx) + ' ' + (50 - hy) + ' ' + (2 * hx) + ' ' + (2 * hy));
+            var row = MODES[displayMode] !== undefined ? MODES[displayMode] : MODES[0];
+            var rs = rectsFor(function (i) { var d = textBoxElements[i] && textBoxElements[i].querySelector('div'); return d ? directionsData[i][MODES[parseInt(d.dataset.k || '0')]] : directionsData[i][row]; });
+            rs.forEach(function (r, i) { applyRect(i, r); });
+        };
+        window.cmpPlaceOne = function (i) {
+            var fo = textBoxElements[i]; if (!fo) return;
+            var div = fo.querySelector('div'), txt = div.textContent, w = wOf(i, txt), h = hOf(i);
+            var ux = Math.cos(ang(i)), uy = Math.sin(ang(i)), d = R0 + (w / 2) * Math.abs(ux) + (h / 2) * Math.abs(uy);
+            var cx = parseFloat(fo.getAttribute('x')) + parseFloat(fo.getAttribute('width')) / 2, cy = parseFloat(fo.getAttribute('y')) + parseFloat(fo.getAttribute('height')) / 2;
+            var cur = Math.hypot(cx - 50, cy - 50); if (cur > d) d = cur;   // never closer than it is now unless it has to be, so it does not jump about
+            applyRect(i, { x: 50 + d * ux, y: 50 + d * uy, w: w, h: h });
+        };
+
+        window.applyTierStyle = function (div, index) {
+            div.style.fontSize = sizeOf(index) + 'px';
+            div.style.textTransform = tier(index) === 1 ? 'uppercase' : tier(index) === 2 ? 'capitalize' : 'lowercase';
+            div.style.whiteSpace = 'nowrap';
+        };
+
+        // Layer names for the button label: row 2 = TLR (LOG only), row 1 = TL, row 0 = SL
+        function modeLabel(m) { var row = MODES[m]; return row === 2 && LOGV ? LANG.show_tlr_label : row === 1 ? LANG.show_tl_label : LANG.show_sl_label; }
+        window.cycleDisplayMode = function () {
+            displayMode = (displayMode + 1) % MODES.length;
+            document.getElementById('display-mode-toggle').textContent = modeLabel(displayMode);
+            window.updateAllTextBoxes();
+        };
+        window.updateAllTextBoxes = function () {
+            textBoxElements.forEach(function (tb, index) {
+                if (!tb) return; var div = tb.querySelector('div'); if (!div) return;
+                div.dataset.k = displayMode; div.textContent = directionsData[index][MODES[displayMode]];
+                applyTierStyle(div, index);
+            });
+            window.cmpPlaceAll();
+        };
+
+        window.createTextBoxes = function () {
+            document.querySelectorAll('.textBox').forEach(function (b) { if (b.parentNode) b.parentNode.removeChild(b); });
+            textBoxElements = [];
+            directionsData.forEach(function (item, index) {
+                var fo = document.createElementNS(SVGNS, 'foreignObject');
+                fo.setAttribute('class', 'textBox'); fo.setAttribute('data-index', index);
+                fo.setAttribute('x', 0); fo.setAttribute('y', 0); fo.setAttribute('width', 30); fo.setAttribute('height', 10);
+                fo.style.pointerEvents = 'auto'; fo.style.zIndex = '500';
+                var div = document.createElement('div');
+                div.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;box-sizing:border-box;text-align:center;font-family:Arial,sans-serif;color:black;cursor:pointer;line-height:1.1;font-weight:bold;text-shadow:1px 1px 2px rgba(255,255,255,0.8)';
+                div.dataset.k = displayMode; div.textContent = item[MODES[displayMode]];
+                fo.appendChild(div); applyTierStyle(div, index);
+                if (learnedItems[index]) fo.classList.add('learned');
+                fo.addEventListener('click', function () {
+                    var idx = parseInt(this.getAttribute('data-index')), d = this.querySelector('div');
+                    var qc = document.getElementById('quizContainer');
+                    if (qc.style.display === 'block' && currentQuizIndex === idx) return;
+                    var k = parseInt(d.dataset.k || '0') + 1;
+                    if (k >= MODES.length) {
+                        if (!document.documentElement.classList.contains('no-quiz') && !learnedItems[idx]) { showQuiz(idx); return; }
+                        k = 0;
+                    }
+                    d.dataset.k = k; d.textContent = directionsData[idx][MODES[k]];
+                    applyTierStyle(d, idx); cmpPlaceOne(idx);
+                    if (window.__cmpSpeak) window.__cmpSpeak(idx, true);
+                });
+                var arrow = document.getElementById('compassArrow');
+                if (arrow && arrow.parentNode) arrow.parentNode.insertBefore(fo, arrow); else svg.appendChild(fo);
+                textBoxElements.push(fo);
+            });
+            var arrow = document.getElementById('compassArrow'); if (arrow && arrow.parentNode) arrow.parentNode.appendChild(arrow);
+            window.cmpPlaceAll();
+        };
+
+        window.updateVisibleTextBoxes = function (directionIndex) {
+            textBoxElements.forEach(function (tb, index) {
+                if (!tb) return;
+                tb.classList.remove('active', 'learned', 'visible', 'hidden');
+                if (index === directionIndex) { tb.classList.add('active'); if (learnedItems[index]) tb.classList.add('learned'); tb.style.opacity = '1'; tb.style.display = 'block'; }
+                else if (learnedItems[index]) { tb.classList.add('learned'); tb.style.opacity = '0.5'; tb.style.display = 'block'; }
+                else if (showAllTextBoxes) { tb.classList.add('visible'); tb.style.opacity = '0.85'; tb.style.display = 'block'; }
+                else { tb.classList.add('hidden'); tb.style.opacity = '0'; tb.style.display = 'none'; }
+            });
+            var it = directionsData[directionIndex];
+            document.getElementById('direction-indicator').textContent = it[1] + ' (' + it[AI] + '°)';
+        };
+
+        var origShowQuiz = window.showQuiz;
+        window.showQuiz = function (i) { if (document.documentElement.classList.contains('no-quiz')) return; origShowQuiz(i); };
+
+        // Keep the dial in step when the window or phone is turned
+        var rt = null;
+        function reflow() { clearTimeout(rt); rt = setTimeout(function () { window.cmpPlaceAll(); }, 120); }
+        window.addEventListener('resize', reflow); window.addEventListener('orientationchange', reflow);
+    })();
+
+    // --- Tools menu: Colours, Print ---
+    (function () {
+        var $ = function (id) { return document.getElementById(id); };
+        var wrap = $('toolsWrap'), menu = $('toolsMenu'), tb = $('toolsBtn'); if (!wrap) return;
+        tb.addEventListener('click', function (e) { e.stopPropagation(); menu.classList.toggle('active'); });
+        document.addEventListener('click', function (e) { if (!wrap.contains(e.target)) menu.classList.remove('active'); });
+        $('printBtn').addEventListener('click', function (e) { e.stopPropagation(); menu.classList.remove('active'); setTimeout(function () { window.print(); }, 50); });
+        var SCHEMES = [['Default', ''], ['No colour', 'nocolour'], ['Night', 'night']], ci = 0, cb = $('colourBtn');
+        cb.addEventListener('click', function (e) {
+            e.stopPropagation(); ci = (ci + 1) % SCHEMES.length;
+            if (SCHEMES[ci][1]) document.documentElement.setAttribute('data-scheme', SCHEMES[ci][1]); else document.documentElement.removeAttribute('data-scheme');
+            cb.textContent = 'Colours: ' + SCHEMES[ci][0];
+        });
+    })();
+
+    // --- Print list: every direction beside the dial (shown only when printing) ---
+    (function () {
+        var pl = document.getElementById('printList'); if (!pl) return;
+        var esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;'); };
+        var row = function (a, b, c, d) { return '<div class="pl-row ' + (LOGV ? '' : 'rom') + '"><span class="pl-h">' + a + '</span>' + (LOGV ? '<span>' + b + '</span>' : '') + '<span>' + c + '</span><span>' + d + '</span></div>'; };
+        pl.innerHTML = directionsData.map(function (d) { return row(esc(d[AI]) + '°', esc(LOGV ? d[2] : ''), esc(d[1]), esc(d[0])); }).join('');
+    })();
+    </script>
+    <script>
+    /* 2026-11-06 AUDIO and FULL SCREEN on the Compass. The Audio button cycles: TL + SL (hear the target-language direction, then the source-language one) -> TL only -> Silent.
+       The slider is the volume. Language codes come from the App: window.CONCEPTIONARY_AUDIO_LANG / _SL_LANG (e.g. 'id-ID', 'en-NZ'); label overrides window.CONCEPTIONARY_AUDIO_TL_LABEL / _SL_LABEL;
+       recorded files: window.CONCEPTIONARY_AUDIO_FILES[text]; cloud voice: window.CONCEPTIONARY_AUDIO_API_URL.
+       Let go of the needle, or tap a direction word: it is spoken. The romanised (TLR) line of the LOG file is never spoken. */
+    (function () {
+        var ctl = document.getElementById('cmpCtl'); if (!ctl || document.getElementById('auCycle')) return;
+        var AB = { en: 'ENG', id: 'IND', ms: 'MSA', ja: 'JPN', ko: 'KOR', zh: '中文', fr: 'FRA', de: 'DEU', es: 'SPA', it: 'ITA', pt: 'POR', ru: 'RUS', ar: 'ARA', hi: 'HIN', th: 'THA', vi: 'VIE', mi: 'MRI', fil: 'FIL', tl: 'FIL', nl: 'NLD', sv: 'SWE', tr: 'TUR', pl: 'POL', el: 'ELL', he: 'HEB', sm: 'SMO', to: 'TON', fj: 'FIJ' };
+        var AUDIO_API_URL = window.CONCEPTIONARY_AUDIO_API_URL || '';
+        var st = { mode: 0, vol: 0.8, last: '', lastT: 0, timer: null, cur: null, pt: 'mouse', seq: 0 };   // mode 0 = TL+SL, 1 = TL only, 2 = silent
+        function tlCode() { return window.CONCEPTIONARY_AUDIO_LANG || ''; }
+        function slCode() { return window.CONCEPTIONARY_AUDIO_SL_LANG || ''; }
+        function abbr(code, fb, ov) { if (ov) return ov; if (!code) return fb; var b = code.toLowerCase().split(/[-_]/)[0]; return AB[b] || b.toUpperCase(); }
+        function tlName() { return abbr(tlCode(), 'TL', window.CONCEPTIONARY_AUDIO_TL_LABEL); }
+        function slName() { return abbr(slCode(), 'SL', window.CONCEPTIONARY_AUDIO_SL_LABEL); }
+
+        var wrap = document.createElement('div'); wrap.id = 'audioWrap'; wrap.className = 'audio-wrap';
+        var cyc = document.createElement('button'); cyc.id = 'auCycle'; cyc.type = 'button';
+        var vol = document.createElement('input'); vol.type = 'range'; vol.id = 'auVol2'; vol.min = 0; vol.max = 100; vol.step = 5; vol.value = 80; vol.setAttribute('aria-label', 'Volume');
+        wrap.appendChild(cyc); wrap.appendChild(vol); ctl.insertBefore(wrap, ctl.firstChild);
+        var toast = document.createElement('div'); toast.id = 'auToast'; document.body.appendChild(toast); var toastT = null;
+        function note(text) {
+            toast.textContent = text; toast.style.opacity = '1';
+            var r = wrap.getBoundingClientRect(); toast.style.left = '0px'; toast.style.top = '0px';
+            var w = toast.offsetWidth, h = toast.offsetHeight;
+            toast.style.left = Math.max(6, Math.min(window.innerWidth - w - 6, r.left + r.width / 2 - w / 2)) + 'px';
+            var t = r.top - h - 8; if (t < 6) t = Math.min(window.innerHeight - h - 6, r.bottom + 8);
+            toast.style.top = t + 'px';
+            clearTimeout(toastT); toastT = setTimeout(function () { toast.style.opacity = '0'; }, 2600);
+        }
+        function label() {
+            cyc.textContent = st.mode === 0 ? tlName() + '+' + slName() : st.mode === 1 ? tlName() : 'Silent';
+            cyc.setAttribute('aria-label', 'Audio: ' + cyc.textContent);
+            cyc.title = 'Click to change: ' + tlName() + ' + ' + slName() + ' / ' + tlName() + ' only / Silent. The slider is the volume.';
+        }
+        function describe() { return st.mode === 0 ? 'Audio: hear the target language (' + tlName() + '), then the source language (' + slName() + ')' : st.mode === 1 ? 'Audio: target language (' + tlName() + ') only' : 'Audio: silent'; }
+
+        function pickVoice(code) {
+            var vs = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
+            if (!code) return null;
+            var c = code.toLowerCase(), base = c.split('-')[0], best = null, bs = -1;
+            vs.forEach(function (v) {
+                var l = (v.lang || '').toLowerCase().replace('_', '-');
+                if (l !== c && l.split('-')[0] !== base) return;
+                var s = (l === c ? 4 : 0) + (/natural|neural|online/i.test(v.name) ? 3 : 0) + (/google/i.test(v.name) ? 2 : 0) + (v.localService ? 0 : 1);
+                if (s > bs) { best = v; bs = s; }
+            });
+            return best;
+        }
+        function stop() { st.seq++; try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} if (st.cur) { try { st.cur.pause(); } catch (e) {} st.cur = null; } }
+        function playUrl(u, done) { var a = new Audio(u); a.volume = st.vol; if (st.cur) { try { st.cur.pause(); } catch (e) {} } st.cur = a; if (done) a.onended = done; a.play().catch(function () { note('The browser blocked the sound: tap the page once and try again.'); }); }
+        function viaBrowser(text, code, done) {
+            if (!window.speechSynthesis) { note('This browser cannot speak.'); return; }
+            var v = pickVoice(code);
+            if (code && !v) { note('No ' + code + ' voice on this device.'); return; }
+            var u = new SpeechSynthesisUtterance(text);
+            if (code) u.lang = code; if (v) u.voice = v; u.volume = st.vol;
+            window.__auUtt = u;   // keep a reference: some phones drop the sound if the utterance is garbage-collected
+            var started = false; u.onstart = function () { started = true; };
+            if (done) u.onend = done;
+            u.onerror = function (ev) { if (ev.error && ev.error !== 'interrupted' && ev.error !== 'canceled') note('The device could not speak (' + ev.error + ').'); };
+            var go = function () {
+                try { speechSynthesis.resume(); } catch (e) {}
+                speechSynthesis.speak(u);
+                setTimeout(function () { if (!started && window.__auUtt === u) { try { speechSynthesis.cancel(); } catch (e) {} } }, 2500);   // stuck phone queue: clear it so the next tap works
+            };
+            if (speechSynthesis.speaking || speechSynthesis.pending) { speechSynthesis.cancel(); setTimeout(go, 120); } else go();
+        }
+        function viaCloud(text, code, done) {
+            fetch(AUDIO_API_URL + '?text=' + encodeURIComponent(text) + '&lang=' + encodeURIComponent(code))
+                .then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
+                .then(function (b) { playUrl(URL.createObjectURL(b), done); })
+                .catch(function () { note('The audio service could not be reached.'); });
+        }
+        function speak1(text, code, done) {
+            var files = window.CONCEPTIONARY_AUDIO_FILES;
+            if (files && files[text]) { playUrl(files[text], done); return; }
+            if (AUDIO_API_URL && code) viaCloud(text, code, done); else viaBrowser(text, code, done);
+        }
+        var lastItem = '';
+        function speakItem(item) {
+            if (st.mode === 2 || !item) return;
+            var key = item.id + '|' + st.mode, now = Date.now();
+            if (key === st.last && now - st.lastT < 1200) return;   // one phrase, one sound
+            st.last = key; st.lastT = now;
+            var items = [[item.tl, tlCode()]];                      // the target-language word (the script in the LOG file; never the romanised line)
+            if (st.mode === 0) items.push([item.sl, slCode()]);     // then the source-language word
+            st.seq++; var my = st.seq, i = 0;
+            try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
+            (function next() { if (my !== st.seq || i >= items.length) return; var it = items[i++]; if (!it[0]) { next(); return; } speak1(it[0], it[1], function () { setTimeout(next, 150); }); })();
+        }
+        window.__cmpSpeak = function (i, force) { var d = directionsData[i]; if (!d) return; if (force) st.last = ''; speakItem({ id: i, tl: d[1], sl: d[0] }); };   // the TLR (romanised) line is never spoken
+
+        cyc.addEventListener('click', function (e) {
+            e.stopPropagation();
+            st.mode = (st.mode + 1) % 3; label(); if (st.mode === 2) stop();
+            if (window.speechSynthesis) speechSynthesis.getVoices();
+            note(describe());
+        });
+        vol.addEventListener('input', function () { st.vol = vol.value / 100; if (st.cur) st.cur.volume = st.vol; vol.style.setProperty('--p', vol.value + '%'); });
+        vol.addEventListener('click', function (e) { e.stopPropagation(); });
+        window.addEventListener('load', label); label(); vol.style.setProperty('--p', vol.value + '%');
+        window.__auCycle = { get mode() { return st.mode; }, label: label };
+
+        /* Full Screen (hidden where the browser cannot do it, e.g. iPhone Safari) */
+        var de = document.documentElement, fb = document.getElementById('fsBtn');
+        var req = de.requestFullscreen || de.webkitRequestFullscreen;
+        if (!req) { if (fb) fb.style.display = 'none'; }
+        else {
+            window.toggleFullScreen = function () {
+                var on = document.fullscreenElement || document.webkitFullscreenElement;
+                if (!on) { try { var p = req.call(de); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
+                else { var ex = document.exitFullscreen || document.webkitExitFullscreen; if (ex) ex.call(document); }
+            };
+            var sync = function () { if (fb) fb.textContent = (document.fullscreenElement || document.webkitFullscreenElement) ? 'Exit Full Screen' : 'Full Screen'; };
+            document.addEventListener('fullscreenchange', sync); document.addEventListener('webkitfullscreenchange', sync);
+        }
+    })();
     </script>
 </body>
 </html>
