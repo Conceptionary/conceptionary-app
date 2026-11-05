@@ -243,6 +243,16 @@
       #cmpCtl, .quiz-container, .learned-vocabulary, #auToast { display: none !important; }
     }
     @media (max-height: 520px) and (orientation: landscape) { .audio-wrap #auVol2::-webkit-slider-thumb { width: 13px; height: 13px; margin-top: -4px; } .audio-wrap #auVol2::-moz-range-thumb { width: 13px; height: 13px; } }
+    #textSizePanel { position: fixed; z-index: 700; display: none; background: #fff; color: #222; border: 1px solid #555; border-radius: 8px; padding: 6px 10px 8px; box-shadow: 0 2px 10px rgba(0,0,0,.35); font: 13px Arial, sans-serif; width: min(300px, 88vw); touch-action: none; }
+    #textSizePanel .tsHead { cursor: grab; display: flex; justify-content: space-between; align-items: center; font-weight: bold; user-select: none; margin-bottom: 4px; }
+    #textSizePanel .tsHead button { border: 0; background: none; font-size: 20px; cursor: pointer; line-height: 1; }
+    #textSizePanel .tsTarget { margin: 2px 0 4px; min-height: 1.2em; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    #textSizePanel input[type=range] { width: 100%; touch-action: pan-y; }
+    #textSizePanel .tsRow { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; }
+    #textSizePanel button.tsReset { padding: 3px 10px; cursor: pointer; }
+    .textBox:hover div { background: #fff176; border-radius: 4px; }
+    .cmp-ghost { position: fixed; z-index: 1000; left: 0; top: 0; background: #fff176; border: 1px solid #b8860b; border-radius: 5px; box-shadow: 0 8px 24px rgba(0,0,0,.45); font-family: Arial, sans-serif; font-weight: bold; color: #000; white-space: nowrap; padding: 2px 5px; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transform-origin: 50% 50%; }
+    @media print { #textSizePanel, .cmp-ghost { display: none !important; } }
     </style>
 </head>
 <body>
@@ -259,6 +269,7 @@
             <button id="toolsBtn" class="tb" type="button" aria-haspopup="true" title="Colours and Print">Tools &#9660;</button>
             <div class="tools-dd" id="toolsMenu">
                 <button id="colourBtn" type="button" title="Try different colour schemes">Colours: Default</button>
+                <button id="textSizeBtn" type="button" title="Enlarge or shrink any word">Text size&hellip;</button>
                 <button id="printBtn" type="button" title="Print this page on one A4 landscape sheet">Print</button>
             </div>
         </div>
@@ -320,6 +331,13 @@
         <div id="printList"></div>
 
         <div class="watermark">&copy; 2026 Alan William Preston</div>
+    </div>
+
+    <div id="textSizePanel">
+        <div class="tsHead"><span>Text size</span><button type="button" id="tsClose" aria-label="Close">&times;</button></div>
+        <div class="tsTarget" id="tsTarget">Click a word, then slide</div>
+        <input type="range" id="tsRange" min="50" max="300" step="5" value="100">
+        <div class="tsRow"><label><input type="checkbox" id="tsAll"> All words</label><span id="tsVal">100%</span><button type="button" class="tsReset" id="tsReset">Reset</button></div>
     </div>
 
     <div id="quizContainer" class="quiz-container">
@@ -873,7 +891,7 @@
         var svg = document.getElementById('svgCanvas');
         var cv = document.createElement('canvas').getContext('2d');
         function tier(i) { return getCompassTier(i); }
-        function sizeOf(i) { var t = tier(i); return t === 1 ? BASE : t === 2 ? BASE * 0.75 : BASE * 0.5; }
+        function sizeOf(i) { var t = tier(i); return (t === 1 ? BASE : t === 2 ? BASE * 0.75 : BASE * 0.5) * (window.tsScale ? window.tsScale(i) : 1); }
         function cased(i, s) {
             var t = tier(i); s = String(s == null ? '' : s);
             if (t === 1) return s.toUpperCase();
@@ -1006,13 +1024,53 @@
         window.addEventListener('resize', reflow); window.addEventListener('orientationchange', reflow);
     })();
 
-    // --- Tools menu: Colours, Print ---
+    // --- Tools menu: Colours, Text size, Print ---
     (function () {
         var $ = function (id) { return document.getElementById(id); };
         var wrap = $('toolsWrap'), menu = $('toolsMenu'), tb = $('toolsBtn'); if (!wrap) return;
         tb.addEventListener('click', function (e) { e.stopPropagation(); menu.classList.toggle('active'); });
         document.addEventListener('click', function (e) { if (!wrap.contains(e.target)) menu.classList.remove('active'); });
         $('printBtn').addEventListener('click', function (e) { e.stopPropagation(); menu.classList.remove('active'); setTimeout(function () { window.print(); }, 50); });
+        // Text size: click a word then slide (that word), or tick All words
+        var panel = $('textSizePanel'), range = $('tsRange'), val = $('tsVal'), tgt = $('tsTarget'), all = $('tsAll');
+        var scales = {}, target = null;
+        window.tsScale = function (i) { return Math.min(3, Math.max(0.5, (scales[i] || 1) * (scales.all || 1))); };
+        window.tsApply = function () {
+            if (window.__cmpReset) window.__cmpReset();
+            textBoxElements.forEach(function (tb, i) { var d = tb && tb.querySelector('div'); if (d) applyTierStyle(d, i); });
+            window.cmpPlaceAll();
+        };
+        function show() {
+            var v = all.checked ? (scales.all || 1) : (target ? (scales[target.i] || 1) : 1);
+            range.value = Math.round(v * 100); val.textContent = Math.round(v * 100) + '%';
+            tgt.textContent = all.checked ? 'All words' : (target ? 'Word: ' + target.label : 'Click a word, then slide');
+        }
+        document.addEventListener('pointerdown', function (e) {
+            if (panel.contains(e.target)) return;
+            var bx = e.target.closest && e.target.closest('.textBox'); if (!bx) return;
+            var i = parseInt(bx.getAttribute('data-index'));
+            target = { i: i, label: (bx.textContent || '').trim().slice(0, 30) };
+            if (panel.style.display === 'block') { all.checked = false; show(); }
+        }, true);
+        range.addEventListener('input', function () {
+            var v = range.value / 100;
+            if (all.checked) scales.all = v; else if (target) scales[target.i] = v; else return;
+            val.textContent = range.value + '%'; window.tsApply();
+        });
+        all.addEventListener('change', show);
+        $('tsReset').addEventListener('click', function () { Object.keys(scales).forEach(function (k) { delete scales[k]; }); window.tsApply(); show(); });
+        $('tsClose').addEventListener('click', function () { panel.style.display = 'none'; });
+        $('textSizeBtn').addEventListener('click', function (e) {
+            e.stopPropagation(); menu.classList.remove('active'); panel.style.display = 'block';
+            if (!panel.dataset.moved) { var r = panel.getBoundingClientRect(); panel.style.left = Math.max(4, (window.innerWidth - r.width) / 2) + 'px'; panel.style.top = '70px'; }
+            show();
+        });
+        (function () {
+            var head = panel.querySelector('.tsHead'), d = null;
+            head.addEventListener('pointerdown', function (e) { if (e.target.id === 'tsClose') return; var r = panel.getBoundingClientRect(); d = { dx: e.clientX - r.left, dy: e.clientY - r.top }; panel.dataset.moved = '1'; head.setPointerCapture(e.pointerId); });
+            head.addEventListener('pointermove', function (e) { if (d) { panel.style.left = (e.clientX - d.dx) + 'px'; panel.style.top = (e.clientY - d.dy) + 'px'; } });
+            head.addEventListener('pointerup', function () { d = null; });
+        })();
         var SCHEMES = [['Default', ''], ['No colour', 'nocolour'], ['Night', 'night']], ci = 0, cb = $('colourBtn');
         cb.addEventListener('click', function (e) {
             e.stopPropagation(); ci = (ci + 1) % SCHEMES.length;
@@ -1027,6 +1085,76 @@
         var esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;'); };
         var row = function (a, b, c, d) { return '<div class="pl-row ' + (LOGV ? '' : 'rom') + '"><span class="pl-h">' + a + '</span>' + (LOGV ? '<span>' + b + '</span>' : '') + '<span>' + c + '</span><span>' + d + '</span></div>'; };
         pl.innerHTML = directionsData.map(function (d) { return row(esc(d[AI]) + '°', esc(LOGV ? d[2] : ''), esc(d[1]), esc(d[0])); }).join('');
+    })();
+
+    // --- Pull a word out of the dial to inspect it: it follows the finger or mouse and grows (up to 300%); let go and it STAYS for 5 seconds, then snaps back ---
+    (function () {
+        var MAXS = 3, HOLD_MS = 5000, svg = document.getElementById('svgCanvas');
+        var held = new Map();   // index -> { ghost, box, x, y, s, hx, hy, w, h, timer }
+        var g = null, swallow = false;
+        function tf(o) { return 'translate(calc(-50% + ' + o.x + 'px), calc(-50% + ' + o.y + 'px)) scale(' + o.s + ')'; }
+        function makeGhost(box) {
+            var d = box.querySelector('div'), r = d.getBoundingClientRect(), k = svg.getScreenCTM().a;
+            var gh = document.createElement('div'); gh.className = 'cmp-ghost';
+            gh.textContent = d.textContent; gh.style.textTransform = d.style.textTransform; gh.style.fontSize = (parseFloat(d.style.fontSize) * k) + 'px';
+            document.body.appendChild(gh);
+            var w = gh.offsetWidth, h = gh.offsetHeight, hx = r.left + r.width / 2, hy = r.top + r.height / 2;
+            gh.style.left = hx + 'px'; gh.style.top = hy + 'px';
+            return { ghost: gh, box: box, hx: hx, hy: hy, w: w, h: h, x: 0, y: 0, s: 1, timer: null };
+        }
+        function snapBack(i) {
+            var o = held.get(i); if (!o) return; clearTimeout(o.timer); held.delete(i);
+            var gh = o.ghost; gh.style.transition = 'transform .3s cubic-bezier(.34,1.56,.64,1)';
+            gh.style.transform = 'translate(-50%, -50%) scale(1)';
+            setTimeout(function () { if (gh.parentNode) gh.parentNode.removeChild(gh); o.box.style.visibility = ''; }, 330);
+        }
+        function startHold(i) { var o = held.get(i); if (!o) return; clearTimeout(o.timer); o.timer = setTimeout(function () { snapBack(i); }, HOLD_MS); }
+        window.__cmpReset = function () { held.forEach(function (o) { clearTimeout(o.timer); if (o.ghost.parentNode) o.ghost.parentNode.removeChild(o.ghost); o.box.style.visibility = ''; }); held.clear(); g = null; };
+        ['display-mode-toggle', 'show-all-toggle'].forEach(function (id) { document.getElementById(id).addEventListener('click', function () { window.__cmpReset(); }); });
+        window.addEventListener('resize', function () { window.__cmpReset(); });
+
+        document.addEventListener('pointerdown', function (e) {
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+            var gh = e.target.closest && e.target.closest('.cmp-ghost'), box = null, i = -1;
+            if (gh) { held.forEach(function (o, k) { if (o.ghost === gh) { i = k; box = o.box; } }); }
+            else { box = e.target.closest && e.target.closest('.textBox'); if (!box) return; i = parseInt(box.getAttribute('data-index')); var dv = box.querySelector('div'); if (!dv || getComputedStyle(box).display === 'none') return; }
+            if (i < 0) return;
+            var o = held.get(i), hadHold = !!o;
+            if (!o) o = makeGhostFor(box); else clearTimeout(o.timer);
+            g = { i: i, box: box, o: o, id: e.pointerId, x0: e.clientX, y0: e.clientY, ox: o.x, oy: o.y, s0: o.s, hadHold: hadHold, drag: false, fresh: !hadHold };
+            if (gh) { try { gh.setPointerCapture(e.pointerId); } catch (_) {} e.preventDefault(); }
+        }, true);
+        function makeGhostFor(box) { var o = makeGhost(box); o.ghost.style.display = 'none'; held.set(parseInt(box.getAttribute('data-index')), o); o.pending = true; return o; }
+        document.addEventListener('pointermove', function (e) {
+            if (!g || e.pointerId !== g.id) return;
+            var dx = e.clientX - g.x0, dy = e.clientY - g.y0, d = Math.hypot(dx, dy), o = g.o;
+            if (!g.drag) {
+                if (d < 6) return;
+                g.drag = true; o.ghost.style.display = ''; o.ghost.style.transition = 'none'; g.box.style.visibility = 'hidden'; o.pending = false;
+                if (g.fresh && window.__cmpSpeak) window.__cmpSpeak(g.i, true);
+            }
+            var dmax = Math.max(120, Math.min(230, 0.30 * Math.min(window.innerWidth, window.innerHeight)));
+            var s = g.hadHold ? g.s0 : 1 + (MAXS - 1) * Math.min(1, d / dmax);
+            s = Math.min(s, (window.innerWidth - 8) / o.w, (window.innerHeight - 8) / o.h);
+            var hw = o.w * s / 2, hh = o.h * s / 2, tx = o.hx + g.ox + dx, ty = o.hy + g.oy + dy;
+            var cx = Math.min(Math.max(tx, hw + 2), window.innerWidth - hw - 2), cy = Math.min(Math.max(ty, hh + 2), window.innerHeight - hh - 2);
+            o.x = cx - o.hx; o.y = cy - o.hy; o.s = s; o.ghost.style.transform = tf(o);
+            e.preventDefault();
+        }, { passive: false });
+        function release(e) {
+            if (!g || e.pointerId !== g.id) return;
+            var cur = g; g = null;
+            if (cur.drag) { swallow = true; setTimeout(function () { swallow = false; }, 60); startHold(cur.i); return; }
+            if (cur.hadHold) {   // a tap on a held word: flip its layer and start the 5 seconds again
+                cur.box.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                cur.o.ghost.textContent = cur.box.querySelector('div').textContent; cur.o.ghost.style.textTransform = cur.box.querySelector('div').style.textTransform;
+                startHold(cur.i);
+            } else { var o = held.get(cur.i); if (o && o.pending) { if (o.ghost.parentNode) o.ghost.parentNode.removeChild(o.ghost); held.delete(cur.i); } }
+        }
+        document.addEventListener('pointerup', release, true);
+        document.addEventListener('pointercancel', release, true);
+        document.addEventListener('click', function (e) { if (swallow && e.target.closest && e.target.closest('.textBox')) { e.stopPropagation(); e.preventDefault(); swallow = false; } }, true);
+        document.addEventListener('contextmenu', function (e) { if (e.target.closest && (e.target.closest('.textBox') || e.target.closest('.cmp-ghost'))) e.preventDefault(); });
     })();
     </script>
     <script>
