@@ -254,6 +254,132 @@
     .cmp-ghost { position: fixed; z-index: 1000; left: 0; top: 0; background: #fff176; border: 1px solid #b8860b; border-radius: 5px; box-shadow: 0 8px 24px rgba(0,0,0,.45); font-family: Arial, sans-serif; font-weight: bold; color: #000; white-space: nowrap; padding: 2px 5px; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transform-origin: 50% 50%; }
     @media print { #textSizePanel, .cmp-ghost { display: none !important; } }
     </style>
+    <style id="cx-style">
+/* ===== CONCEPTIONARY STYLE SHEET v0.1 (trial on the Compass, 2026-11-06) =====
+   One block of design tokens plus the rules that use them. It sits AFTER the template's own CSS and only changes looks, never behaviour.
+   Colour: ink / muted / surface / line, ONE primary (controls), ONE accent (the active word and highlight). Every text pair is 4.5:1 or better.
+   Type: one system font stack (set by script into --cx-font so the word measuring uses the same font), weights 600 and 700 only.
+   Spacing scale 4 / 8 / 12 / 16 / 24 px. Radius 10 (controls) and 16 (page card). Motion 150-250 ms, switched off by prefers-reduced-motion.
+   NOTE: inside an SVG foreignObject one CSS px is one SVG unit, so borders, radii and shadows on words are written in tiny values. */
+:root {
+  --cx-ink: #1f2937; --cx-muted: #4b5565; --cx-faint: #6b7280;
+  --cx-surface: #ffffff; --cx-bg: #eef1f7; --cx-line: #d3d9e6;
+  --cx-primary: #2a56c6; --cx-primary-dark: #1f428f; --cx-on-primary: #ffffff;
+  --cx-accent: #f2b01e; --cx-accent-soft: #fff4cf;
+  --cx-btn-bg: #e4ecf8; --cx-btn-bg-hover: #d3e0f5; --cx-btn-bg-on: #bcd0f0; --cx-btn-ink: #1d3b80; --cx-btn-line: #bccbe8;
+  --cx-disc-a: #fffdf6; --cx-disc-b: #efe8d4; --cx-disc-line: #d9cfb4;
+  --cx-s1: 4px; --cx-s2: 8px; --cx-s3: 12px; --cx-s4: 16px; --cx-s5: 24px;
+  --cx-r-ctl: 10px; --cx-r-card: 16px;
+  --cx-shadow-sm: 0 1px 2px rgba(20,30,60,.12); --cx-shadow-md: 0 4px 14px rgba(20,30,60,.16);
+  --cx-font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
+  --cx-t: 180ms ease;
+}
+html[data-scheme="night"] {
+  --cx-ink: #e6ebf7; --cx-muted: #b4bfd8; --cx-faint: #8f9cb8;
+  --cx-surface: #172036; --cx-bg: #0d1424; --cx-line: #2e3a58;
+  --cx-primary: #3d63c9; --cx-primary-dark: #2f4fa6; --cx-accent: #f2b01e; --cx-accent-soft: #3a3320;
+  --cx-btn-bg: #24304e; --cx-btn-bg-hover: #2e3c60; --cx-btn-bg-on: #3a4a74; --cx-btn-ink: #d6e0fa; --cx-btn-line: #3b4a70;
+  --cx-disc-a: #1c2846; --cx-disc-b: #121b33; --cx-disc-line: #3a4768;
+}
+body { font-family: var(--cx-font); color: var(--cx-ink); background: var(--cx-bg); }
+@media (min-width: 701px) and (min-height: 521px) {
+  body { background: radial-gradient(ellipse at 50% 30%, #ffffff 0%, var(--cx-bg) 70%); }
+  .a4-page { border: 1px solid var(--cx-line); border-radius: var(--cx-r-card); box-shadow: var(--cx-shadow-md); background: var(--cx-surface); }
+}
+.a4-page { background: var(--cx-surface); }
+/* title and indicator: quiet cards */
+.title-box { font-family: var(--cx-font); font-weight: 700; font-size: 1.05em; color: var(--cx-ink); background: var(--cx-surface); border: 1px solid var(--cx-line); border-radius: var(--cx-r-ctl); box-shadow: var(--cx-shadow-sm); padding: var(--cx-s2) var(--cx-s3); transition: box-shadow var(--cx-t), transform var(--cx-t), opacity .5s ease; }
+.title-box:hover { box-shadow: var(--cx-shadow-md); }
+.direction-indicator, .day-indicator { font-family: var(--cx-font); font-weight: 600; color: var(--cx-ink); background: var(--cx-accent-soft); border: 1px solid var(--cx-accent); border-radius: 999px; padding: var(--cx-s1) var(--cx-s3); }
+.drag-instruction { font-family: var(--cx-font); color: var(--cx-muted); background: var(--cx-surface); border: 1px solid var(--cx-line); border-radius: var(--cx-r-ctl); }
+/* controls: one button style */
+#cmpCtl .tb, .quiz-container button { font-family: var(--cx-font); font-weight: 600; letter-spacing: .01em; background: var(--cx-btn-bg); color: var(--cx-btn-ink); border: 1px solid var(--cx-btn-line); border-radius: var(--cx-r-ctl); box-shadow: var(--cx-shadow-sm); min-height: 38px; transition: background var(--cx-t), transform var(--cx-t), box-shadow var(--cx-t); }
+#cmpCtl .tb:hover { background: var(--cx-btn-bg-hover); box-shadow: var(--cx-shadow-md); }
+#cmpCtl .tb.on { background: var(--cx-btn-bg-on); border-color: var(--cx-primary); }
+#cmpCtl .tb:active, .audio-wrap:active { transform: scale(.97); box-shadow: none; }
+#cmpCtl .tb:focus-visible, .audio-wrap #auCycle:focus-visible, .tools-dd button:focus-visible { outline: 3px solid var(--cx-accent); outline-offset: 2px; }
+.audio-wrap { background: var(--cx-btn-bg); color: var(--cx-btn-ink); border: 1px solid var(--cx-btn-line); border-radius: var(--cx-r-ctl); box-shadow: var(--cx-shadow-sm); transition: background var(--cx-t); }
+.audio-wrap:hover { background: var(--cx-btn-bg-hover); }
+.audio-wrap #auVol2::-webkit-slider-runnable-track { background: linear-gradient(to right, var(--cx-primary) 0, var(--cx-primary) var(--p), var(--cx-btn-line) var(--p), var(--cx-btn-line) 100%) !important; }
+.audio-wrap #auVol2::-moz-range-track { background: var(--cx-btn-line) !important; } .audio-wrap #auVol2::-moz-range-progress { background: var(--cx-primary) !important; }
+.audio-wrap #auCycle { font-family: var(--cx-font); font-weight: 600; }
+.tools-dd { background: var(--cx-surface); border: 1px solid var(--cx-line); border-radius: 12px; box-shadow: var(--cx-shadow-md); }
+.tools-dd button { background: var(--cx-surface); color: var(--cx-btn-ink); font-family: var(--cx-font); border-bottom: 1px solid var(--cx-line); transition: background var(--cx-t); }
+.tools-dd button:hover { background: var(--cx-accent-soft); }
+#textSizePanel { font-family: var(--cx-font); background: var(--cx-surface); color: var(--cx-ink); border: 1px solid var(--cx-line); border-radius: 12px; box-shadow: var(--cx-shadow-md); }
+#textSizePanel button.tsReset { border: 1px solid var(--cx-line); border-radius: 8px; background: var(--cx-surface); color: var(--cx-ink); }
+@media (pointer: coarse) { #cmpCtl .tb { min-height: 44px; } .tools-dd button { padding-top: 12px; padding-bottom: 12px; } }
+@media (max-height: 520px) and (orientation: landscape) { #cmpCtl .tb { min-height: 32px; } }
+/* the dial */
+.circle-path, .compass-circle { stroke: var(--cx-ink); stroke-width: 0.45; }
+.degree-marker { stroke: #aab2c2; } .major-marker { stroke: #6f7889; }
+.degree-label { fill: var(--cx-faint); font-family: var(--cx-font); }
+.segment-label { font-family: var(--cx-font); fill: var(--cx-ink); }
+.quadrant-fill { fill-opacity: .42; }
+.q1-quadrant { fill: #c9defc; } .q2-quadrant { fill: #fdeaa8; } .q3-quadrant { fill: #fcd2ad; } .q4-quadrant { fill: #f8c4de; }
+.compass-rose-decoration { stroke: var(--cx-faint); opacity: .35; }
+.needle-north { fill: #d64545; stroke: #8f2323; } .needle-south { fill: #3b6fd8; stroke: #1f3f8f; }
+.compass-arrow { filter: drop-shadow(0 .6px 1px rgba(20,30,60,.35)); }
+/* words on the dial: the active word is a chip with the accent edge; the others are quiet but fully readable */
+.textBox div { font-family: var(--cx-font) !important; font-weight: 600 !important; color: var(--cx-muted) !important; text-shadow: 0 0 .8px var(--cx-surface) !important; border-radius: 1.6px; transition: background var(--cx-t), color var(--cx-t); }
+.textBox.active div { font-weight: 700 !important; color: var(--cx-ink) !important; background: rgba(255,255,255,.94); box-shadow: 0 0 0 .35px var(--cx-accent), 0 .5px 1.2px rgba(20,30,60,.2); text-shadow: none !important; }
+html[data-scheme="night"] .textBox.active div { background: rgba(23,32,54,.94); }
+.textBox:hover div { background: #fff176 !important; color: #1f2937 !important; }
+.watermark { color: var(--cx-faint); font-family: var(--cx-font); font-weight: 600; opacity: .85; }
+.cmp-ghost { font-family: var(--cx-font); border-radius: 10px; background: #fff176; border-color: var(--cx-accent); color: #1f2937; }
+html[data-scheme="night"] body { background: var(--cx-bg); }
+html[data-scheme="night"] .a4-page, html[data-scheme="night"] .title-box { background: var(--cx-surface); border-color: var(--cx-line); }
+html[data-scheme="night"] .title-box, html[data-scheme="night"] .direction-indicator { color: var(--cx-ink); }
+html[data-scheme="night"] .direction-indicator { background: var(--cx-accent-soft); border-color: var(--cx-accent); }
+html[data-scheme="night"] .quadrant-fill { fill-opacity: .22; }
+html[data-scheme="night"] .tools-dd, html[data-scheme="night"] #textSizePanel { background: var(--cx-surface); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+@media print { body { background: #fff !important; } .textBox div, .textBox.active div { color: #000 !important; background: none !important; box-shadow: none !important; } }
+/* colour disc behind the dial (inserted by script as #cxDisc) */
+#cxDisc { fill: url(#cxDiscGrad); stroke: var(--cx-disc-line); stroke-width: .35; filter: drop-shadow(0 .5px 1.2px rgba(60,50,20,.18)); }
+html[data-scheme="night"] #cxDisc { filter: none; }
+html[data-scheme="nocolour"] #cxDisc { filter: grayscale(1); }
+@media print { #cxDisc { filter: none; } }
+
+/* ===== v0.3: pearl buttons and a silver slider ===== */
+:root {
+  --cx-pearl: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.95) 0%, rgba(255,255,255,.35) 38%, rgba(255,255,255,0) 62%),
+              linear-gradient(135deg, #f8f5ff 0%, #e4edfb 32%, #f3e8f5 62%, #e2f1f3 100%);
+  --cx-pearl-hover: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,1) 0%, rgba(255,255,255,.45) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #f3eefe 0%, #d6e4fa 32%, #efdff3 62%, #d3ebef 100%);
+  --cx-pearl-on: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.75) 0%, rgba(255,255,255,.2) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #cfdcf5 0%, #b3c8ee 35%, #cdbfe9 65%, #b4d9e3 100%);
+  --cx-pearl-edge: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -3px 5px rgba(110,125,175,.20), inset 0 0 0 1px rgba(255,255,255,.35);
+}
+html[data-scheme="night"] {
+  --cx-pearl: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.22) 0%, rgba(255,255,255,.07) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #2c3a5c 0%, #34456d 35%, #3a3560 65%, #2b4458 100%);
+  --cx-pearl-hover: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.3) 0%, rgba(255,255,255,.1) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #34456d 0%, #3f5486 35%, #473f78 65%, #345468 100%);
+  --cx-pearl-on: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.2) 0%, rgba(255,255,255,.05) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #46609c 0%, #4d6bb0 35%, #5a4d98 65%, #3f6f8a 100%);
+  --cx-pearl-edge: inset 0 1px 0 rgba(255,255,255,.28), inset 0 -3px 5px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.06);
+}
+#cmpCtl .tb, .audio-wrap, .tools-dd button {
+  background-image: var(--cx-pearl); background-size: 100% 100%, 220% 220%; background-position: 0 0, 0% 0%; background-repeat: no-repeat;
+  transition: background-position .6s ease, box-shadow var(--cx-t), transform var(--cx-t), border-color var(--cx-t);
+}
+#cmpCtl .tb, .audio-wrap { box-shadow: var(--cx-pearl-edge), 0 1px 2px rgba(20,30,60,.16); }
+#cmpCtl .tb:hover, .audio-wrap:hover { background-image: var(--cx-pearl-hover); background-position: 0 0, 100% 100%; box-shadow: var(--cx-pearl-edge), 0 3px 8px rgba(20,30,60,.20); }
+#cmpCtl .tb.on { background-image: var(--cx-pearl-on); box-shadow: var(--cx-pearl-edge), 0 1px 2px rgba(20,30,60,.16); }
+#cmpCtl .tb:active, .audio-wrap:active { box-shadow: inset 0 2px 5px rgba(60,70,110,.28); }
+.tools-dd button { box-shadow: inset 0 1px 0 rgba(255,255,255,.8); }
+.tools-dd button:hover { background-image: var(--cx-pearl-hover); background-position: 0 0, 100% 100%; }
+/* Audio slider: a silver ball like the compass pivot, on a channel that darkens from light grey (quiet) to black (loud) */
+.audio-wrap #auVol2::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; border: 1px solid #8e9097; box-sizing: border-box; background: linear-gradient(to right, #e4e6ea 0%, #a9abb2 35%, #4a4b51 70%, #0b0b0d 100%) !important; box-shadow: inset 0 1px 1px rgba(0,0,0,.25); }
+.audio-wrap #auVol2::-moz-range-track { height: 6px; border-radius: 3px; border: 1px solid #8e9097; box-sizing: border-box; background: linear-gradient(to right, #e4e6ea 0%, #a9abb2 35%, #4a4b51 70%, #0b0b0d 100%) !important; }
+.audio-wrap #auVol2::-moz-range-progress { background: transparent !important; }
+.audio-wrap #auVol2::-webkit-slider-thumb { box-sizing: border-box; border: 1px solid #555; margin-top: -5px; background: radial-gradient(circle at 35% 35%, #ffffff 0%, #f5f5f5 12%, #b0b0b0 58%, #707070 100%); box-shadow: 0 1px 2px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.35); }
+.audio-wrap #auVol2::-moz-range-thumb { box-sizing: border-box; border: 1px solid #555; background: radial-gradient(circle at 35% 35%, #ffffff 0%, #f5f5f5 12%, #b0b0b0 58%, #707070 100%); box-shadow: 0 1px 2px rgba(0,0,0,.45); }
+@media (pointer: coarse) { .audio-wrap #auVol2::-webkit-slider-thumb { margin-top: -7px; } }
+@media (max-height: 520px) and (orientation: landscape) { .audio-wrap #auVol2::-webkit-slider-thumb { margin-top: -4px; } }
+html[data-scheme="night"] .tools-dd button { box-shadow: inset 0 1px 0 rgba(255,255,255,.10); }
+    </style>
 </head>
 <body>
     <div class="a4-page">
@@ -693,6 +819,7 @@
         showAllTextBoxes = !showAllTextBoxes;
         const btn = document.getElementById('show-all-toggle');
         btn.textContent = showAllTextBoxes ? LANG.hide_all_directions_label : LANG.show_all_directions_label;
+        btn.classList.toggle('on', showAllTextBoxes);
         updateVisibleTextBoxes(currentDirection);
     }
 
@@ -887,6 +1014,8 @@
        layer cycle (ROM: TL > SL; LOG: TLR > TL > SL), Tools menu, Print list. The Quiz is hidden (class no-quiz on the html tag) and its code is kept. */
     (function () {
         var SVGNS = 'http://www.w3.org/2000/svg';
+        var FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif';   // same stack as --cx-font in the style block
+        document.documentElement.style.setProperty('--cx-font', FONT);
         var BASE = 7, R0 = 36.5, GAP = 0.8;
         var svg = document.getElementById('svgCanvas');
         var cv = document.createElement('canvas').getContext('2d');
@@ -898,7 +1027,7 @@
             if (t === 2) return s.replace(/(^|\s)(\S)/g, function (m, a, b) { return a + b.toUpperCase(); });
             return s.toLowerCase();
         }
-        function wOf(i, txt) { var sz = sizeOf(i); cv.font = 'bold ' + sz + 'px Arial, sans-serif'; return cv.measureText(cased(i, txt)).width + 3; }
+        function wOf(i, txt) { var sz = sizeOf(i); cv.font = '700 ' + sz + 'px ' + FONT; return cv.measureText(cased(i, txt)).width + 3; }
         function hOf(i) { return sizeOf(i) * 1.35; }
         function ang(i) { return (directionsData[i][AI] - 90) * Math.PI / 180; }
 
@@ -1274,6 +1403,18 @@
             var sync = function () { if (fb) fb.textContent = (document.fullscreenElement || document.webkitFullscreenElement) ? 'Exit Full Screen' : 'Full Screen'; };
             document.addEventListener('fullscreenchange', sync); document.addEventListener('webkitfullscreenchange', sync);
         }
+    })();
+    </script>
+    <script>
+    /* 2026-11-06 style trial: a soft colour disc behind the dial (cream face, so the ticks, numbers and the four tinted quadrants sit on it) */
+    (function () {
+        var svg = document.getElementById('svgCanvas'); if (!svg || document.getElementById('cxDisc')) return;
+        var NS = 'http://www.w3.org/2000/svg', defs = svg.querySelector('defs');
+        var g = document.createElementNS(NS, 'radialGradient'); g.setAttribute('id', 'cxDiscGrad'); g.setAttribute('cx', '50%'); g.setAttribute('cy', '45%'); g.setAttribute('r', '60%');
+        g.innerHTML = '<stop offset="0%" style="stop-color:var(--cx-disc-a)"/><stop offset="100%" style="stop-color:var(--cx-disc-b)"/>';
+        defs.appendChild(g);
+        var c = document.createElementNS(NS, 'circle'); c.setAttribute('id', 'cxDisc'); c.setAttribute('cx', 50); c.setAttribute('cy', 50); c.setAttribute('r', 36.2);
+        defs.parentNode.insertBefore(c, defs.nextSibling);
     })();
     </script>
 </body>
