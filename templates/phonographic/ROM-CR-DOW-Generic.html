@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="no-quiz">
+<html lang="en" class="no-quiz" data-scheme="night">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Week Cycle - Generic Template (Phonographic)</title>
+    <title>Week Cycle - Generic Template</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -387,6 +387,16 @@
             margin-bottom: 3px;
         }
 
+        .vocabulary-item .target-language-romanized {
+            font-style: italic;
+            color: #666;
+            cursor: pointer;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            margin-bottom: 3px;
+        }
+
         .vocabulary-item .source-language {
             color: #555;
             cursor: pointer;
@@ -395,6 +405,7 @@
         }
         
         .vocabulary-item .target-language.hidden,
+        .vocabulary-item .target-language-romanized.hidden,
         .vocabulary-item .source-language.hidden {
             color: transparent;
             user-select: none;
@@ -524,25 +535,185 @@
     #cmpCtl .today-indicator { font-weight: bold; }
     #cmpCtl .today-indicator { background: #3366cc; }
     </style>
+    <style>
+    /* 2026-11-09 Full Screen: when on, the dial fills the whole screen (no framed box), so the change is plainly visible */
+    html:fullscreen .a4-page, html:-webkit-full-screen .a4-page { width: 100vw !important; height: 100vh !important; height: 100dvh !important; border: 0 !important; }
+    html:fullscreen, html:-webkit-full-screen { background: #fff; }
+    html:fullscreen body, html:-webkit-full-screen body { margin: 0; }
+    </style>
+    <style id="cx-style">
+/* ===== CONCEPTIONARY STYLE SHEET v0.1 (trial on the Compass, 2026-11-06) =====
+   One block of design tokens plus the rules that use them. It sits AFTER the template's own CSS and only changes looks, never behaviour.
+   Colour: ink / muted / surface / line, ONE primary (controls), ONE accent (the active word and highlight). Every text pair is 4.5:1 or better.
+   Type: one system font stack (set by script into --cx-font so the word measuring uses the same font), weights 600 and 700 only.
+   Spacing scale 4 / 8 / 12 / 16 / 24 px. Radius 10 (controls) and 16 (page card). Motion 150-250 ms, switched off by prefers-reduced-motion.
+   NOTE: inside an SVG foreignObject one CSS px is one SVG unit, so borders, radii and shadows on words are written in tiny values. */
+:root {
+  --cx-ink: #1f2937; --cx-muted: #4b5565; --cx-faint: #6b7280;
+  --cx-surface: #ffffff; --cx-bg: #eef1f7; --cx-line: #d3d9e6;
+  --cx-primary: #2a56c6; --cx-primary-dark: #1f428f; --cx-on-primary: #ffffff;
+  --cx-accent: #f2b01e; --cx-accent-soft: #fff4cf;
+  --cx-btn-bg: #e4ecf8; --cx-btn-bg-hover: #d3e0f5; --cx-btn-bg-on: #bcd0f0; --cx-btn-ink: #1d3b80; --cx-btn-line: #bccbe8;
+  --cx-disc-a: #fffdf6; --cx-disc-b: #efe8d4; --cx-disc-line: #d9cfb4;
+  --cx-s1: 4px; --cx-s2: 8px; --cx-s3: 12px; --cx-s4: 16px; --cx-s5: 24px;
+  --cx-r-ctl: 10px; --cx-r-card: 16px;
+  --cx-shadow-sm: 0 1px 2px rgba(20,30,60,.12); --cx-shadow-md: 0 4px 14px rgba(20,30,60,.16);
+  --cx-font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
+  --cx-t: 180ms ease;
+}
+html[data-scheme="night"] {
+  --cx-ink: #e6ebf7; --cx-muted: #b4bfd8; --cx-faint: #8f9cb8;
+  --cx-surface: #172036; --cx-bg: #0d1424; --cx-line: #2e3a58;
+  --cx-primary: #3d63c9; --cx-primary-dark: #2f4fa6; --cx-accent: #f2b01e; --cx-accent-soft: #3a3320;
+  --cx-btn-bg: #24304e; --cx-btn-bg-hover: #2e3c60; --cx-btn-bg-on: #3a4a74; --cx-btn-ink: #d6e0fa; --cx-btn-line: #3b4a70;
+  --cx-disc-a: #1c2846; --cx-disc-b: #121b33; --cx-disc-line: #3a4768;
+}
+body { font-family: var(--cx-font); color: var(--cx-ink); background: var(--cx-bg); }
+@media (min-width: 701px) and (min-height: 521px) {
+  body { background: radial-gradient(ellipse at 50% 30%, #ffffff 0%, var(--cx-bg) 70%); }
+  .a4-page { border: 1px solid var(--cx-line); border-radius: var(--cx-r-card); box-shadow: var(--cx-shadow-md); background: var(--cx-surface); }
+}
+.a4-page { background: var(--cx-surface); }
+/* title and indicator: quiet cards */
+.title-box { font-family: var(--cx-font); font-weight: 700; font-size: 1.05em; color: var(--cx-ink); background: var(--cx-surface); border: 1px solid var(--cx-line); border-radius: var(--cx-r-ctl); box-shadow: var(--cx-shadow-sm); padding: var(--cx-s2) var(--cx-s3); transition: box-shadow var(--cx-t), transform var(--cx-t), opacity .5s ease; }
+.title-box:hover { box-shadow: var(--cx-shadow-md); }
+.direction-indicator, .day-indicator { font-family: var(--cx-font); font-weight: 600; color: var(--cx-ink); background: var(--cx-accent-soft); border: 1px solid var(--cx-accent); border-radius: 999px; padding: var(--cx-s1) var(--cx-s3); }
+.drag-instruction { font-family: var(--cx-font); color: var(--cx-muted); background: var(--cx-surface); border: 1px solid var(--cx-line); border-radius: var(--cx-r-ctl); }
+/* controls: one button style */
+#cmpCtl .tb, .quiz-container button { font-family: var(--cx-font); font-weight: 600; letter-spacing: .01em; background: var(--cx-btn-bg); color: var(--cx-btn-ink); border: 1px solid var(--cx-btn-line); border-radius: var(--cx-r-ctl); box-shadow: var(--cx-shadow-sm); min-height: 38px; transition: background var(--cx-t), transform var(--cx-t), box-shadow var(--cx-t); }
+#cmpCtl .tb:hover { background: var(--cx-btn-bg-hover); box-shadow: var(--cx-shadow-md); }
+#cmpCtl .tb.on { background: var(--cx-btn-bg-on); border-color: var(--cx-primary); }
+#cmpCtl .tb:active, .audio-wrap:active { transform: scale(.97); box-shadow: none; }
+#cmpCtl .tb:focus-visible, .audio-wrap #auCycle:focus-visible, .tools-dd button:focus-visible { outline: 3px solid var(--cx-accent); outline-offset: 2px; }
+.audio-wrap { background: var(--cx-btn-bg); color: var(--cx-btn-ink); border: 1px solid var(--cx-btn-line); border-radius: var(--cx-r-ctl); box-shadow: var(--cx-shadow-sm); transition: background var(--cx-t); }
+.audio-wrap:hover { background: var(--cx-btn-bg-hover); }
+.audio-wrap #auVol2::-webkit-slider-runnable-track { background: linear-gradient(to right, var(--cx-primary) 0, var(--cx-primary) var(--p), var(--cx-btn-line) var(--p), var(--cx-btn-line) 100%) !important; }
+.audio-wrap #auVol2::-moz-range-track { background: var(--cx-btn-line) !important; } .audio-wrap #auVol2::-moz-range-progress { background: var(--cx-primary) !important; }
+.audio-wrap #auCycle { font-family: var(--cx-font); font-weight: 600; }
+.tools-dd { background: var(--cx-surface); border: 1px solid var(--cx-line); border-radius: 12px; box-shadow: var(--cx-shadow-md); }
+.tools-dd button { background: var(--cx-surface); color: var(--cx-btn-ink); font-family: var(--cx-font); border-bottom: 1px solid var(--cx-line); transition: background var(--cx-t); }
+.tools-dd button:hover { background: var(--cx-accent-soft); }
+#textSizePanel { font-family: var(--cx-font); background: var(--cx-surface); color: var(--cx-ink); border: 1px solid var(--cx-line); border-radius: 12px; box-shadow: var(--cx-shadow-md); }
+#textSizePanel button.tsReset { border: 1px solid var(--cx-line); border-radius: 8px; background: var(--cx-surface); color: var(--cx-ink); }
+@media (pointer: coarse) { #cmpCtl .tb { min-height: 44px; } .tools-dd button { padding-top: 12px; padding-bottom: 12px; } }
+@media (max-height: 520px) and (orientation: landscape) { #cmpCtl .tb { min-height: 32px; } }
+/* the dial */
+.circle-path, .compass-circle { stroke: var(--cx-ink); stroke-width: 0.45; }
+.degree-marker { stroke: #aab2c2; } .major-marker { stroke: #6f7889; }
+.degree-label { fill: var(--cx-faint); font-family: var(--cx-font); }
+.segment-label { font-family: var(--cx-font); fill: var(--cx-ink); }
+.quadrant-fill { fill-opacity: .42; }
+.q1-quadrant { fill: #c9defc; } .q2-quadrant { fill: #fdeaa8; } .q3-quadrant { fill: #fcd2ad; } .q4-quadrant { fill: #f8c4de; }
+.compass-rose-decoration { stroke: var(--cx-faint); opacity: .35; }
+.needle-north { fill: #d64545; stroke: #8f2323; } .needle-south { fill: #3b6fd8; stroke: #1f3f8f; }
+.compass-arrow { filter: drop-shadow(0 .6px 1px rgba(20,30,60,.35)); }
+/* words on the dial: the active word is a chip with the accent edge; the others are quiet but fully readable */
+.textBox div { font-family: var(--cx-font) !important; font-weight: 600 !important; color: var(--cx-muted) !important; text-shadow: 0 0 .8px var(--cx-surface) !important; border-radius: 1.6px; transition: background var(--cx-t), color var(--cx-t); }
+.textBox.active div { font-weight: 700 !important; color: var(--cx-ink) !important; background: rgba(255,255,255,.94); box-shadow: 0 0 0 .35px var(--cx-accent), 0 .5px 1.2px rgba(20,30,60,.2); text-shadow: none !important; }
+html[data-scheme="night"] .textBox.active div { background: rgba(23,32,54,.94); }
+.textBox:hover div { background: #fff176 !important; color: #1f2937 !important; }
+.watermark { color: var(--cx-faint); font-family: var(--cx-font); font-weight: 600; opacity: .85; }
+.cmp-ghost { font-family: var(--cx-font); border-radius: 10px; background: #fff176; border-color: var(--cx-accent); color: #1f2937; }
+html[data-scheme="night"] body { background: var(--cx-bg); }
+html[data-scheme="night"] .a4-page, html[data-scheme="night"] .title-box { background: var(--cx-surface); border-color: var(--cx-line); }
+html[data-scheme="night"] .title-box, html[data-scheme="night"] .direction-indicator { color: var(--cx-ink); }
+html[data-scheme="night"] .direction-indicator { background: var(--cx-accent-soft); border-color: var(--cx-accent); }
+html[data-scheme="night"] .quadrant-fill { fill-opacity: .22; }
+html[data-scheme="night"] .tools-dd, html[data-scheme="night"] #textSizePanel { background: var(--cx-surface); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+@media print { body { background: #fff !important; } .textBox div, .textBox.active div { color: #000 !important; background: none !important; box-shadow: none !important; } }
+/* colour disc behind the dial (inserted by script as #cxDisc) */
+#cxDisc { fill: url(#cxDiscGrad); stroke: var(--cx-disc-line); stroke-width: .35; filter: drop-shadow(0 .5px 1.2px rgba(60,50,20,.18)); }
+html[data-scheme="night"] #cxDisc { filter: none; }
+html[data-scheme="nocolour"] #cxDisc { filter: grayscale(1); }
+@media print { #cxDisc { filter: none; } }
+
+/* ===== v0.3: pearl buttons and a silver slider ===== */
+:root {
+  --cx-pearl: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.95) 0%, rgba(255,255,255,.35) 38%, rgba(255,255,255,0) 62%),
+              linear-gradient(135deg, #f8f5ff 0%, #e4edfb 32%, #f3e8f5 62%, #e2f1f3 100%);
+  --cx-pearl-hover: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,1) 0%, rgba(255,255,255,.45) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #f3eefe 0%, #d6e4fa 32%, #efdff3 62%, #d3ebef 100%);
+  --cx-pearl-on: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.75) 0%, rgba(255,255,255,.2) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #cfdcf5 0%, #b3c8ee 35%, #cdbfe9 65%, #b4d9e3 100%);
+  --cx-pearl-edge: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -3px 5px rgba(110,125,175,.20), inset 0 0 0 1px rgba(255,255,255,.35);
+}
+html[data-scheme="night"] {
+  --cx-pearl: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.22) 0%, rgba(255,255,255,.07) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #2c3a5c 0%, #34456d 35%, #3a3560 65%, #2b4458 100%);
+  --cx-pearl-hover: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.3) 0%, rgba(255,255,255,.1) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #34456d 0%, #3f5486 35%, #473f78 65%, #345468 100%);
+  --cx-pearl-on: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.2) 0%, rgba(255,255,255,.05) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #46609c 0%, #4d6bb0 35%, #5a4d98 65%, #3f6f8a 100%);
+  --cx-pearl-edge: inset 0 1px 0 rgba(255,255,255,.28), inset 0 -3px 5px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.06);
+}
+#cmpCtl .tb, .audio-wrap, .tools-dd button {
+  background-image: var(--cx-pearl); background-size: 100% 100%, 220% 220%; background-position: 0 0, 0% 0%; background-repeat: no-repeat;
+  transition: background-position .6s ease, box-shadow var(--cx-t), transform var(--cx-t), border-color var(--cx-t);
+}
+#cmpCtl .tb, .audio-wrap { box-shadow: var(--cx-pearl-edge), 0 1px 2px rgba(20,30,60,.16); }
+#cmpCtl .tb:hover, .audio-wrap:hover { background-image: var(--cx-pearl-hover); background-position: 0 0, 100% 100%; box-shadow: var(--cx-pearl-edge), 0 3px 8px rgba(20,30,60,.20); }
+#cmpCtl .tb.on { background-image: var(--cx-pearl-on); box-shadow: var(--cx-pearl-edge), 0 1px 2px rgba(20,30,60,.16); }
+#cmpCtl .tb:active, .audio-wrap:active { box-shadow: inset 0 2px 5px rgba(60,70,110,.28); }
+.tools-dd button { box-shadow: inset 0 1px 0 rgba(255,255,255,.8); }
+.tools-dd button:hover { background-image: var(--cx-pearl-hover); background-position: 0 0, 100% 100%; }
+/* Audio slider: a silver ball like the compass pivot, on a channel that darkens from light grey (quiet) to black (loud) */
+.audio-wrap #auVol2::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; border: 1px solid #8e9097; box-sizing: border-box; background: linear-gradient(to right, #e4e6ea 0%, #a9abb2 35%, #4a4b51 70%, #0b0b0d 100%) !important; box-shadow: inset 0 1px 1px rgba(0,0,0,.25); }
+.audio-wrap #auVol2::-moz-range-track { height: 6px; border-radius: 3px; border: 1px solid #8e9097; box-sizing: border-box; background: linear-gradient(to right, #e4e6ea 0%, #a9abb2 35%, #4a4b51 70%, #0b0b0d 100%) !important; }
+.audio-wrap #auVol2::-moz-range-progress { background: transparent !important; }
+.audio-wrap #auVol2::-webkit-slider-thumb { box-sizing: border-box; border: 1px solid #555; margin-top: -5px; background: radial-gradient(circle at 35% 35%, #ffffff 0%, #f5f5f5 12%, #b0b0b0 58%, #707070 100%); box-shadow: 0 1px 2px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.35); }
+.audio-wrap #auVol2::-moz-range-thumb { box-sizing: border-box; border: 1px solid #555; background: radial-gradient(circle at 35% 35%, #ffffff 0%, #f5f5f5 12%, #b0b0b0 58%, #707070 100%); box-shadow: 0 1px 2px rgba(0,0,0,.45); }
+@media (pointer: coarse) { .audio-wrap #auVol2::-webkit-slider-thumb { margin-top: -7px; } }
+@media (max-height: 520px) and (orientation: landscape) { .audio-wrap #auVol2::-webkit-slider-thumb { margin-top: -4px; } }
+html[data-scheme="night"] .tools-dd button { box-shadow: inset 0 1px 0 rgba(255,255,255,.10); }
+/* ===== DOW: dial, sun and words ===== */
+/* ===== week days (light green = go) and weekend (light red = stop) ===== */
+.weekday-segment { fill: #b4e3ba; fill-opacity: .5; }
+.weekend-segment { fill: #f4aeae; fill-opacity: .5; }
+#cxToast { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 1200; background: rgba(40,40,40,.92); color: #fff; font: 600 14px var(--cx-font, sans-serif); padding: 8px 14px; border-radius: 10px; max-width: min(92vw, 420px); text-align: center; pointer-events: none; opacity: 0; transition: opacity .3s; }
+@media print { #cxToast { display: none; } }
+
+.weekday-segment { stroke: #fff; stroke-opacity: .8; stroke-width: .25; }
+.weekend-segment { stroke: #fff; stroke-opacity: .8; stroke-width: .25; }
+.segment-highlighted { fill: rgba(255,222,89,.75) !important; fill-opacity: 1 !important; stroke: var(--cx-accent); stroke-width: .7px; }
+.circle-path { stroke: var(--cx-muted); stroke-width: .35; }
+html[data-scheme="night"] .weekday-segment, html[data-scheme="night"] .weekend-segment { fill-opacity: .26; stroke-opacity: .25; }
+html[data-scheme="night"] .segment-highlighted { fill: rgba(255,214,90,.55) !important; }
+.textBox.learned div { color: #1b7f3b !important; }
+.today-indicator, .display-mode-toggle { font-family: var(--cx-font); }
+/* the sun */
+#draggableFrame, #draggableFrame:hover, #draggableFrame.dragging { stroke: #e8890c; stroke-width: .35px; opacity: 1; filter: drop-shadow(0 .5px 1px rgba(160,80,0,.45)); }
+#draggableFrame:hover, #draggableFrame.dragging { stroke-width: .5px; filter: drop-shadow(0 .6px 1.4px rgba(160,80,0,.6)); }
+#cxSun { pointer-events: none; }
+#cxSun .glow { fill: url(#cxSunGlow); }
+#cxSun .rays { transform-box: fill-box; transform-origin: center; animation: cxSunSpin 40s linear infinite; }
+#cxSun .rays polygon { fill: url(#cxRayGrad); }
+#cxSun.dragging .rays { animation-duration: 8s; }
+#cxSun.dragging .glow { transform-box: fill-box; transform-origin: center; transform: scale(1.18); }
+@keyframes cxSunSpin { to { transform: rotate(360deg); } }
+html[data-scheme="night"] #cxSun .glow { opacity: .8; }
+@media print { #cxSun .rays { animation: none; } #draggableFrame { filter: none; } }
+    </style>
 </head>
 <body>
     <div class="a4-page">
         <div id="cmpInfo">
-            <div id="title-box" class="title-box">Days of the Week</div>
+            <div id="title-box" class="title-box"></div>
             <div id="day-indicator" class="day-indicator">Day 1</div>
             <div id="drag-instruction" class="drag-instruction">&#128161; Drag the sun!</div>
         </div>
         <div id="cmpCtl">
             <button id="today-indicator" class="today-indicator tb" type="button">Today is</button>
-            <button id="display-mode-toggle" class="display-mode-toggle tb" type="button" title="Change the language shown on every day">Show: TL</button>
+            <button id="display-mode-toggle" class="display-mode-toggle tb" type="button" title="Change the language shown on every day">Show: TLR</button>
             <button id="show-all-toggle" class="tb" type="button" title="Show every day word at once">Show All</button>
             <div class="tools-wrap" id="toolsWrap">
                 <button id="toolsBtn" class="tb" type="button" aria-haspopup="true" title="Colours, Text size, Sun cycle, Day labels and Print">Tools &#9660;</button>
                 <div class="tools-dd" id="toolsMenu">
-                    <button id="colourBtn" type="button" title="Try different colour schemes">Colours: Default</button>
+                    <button id="colourBtn" type="button" title="Try different colour schemes">Colours: Night</button>
                     <button id="textSizeBtn" type="button" title="Enlarge or shrink any word">Text size&hellip;</button>
                     <button id="sun-cycle-toggle" type="button">Hide Sun Cycle</button>
-                    <button id="day-labels-toggle" type="button">Hide Day Labels</button>
+                    <button id="day-labels-toggle" type="button">Show Day Labels</button>
+                    <button id="weekendBtn" type="button" title="Show how the weekend falls in the Target and Source language countries (Sat-Sun is the default)">Weekend</button>
                     <button id="printBtn" type="button" title="Print this page on one A4 landscape sheet">Print</button>
                 </div>
             </div>
@@ -595,78 +766,42 @@
     </div>
 
     <script>
-        // =================================================================
-        // LANGUAGE CONFIGURATION BLOCK
-        // Replace these UI strings for a new language pair.
-        // SL = Source Language | TL = Target Language
-        // =================================================================
-        const LANG = {
-            // --- Title cycle (shown in top box; click to cycle) -----------
-            // ROM CONVENTION: TL is shown first (default), then SL on click —
-            // matching the vocabulary-item convention (TL first, SL on
-            // click). Exactly 2 states — no combined bilingual state
-            // (previously this array defaulted to SL and had an extra
-            // "SL_TITLE / TL_TITLE" combined 3rd state; both removed for
-            // consistency with the rest of the ROM family and with the
-            // equivalent fix applied to ROM-CR-TTT-Generic.html).
-            titles: [
-                "TL_TITLE",          // e.g. "Hari-hari dalam Seminggu"
-                "SL_TITLE"           // e.g. "Days of the Week"
-            ],
-            day_label_prefix:   "DAY_LABEL_PREFIX",   // e.g. "Day" -> "Day 1" etc.
-            today_label:        "TODAY_LABEL",        // e.g. "Today is"
-            show_tl_label:      "SHOW_TL_LABEL",       // e.g. "Show: TL"
-            show_sl_label:      "SHOW_SL_LABEL",       // e.g. "Show: SL"
-            hide_sun_label:     "HIDE_SUN_LABEL",      // e.g. "Hide Sun Cycle"
-            show_sun_label:     "SHOW_SUN_LABEL",      // e.g. "Show Sun Cycle"
-            hide_labels_label:  "HIDE_LABELS_LABEL",   // e.g. "Hide Day Labels"
-            show_labels_label:  "SHOW_LABELS_LABEL",   // e.g. "Show Day Labels"
-            drag_instruction:   "DRAG_INSTRUCTION",    // e.g. "Drag the sun!"
-            hide_all_label:     "HIDE_ALL_LABEL",      // e.g. "Hide All"
-            show_all_label:     "SHOW_ALL_LABEL",      // e.g. "Show All"
-            array_title:        "ARRAY_TITLE",         // e.g. "Learned Vocabulary"
-            quiz_correct:       "QUIZ_CORRECT",        // e.g. "Correct!"
-            quiz_wrong:         "QUIZ_WRONG"           // e.g. "Try again"
-        };
-        // =================================================================
-        // END OF LANGUAGE CONFIGURATION BLOCK
-        // =================================================================
-
-        // Generic vocabulary data template for Phonographic languages
-        // Format: [Source Language, Target Language, Quiz Prompt, DayIndex]
+        // Generic vocabulary data template
+        // Format: [Source Language, Target Language, Target Language Romanized, Quiz Prompt, DayIndex]
         const daysOfWeekData = [
-            ["SL-Day1", "TL-Day1", "What's the Target Language word for 'Day 1'?", 0],
-            ["SL-Day2", "TL-Day2", "What's the Target Language word for 'Day 2'?", 1],
-            ["SL-Day3", "TL-Day3", "What's the Target Language word for 'Day 3'?", 2],
-            ["SL-Day4", "TL-Day4", "What's the Target Language word for 'Day 4'?", 3],
-            ["SL-Day5", "TL-Day5", "What's the Target Language word for 'Day 5'?", 4],
-            ["SL-Day6", "TL-Day6", "What's the Target Language word for 'Day 6'?", 5],
-            ["SL-Day7", "TL-Day7", "What's the Target Language word for 'Day 7'?", 6]
+            ["SL-Day1", "TL-Day1", "TLR-Day1", "What's the Target Language word for 'Day 1'?", 0],
+            ["SL-Day2", "TL-Day2", "TLR-Day2", "What's the Target Language word for 'Day 2'?", 1],
+            ["SL-Day3", "TL-Day3", "TLR-Day3", "What's the Target Language word for 'Day 3'?", 2],
+            ["SL-Day4", "TL-Day4", "TLR-Day4", "What's the Target Language word for 'Day 4'?", 3],
+            ["SL-Day5", "TL-Day5", "TLR-Day5", "What's the Target Language word for 'Day 5'?", 4],
+            ["SL-Day6", "TL-Day6", "TLR-Day6", "What's the Target Language word for 'Day 6'?", 5],
+            ["SL-Day7", "TL-Day7", "TLR-Day7", "What's the Target Language word for 'Day 7'?", 6]
         ];
 
         // Global variables
         let learnedItems = new Array(7).fill(false);
         let textBoxElements = [];
         let addedLearnedItems = new Array(7).fill(false);
-        let displayMode = 0; // 0: TL (default), 1: SL
+        let displayMode = 0; // 0: TLR (default), 1: TL, 2: SL
         let currentDay = 0;
         let isDragging = false;
         let currentTextIndex = 0;
         let currentQuizIndex = -1;
         let showSunCycle = true;
-        let showDayLabels = true;
-
-        const titleTexts = LANG.titles;
-
-        // Apply static UI strings on load
-        document.getElementById('title-box').textContent          = LANG.titles[0];
-        document.getElementById('today-indicator').textContent    = LANG.today_label;
-        document.getElementById('display-mode-toggle').textContent= LANG.show_tl_label;
-        document.getElementById('sun-cycle-toggle').textContent   = LANG.hide_sun_label;
-        document.getElementById('day-labels-toggle').textContent  = LANG.hide_labels_label;
-        document.getElementById('drag-instruction').textContent   = LANG.drag_instruction;
-        document.getElementById('toggle-learned').textContent     = LANG.hide_all_label;
-        document.querySelector('#learned-array .array-title').textContent = LANG.array_title;
+        let showDayLabels = false;   // Day Labels start hidden; Tools > Show Day Labels
+        
+        // Title cycle: TLR (default) → TL → SL → TLR. See "Logographic
+        // UI Conventions" in Conceptionary_Template_Definitions.md.
+        // Previously this array's first element was the literal string
+        // "LOG-CR-DOW Generic" (a disconnected placeholder, not real
+        // content) and its third element combined that same disconnected
+        // string with TL — with no TLR anywhere and no load-time
+        // initialization at all (the title only ever updated on click).
+        const titleTexts = [
+            "TLR_TITLE",
+            "TL_TITLE",
+            "SL_TITLE"
+        ];
 
         function normalizeText(text) {
             return text.toLowerCase()
@@ -687,7 +822,7 @@
                 const button = document.getElementById("toggle-learned");
                 if (!container || !button) return;
                 
-                const spans = container.querySelectorAll('.vocabulary-item .target-language, .vocabulary-item .source-language');
+                const spans = container.querySelectorAll('.vocabulary-item .target-language, .vocabulary-item .target-language-romanized, .vocabulary-item .source-language');
                 
                 let visibleCount = 0;
                 spans.forEach(span => {
@@ -706,22 +841,25 @@
                     }
                 });
                 
-                button.textContent = mostlyVisible ? LANG.show_all_label : LANG.hide_all_label;
+                button.textContent = mostlyVisible ? 'Show All' : 'Hide All';
             } catch (error) {
                 console.error("Error in toggleArrayVisibility:", error);
             }
         }
 
         function cycleDisplayMode() {
-            displayMode = (displayMode + 1) % 2;
+            displayMode = (displayMode + 1) % 3;
             const button = document.getElementById("display-mode-toggle");
             
             switch(displayMode) {
                 case 0:
-                    button.textContent = LANG.show_tl_label;
+                    button.textContent = "Show: TLR";
                     break;
                 case 1:
-                    button.textContent = LANG.show_sl_label;
+                    button.textContent = "Show: TL";
+                    break;
+                case 2:
+                    button.textContent = "Show: SL";
                     break;
             }
             
@@ -735,9 +873,12 @@
                     if (div) {
                         switch(displayMode) {
                             case 0:
-                                div.innerHTML = daysOfWeekData[index][1]; // TL
+                                div.innerHTML = daysOfWeekData[index][2]; // TLR
                                 break;
                             case 1:
+                                div.innerHTML = daysOfWeekData[index][1]; // TL
+                                break;
+                            case 2:
                                 div.innerHTML = daysOfWeekData[index][0]; // SL
                                 break;
                         }
@@ -753,10 +894,10 @@
             
             if (showSunCycle) {
                 sunCycleArcs.style.display = "block";
-                button.textContent = LANG.hide_sun_label;
+                button.textContent = "Hide Sun Cycle";
             } else {
                 sunCycleArcs.style.display = "none";
-                button.textContent = LANG.show_sun_label;
+                button.textContent = "Show Sun Cycle";
             }
         }
 
@@ -769,7 +910,7 @@
                 label.style.opacity = showDayLabels ? "1" : "0";
             });
             
-            button.textContent = showDayLabels ? LANG.hide_labels_label : LANG.show_labels_label;
+            button.textContent = showDayLabels ? "Hide Day Labels" : "Show Day Labels";
         }
 
         function createSegments() {
@@ -861,7 +1002,7 @@
             const dayLabelsGroup = document.getElementById("dayLabels");
             const center = { x: 50, y: 50 };
             const labelRadius = 20;
-            const dayNames = daysOfWeekData.map(d => d[1]); // TL day names
+            const dayNames = ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"];
             
             for (let i = 0; i < 7; i++) {
                 const angle = (i * 360/7 - 90 + 360/14) * Math.PI / 180;
@@ -871,7 +1012,7 @@
                 const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
                 text.setAttribute("x", x);
                 text.setAttribute("y", y);
-                text.setAttribute("class", "segment-label");
+                text.setAttribute("class", "segment-label"); text.style.opacity = showDayLabels ? "1" : "0";
                 text.textContent = dayNames[i];
                 
                 dayLabelsGroup.appendChild(text);
@@ -935,7 +1076,7 @@
                 div.style.cursor = "pointer";
                 div.style.whiteSpace = "nowrap";
                 div.style.fontWeight = "bold";
-                div.innerHTML = daysOfWeekData[i][1]; // Start with TL (target language)
+                div.innerHTML = daysOfWeekData[i][2]; // Start with TLR (romanized)
                 
                 foreignObject.appendChild(div);
                 
@@ -946,23 +1087,26 @@
                     const index = parseInt(this.getAttribute('data-index'));
                     const div = this.querySelector('div');
                     
-                    console.log("TextBox clicked, index:", index, "current text:", div.innerHTML);
                     
                     if (learnedItems[index]) {
-                        // For learned items, cycle through: TL → SL
-                        if (div.innerHTML === daysOfWeekData[index][1]) { // TL
+                        // For learned items, cycle through all three: TLR → TL → SL
+                        if (div.innerHTML === daysOfWeekData[index][2]) { // TLR
+                            div.innerHTML = daysOfWeekData[index][1]; // TL
+                        } else if (div.innerHTML === daysOfWeekData[index][1]) { // TL
                             div.innerHTML = daysOfWeekData[index][0]; // SL
                         } else { // SL
-                            div.innerHTML = daysOfWeekData[index][1]; // Back to TL
+                            div.innerHTML = daysOfWeekData[index][2]; // Back to TLR
                         }
                     } else {
-                        // For unlearned items: TL → SL → Quiz
-                        if (div.innerHTML === daysOfWeekData[index][1]) { // TL (default)
+                        // For unlearned items: TLR → TL → SL → Quiz
+                        if (div.innerHTML === daysOfWeekData[index][2]) { // TLR (default)
+                            div.innerHTML = daysOfWeekData[index][1]; // Show TL
+                        } else if (div.innerHTML === daysOfWeekData[index][1]) { // TL
                             div.innerHTML = daysOfWeekData[index][0]; // Show SL
                         } else if (div.innerHTML === daysOfWeekData[index][0]) { // SL
                             showQuiz(index, this); // Start quiz
                         } else {
-                            div.innerHTML = daysOfWeekData[index][1]; // Reset to TL
+                            div.innerHTML = daysOfWeekData[index][2]; // Reset to TLR
                         }
                     }
                 });
@@ -971,7 +1115,6 @@
                 textBoxElements.push(foreignObject);
             }
             
-            console.log("Created", textBoxElements.length, "text boxes");
         }
 
         function addToVocabularyArray(index) {
@@ -980,6 +1123,7 @@
                 
                 const sourceLanguage = daysOfWeekData[index][0];
                 const targetLanguage = daysOfWeekData[index][1];
+                const targetLanguageRomanized = daysOfWeekData[index][2];
                 
                 const itemElement = document.createElement('div');
                 itemElement.className = 'vocabulary-item';
@@ -987,6 +1131,10 @@
                 const targetLanguageSpan = document.createElement('span');
                 targetLanguageSpan.className = 'target-language';
                 targetLanguageSpan.innerHTML = targetLanguage;
+                
+                const targetLanguageRomanizedSpan = document.createElement('span');
+                targetLanguageRomanizedSpan.className = 'target-language-romanized';
+                targetLanguageRomanizedSpan.textContent = targetLanguageRomanized;
                 
                 const sourceLanguageSpan = document.createElement('span');
                 sourceLanguageSpan.className = 'source-language';
@@ -997,12 +1145,18 @@
                     this.classList.toggle('hidden');
                 });
                 
+                targetLanguageRomanizedSpan.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.classList.toggle('hidden');
+                });
+                
                 sourceLanguageSpan.addEventListener('click', function(e) {
                     e.stopPropagation();
                     this.classList.toggle('hidden');
                 });
                 
                 itemElement.appendChild(targetLanguageSpan);
+                itemElement.appendChild(targetLanguageRomanizedSpan);
                 itemElement.appendChild(sourceLanguageSpan);
                 
                 const learnedItemsContainer = document.getElementById("learned-items");
@@ -1012,7 +1166,6 @@
                 const learnedArray = document.getElementById("learned-array");
                 learnedArray.style.display = 'block';
                 
-                console.log("Added vocabulary item:", targetLanguage, sourceLanguage);
             } catch (error) {
                 console.error("Error adding vocabulary item:", error);
             }
@@ -1044,18 +1197,17 @@
             });
             
             const dayIndicator = document.getElementById("day-indicator");
-            dayIndicator.textContent = LANG.day_label_prefix + " " + (dayIndex + 1);
+            dayIndicator.textContent = "Day " + (dayIndex + 1);
         }
 
         function showQuiz(index, element) {
-            console.log("Showing quiz for index:", index);
             currentQuizIndex = index;
             
             const quizContainer = document.getElementById("quizContainer");
             const quizInput = document.getElementById("quizInput");
             const quizFeedback = document.getElementById("quizFeedback");
             
-            quizInput.placeholder = daysOfWeekData[index][2];
+            quizInput.placeholder = daysOfWeekData[index][3];
             quizInput.value = '';
             quizFeedback.textContent = '';
             
@@ -1077,15 +1229,18 @@
             const quizFeedback = document.getElementById("quizFeedback");
             const userAnswer = quizInput.value.trim();
             const correctAnswerTL = daysOfWeekData[currentQuizIndex][1].replace(/<[^>]*>/g, '');
+            const correctAnswerTLR = daysOfWeekData[currentQuizIndex][2];
             
             const normalizedUserAnswer = normalizeText(userAnswer);
-            const normalizedCorrectTL = normalizeText(correctAnswerTL);
+            const normalizedCorrectTLR = normalizeText(correctAnswerTLR);
             
             if (userAnswer === correctAnswerTL || 
                 userAnswer.toLowerCase() === correctAnswerTL.toLowerCase() ||
-                normalizedUserAnswer === normalizedCorrectTL) {
+                userAnswer === correctAnswerTLR ||
+                userAnswer.toLowerCase() === correctAnswerTLR.toLowerCase() ||
+                normalizedUserAnswer === normalizedCorrectTLR) {
                 
-                quizFeedback.textContent = LANG.quiz_correct;
+                quizFeedback.textContent = 'Correct!';
                 quizFeedback.style.color = 'green';
                 
                 learnedItems[currentQuizIndex] = true;
@@ -1115,15 +1270,15 @@
                     currentQuizIndex = -1;
                 }, 1500);
             } else {
-                quizFeedback.textContent = LANG.quiz_wrong;
+                quizFeedback.textContent = 'Try again';
                 quizFeedback.style.color = 'red';
                 
-                // Reset to show TL when user gets wrong answer
+                // Reset to show TLR when user gets wrong answer
                 const textBox = textBoxElements[currentQuizIndex];
                 if (textBox) {
                     const div = textBox.querySelector('div');
                     if (div) {
-                        div.innerHTML = daysOfWeekData[currentQuizIndex][1]; // TL
+                        div.innerHTML = daysOfWeekData[currentQuizIndex][2]; // TLR
                     }
                 }
             }
@@ -1132,7 +1287,7 @@
         function positionFrameOnDay(dayIndex) {
             const center = { x: 50, y: 50 };
             const radius = 30;
-            const angle = (dayIndex * 360/7 - 90) * Math.PI / 180;
+            const angle = ((dayIndex + 0.5) * 360/7 - 90) * Math.PI / 180;   // the middle of the day's segment
             
             const x = center.x + radius * Math.cos(angle);
             const y = center.y + radius * Math.sin(angle);
@@ -1160,7 +1315,6 @@
         }
 
         function initializeApp() {
-            console.log("Initializing app...");
             
             const svg = document.getElementById("svgCanvas");
             const frame = document.getElementById("draggableFrame");
@@ -1178,6 +1332,14 @@
                 console.error("Critical elements are missing from the DOM");
                 return;
             }
+
+            // Title box: TLR by default (matches the vocabulary-item
+            // convention — see Conceptionary_Template_Definitions.md).
+            // Was previously left showing a static HTML placeholder that
+            // didn't even match titleTexts[0]; now genuinely defaults to
+            // real content from the moment the page loads.
+            titleBox.textContent = titleTexts[0];
+            currentTextIndex = 0;
             
             createSegments();
             createSunCycleArcs();
@@ -1188,18 +1350,15 @@
             const todayIndex = getCurrentDayIndex();
             positionFrameOnDay(todayIndex);
             
-            console.log("Initialized with current day: Day", todayIndex + 1);
             
             frame.style.pointerEvents = 'all';
             frame.style.cursor = 'grab';
             
-            console.log("Setting up drag handlers...");
             
             let startDrag = function(e) {
                 isDragging = true;
                 frame.classList.add('dragging');
                 frame.style.cursor = 'grabbing';
-                console.log("Drag started");
                 e.preventDefault();
                 e.stopPropagation();
             };
@@ -1250,7 +1409,6 @@
                     frame.classList.remove('dragging');
                     frame.style.cursor = 'grab';
                     if (window.__cmpSpeak) window.__cmpSpeak(currentDay);
-                    console.log("Drag ended");
                     
                     if (e) {
                         e.preventDefault();
@@ -1304,7 +1462,6 @@
             todayIndicator.addEventListener('click', function() {
                 const todayIndex = getCurrentDayIndex();
                 positionFrameOnDay(todayIndex);
-                console.log("Returned to today: Day", todayIndex + 1);
             });
             
             document.addEventListener('click', function(e) {
@@ -1317,7 +1474,7 @@
                         if (textBox) {
                             const div = textBox.querySelector('div');
                             if (div) {
-                                div.innerHTML = daysOfWeekData[currentQuizIndex][1]; // Reset to TL
+                                div.innerHTML = daysOfWeekData[currentQuizIndex][2]; // Reset to TLR
                             }
                         }
                     }
@@ -1339,7 +1496,6 @@
                 }
             }, 15000);
             
-            console.log("App initialized successfully");
         }
 
         document.addEventListener('DOMContentLoaded', initializeApp);
@@ -1355,7 +1511,8 @@
         var tmp = document.createElement('div');
         function plain(s) { tmp.innerHTML = String(s == null ? '' : s); return tmp.textContent; }
         function sizeOf(i) { return BASE * (window.tsScale ? window.tsScale(i) : 1); }
-        function wOf(i, txt) { cv.font = 'bold ' + sizeOf(i) + 'px Arial, sans-serif'; return cv.measureText(plain(txt)).width + 3; }
+        var FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif'; document.documentElement.style.setProperty('--cx-font', FONT);
+        function wOf(i, txt) { cv.font = '700 ' + sizeOf(i) + 'px ' + FONT; return cv.measureText(plain(txt)).width + 3; }
         function hOf(i) { return sizeOf(i) * 1.35; }
         function ang(i) { return ((i + 0.5) * 360 / 7 - 90) * Math.PI / 180; }
         window.LOGV = daysOfWeekData[0].length >= 5;
@@ -1513,12 +1670,15 @@
             head.addEventListener('pointermove', function (e) { if (d) { panel.style.left = (e.clientX - d.dx) + 'px'; panel.style.top = (e.clientY - d.dy) + 'px'; } });
             head.addEventListener('pointerup', function () { d = null; });
         })();
-        var SCHEMES = [['Default', ''], ['No colour', 'nocolour'], ['Night', 'night']], ci = 0, cb = $('colourBtn');
+        var SCHEMES = [['Default', ''], ['No colour', 'nocolour'], ['Night', 'night']], ci = 2, cb = $('colourBtn');   /* 2026-11-09: Night is now the starting scheme */
         cb.addEventListener('click', function (e) {
             e.stopPropagation(); ci = (ci + 1) % SCHEMES.length;
             if (SCHEMES[ci][1]) document.documentElement.setAttribute('data-scheme', SCHEMES[ci][1]); else document.documentElement.removeAttribute('data-scheme');
             cb.textContent = 'Colours: ' + SCHEMES[ci][0];
         });
+        var keepScheme = null;   /* paper is always printed in the light colours, then the screen scheme comes back */
+        window.addEventListener('beforeprint', function () { keepScheme = document.documentElement.getAttribute('data-scheme'); if (keepScheme === 'night') document.documentElement.removeAttribute('data-scheme'); });
+        window.addEventListener('afterprint', function () { if (keepScheme === 'night') document.documentElement.setAttribute('data-scheme', 'night'); keepScheme = null; });
     })();
 
 
@@ -1712,12 +1872,189 @@
         else {
             window.toggleFullScreen = function () {
                 var on = document.fullscreenElement || document.webkitFullscreenElement;
-                if (!on) { try { var p = req.call(de); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
+                var fail = function () { if (!fb) return; fb.textContent = 'Not allowed here'; setTimeout(sync, 2500); };
+                if (!on) { try { var p = req.call(de); if (p && p.catch) p.catch(fail); } catch (e) { fail(); } }
                 else { var ex = document.exitFullscreen || document.webkitExitFullscreen; if (ex) ex.call(document); }
             };
             var sync = function () { if (fb) fb.textContent = (document.fullscreenElement || document.webkitFullscreenElement) ? 'Exit Full Screen' : 'Full Screen'; };
             document.addEventListener('fullscreenchange', sync); document.addEventListener('webkitfullscreenchange', sync);
         }
+    })();
+    </script>
+    <script>
+    /* 2026-11-09 style v0.3 + sun: a cream face behind the dial, and a sun with a glow and slowly turning rays that follows the draggable frame */
+    (function () {
+        var svg = document.getElementById('svgCanvas'); if (!svg || document.getElementById('cxDisc')) return;
+        var NS = 'http://www.w3.org/2000/svg', defs = svg.querySelector('defs');
+        function mk(tag, attrs) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
+        var g = mk('radialGradient', { id: 'cxDiscGrad', cx: '50%', cy: '45%', r: '60%' });
+        g.innerHTML = '<stop offset="0%" style="stop-color:var(--cx-disc-a)"/><stop offset="100%" style="stop-color:var(--cx-disc-b)"/>';
+        defs.appendChild(g);
+        var disc = mk('circle', { id: 'cxDisc', cx: 50, cy: 50, r: 34.6 });
+        defs.parentNode.insertBefore(disc, defs.nextSibling);
+
+        /* the sun */
+        var sg = document.getElementById('sunGradient');
+        if (sg) {
+            sg.setAttribute('cx', '50%'); sg.setAttribute('cy', '50%'); sg.setAttribute('r', '55%'); sg.setAttribute('fx', '38%'); sg.setAttribute('fy', '33%');
+            sg.innerHTML = '<stop offset="0%" style="stop-color:#fffef2"/><stop offset="28%" style="stop-color:#fff1a0"/><stop offset="65%" style="stop-color:#ffc62e"/><stop offset="100%" style="stop-color:#f08a0c"/>';
+        }
+        var gl = mk('radialGradient', { id: 'cxSunGlow', cx: '50%', cy: '50%', r: '50%' });
+        gl.innerHTML = '<stop offset="0%" stop-color="#ffd54a" stop-opacity=".75"/><stop offset="55%" stop-color="#ffd54a" stop-opacity=".3"/><stop offset="100%" stop-color="#ffd54a" stop-opacity="0"/>';
+        var rg = mk('linearGradient', { id: 'cxRayGrad', x1: '0', y1: '0', x2: '1', y2: '1' });
+        rg.innerHTML = '<stop offset="0%" stop-color="#ffd23f"/><stop offset="100%" stop-color="#f59a0c"/>';
+        defs.appendChild(gl); defs.appendChild(rg);
+        var sun = mk('g', { id: 'cxSun' });
+        sun.appendChild(mk('circle', { 'class': 'glow', cx: 0, cy: 0, r: 8.2 }));
+        var rays = mk('g', { 'class': 'rays' }), N = 16, pts = '';
+        for (var i = 0; i < N; i++) {
+            var a = i * 2 * Math.PI / N, tip = (i % 2 === 0) ? 6.0 : 5.0, half = (i % 2 === 0) ? 0.17 : 0.15, r0 = 3.7;
+            function P(r, ang) { return (r * Math.cos(ang)).toFixed(3) + ',' + (r * Math.sin(ang)).toFixed(3); }
+            var poly = mk('polygon', { points: P(r0, a - half) + ' ' + P(tip, a) + ' ' + P(r0, a + half) });
+            rays.appendChild(poly);
+        }
+        sun.appendChild(rays);
+        var frame = document.getElementById('draggableFrame');
+        svg.insertBefore(sun, document.getElementById('textBoxContainer'));
+        function follow() { sun.setAttribute('transform', 'translate(' + frame.getAttribute('cx') + ',' + frame.getAttribute('cy') + ')'); sun.classList.toggle('dragging', frame.classList.contains('dragging')); }
+        new MutationObserver(follow).observe(frame, { attributes: true, attributeFilter: ['cx', 'cy', 'class'] });
+        follow();
+    })();
+    </script>
+    <script>
+    /* 2026-11-09 night and day: seven "night" cones (pink - grey - black - grey - pink), each as wide as a day segment but shifted half a segment, so the blackest line (midnight)
+       falls on the boundary between two days and the pink edges (sunrise / sunset) fall at the middle of each day, where the sun stands. Plus a yellow beam of light from the
+       two sides of the sun's diameter to the centre of the circle. Both are drawn above the segments and below the words, and go with the Sun Cycle button. */
+    (function () {
+        var svg = document.getElementById('svgCanvas'), frame = document.getElementById('draggableFrame'), cyc = document.getElementById('sunCycleArcs');
+        if (!svg || !frame || !cyc || document.getElementById('cxNight')) return;
+        var NS = 'http://www.w3.org/2000/svg', R = 30, SL = 28;   // SL = slivers per cone
+        function mk(tag, attrs) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
+        var defs = svg.querySelector('defs');
+        var lg = mk('linearGradient', { id: 'cxBeamGrad', gradientUnits: 'userSpaceOnUse', x1: SL, y1: 0, x2: 0, y2: 0 });
+        lg.innerHTML = '<stop offset="0%" stop-color="#ffe45c" stop-opacity=".78"/><stop offset="55%" stop-color="#ffd23a" stop-opacity=".34"/><stop offset="100%" stop-color="#ffd23a" stop-opacity=".06"/>';
+        defs.appendChild(lg);
+        var g = mk('g', { id: 'cxNight', 'pointer-events': 'none' });
+        /* ONE smooth repeating conic gradient (7 cones). The cone starts at the middle of a day (pink = sunrise / sunset), is blackest on the boundary between two days (midnight). */
+        var W = 360 / 7, fo = mk('foreignObject', { x: 50 - R, y: 50 - R, width: 2 * R, height: 2 * R });
+        var d = document.createElement('div'); d.id = 'cxNightDisc';
+        /* stops as [fraction of the cone, red, green, blue, strength]: a wide sky-blue daylight band at the edge (the middle of the day), a NARROW transition (pink, orange, grey) and a wide black midnight band in the middle */
+        var ST = [[0, 120, 200, 240, 0.8], [0.24, 120, 200, 240, 0.76], [0.27, 255, 182, 200, 0.45], [0.295, 255, 150, 70, 0.6], [0.315, 125, 120, 130, 0.75], [0.34, 10, 10, 20, 0.94], [0.5, 8, 8, 18, 0.94], [0.66, 10, 10, 20, 0.94], [0.685, 125, 120, 130, 0.75], [0.705, 255, 150, 70, 0.6], [0.73, 255, 182, 200, 0.45], [0.76, 120, 200, 240, 0.76], [1, 120, 200, 240, 0.8]];
+        d.style.cssText = 'width:100%;height:100%;border-radius:50%;-webkit-print-color-adjust:exact;print-color-adjust:exact;background:repeating-conic-gradient(from ' + (W / 2).toFixed(4) + 'deg at 50% 50%,' +
+            ST.map(function (p) { return 'rgba(' + p[1] + ',' + p[2] + ',' + p[3] + ',' + p[4] + ') ' + (W * p[0]).toFixed(3) + 'deg'; }).join(',') + ')';
+        fo.appendChild(d); g.appendChild(fo);
+        var beam = mk('g', { id: 'cxBeam' });
+        var tri = mk('polygon', { points: '0,0 ' + SL + ',-4 ' + SL + ',4' }); tri.setAttribute('fill', 'url(#cxBeamGrad)'); beam.appendChild(tri);
+        g.appendChild(beam);
+        cyc.parentNode.insertBefore(g, cyc.nextSibling);
+        function follow() {
+            var x = parseFloat(frame.getAttribute('cx')) - 50, y = parseFloat(frame.getAttribute('cy')) - 50, d = Math.hypot(x, y) || 1;
+            var sc = d / SL;   // the beam is drawn 28 long; scale it to the real sun-to-centre distance
+            beam.setAttribute('transform', 'translate(50,50) rotate(' + (Math.atan2(y, x) * 180 / Math.PI).toFixed(2) + ') scale(' + sc.toFixed(4) + ',1)');
+        }
+        function vis() { g.style.display = (cyc.style.display === 'none') ? 'none' : ''; }
+        new MutationObserver(follow).observe(frame, { attributes: true, attributeFilter: ['cx', 'cy'] });
+        new MutationObserver(vis).observe(cyc, { attributes: true, attributeFilter: ['style'] });
+        follow(); vis();
+    })();
+    </script>
+    <script>
+    /* 2026-11-09 WEEKENDS: the week-day / weekend colours (light green = go, light red = stop) on the segments and on the outer rim, and a Tools > Weekend button
+       that shows how the weekend falls in the Target and Source languages' countries. Default = western Sat-Sun; the other patterns stay hidden until the button is used.
+       Day numbers: 0 Mon, 1 Tue, 2 Wed, 3 Thu, 4 Fri, 5 Sat, 6 Sun.  See Conceptionary_Weekend_Reference.md for the sources and for how to add or change a country. */
+    (function () {
+        var NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], WEST = [5, 6], FS = [4, 5];
+        /* by country (the part after the dash in a code such as ar-SA or he-IL) - first choice */
+        var BY_COUNTRY = {
+            IL: FS, SA: FS, KW: FS, QA: FS, BH: FS, OM: FS, EG: FS, IQ: FS, JO: FS, SY: FS, YE: FS, SD: FS, DZ: FS, LY: FS, BD: FS, MV: FS, AF: FS,
+            IR: [4], PS: [4], DJ: [4], SO: [4], NP: [5], BN: [4, 6],
+            AE: WEST, MA: WEST, TN: WEST, LB: WEST   /* Arabic-speaking, but Sat-Sun: these stop the Arabic fallback below */
+        };
+        /* by language alone (a code with no country, e.g. ar or he) - second choice */
+        var BY_LANG = { he: FS, ar: FS, fa: [4], ne: [5], dv: FS, so: [4] };
+        var CK = 'url(#cxRimBlue)', CR = 'url(#cxRimGrey)';   /* rim: sky-blue (week days) and light-grey (weekend) rounded, bevelled tubes */
+        (function () {
+            var NS = 'http://www.w3.org/2000/svg', defs = document.querySelector('#svgCanvas defs');
+            function grad(id, stops) { var g = document.createElementNS(NS, 'radialGradient'); g.setAttribute('id', id); g.setAttribute('gradientUnits', 'userSpaceOnUse'); g.setAttribute('cx', 50); g.setAttribute('cy', 50); g.setAttribute('r', 34);
+                g.innerHTML = stops.map(function (s) { return '<stop offset="' + s[0] + '" stop-color="' + s[1] + '"/>'; }).join(''); defs.appendChild(g); }
+            grad('cxRimBlue', [[.9118, '#f6fcff'], [.93, '#cdeafc'], [.955, '#87ceeb'], [.978, '#5fb2e2'], [1, '#bfe3f7']]);
+            grad('cxRimGrey', [[.9118, '#fcfcfc'], [.93, '#e6e8eb'], [.955, '#c4c8ce'], [.978, '#9ba1a9'], [1, '#d6d9de']]);
+        })();
+        function parse(v) {   /* accepts [4,5] or 'Fri,Sat' / 'Fri-Sat' */
+            if (!v) return null; if (Array.isArray(v)) return v.slice().sort();
+            var out = []; String(v).split(/[ ,;+\/&-]+/).forEach(function (t) { var i = NAMES.map(function (n) { return n.toLowerCase(); }).indexOf(t.slice(0, 3).toLowerCase()); if (i >= 0 && out.indexOf(i) < 0) out.push(i); });
+            return out.length ? out.sort() : null;
+        }
+        function lookup(code, override) {
+            var o = parse(override); if (o) return o;
+            if (!code) return WEST;
+            var p = String(code).replace('_', '-').split('-'), lang = p[0].toLowerCase(), reg = (p[p.length > 1 ? p.length - 1 : 0] || '').toUpperCase();
+            if (p.length > 1 && BY_COUNTRY[reg]) return BY_COUNTRY[reg];
+            return BY_LANG[lang] || WEST;
+        }
+        function key(a) { return a.join(','); }
+        function nice(a) {
+            if (a.length === 1) return NAMES[a[0]] + ' only';
+            var run = a.every(function (d, i) { return i === 0 || d === a[i - 1] + 1; });
+            return run ? NAMES[a[0]] + '–' + NAMES[a[a.length - 1]] : a.map(function (d) { return NAMES[d]; }).join(' + ');
+        }
+        var svg = document.getElementById('svgCanvas'), grp = document.getElementById('sunCycleArcs'), btn = document.getElementById('weekendBtn');
+        if (!svg || !grp || !btn) return;
+        var cur = WEST, opts = [], oi = 0;
+        function arcPath(a0, n) {
+            var W = 2 * Math.PI / 7, s = a0 * W - Math.PI / 2, e = (a0 + n) * W - Math.PI / 2, ri = 31, ro = 34;
+            function P(r, t) { return (50 + r * Math.cos(t)).toFixed(3) + ',' + (50 + r * Math.sin(t)).toFixed(3); }
+            var big = (e - s) > Math.PI ? 1 : 0;
+            return 'M ' + P(ri, s) + ' L ' + P(ro, s) + ' A ' + ro + ',' + ro + ' 0 ' + big + ',1 ' + P(ro, e) + ' L ' + P(ri, e) + ' A ' + ri + ',' + ri + ' 0 ' + big + ',0 ' + P(ri, s) + ' Z';
+        }
+        function apply(wk) {
+            cur = wk;
+            var isWk = [0, 1, 2, 3, 4, 5, 6].map(function (d) { return wk.indexOf(d) >= 0; });
+            document.querySelectorAll('#segments path').forEach(function (p) {
+                var d = parseInt(p.getAttribute('data-day')); p.setAttribute('class', (isWk[d] ? 'weekend-segment' : 'weekday-segment') + (p.classList.contains('segment-highlighted') ? ' segment-highlighted' : ''));
+            });
+            /* rim: runs of the same kind, wrapping round the circle */
+            while (grp.firstChild) grp.removeChild(grp.firstChild);
+            var start = 0; while (start < 7 && isWk[start] === isWk[(start + 6) % 7]) start++;   /* first day that begins a run */
+            if (start === 7) start = 0;
+            var runs = [], i = 0;
+            while (i < 7) { var d0 = (start + i) % 7, kind = isWk[d0], n = 1; while (i + n < 7 && isWk[(start + i + n) % 7] === kind) n++; runs.push({ d0: d0, n: n, wk: kind }); i += n; }
+            var bestWd = null, bestWe = null;
+            runs.forEach(function (r) { if (r.wk) { if (!bestWe || r.n > bestWe.n) bestWe = r; } else if (!bestWd || r.n > bestWd.n) bestWd = r; });
+            runs.forEach(function (r) {
+                var p = document.createElementNS('http://www.w3.org/2000/svg', 'path'), a = r.d0;
+                p.setAttribute('d', arcPath(a, r.n)); p.setAttribute('fill', r.wk ? CR : CK); p.setAttribute('stroke', r.wk ? '#8e949c' : '#5a9cc4'); p.setAttribute('stroke-width', '0.18'); grp.appendChild(p);
+                /* shiny highlight along the inner third of the tube */
+                var sa = a * 2 * Math.PI / 7 - Math.PI / 2, ea = (a + r.n) * 2 * Math.PI / 7 - Math.PI / 2, pad = 0.045, hr = 32.0, h = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                h.setAttribute('d', 'M ' + (50 + hr * Math.cos(sa + pad)).toFixed(3) + ',' + (50 + hr * Math.sin(sa + pad)).toFixed(3) + ' A ' + hr + ',' + hr + ' 0 ' + ((ea - sa) > Math.PI ? 1 : 0) + ',1 ' + (50 + hr * Math.cos(ea - pad)).toFixed(3) + ',' + (50 + hr * Math.sin(ea - pad)).toFixed(3));
+                h.setAttribute('fill', 'none'); h.setAttribute('stroke', '#fff'); h.setAttribute('stroke-opacity', '.8'); h.setAttribute('stroke-width', '.35'); h.setAttribute('stroke-linecap', 'round'); grp.appendChild(h);
+                if ((r === bestWd && !r.wk) || (r === bestWe && r.wk)) {
+                    var ang = (a + r.n / 2) * 2 * Math.PI / 7 - Math.PI / 2, t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    t.setAttribute('x', 50 + 32.5 * Math.cos(ang)); t.setAttribute('y', 50 + 32.5 * Math.sin(ang)); t.setAttribute('font-size', '2'); t.setAttribute('fill', '#333'); t.setAttribute('text-anchor', 'middle'); t.setAttribute('dominant-baseline', 'central');
+                    t.textContent = r.wk ? '☾' : '☀'; grp.appendChild(t);
+                }
+            });
+        }
+        function labelOf(kind) { return kind === 'TL' ? (window.CONCEPTIONARY_AUDIO_TL_LABEL || window.CONCEPTIONARY_AUDIO_LANG || 'TL') : (window.CONCEPTIONARY_AUDIO_SL_LABEL || window.CONCEPTIONARY_AUDIO_SL_LANG || 'SL'); }
+        function build() {
+            var tl = lookup(window.CONCEPTIONARY_AUDIO_LANG, window.CONCEPTIONARY_WEEKEND_TL), sl = lookup(window.CONCEPTIONARY_AUDIO_SL_LANG, window.CONCEPTIONARY_WEEKEND_SL);
+            opts = [{ wk: WEST, who: 'western' }];
+            if (key(tl) !== key(WEST)) opts.push({ wk: tl, who: labelOf('TL') + ' (TL)' });
+            if (key(sl) !== key(WEST) && key(sl) !== key(tl)) opts.push({ wk: sl, who: labelOf('SL') + ' (SL)' });
+        }
+        var toast = document.createElement('div'); toast.id = 'cxToast'; document.body.appendChild(toast); var tt = null;
+        function say(msg) { toast.textContent = msg; toast.style.opacity = '1'; clearTimeout(tt); tt = setTimeout(function () { toast.style.opacity = '0'; }, 3200); }
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation(); var m = document.getElementById('toolsMenu'); if (m) m.classList.remove('active');
+            build();
+            if (opts.length === 1) { oi = 0; apply(WEST); btn.textContent = 'Weekend'; say('No different weekend for these languages: the weekend is ' + nice(WEST) + '.'); return; }
+            oi = (oi + 1) % opts.length; apply(opts[oi].wk);
+            btn.textContent = oi === 0 ? 'Weekend' : 'Weekend: ' + nice(opts[oi].wk);
+            say('Weekend: ' + nice(opts[oi].wk) + (oi === 0 ? ' (western)' : ' – ' + opts[oi].who));
+        });
+        window.__cxWeekend = { apply: apply, lookup: lookup, nice: nice };
+        document.addEventListener('DOMContentLoaded', function () { apply(WEST); });   /* runs after the page has built its rim */
+        if (document.readyState !== 'loading') apply(WEST);
     })();
     </script>
 </body>
