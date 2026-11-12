@@ -445,6 +445,12 @@ html:not([data-scheme]) .textBox.active div { color: #12203a !important; }
 html:not([data-scheme]) .watermark { color: #24456b; }
 html:not([data-scheme]) .drag-instruction { color: #24456b; }
 #third-indicator:empty { display: none; }
+#third-indicator { cursor: pointer; font-size: 1em; color: var(--cx-ink); -webkit-tap-highlight-color: transparent; transition: background var(--cx-t), box-shadow var(--cx-t), transform var(--cx-t); }
+#third-indicator:hover { background: #ffe9a8; box-shadow: var(--cx-shadow-sm); }
+#third-indicator:active { transform: scale(.97); }
+#third-indicator:focus-visible { outline: 3px solid var(--cx-accent); outline-offset: 2px; }
+#third-indicator { line-height: 1.75; }
+#third-indicator rt { font-size: .55em; line-height: 1; }
 @media print { .a4-page { background: #fff !important; } .month-segment { fill: #e4daf5 !important; } .third-seg.on, .segment-highlighted { fill: none !important; } #cxRingTube { display: none; } }
 @media print { .vocabulary-array, .quiz-container { display: none !important; } }
     </style>
@@ -454,7 +460,7 @@ html:not([data-scheme]) .drag-instruction { color: #24456b; }
         <div id="cmpInfo">
             <div id="title-box" class="title-box">TITLE_PLACEHOLDER</div>
             <div id="drag-instruction" class="drag-instruction">DRAG_INSTRUCTION_PLACEHOLDER</div>
-            <div id="third-indicator" class="day-indicator"></div>
+            <button id="third-indicator" class="day-indicator" type="button" title="Click to change the language of this label"></button>
         </div>
         <div id="cmpCtl">
             <button id="display-mode-toggle" class="display-mode-toggle tb" type="button" title="Change the language shown on every month">SHOW_TL_LABEL</button>
@@ -545,7 +551,8 @@ html:not([data-scheme]) .drag-instruction { color: #24456b; }
         quiz_wrong:        "QUIZ_WRONG",        // e.g. "Try again"
         reset_label:       "RESET_LABEL",       // e.g. "Reset"
         move_hint:         "MOVE_HINT",         // e.g. "You can move this"  (shown for 5 seconds each time the Quiz opens)
-        third_pattern:     "{third} {month}",   // how a part of a month is written: "{third} {month}" = Early January; "{month}{third}" if the language puts it after
+        third_pattern:     "{third} {month}",   // how a part of a month is written: "{third} {month}" = Early January; "{month}{third}" if the language puts it after.
+                                                // Different layers can differ: give a list [SL pattern, TL pattern] (LOG: [SL, TL, TLR]), e.g. ["{third} {month}", "{month}{third}"]
         // --- The three parts of every month: Early / Mid / Late (10-day thirds: 1-10, 11-20, 21-end) ---
         // Each entry: [ SL, TL ]  (LOG: [ SL, TL, TLR ]).  Written the way they join a month name with third_pattern above.
         thirds: [["SL_EARLY", "TL_EARLY"], ["SL_MID", "TL_MID"], ["SL_LATE", "TL_LATE"]],
@@ -597,7 +604,7 @@ html:not([data-scheme]) .drag-instruction { color: #24456b; }
 
 
     // --- Apply UI strings from config ------------------------------------
-    document.getElementById('title-box').textContent          = LANG.titles[0];
+    document.getElementById('title-box').innerHTML             = LANG.titles[0];   // innerHTML: a title may carry furigana (ruby)
     document.getElementById('display-mode-toggle').textContent= LANG.show_tl_label;
     document.getElementById('seasons-toggle').textContent     = LANG.seasons_toggle;
     document.getElementById('drag-instruction').textContent   = LANG.drag_instruction;
@@ -822,7 +829,7 @@ html:not([data-scheme]) .drag-instruction { color: #24456b; }
 
             const tlSpan = document.createElement('span');
             tlSpan.className = 'tl-word';
-            tlSpan.textContent = tl;
+            tlSpan.innerHTML = tl;   // the TL word may carry furigana (ruby)
 
             const slSpan = document.createElement('span');
             slSpan.className = 'sl-word';
@@ -990,7 +997,7 @@ html:not([data-scheme]) .drag-instruction { color: #24456b; }
             this.classList.add('hidden');
             setTimeout(() => {
                 currentTextIndex = (currentTextIndex + 1) % LANG.titles.length;
-                this.textContent = LANG.titles[currentTextIndex];
+                this.innerHTML = LANG.titles[currentTextIndex];
                 this.classList.remove('hidden');
             }, 500);
         });
@@ -1040,7 +1047,7 @@ html:not([data-scheme]) .drag-instruction { color: #24456b; }
         var svg = document.getElementById('svgCanvas');
         var cv = document.createElement('canvas').getContext('2d');
         var tmp = document.createElement('div');
-        function plain(s) { tmp.innerHTML = String(s == null ? '' : s); return tmp.textContent; }
+        function plain(s) { tmp.innerHTML = String(s == null ? '' : s); tmp.querySelectorAll('rt, rp').forEach(function (n) { n.parentNode.removeChild(n); }); return tmp.textContent; }   /* furigana (ruby) text is left out when measuring */
         function sizeOf(i) { return BASE * (window.tsScale ? window.tsScale(i) : 1); }
         function wOf(i, txt) { cv.font = '700 ' + sizeOf(i) + 'px ' + FONT; return cv.measureText(plain(txt)).width + 3; }
         function hOf(i) { return sizeOf(i) * 1.35; }
@@ -1243,7 +1250,7 @@ html:not([data-scheme]) .drag-instruction { color: #24456b; }
         var esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;'); };
         var plain = function (t) { var d = document.createElement('div'); d.innerHTML = t; return d.textContent; };
         var row = function (a, b, c, d) { return '<div class="pl-row ' + (LOGV ? '' : 'rom') + '"><span class="pl-h">' + a + '</span>' + (LOGV ? '<span>' + b + '</span>' : '') + '<span>' + c + '</span><span>' + d + '</span></div>'; };
-        pl.innerHTML = monthsData.map(function (d, i) { return row(i + 1, esc(plain(LOGV ? d[2] : '')), esc(plain(d[1])), esc(plain(d[0]))); }).join('');
+        pl.innerHTML = monthsData.map(function (d, i) { return row(i + 1, esc(plain(LOGV ? d[2] : '')), d[1], esc(plain(d[0]))); }).join('');
     })();
 
     // --- Pull a word out of the dial to inspect it: it follows the finger or mouse and grows (up to 300%); let go and it STAYS for 5 seconds, then snaps back ---
@@ -1255,7 +1262,7 @@ html:not([data-scheme]) .drag-instruction { color: #24456b; }
         function makeGhost(box) {
             var d = box.querySelector('div'), r = d.getBoundingClientRect(), k = svg.getScreenCTM().a;
             var gh = document.createElement('div'); gh.className = 'cmp-ghost';
-            gh.textContent = d.textContent; gh.style.textTransform = d.style.textTransform; gh.style.fontSize = (parseFloat(d.style.fontSize) * k) + 'px';
+            gh.innerHTML = d.innerHTML; gh.style.textTransform = d.style.textTransform; gh.style.fontSize = (parseFloat(d.style.fontSize) * k) + 'px';
             document.body.appendChild(gh);
             var w = gh.offsetWidth, h = gh.offsetHeight, hx = r.left + r.width / 2, hy = r.top + r.height / 2;
             gh.style.left = hx + 'px'; gh.style.top = hy + 'px';
@@ -1306,7 +1313,7 @@ html:not([data-scheme]) .drag-instruction { color: #24456b; }
             if (cur.drag) { swallow = true; setTimeout(function () { swallow = false; }, 60); startHold(cur.i); return; }
             if (cur.hadHold) {   // a tap on a held word: flip its layer and start the 5 seconds again
                 cur.box.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-                cur.o.ghost.textContent = cur.box.querySelector('div').textContent; cur.o.ghost.style.textTransform = cur.box.querySelector('div').style.textTransform;
+                cur.o.ghost.innerHTML = cur.box.querySelector('div').innerHTML; cur.o.ghost.style.textTransform = cur.box.querySelector('div').style.textTransform;
                 startHold(cur.i);
             } else { var o = held.get(cur.i); if (o && o.pending) { if (o.ghost.parentNode) o.ghost.parentNode.removeChild(o.ghost); held.delete(cur.i); } }
         }
@@ -1433,7 +1440,7 @@ html:not([data-scheme]) .drag-instruction { color: #24456b; }
         }
         function speak1(text, code, done) {
             var files = window.CONCEPTIONARY_AUDIO_FILES;
-            if (files && files[text]) { playUrl(files[text], done); return; }
+            if (files && files[text] && (!code || code === tlCode())) { playUrl(files[text], done); return; }   /* recordings belong to the target language only (April and September are spelled alike in English) */
             if (AUDIO_API_URL && code) viaCloud(text, code, done); else viaBrowser(text, code, done);
         }
         var lastItem = '';
@@ -1448,7 +1455,7 @@ html:not([data-scheme]) .drag-instruction { color: #24456b; }
             try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
             (function next() { if (my !== st.seq || i >= items.length) return; var it = items[i++]; if (!it[0]) { next(); return; } speak1(it[0], it[1], function () { setTimeout(next, 150); }); })();
         }
-        window.__cmpSpeak = function (i, force) { var d = monthsData[i]; if (!d) return; if (force) st.last = ''; speakItem({ id: i, tl: String(d[1]).replace(/<[^>]*>/g, ''), sl: d[0] }); };   // the TLR (romanised) line is never spoken
+        window.__cmpSpeak = function (i, force) { var d = monthsData[i]; if (!d) return; if (force) st.last = ''; speakItem({ id: i, tl: String(d[1]).replace(/<rt>[^<]*<\/rt>/g, '').replace(/<[^>]*>/g, ''), sl: d[0] }); };   // the TLR (romanised) line is never spoken
 
         cyc.addEventListener('click', function (e) {
             e.stopPropagation();
@@ -1544,7 +1551,8 @@ html:not([data-scheme]) .drag-instruction { color: #24456b; }
         })();
 
         /* ---- Early / Mid / Late ---- */
-        var ind = $('third-indicator');
+        var ind = $('third-indicator'), thirdK = 0;   /* its own layer loop: LOG  TLR > TL > SL > TLR ; ROM  TL > SL > TL  (not tied to the Show button) */
+        ind.addEventListener('click', function (e) { e.stopPropagation(); thirdK = (thirdK + 1) % MODES.length; window.cmpThirdRefresh(); });
         function tw(t, row) { var v = LANG.thirds && LANG.thirds[t] && LANG.thirds[t][row]; return v || ['Early', 'Mid', 'Late'][t]; }
         function where() {
             var x = parseFloat(frame.getAttribute('cx')) - 50, y = parseFloat(frame.getAttribute('cy')) - 50;
@@ -1552,10 +1560,10 @@ html:not([data-scheme]) .drag-instruction { color: #24456b; }
             return { m: m, t: Math.max(0, Math.min(2, Math.floor((deg - m * 30) / 10))) };
         }
         window.cmpThirdRefresh = function () {
-            var w = where(), row = MODES[displayMode];
+            var w = where(), row = MODES[thirdK];
             document.querySelectorAll('.third-seg').forEach(function (p) { p.classList.toggle('on', +p.getAttribute('data-m') === w.m && +p.getAttribute('data-t') === w.t); });
-            var pat = (LANG.third_pattern && LANG.third_pattern.indexOf('{') >= 0) ? LANG.third_pattern : '{third} {month}';
-            ind.textContent = pat.replace('{third}', tw(w.t, row)).replace('{month}', monthsData[w.m][row]);
+            var tp = LANG.third_pattern, pat = Array.isArray(tp) ? tp[row] : tp; if (!pat || pat.indexOf('{') < 0) pat = '{third} {month}';
+            ind.innerHTML = pat.replace('{third}', tw(w.t, row)).replace('{month}', monthsData[w.m][row]);
         };
         var movedSun = false;
         function placeSun(m, t) {
@@ -1632,7 +1640,7 @@ html:not([data-scheme]) .drag-instruction { color: #24456b; }
             qc.style.display = 'none'; currentQuizIndex = -1; $('quizInput').value = ''; $('quizFeedback').textContent = '';
             learnedItems.fill(false); textBoxElements.forEach(function (tb) { tb.classList.remove('learned'); });
             $('learned-items').innerHTML = ''; de.classList.remove('has-learned'); $('toggle-learned').textContent = LANG.hide_all_label; hideTip();
-            displayMode = 0; $('display-mode-toggle').textContent = window.cmpModeLabel(0);
+            displayMode = 0; thirdK = 0; $('display-mode-toggle').textContent = window.cmpModeLabel(0);
             if (window.__cmpSetShowAll) window.__cmpSetShowAll(false);
             var all = $('tsAll'); if (all) all.checked = false; $('tsReset').click(); $('textSizePanel').style.display = 'none';
             if (showSeasons) $('seasons-toggle').click();
