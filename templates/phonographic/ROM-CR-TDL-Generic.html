@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LOG-CR-TDL Generic</title>
+    <title>Daily Tidal Cycle — Phonographic — Generic</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -39,17 +39,11 @@
         .textBox {
             cursor: pointer; font-size: 0.8em; fill: black;
             opacity: 0; display: none;
-            transition: opacity 0.5s ease-in-out;
-            text-anchor: middle; font-family: Arial, sans-serif;
-            /* transform: scale(...) removed 2026-07-20 as a diagnostic
-               test — even transform:scale(1), which is mathematically a
-               no-op, can change how a browser establishes a foreignObject
-               element's coordinate context, a known area of cross-browser
-               inconsistency. Testing whether removing it entirely
-               resolves a persistent, unexplained rendering offset. */
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transform: scale(0.5); text-anchor: middle; font-family: Arial, sans-serif;
         }
-        .textBox.active  { opacity: 1; display: block; }
-        .textBox.learned { opacity: 0.5; display: block; fill: green; }
+        .textBox.active  { opacity: 1; display: block; transform: scale(1) translateY(0); }
+        .textBox.learned { opacity: 0.5; display: block; transform: scale(1) translateY(0); fill: green; }
         .textBox.learned.active { opacity: 1; }
         .textBox.hidden  { opacity: 0; display: none; }
         #draggableFrame {
@@ -450,33 +444,19 @@ html[lang] .textBox:hover div, html[lang] .textBox:active div, html[lang] .textB
                     <stop offset="60%"  style="stop-color:#4682B4;stop-opacity:1"/>
                     <stop offset="100%" style="stop-color:#1E90FF;stop-opacity:1"/>
                 </radialGradient>
-                <!-- Moon gradient for the draggableFrame — colors sampled
-                     directly from Alan's reference photo (Moon.jpg) by
-                     sampling actual pixel brightness across the disc
-                     (15th to 98th percentile, excluding the black night-
-                     sky background), giving the real warm gold/bronze
-                     tones of that photo rather than an estimated palette.
-                     Radial, brightest near center fading to the darker
-                     tone at the edge, similar to the limb-darkening
-                     treatment used for the Sun gradient elsewhere in this
-                     project. Added 2026-07-19 per Alan's request. -->
+                <!-- Moon gradient — matching LOG-CR-TDL exactly, colors
+                     sampled from Alan's reference photo (Moon.jpg). -->
                 <radialGradient id="moonGradient" cx="50%" cy="50%" r="50%">
                     <stop offset="0%"   style="stop-color:#f5b55b;stop-opacity:1"/>
                     <stop offset="40%"  style="stop-color:#e2a24a;stop-opacity:1"/>
                     <stop offset="70%"  style="stop-color:#b87830;stop-opacity:1"/>
                     <stop offset="100%" style="stop-color:#a36a1d;stop-opacity:1"/>
                 </radialGradient>
-                <!-- Tidal height gradient: deepest blue at the top (full/
-                     high tide) fading to lighter blue at the bottom (low
-                     tide). Linear, not radial — the color should depend
-                     on vertical position (tidal height) alone, not
-                     distance from center, and applies the same way to
-                     both the outgoing and incoming halves since it's
-                     tracking tide height, not direction of flow.
-                     Colors sampled directly from Alan's reference image
-                     (BlueSeaGradients.png, 5 bands), reversed so the
-                     darkest sits at the top per his request.
-                     Added 2026-07-19 per Alan's request. -->
+                <!-- Tidal height gradient — matching LOG-CR-TDL exactly,
+                     colors sampled from Alan's reference image
+                     (BlueSeaGradients.png). Linear (not radial): color
+                     tracks tide height (vertical position), not distance
+                     from center. -->
                 <linearGradient id="tidalHeightGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%"   style="stop-color:#003399;stop-opacity:1"/>
                     <stop offset="25%"  style="stop-color:#0b58b3;stop-opacity:0.88"/>
@@ -545,17 +525,12 @@ html[lang] .textBox:hover div, html[lang] .textBox:active div, html[lang] .textB
         <input type="text" id="quizInput" placeholder="QUIZ_PLACEHOLDER">
         <button id="quizCheck">QUIZ_BUTTON_LABEL</button>
         <div id="quizFeedback"></div>
-    <div id="quizDiacriticNote" style="font-size:10px;color:#888;text-align:center;margin-top:6px;padding-top:6px;border-top:1px solid #eee;"></div>
     </div>
 
     <script>
 
     // =====================================================================
-    // =====================================================================
-// LOGOGRAPHIC VARIANT — 4-level cycle: TLR (default) → TL → SL → Quiz
-// Quiz tests TLR (romanized) reproduction with diacritic normalization.
-// =====================================================================
-// LANGUAGE CONFIGURATION BLOCK
+    // LANGUAGE CONFIGURATION BLOCK
     // To create a new language pair, replace ALL values in this section.
     // SL = Source Language  |  TL = Target Language (language being learned)
     // Do NOT change anything outside this block.
@@ -564,11 +539,10 @@ html[lang] .textBox:hover div, html[lang] .textBox:active div, html[lang] .textB
 
         // --- Title cycle (click title box to cycle) ----------------------
         titles: [
-        "LOG-CR-TDL Generic",
-        "TLR_TITLE",
-        "TL_TITLE",
-        "SL_TITLE"
-    ],
+            "SL_TITLE",          // e.g. "Tidal Cycle"
+            "TL_TITLE",          // e.g. "Siklus Pasang Surut"
+            "SL_TITLE / TL_TITLE"
+        ],
 
         // --- UI strings --------------------------------------------------
         drag_instruction:   "DRAG_INSTRUCTION",   // e.g. "Drag the wave marker to explore!"
@@ -583,19 +557,8 @@ html[lang] .textBox:hover div, html[lang] .textBox:active div, html[lang] .textB
         quiz_wrong:         "QUIZ_WRONG",          // e.g. "Try again"
         reset_label:        "RESET_LABEL",         // e.g. "Reset"
         move_hint:          "MOVE_HINT",           // e.g. "You can move this"  (shown for 5 seconds each time the Quiz opens)
-        show_tlr_label:     "SHOW_TLR_LABEL",      // e.g. "Show: TLR"  (the layer button; leave as is to keep the English label)
         show_tl_label:      "SHOW_TL_LABEL",       // e.g. "Show: TL"
         show_sl_label:      "SHOW_SL_LABEL",       // e.g. "Show: SL"
-    // --- Diacritic / romanization normalization --------------------------
-    // Shown near the quiz input so learners know they can type plain vowels.
-    diacritic_instructions: "DIACRITIC_INSTRUCTIONS",
-    // e.g. "Tip: macrons (ā→a, ō→o) may be typed as plain vowels."
-    diacritic_map: [
-        // ["ā","a"], ["ī","i"], ["ū","u"], ["ē","e"], ["ō","o"]
-    ],
-    collapse_double_vowels: false,
-    // Optional pairs of letters to treat as one when checking (a language that spells a long vowel two ways), e.g. ["ou","o"], ["ei","e"]. Applied to the typed answer AND the right answer.
-    digraph_map: [],
 
         // --- Phase labels (shown on the four quadrants of the dial) ------
         phase_high:     "PHASE_HIGH",      // e.g. "HIGH TIDE"
@@ -607,59 +570,39 @@ html[lang] .textBox:hover div, html[lang] .textBox:active div, html[lang] .textB
         // Format: [ SL phrase, TL phrase, Quiz question, angle (0–360°) ]
         // Angle 0° = top of circle (high tide peak); increases clockwise.
         statesData: [
-            ["SL-S1", "TL-S1", "TLR-S1", "QUIZ-S1",  0  ],
-            ["SL-S2", "TL-S2", "TLR-S2", "QUIZ-S2",  30 ],
-            ["SL-S3", "TL-S3", "TLR-S3", "QUIZ-S3",  60 ],
-            ["SL-S4", "TL-S4", "TLR-S4", "QUIZ-S4",  90 ],
-            ["SL-S5", "TL-S5", "TLR-S5", "QUIZ-S5",  120],
-            ["SL-S6", "TL-S6", "TLR-S6", "QUIZ-S6",  150],
-            ["SL-S7", "TL-S7", "TLR-S7", "QUIZ-S7",  180],
-            ["SL-S8", "TL-S8", "TLR-S8", "QUIZ-S8",  210],
-            ["SL-S9", "TL-S9", "TLR-S9", "QUIZ-S9",  225],
-            ["SL-S10", "TL-S10", "TLR-S10", "QUIZ-S10", 240],
-            ["SL-S11", "TL-S11", "TLR-S11", "QUIZ-S11", 270],
-            ["SL-S12", "TL-S12", "TLR-S12", "QUIZ-S12", 330]
+            ["SL-S1",  "TL-S1",  "QUIZ-S1",  0  ],
+            ["SL-S2",  "TL-S2",  "QUIZ-S2",  30 ],
+            ["SL-S3",  "TL-S3",  "QUIZ-S3",  60 ],
+            ["SL-S4",  "TL-S4",  "QUIZ-S4",  90 ],
+            ["SL-S5",  "TL-S5",  "QUIZ-S5",  120],
+            ["SL-S6",  "TL-S6",  "QUIZ-S6",  150],
+            ["SL-S7",  "TL-S7",  "QUIZ-S7",  180],
+            ["SL-S8",  "TL-S8",  "QUIZ-S8",  210],
+            ["SL-S9",  "TL-S9",  "QUIZ-S9",  225],
+            ["SL-S10", "TL-S10", "QUIZ-S10", 240],
+            ["SL-S11", "TL-S11", "QUIZ-S11", 270],
+            ["SL-S12", "TL-S12", "QUIZ-S12", 330]
         ],
 
         // --- Transitions mode vocabulary (12 items) ----------------------
         // Format: [ SL phrase, TL phrase, Quiz question, angle (0–360°) ]
         transitionsData: [
-            ["SL-T1", "TL-T1", "TLR-T1", "QUIZ-T1",  90 ],
-            ["SL-T2", "TL-T2", "TLR-T2", "QUIZ-T2",  105],
-            ["SL-T3", "TL-T3", "TLR-T3", "QUIZ-T3",  120],
-            ["SL-T4", "TL-T4", "TLR-T4", "QUIZ-T4",  135],
-            ["SL-T5", "TL-T5", "TLR-T5", "QUIZ-T5",  165],
-            ["SL-T6", "TL-T6", "TLR-T6", "QUIZ-T6",  180],
-            ["SL-T7", "TL-T7", "TLR-T7", "QUIZ-T7",  195],
-            ["SL-T8", "TL-T8", "TLR-T8", "QUIZ-T8",  225],
-            ["SL-T9", "TL-T9", "TLR-T9", "QUIZ-T9",  240],
-            ["SL-T10", "TL-T10", "TLR-T10", "QUIZ-T10", 270],
-            ["SL-T11", "TL-T11", "TLR-T11", "QUIZ-T11", 315],
-            ["SL-T12", "TL-T12", "TLR-T12", "QUIZ-T12", 345]
+            ["SL-T1",  "TL-T1",  "QUIZ-T1",  90 ],
+            ["SL-T2",  "TL-T2",  "QUIZ-T2",  105],
+            ["SL-T3",  "TL-T3",  "QUIZ-T3",  120],
+            ["SL-T4",  "TL-T4",  "QUIZ-T4",  135],
+            ["SL-T5",  "TL-T5",  "QUIZ-T5",  165],
+            ["SL-T6",  "TL-T6",  "QUIZ-T6",  180],
+            ["SL-T7",  "TL-T7",  "QUIZ-T7",  195],
+            ["SL-T8",  "TL-T8",  "QUIZ-T8",  225],
+            ["SL-T9",  "TL-T9",  "QUIZ-T9",  240],
+            ["SL-T10", "TL-T10", "QUIZ-T10", 270],
+            ["SL-T11", "TL-T11", "QUIZ-T11", 315],
+            ["SL-T12", "TL-T12", "QUIZ-T12", 345]
         ]
     };
     // =====================================================================
     // END OF LANGUAGE CONFIGURATION BLOCK
-
-// --- Answer normalization (diacritic-tolerant for TLR quiz answers) ---
-const AnswerUtils = {
-    normalize: function(text) {
-        let t = text.toLowerCase();
-        LANG.diacritic_map.forEach(([accented, plain]) => {
-            t = t.split(accented).join(plain);
-        });
-        (LANG.digraph_map || []).forEach(([a, b]) => { t = t.split(a).join(b); });
-        if (LANG.collapse_double_vowels) {
-            t = t.replace(/aa/g,'a').replace(/ee/g,'e').replace(/ii/g,'i')
-                 .replace(/oo/g,'o').replace(/uu/g,'u');
-        }
-        return t.replace(/\s+/g,' ').trim().toLowerCase();
-    },
-    checkAnswer: function(userInput, correct) {
-        return this.normalize(userInput) === this.normalize(correct);
-    }
-};
-
     // No language-specific content appears below this line.
     // =====================================================================
 
@@ -672,8 +615,6 @@ const AnswerUtils = {
     document.getElementById('modeToggle').textContent       = LANG.states_mode_label;
     document.getElementById('quizInput').placeholder        = LANG.quiz_placeholder;
     document.getElementById('quizCheck').textContent        = LANG.quiz_button;
-    const _dNote = document.getElementById('quizDiacriticNote');
-    if (_dNote) _dNote.textContent = LANG.diacritic_instructions;
     document.getElementById('label-high').textContent       = LANG.phase_high;
     document.getElementById('label-outgoing').textContent   = LANG.phase_outgoing;
     document.getElementById('label-low').textContent        = LANG.phase_low;
@@ -685,26 +626,19 @@ const AnswerUtils = {
     let learnedItemsStates      = new Array(LANG.statesData.length).fill(false);
     let learnedItemsTransitions = new Array(LANG.transitionsData.length).fill(false);
 
-    // Textbox radius, per Alan's request 2026-07-19: each item sits along
-    // its own radial line (through its hour-marker angle) at a point 25%
-    // of the circle's own radius (30) beyond the circumference — i.e.
-    // radius = 30 * 1.25 = 37.5 for every item, uniformly. This replaces
-    // the per-item positionOverrides approach entirely — after several
-    // rounds where custom coordinates weren't rendering as expected
-    // despite repeated verification, Alan asked to go back to a single
-    // regular formula tied directly to each hour marker's own angle,
-    // rather than individually-specified positions.
+    // Uniform textbox radius, matching LOG-CR-TDL and the rest of the
+    // Circular family — previously activeR=10/learnedR=22 clustered all
+    // 12 items tightly near the center rather than spreading them around
+    // the circle's circumference.
     const textBoxRadius = 30 * 1.25;
     const positionOverrides = {
-        8:  { x: 18, y: 70 }, // S9  (was ~46.1,87.3) — moved per Alan's
-                              // 2026-07-21 request
-        9:  { x: 10, y: 50 }, // S10 — moved 2026-07-21 (was 10,40),
-                              // matching ROM-CR-TDL
-        10: { x: 20, y: 30 }  // S11 — moved 2026-07-21 (was 11,30),
-                              // matching ROM-CR-TDL
-        // S8 and S12 intentionally left at their formula positions
-        // (~31.3,82.5 and ~31.2,17.5) — Alan confirmed these are correct
-        // as-is.
+        8:  { x: 18, y: 70 }, // S9  — matching LOG-CR-TDL's values
+        9:  { x: 10, y: 50 }, // S10 — moved 2026-07-21 (was 10,40)
+        10: { x: 20, y: 30 }  // S11 — moved 2026-07-21 (was 10,30)
+        // S8 and S12 intentionally left at their formula positions,
+        // matching LOG-CR-TDL. Note: this file's positions have now
+        // diverged slightly from LOG-CR-TDL's — S10/S11 were adjusted
+        // here specifically, not ported back to LOG.
     };
     let textBoxElements = [];
     let currentPosition = 0;
@@ -750,16 +684,14 @@ const AnswerUtils = {
     // --- SVG segment geometry -------------------------------------------
     function createSegments() {
         const c = { x: 50, y: 50 }, r = 30;
-        // Recalibrated 2026-07-19 to a semi-diurnal (~12.4h) 2-phase
-        // model per Alan: high tide and low tide are the two turning
+        // Recalibrated to match LOG-CR-TDL's semi-diurnal (~12.4h)
+        // 2-phase model: high tide and low tide are the two turning
         // POINTS (top = 50,20 = hour 0/12.4; bottom = 50,80 = hour 6.2),
         // not their own segments. Outgoing spans the full right half
-        // (top → right → bottom, hours 0–6.2); incoming spans the full
-        // left half (bottom → left → top, hours 6.2–12.4). The old
-        // 4-quadrant model (high/outgoing/low/incoming each getting a
-        // 90° quarter) is retired — high-tide-segment and low-tide-
-        // segment are left with no path (see below) so they render as
-        // nothing, while their labels remain as point-markers.
+        // (hours 0–6.2); incoming spans the full left half (hours
+        // 6.2–12.4). high-tide-segment / low-tide-segment are left with
+        // no path so they render as nothing, while their labels remain
+        // as point-markers.
         const halves = [
             { id: 'outgoing-segment',   a1: -90, a2:  90 },
             { id: 'incoming-segment',   a1:  90, a2: 270 }
@@ -771,22 +703,18 @@ const AnswerUtils = {
             document.getElementById(q.id).setAttribute('d',
                 `M ${c.x} ${c.y} L ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2} Z`);
         });
-        // high-tide-segment / low-tide-segment intentionally left with no
-        // 'd' attribute — they no longer represent their own area.
     }
 
     function updateSegmentHighlight(angle) {
         const a = ((angle % 360) + 360) % 360;
         ['high-tide-segment','outgoing-segment','low-tide-segment','incoming-segment']
             .forEach(id => document.getElementById(id).classList.remove('segment-highlighted'));
-        // Recalibrated 2026-07-19: only two real segments now (outgoing =
-        // 0–180, incoming = 180–360, in this data-angle convention where
-        // 0=top/12 o'clock, 180=bottom/6 o'clock). high-tide-segment and
-        // low-tide-segment are never highlighted as areas anymore — they
-        // have no rendered path — but the wave decoration still gets a
+        // Recalibrated to match LOG-CR-TDL: only two real segments now
+        // (outgoing = 0–180, incoming = 180–360). high-tide-segment and
+        // low-tide-segment are never highlighted as areas anymore — no
+        // rendered path — but the wave decoration still gets a
         // "high"/"low" flourish within a narrow band near the actual
-        // turning points (top and bottom), so the visual richness of
-        // approaching/leaving full or low tide isn't lost.
+        // turning points.
         const active = a < 180 ? 'outgoing-segment' : 'incoming-segment';
         document.getElementById(active).classList.add('segment-highlighted');
 
@@ -823,7 +751,7 @@ const AnswerUtils = {
         const learnedItems= isStatesMode ? learnedItemsStates : learnedItemsTransitions;
 
         currentData.forEach((item, index) => {
-            const angle = (item[4] - 90) * Math.PI / 180;
+            const angle = (item[3] - 90) * Math.PI / 180;
             let x = c.x + textBoxRadius * Math.cos(angle);
             let y = c.y + textBoxRadius * Math.sin(angle);
             if (positionOverrides[index]) {
@@ -842,21 +770,12 @@ const AnswerUtils = {
             fo.style.zIndex = '500';
 
             const div = document.createElement('div');
-            // ROOT CAUSE FOUND 2026-07-20: the div was never vertically
-            // centered within its foreignObject — only text-align:center
-            // (horizontal) was set. A plain <div> flows from the TOP of
-            // its container, so the text rendered near the box's top
-            // edge, not its true center — meaning it appeared roughly
-            // half the box height (12 units) away from where the
-            // position calculation actually placed it. For items above
-            // the circle's center this pushed the text even further
-            // away; for items below center it pulled the text toward
-            // the middle — producing exactly the asymmetric "egg" shape
-            // Alan described. Confirmed via a debug marker plotted at
-            // the exact computed (x,y): the marker formed a perfect
-            // circle, proving the coordinate math was correct all along
-            // and the bug was purely in text layout within the box.
-            // Fixed with flexbox centering, filling the full box.
+            // Vertical centering: previously only text-align:center
+            // (horizontal) was set. A plain div flows from the TOP of its
+            // container, so text rendered near the box's top edge rather
+            // than its true center — the same root-cause bug found and
+            // fixed on LOG-CR-TDL via a debug-marker test. Fixed the same
+            // way here with flexbox, filling the full box.
             div.style.display        = 'flex';
             div.style.alignItems     = 'center';
             div.style.justifyContent = 'center';
@@ -870,19 +789,12 @@ const AnswerUtils = {
             div.style.cursor     = 'pointer';
             div.style.lineHeight = '1.1';
             div.style.fontWeight = 'normal';
-            // Textboxes sit at radius 36, outside the circle's own
-            // radius-30 gradient fill, so most text is on the plain page
-            // background — but box edges can still dip into the gradient
-            // for some items, and the gradient's darker (top) end would
-            // make plain dark text hard to read there. A single-corner
-            // shadow wasn't enough contrast against a deep blue
-            // background, so this is now a full white halo in all four
-            // directions, robust against both the white page and any
-            // part of the new tidalHeightGradient — added 2026-07-19.
+            // Full white halo, matching LOG-CR-TDL, for contrast against
+            // both the plain page and the new tidal-height gradient.
             div.style.textShadow =
                 '1px 1px 2px white, -1px -1px 2px white, ' +
                 '1px -1px 2px white, -1px 1px 2px white';
-            div.textContent = item[2]; // starts at TLR — LOG convention
+            div.textContent = item[1]; // starts at TL — ROM convention
             fo.appendChild(div);
 
             if (learnedItems[index]) fo.classList.add('learned');
@@ -896,40 +808,22 @@ const AnswerUtils = {
                 if (document.getElementById('quizContainer').style.display !== 'none'
                     && currentQuizIndex === idx) return;
 
-                // Previously this cycle only referenced TL (data[idx][1])
-                // and SL (data[idx][0]) — missing TLR (data[idx][2])
-                // entirely, which is required for a LOG template: the
-                // cycle must be TLR (default) → TL → SL → TLR/Quiz, per
-                // "Logographic UI Conventions" in
-                // Conceptionary_Template_Definitions.md. Fixed 2026-07-20.
-                const tlrText = data[idx][2];
-                const tlText  = data[idx][1];
-                const slText  = data[idx][0];
+                const tlText = data[idx][1];
+                const slText = data[idx][0];
 
                 if (lrnd[idx]) {
-                    // Learned: cycle TLR → TL → SL → TLR
-                    if (div.textContent === tlrText) {
-                        div.textContent = tlText;
-                        div.style.fontSize = '2.5px';
-                    } else if (div.textContent === tlText) {
-                        div.textContent = slText;
-                        div.style.fontSize = '2.3px';
-                    } else {
-                        div.textContent = tlrText;
-                        div.style.fontSize = '2.5px';
-                    }
+                    // Learned: toggle TL ↔ SL
+                    div.textContent = (div.textContent === tlText) ? slText : tlText;
+                    div.style.fontSize = (div.textContent === slText) ? '2.3px' : '2.5px';
                 } else {
-                    // Not learned: TLR → TL → SL → Quiz
-                    if (div.textContent === tlrText) {
-                        div.textContent = tlText;
-                        div.style.fontSize = '2.5px';
-                    } else if (div.textContent === tlText) {
+                    // Not learned: TL → SL → Quiz
+                    if (div.textContent === tlText) {
                         div.textContent = slText;
                         div.style.fontSize = '2.3px';
                     } else if (div.textContent === slText) {
                         showQuiz(idx, this);
                     } else {
-                        div.textContent = tlrText;
+                        div.textContent = tlText;
                         div.style.fontSize = '2.5px';
                     }
                 }
@@ -954,7 +848,7 @@ const AnswerUtils = {
         const norm = ((angle % 360) + 360) % 360;
         let closest = 0, minDiff = 360;
         data.forEach((item, i) => {
-            let diff = Math.abs(norm - item[4]);
+            let diff = Math.abs(norm - item[3]);
             if (diff > 180) diff = 360 - diff;
             if (diff < minDiff) { minDiff = diff; closest = i; }
         });
@@ -982,13 +876,13 @@ const AnswerUtils = {
     function positionFrameOnItem(itemIndex) {
         const data  = isStatesMode ? LANG.statesData : LANG.transitionsData;
         const c     = { x: 50, y: 50 }, r = 30;
-        const angle = (data[itemIndex][4] - 90) * Math.PI / 180;
+        const angle = (data[itemIndex][3] - 90) * Math.PI / 180;
         const frame = document.getElementById('draggableFrame');
         frame.setAttribute('cx', c.x + r * Math.cos(angle));
         frame.setAttribute('cy', c.y + r * Math.sin(angle));
         currentPosition = itemIndex;
         updateVisibleTextBoxes(itemIndex);
-        updateSegmentHighlight(data[itemIndex][4]);
+        updateSegmentHighlight(data[itemIndex][3]);
     }
 
     // --- Quiz -----------------------------------------------------------
@@ -996,7 +890,7 @@ const AnswerUtils = {
         const data = isStatesMode ? LANG.statesData : LANG.transitionsData;
         currentQuizIndex = index;
         const qc = document.getElementById('quizContainer');
-        document.getElementById('quizInput').placeholder = data[index][3];   // the QUIZ prompt (was [2], the TLR answer itself)
+        document.getElementById('quizInput').placeholder = data[index][2];
         document.getElementById('quizInput').value = '';
         document.getElementById('quizFeedback').textContent = '';
         qc.style.display    = 'block';
@@ -1011,13 +905,10 @@ const AnswerUtils = {
         const data    = isStatesMode ? LANG.statesData : LANG.transitionsData;
         const learned = isStatesMode ? learnedItemsStates : learnedItemsTransitions;
         const input   = document.getElementById('quizInput').value.trim();
-        // LOG convention: the quiz tests TLR (romanized), not TL (script)
-        // — was incorrectly testing against data[idx][1] (TL). Fixed
-        // 2026-07-20, alongside the same fix to the click-cycle above.
-        const correct = data[currentQuizIndex][2];
+        const correct = data[currentQuizIndex][1];
         const fb      = document.getElementById('quizFeedback');
 
-        if (AnswerUtils.checkAnswer(input, correct)) {
+        if (input.toLowerCase() === correct.toLowerCase()) {
             fb.textContent = LANG.quiz_correct;
             fb.style.color = 'green';
             learned[currentQuizIndex] = true;
@@ -1028,7 +919,7 @@ const AnswerUtils = {
                 const div = tb.querySelector('div');
                 if (div) div.textContent = correct;
                 const c = { x: 50, y: 50 };
-                const angle = (data[currentQuizIndex][4] - 90) * Math.PI / 180;
+                const angle = (data[currentQuizIndex][3] - 90) * Math.PI / 180;
                 let lx = c.x + textBoxRadius * Math.cos(angle);
                 let ly = c.y + textBoxRadius * Math.sin(angle);
                 if (positionOverrides[currentQuizIndex]) {
@@ -1058,7 +949,6 @@ const AnswerUtils = {
     }
 
     // --- Mode toggle ----------------------------------------------------
-
     function toggleMode() {
         isStatesMode = !isStatesMode;
         document.getElementById('modeToggle').textContent =

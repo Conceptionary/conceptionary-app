@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-scheme="night">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -139,12 +139,303 @@
             text-anchor: middle; pointer-events: none;
         }
         .tidal-icon { opacity: 0.2; pointer-events: none; }
+    /* 2026-11-06 Phone layout, Audio, Print, Full Screen, Tools menu and no Quiz on the Compass */
+    .a4-page { height: 86vh; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr) auto; }
+    .a4-page > svg { grid-column: 1 / 3; grid-row: 2; min-height: 0; width: 100%; height: 100%; }
+    #cmpInfo { position: static; grid-column: 1; grid-row: 1; z-index: 3; display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; margin: 10px; }
+    #cmpInfo .title-box { position: static; transform: none; left: auto; top: auto; }
+    #cmpInfo .title-box.hidden { transform: scale(0.9); }
+    #cmpInfo .day-indicator, #cmpInfo .drag-instruction { position: static; transform: none; left: auto; top: auto; min-width: 0; white-space: normal; }
+    #cmpCtl { position: static; grid-column: 2; grid-row: 1; z-index: 200; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; align-items: flex-start; margin: 10px; }
+    .a4-page > .watermark { position: static; grid-column: 1 / 3; grid-row: 3; padding: 0 0 4px; }
+    #cmpCtl .tb { position: static; transform: none; left: auto; top: auto; min-width: 0; font-weight: normal; background: #3366cc; color: #fff; border: 0; border-radius: 4px; padding: 7px 12px; font: 14px Arial, sans-serif; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+    #cmpCtl .tb:hover { background: #254e9c; }
+    #printList { display: none; }
+    .textBox { -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+.audio-wrap { position: relative; display: flex; flex-direction: column; align-items: stretch; width: 104px; box-sizing: border-box; background-color: #3366cc; color: #fff; border-radius: 4px; padding: 3px 6px 2px; }
+    .audio-wrap:hover { background-color: #254e9c; }
+    .audio-wrap #auCycle { background: transparent; border: 0; color: inherit; font: inherit; font-size: 14px; padding: 4px 0 1px; margin: 0; cursor: pointer; white-space: nowrap; text-align: center; -webkit-tap-highlight-color: transparent; }
+    .controls .audio-wrap #auCycle:hover { background: transparent; }
+    .audio-wrap #auVol2 { width: 100%; height: 14px; margin: 0; padding: 0; background: transparent; -webkit-appearance: none; appearance: none; touch-action: none; cursor: pointer; --p: 80%; }
+    .audio-wrap #auVol2::-webkit-slider-runnable-track { height: 5px; border-radius: 3px; background: linear-gradient(to right, #007FFF 0, #007FFF var(--p), #B0E0E6 var(--p), #B0E0E6 100%); }
+    .audio-wrap #auVol2::-moz-range-track { height: 5px; border-radius: 3px; background: #B0E0E6; }
+    .audio-wrap #auVol2::-moz-range-progress { height: 5px; border-radius: 3px; background: #007FFF; }
+    .audio-wrap #auVol2::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: -4.5px; border: 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c8fbff 0%, #2fd0e8 38%, #7fb8f0 68%, #ff9cc8 100%); box-shadow: 0 1px 2px rgba(0,0,0,.35); }
+    .audio-wrap #auVol2::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c8fbff 0%, #2fd0e8 38%, #7fb8f0 68%, #ff9cc8 100%); box-shadow: 0 1px 2px rgba(0,0,0,.35); }
+    @media (pointer: coarse) { .audio-wrap { width: 112px; } .audio-wrap #auVol2 { height: 20px; } .audio-wrap #auVol2::-webkit-slider-thumb { width: 18px; height: 18px; margin-top: -6.5px; } .audio-wrap #auVol2::-moz-range-thumb { width: 18px; height: 18px; } }
+    @media (max-height: 520px) and (orientation: landscape) { .audio-wrap { width: 86px; padding: 1px 5px 0; } .audio-wrap #auCycle { font-size: 11px; padding: 2px 0 0; } .audio-wrap #auVol2 { height: 13px; } }
+    #auToast { position: fixed; z-index: 1100; background: rgba(40,40,40,.92); color: #fff; font: 14px Arial, sans-serif; padding: 7px 12px; border-radius: 8px; max-width: min(92vw, 360px); text-align: center; pointer-events: none; opacity: 0; transition: opacity .25s ease; }
+    .tools-wrap { position: relative; }
+    #toolsBtn { min-width: 74px; }
+    .tools-dd { display: none; position: absolute; top: 100%; left: 0; margin-top: 4px; min-width: 9.5em; background: #3366cc; border-radius: 6px; overflow: hidden; z-index: 400; box-shadow: 0 4px 12px rgba(0,0,0,.3); }
+    .tools-dd.active { display: block; }
+    .tools-dd button { display: block; width: 100%; text-align: left; background: #3366cc; color: #fff; border: 0; border-bottom: 1px solid rgba(255,255,255,.35); padding: 9px 14px; font: 14px Arial, sans-serif; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+    .tools-dd button:last-child { border-bottom: 0; }
+    .tools-dd button:hover { background: #254e9c; }
+    html[data-scheme="nocolour"] body { background: #e6e6e6; }
+    html[data-scheme="nocolour"] .a4-page { filter: grayscale(1); }
+    @media screen {
+      html[data-scheme="night"] body { background: #0b1330; }
+      html[data-scheme="night"] .a4-page { background: #14213d; border-color: #8a96b8; }
+      html[data-scheme="night"] .circle-path { stroke: #aab4d0; }
+      html[data-scheme="night"] .segment-label { fill: #c5cce0; }
+      html[data-scheme="night"] .textBox div { color: #fff !important; text-shadow: none !important; }
+      html[data-scheme="night"] .title-box, html[data-scheme="night"] .day-indicator { background: #1f2f55; color: #e8eefc; border-color: #8a96b8; }
+      html[data-scheme="night"] .watermark { color: rgba(255,255,255,.45); }
+    }
+    /* Phone held upright: title and direction, buttons, the compass as large as fits, then the watermark */
+    @media (max-width: 700px) and (min-height: 521px) {
+      html, body { overflow: hidden; }
+      body { display: block; height: 100vh; height: 100dvh; padding: 0; }
+      .a4-page { width: 100vw; height: 100vh; height: 100dvh; border: 0; display: grid; grid-template-columns: 100%; grid-template-rows: auto auto minmax(0, 1fr) auto; }
+      #cmpInfo { grid-column: 1; grid-row: 1; justify-content: center; max-width: 96%; margin: 6px 0 0; gap: 4px 6px; }
+      #cmpInfo .title-box { padding: 6px 12px; font-size: .95em; text-align: center; }
+      #cmpInfo .day-indicator { font-size: .95em; padding: 4px 10px; }
+      #cmpInfo .drag-instruction { font-size: .8em; max-width: 92vw; text-align: center; }
+      #cmpCtl { grid-column: 1; grid-row: 2; justify-content: center; margin: 6px 4px; }
+      #cmpCtl .tb { padding: 7px 10px; font-size: 13px; }
+      .a4-page > svg { grid-column: 1; grid-row: 3; }
+      .a4-page > .watermark { grid-column: 1; grid-row: 4; }
+    }
+    /* Phone held sideways (or any short window, e.g. inside the viewer, about 690 x 200): text column on the left, compass at full height on the right */
+    @media (max-height: 520px) and (orientation: landscape) {
+      html, body { overflow: hidden; }
+      body { display: block; height: 100vh; height: 100dvh; padding: 0; }
+      .a4-page { width: 100vw; height: 100vh; height: 100dvh; border: 0; display: grid; grid-template-columns: minmax(190px, 42%) minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; }
+      #cmpInfo { grid-column: 1; grid-row: 1; flex-direction: column; align-items: flex-start; margin: 4px; gap: 3px; }
+      #cmpInfo .title-box { padding: 3px 8px; font-size: .8em; }
+      #cmpInfo .day-indicator { font-size: .8em; padding: 2px 8px; }
+      #cmpInfo .drag-instruction { display: none; }
+      #cmpCtl { grid-column: 1; grid-row: 2; justify-content: flex-start; margin: 2px 4px; gap: 4px; }
+      #cmpCtl .tb { padding: 4px 8px; font-size: 11px; }
+      .a4-page > svg { grid-column: 2; grid-row: 1 / 5; }
+      .a4-page > .watermark { grid-column: 1; grid-row: 4; text-align: left; font-size: 9px; padding: 0 4px 2px; }
+    }
+    /* Print: the compass on the left and every direction listed on the right, on one A4 landscape sheet */
+    @media print {
+      @page { size: A4 landscape; margin: 8mm; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      html, body { height: auto !important; min-height: 0 !important; overflow: visible !important; background: #fff !important; padding: 0 !important; display: block !important; }
+      .a4-page { width: 100% !important; height: 188mm !important; border: 0 !important; overflow: visible !important; display: grid !important; grid-template-columns: 152mm 1fr; grid-template-rows: auto 1fr auto; column-gap: 6mm; filter: none !important; }
+      .a4-page > svg { grid-column: 1; grid-row: 1 / 4; width: 152mm !important; height: 152mm !important; align-self: center; }
+      #cmpInfo { position: static !important; grid-column: 2; grid-row: 1; max-width: none; margin: 0 0 3mm; }
+      #cmpInfo .title-box { font-size: 14pt; border: 0; padding: 0; }
+      #cmpInfo .day-indicator, #cmpInfo .drag-instruction { display: none !important; }
+      #printList { display: block !important; grid-column: 2; grid-row: 2; font: 8.5pt Arial, sans-serif; overflow: hidden; }
+      #printList .pl-row { display: grid; grid-template-columns: 14mm 1fr 1fr 1fr; gap: 2mm; padding: 0.6mm 0; border-bottom: 0.2mm solid #ddd; }
+      #printList .pl-row.rom { grid-template-columns: 14mm 1fr 1fr; }
+      #printList .pl-h { color: #777; }
+      .a4-page > .watermark { position: static !important; grid-column: 2; grid-row: 3; text-align: right; }
+      .textBox { display: block !important; opacity: 1 !important; transform: none !important; }
+      #cmpCtl, .quiz-container, .vocabulary-array, #auToast { display: none !important; }
+    }
+    @media (max-height: 520px) and (orientation: landscape) { .audio-wrap #auVol2::-webkit-slider-thumb { width: 13px; height: 13px; margin-top: -4px; } .audio-wrap #auVol2::-moz-range-thumb { width: 13px; height: 13px; } }
+    #textSizePanel { position: fixed; z-index: 700; display: none; background: #fff; color: #222; border: 1px solid #555; border-radius: 8px; padding: 6px 10px 8px; box-shadow: 0 2px 10px rgba(0,0,0,.35); font: 13px Arial, sans-serif; width: min(300px, 88vw); touch-action: none; }
+    #textSizePanel .tsHead { cursor: grab; display: flex; justify-content: space-between; align-items: center; font-weight: bold; user-select: none; margin-bottom: 4px; }
+    #textSizePanel .tsHead button { border: 0; background: none; font-size: 20px; cursor: pointer; line-height: 1; }
+    #textSizePanel .tsTarget { margin: 2px 0 4px; min-height: 1.2em; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    #textSizePanel input[type=range] { width: 100%; touch-action: pan-y; }
+    #textSizePanel .tsRow { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; }
+    #textSizePanel button.tsReset { padding: 3px 10px; cursor: pointer; }
+    .textBox:hover div { background: #fff176; border-radius: 4px; }
+    .cmp-ghost { position: fixed; z-index: 1000; left: 0; top: 0; background: #fff176; border: 1px solid #b8860b; border-radius: 5px; box-shadow: 0 8px 24px rgba(0,0,0,.45); font-family: Arial, sans-serif; font-weight: bold; color: #000; white-space: nowrap; padding: 2px 5px; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transform-origin: 50% 50%; }
+    @media print { #textSizePanel, .cmp-ghost { display: none !important; } }
+
+    .textBox.visible { display: block; transform: scale(1) translateY(0); }
+    </style>
+    <style id="cx-style">
+/* ===== CONCEPTIONARY STYLE SHEET v0.1 (trial on the Compass, 2026-11-06) =====
+   One block of design tokens plus the rules that use them. It sits AFTER the template's own CSS and only changes looks, never behaviour.
+   Colour: ink / muted / surface / line, ONE primary (controls), ONE accent (the active word and highlight). Every text pair is 4.5:1 or better.
+   Type: one system font stack (set by script into --cx-font so the word measuring uses the same font), weights 600 and 700 only.
+   Spacing scale 4 / 8 / 12 / 16 / 24 px. Radius 10 (controls) and 16 (page card). Motion 150-250 ms, switched off by prefers-reduced-motion.
+   NOTE: inside an SVG foreignObject one CSS px is one SVG unit, so borders, radii and shadows on words are written in tiny values. */
+:root {
+  --cx-ink: #1f2937; --cx-muted: #4b5565; --cx-faint: #6b7280;
+  --cx-surface: #ffffff; --cx-bg: #eef1f7; --cx-line: #d3d9e6;
+  --cx-primary: #2a56c6; --cx-primary-dark: #1f428f; --cx-on-primary: #ffffff;
+  --cx-accent: #f2b01e; --cx-accent-soft: #fff4cf;
+  --cx-btn-bg: #e4ecf8; --cx-btn-bg-hover: #d3e0f5; --cx-btn-bg-on: #bcd0f0; --cx-btn-ink: #1d3b80; --cx-btn-line: #bccbe8;
+  --cx-disc-a: #fffdf6; --cx-disc-b: #efe8d4; --cx-disc-line: #d9cfb4;
+  --cx-s1: 4px; --cx-s2: 8px; --cx-s3: 12px; --cx-s4: 16px; --cx-s5: 24px;
+  --cx-r-ctl: 10px; --cx-r-card: 16px;
+  --cx-shadow-sm: 0 1px 2px rgba(20,30,60,.12); --cx-shadow-md: 0 4px 14px rgba(20,30,60,.16);
+  --cx-font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
+  --cx-t: 180ms ease;
+}
+html[data-scheme="night"] {
+  --cx-ink: #e6ebf7; --cx-muted: #b4bfd8; --cx-faint: #8f9cb8;
+  --cx-surface: #172036; --cx-bg: #0d1424; --cx-line: #2e3a58;
+  --cx-primary: #3d63c9; --cx-primary-dark: #2f4fa6; --cx-accent: #f2b01e; --cx-accent-soft: #3a3320;
+  --cx-btn-bg: #24304e; --cx-btn-bg-hover: #2e3c60; --cx-btn-bg-on: #3a4a74; --cx-btn-ink: #d6e0fa; --cx-btn-line: #3b4a70;
+  --cx-disc-a: #1c2846; --cx-disc-b: #121b33; --cx-disc-line: #3a4768;
+}
+body { font-family: var(--cx-font); color: var(--cx-ink); background: var(--cx-bg); }
+@media (min-width: 701px) and (min-height: 521px) {
+  body { background: radial-gradient(ellipse at 50% 30%, #ffffff 0%, var(--cx-bg) 70%); }
+  .a4-page { border: 1px solid var(--cx-line); border-radius: var(--cx-r-card); box-shadow: var(--cx-shadow-md); background: var(--cx-surface); }
+}
+.a4-page { background: var(--cx-surface); }
+/* title and indicator: quiet cards */
+.title-box { font-family: var(--cx-font); font-weight: 700; font-size: 1.05em; color: var(--cx-ink); background: var(--cx-surface); border: 1px solid var(--cx-line); border-radius: var(--cx-r-ctl); box-shadow: var(--cx-shadow-sm); padding: var(--cx-s2) var(--cx-s3); transition: box-shadow var(--cx-t), transform var(--cx-t), opacity .5s ease; }
+.title-box:hover { box-shadow: var(--cx-shadow-md); }
+.direction-indicator, .day-indicator { font-family: var(--cx-font); font-weight: 600; color: var(--cx-ink); background: var(--cx-accent-soft); border: 1px solid var(--cx-accent); border-radius: 999px; padding: var(--cx-s1) var(--cx-s3); }
+.drag-instruction { font-family: var(--cx-font); color: var(--cx-muted); background: var(--cx-surface); border: 1px solid var(--cx-line); border-radius: var(--cx-r-ctl); }
+/* controls: one button style */
+#cmpCtl .tb, .quiz-container button { font-family: var(--cx-font); font-weight: 600; letter-spacing: .01em; background: var(--cx-btn-bg); color: var(--cx-btn-ink); border: 1px solid var(--cx-btn-line); border-radius: var(--cx-r-ctl); box-shadow: var(--cx-shadow-sm); min-height: 38px; transition: background var(--cx-t), transform var(--cx-t), box-shadow var(--cx-t); }
+#cmpCtl .tb:hover { background: var(--cx-btn-bg-hover); box-shadow: var(--cx-shadow-md); }
+#cmpCtl .tb.on { background: var(--cx-btn-bg-on); border-color: var(--cx-primary); }
+#cmpCtl .tb:active, .audio-wrap:active { transform: scale(.97); box-shadow: none; }
+#cmpCtl .tb:focus-visible, .audio-wrap #auCycle:focus-visible, .tools-dd button:focus-visible { outline: 3px solid var(--cx-accent); outline-offset: 2px; }
+.audio-wrap { background: var(--cx-btn-bg); color: var(--cx-btn-ink); border: 1px solid var(--cx-btn-line); border-radius: var(--cx-r-ctl); box-shadow: var(--cx-shadow-sm); transition: background var(--cx-t); }
+.audio-wrap:hover { background: var(--cx-btn-bg-hover); }
+.audio-wrap #auVol2::-webkit-slider-runnable-track { background: linear-gradient(to right, var(--cx-primary) 0, var(--cx-primary) var(--p), var(--cx-btn-line) var(--p), var(--cx-btn-line) 100%) !important; }
+.audio-wrap #auVol2::-moz-range-track { background: var(--cx-btn-line) !important; } .audio-wrap #auVol2::-moz-range-progress { background: var(--cx-primary) !important; }
+.audio-wrap #auCycle { font-family: var(--cx-font); font-weight: 600; }
+.tools-dd { background: var(--cx-surface); border: 1px solid var(--cx-line); border-radius: 12px; box-shadow: var(--cx-shadow-md); }
+.tools-dd button { background: var(--cx-surface); color: var(--cx-btn-ink); font-family: var(--cx-font); border-bottom: 1px solid var(--cx-line); transition: background var(--cx-t); }
+.tools-dd button:hover { background: var(--cx-accent-soft); }
+#textSizePanel { font-family: var(--cx-font); background: var(--cx-surface); color: var(--cx-ink); border: 1px solid var(--cx-line); border-radius: 12px; box-shadow: var(--cx-shadow-md); }
+#textSizePanel button.tsReset { border: 1px solid var(--cx-line); border-radius: 8px; background: var(--cx-surface); color: var(--cx-ink); }
+@media (pointer: coarse) { #cmpCtl .tb { min-height: 44px; } .tools-dd button { padding-top: 12px; padding-bottom: 12px; } }
+@media (max-height: 520px) and (orientation: landscape) { #cmpCtl .tb { min-height: 32px; } }
+/* the dial */
+.circle-path, .compass-circle { stroke: var(--cx-ink); stroke-width: 0.45; }
+.degree-marker { stroke: #aab2c2; } .major-marker { stroke: #6f7889; }
+.degree-label { fill: var(--cx-faint); font-family: var(--cx-font); }
+.segment-label { font-family: var(--cx-font); fill: var(--cx-ink); }
+.quadrant-fill { fill-opacity: .42; }
+.q1-quadrant { fill: #c9defc; } .q2-quadrant { fill: #fdeaa8; } .q3-quadrant { fill: #fcd2ad; } .q4-quadrant { fill: #f8c4de; }
+.compass-rose-decoration { stroke: var(--cx-faint); opacity: .35; }
+.needle-north { fill: #d64545; stroke: #8f2323; } .needle-south { fill: #3b6fd8; stroke: #1f3f8f; }
+.compass-arrow { filter: drop-shadow(0 .6px 1px rgba(20,30,60,.35)); }
+/* words on the dial: the active word is a chip with the accent edge; the others are quiet but fully readable */
+.textBox div { font-family: var(--cx-font) !important; font-weight: 600 !important; color: var(--cx-muted) !important; text-shadow: 0 0 .8px var(--cx-surface) !important; border-radius: 1.6px; transition: background var(--cx-t), color var(--cx-t); }
+.textBox.active div { font-weight: 700 !important; color: var(--cx-ink) !important; background: rgba(255,255,255,.94); box-shadow: 0 0 0 .35px var(--cx-accent), 0 .5px 1.2px rgba(20,30,60,.2); text-shadow: none !important; }
+html[data-scheme="night"] .textBox.active div { background: rgba(23,32,54,.94); }
+.textBox:hover div { background: #fff176 !important; color: #1f2937 !important; }
+.watermark { color: var(--cx-faint); font-family: var(--cx-font); font-weight: 600; opacity: .85; }
+.cmp-ghost { font-family: var(--cx-font); border-radius: 10px; background: #fff176; border-color: var(--cx-accent); color: #1f2937; }
+html[data-scheme="night"] body { background: var(--cx-bg); }
+html[data-scheme="night"] .a4-page, html[data-scheme="night"] .title-box { background: var(--cx-surface); border-color: var(--cx-line); }
+html[data-scheme="night"] .title-box, html[data-scheme="night"] .direction-indicator { color: var(--cx-ink); }
+html[data-scheme="night"] .direction-indicator { background: var(--cx-accent-soft); border-color: var(--cx-accent); }
+html[data-scheme="night"] .quadrant-fill { fill-opacity: .22; }
+html[data-scheme="night"] .tools-dd, html[data-scheme="night"] #textSizePanel { background: var(--cx-surface); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+@media print { body { background: #fff !important; } .textBox div, .textBox.active div { color: #000 !important; background: none !important; box-shadow: none !important; } }
+/* colour disc behind the dial (inserted by script as #cxDisc) */
+#cxDisc { fill: url(#cxDiscGrad); stroke: var(--cx-disc-line); stroke-width: .35; filter: drop-shadow(0 .5px 1.2px rgba(60,50,20,.18)); }
+html[data-scheme="night"] #cxDisc { filter: none; }
+html[data-scheme="nocolour"] #cxDisc { filter: grayscale(1); }
+@media print { #cxDisc { filter: none; } }
+
+/* ===== v0.3: pearl buttons and a silver slider ===== */
+:root {
+  --cx-pearl: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.95) 0%, rgba(255,255,255,.35) 38%, rgba(255,255,255,0) 62%),
+              linear-gradient(135deg, #f8f5ff 0%, #e4edfb 32%, #f3e8f5 62%, #e2f1f3 100%);
+  --cx-pearl-hover: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,1) 0%, rgba(255,255,255,.45) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #f3eefe 0%, #d6e4fa 32%, #efdff3 62%, #d3ebef 100%);
+  --cx-pearl-on: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.75) 0%, rgba(255,255,255,.2) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #cfdcf5 0%, #b3c8ee 35%, #cdbfe9 65%, #b4d9e3 100%);
+  --cx-pearl-edge: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -3px 5px rgba(110,125,175,.20), inset 0 0 0 1px rgba(255,255,255,.35);
+}
+html[data-scheme="night"] {
+  --cx-pearl: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.22) 0%, rgba(255,255,255,.07) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #2c3a5c 0%, #34456d 35%, #3a3560 65%, #2b4458 100%);
+  --cx-pearl-hover: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.3) 0%, rgba(255,255,255,.1) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #34456d 0%, #3f5486 35%, #473f78 65%, #345468 100%);
+  --cx-pearl-on: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.2) 0%, rgba(255,255,255,.05) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #46609c 0%, #4d6bb0 35%, #5a4d98 65%, #3f6f8a 100%);
+  --cx-pearl-edge: inset 0 1px 0 rgba(255,255,255,.28), inset 0 -3px 5px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.06);
+}
+#cmpCtl .tb, .audio-wrap, .tools-dd button {
+  background-image: var(--cx-pearl); background-size: 100% 100%, 220% 220%; background-position: 0 0, 0% 0%; background-repeat: no-repeat;
+  transition: background-position .6s ease, box-shadow var(--cx-t), transform var(--cx-t), border-color var(--cx-t);
+}
+#cmpCtl .tb, .audio-wrap { box-shadow: var(--cx-pearl-edge), 0 1px 2px rgba(20,30,60,.16); }
+#cmpCtl .tb:hover, .audio-wrap:hover { background-image: var(--cx-pearl-hover); background-position: 0 0, 100% 100%; box-shadow: var(--cx-pearl-edge), 0 3px 8px rgba(20,30,60,.20); }
+#cmpCtl .tb.on { background-image: var(--cx-pearl-on); box-shadow: var(--cx-pearl-edge), 0 1px 2px rgba(20,30,60,.16); }
+#cmpCtl .tb:active, .audio-wrap:active { box-shadow: inset 0 2px 5px rgba(60,70,110,.28); }
+.tools-dd button { box-shadow: inset 0 1px 0 rgba(255,255,255,.8); }
+.tools-dd button:hover { background-image: var(--cx-pearl-hover); background-position: 0 0, 100% 100%; }
+/* Audio slider: a silver ball like the compass pivot, on a channel that darkens from light grey (quiet) to black (loud) */
+.audio-wrap #auVol2::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; border: 1px solid #8e9097; box-sizing: border-box; background: linear-gradient(to right, #e4e6ea 0%, #a9abb2 35%, #4a4b51 70%, #0b0b0d 100%) !important; box-shadow: inset 0 1px 1px rgba(0,0,0,.25); }
+.audio-wrap #auVol2::-moz-range-track { height: 6px; border-radius: 3px; border: 1px solid #8e9097; box-sizing: border-box; background: linear-gradient(to right, #e4e6ea 0%, #a9abb2 35%, #4a4b51 70%, #0b0b0d 100%) !important; }
+.audio-wrap #auVol2::-moz-range-progress { background: transparent !important; }
+.audio-wrap #auVol2::-webkit-slider-thumb { box-sizing: border-box; border: 1px solid #555; margin-top: -5px; background: radial-gradient(circle at 35% 35%, #ffffff 0%, #f5f5f5 12%, #b0b0b0 58%, #707070 100%); box-shadow: 0 1px 2px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.35); }
+.audio-wrap #auVol2::-moz-range-thumb { box-sizing: border-box; border: 1px solid #555; background: radial-gradient(circle at 35% 35%, #ffffff 0%, #f5f5f5 12%, #b0b0b0 58%, #707070 100%); box-shadow: 0 1px 2px rgba(0,0,0,.45); }
+@media (pointer: coarse) { .audio-wrap #auVol2::-webkit-slider-thumb { margin-top: -7px; } }
+@media (max-height: 520px) and (orientation: landscape) { .audio-wrap #auVol2::-webkit-slider-thumb { margin-top: -4px; } }
+html[data-scheme="night"] .tools-dd button { box-shadow: inset 0 1px 0 rgba(255,255,255,.10); }
+    
+/* ===== TDL: tide dial, Quiz and Learned panel ===== */
+.textBox, .textBox.active, .textBox.learned { transform: none !important; }
+.textBox.learned div { color: #1b7f3b !important; }
+.tide-segment { stroke: rgba(255,255,255,.75); stroke-width: .25; }
+.segment-highlighted { stroke: var(--cx-accent); stroke-width: .9px; filter: none; }
+.time-marker { font-family: var(--cx-font); fill: var(--cx-primary); font-weight: 700; }
+html[data-scheme="night"] .time-marker { fill: #9fb4ee; }
+html[data-scheme="night"] .tide-segment { stroke: rgba(255,255,255,.25); }
+.quiz-container { background: var(--cx-surface); color: var(--cx-ink); border: 1px solid var(--cx-line); border-radius: var(--cx-r-card); box-shadow: var(--cx-shadow-md); top: 50%; left: 75%; right: auto; transform: translate(-50%, -50%); width: min(340px, 92vw); max-width: none; box-sizing: border-box; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+.quiz-container input { background: var(--cx-surface); color: var(--cx-ink); border: 1px solid var(--cx-line); border-radius: 8px; font-family: var(--cx-font); box-sizing: border-box; cursor: text; user-select: text; -webkit-user-select: text; }
+.quiz-container button:hover { background: var(--cx-btn-bg-hover) !important; color: var(--cx-btn-ink) !important; }
+.learned-vocabulary { position: fixed; z-index: 600; display: none; background: var(--cx-surface); color: var(--cx-ink); border: 1px solid var(--cx-line); border-radius: 12px; box-shadow: var(--cx-shadow-md); top: 110px; left: 12px; width: 200px; max-height: calc(100vh - 40px); overflow-y: auto; touch-action: none; cursor: grab; box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+html.has-learned .learned-vocabulary { display: block; }
+html.no-quiz .quiz-container, html.no-quiz .learned-vocabulary, html.no-quiz #arrayMoveTip { display: none !important; }
+.array-title { background: var(--cx-primary); color: #fff; border-radius: 8px; font-family: var(--cx-font); text-align: left; padding: 5px 66px 5px 8px; min-height: 1.4em; }
+.vocabulary-item { background: var(--cx-surface); border-color: var(--cx-line); font-family: var(--cx-font); }
+.vocabulary-item .sl-word { color: var(--cx-muted); }
+.vocabulary-item .tl-word.hidden, .vocabulary-item .sl-word.hidden { background: var(--cx-line); }
+.toggle-visibility { background: var(--cx-btn-bg); color: var(--cx-btn-ink); border: 1px solid var(--cx-btn-line); border-radius: 8px; font-family: var(--cx-font); font-weight: 600; }
+@media (pointer: coarse) { .quiz-container input { font-size: 16px; } }
+#quizMoveHint { font: 600 14px var(--cx-font); color: var(--cx-muted); text-align: center; margin: 0 0 8px; transition: opacity .4s ease, max-height .4s ease, margin .4s ease; max-height: 30px; overflow: hidden; }
+#quizMoveHint.gone { opacity: 0; max-height: 0; margin: 0; }
+#arrayMoveTip { position: fixed; z-index: 1200; background: #1f2937; color: #fff; font: 600 14px var(--cx-font); padding: 7px 12px; border-radius: 10px; pointer-events: none; opacity: 0; transition: opacity .3s ease; white-space: nowrap; }
+#arrayMoveTip::after { content: ""; position: absolute; border: 6px solid transparent; }
+#arrayMoveTip.left::after { left: 100%; top: 50%; margin-top: -6px; border-left-color: #1f2937; }
+#arrayMoveTip.right::after { right: 100%; top: 50%; margin-top: -6px; border-right-color: #1f2937; }
+#arrayMoveTip.below::after { bottom: 100%; left: 24px; border-bottom-color: #1f2937; }
+#modeToggle { max-width: 16em; white-space: normal; }
+@media print { .a4-page { background: #fff !important; } .learned-vocabulary, .quiz-container { display: none !important; } #printList .pl-gap { height: 3mm; } }
+/* the moon: the frame is now only the invisible grab handle; #cxMoon (script) is what you see */
+#draggableFrame, #draggableFrame:hover, #draggableFrame.dragging { fill: transparent !important; stroke: none !important; opacity: 1 !important; }
+#cxMoon .glow { transition: transform var(--cx-t); transform-box: fill-box; transform-origin: center; }
+#cxMoon { filter: drop-shadow(0 .5px 1.1px rgba(40,25,0,.45)); transition: opacity var(--cx-t); }
+#cxMoon.dragging { opacity: .88; }
+#cxMoon.dragging .glow { transform: scale(1.2); }
+html[data-scheme="night"] #cxMoon { filter: drop-shadow(0 0 1.4px rgba(255,238,170,.55)); }
+@media print { #cxMoon { filter: none; } }
+/* the labels sit on a blue that is now deep at high tide: a thin halo keeps them readable at every height */
+.segment-label, .time-marker { paint-order: stroke; stroke: rgba(255,255,255,.9); stroke-width: .55px; stroke-linejoin: round; }
+html[data-scheme="night"] .segment-label, html[data-scheme="night"] .time-marker { stroke: rgba(14,24,46,.85); }
+html[data-scheme="night"] .segment-label { fill: #e6ebf7; }
+@media print { .segment-label, .time-marker { stroke: none; } }
+/* a word that turns yellow under the pointer (or a touch) always shows black text, in every colour scheme and whether or not it is learned */
+html[lang] .textBox:hover div, html[lang] .textBox:active div, html[lang] .textBox.active:hover div, html[lang] .textBox.learned:hover div { color: #000 !important; text-shadow: none !important; background: #fff176 !important; }
     </style>
 </head>
 <body>
     <div class="a4-page">
-        <div id="title-box" class="title-box">TITLE_PLACEHOLDER</div>
-        <div id="drag-instruction" class="drag-instruction">DRAG_INSTRUCTION_PLACEHOLDER</div>
+        <div id="cmpInfo">
+            <div id="title-box" class="title-box">TITLE_PLACEHOLDER</div>
+            <div id="drag-instruction" class="drag-instruction">DRAG_INSTRUCTION_PLACEHOLDER</div>
+        </div>
+        <div id="cmpCtl">
+            <button id="display-mode-toggle" class="display-mode-toggle tb" type="button" title="Change the language shown on every word">Show: TL</button>
+            <button id="show-all-toggle" class="tb" type="button" title="Show every word at once">Show All</button>
+            <button id="modeToggle" class="mode-toggle tb" type="button">STATES_MODE_LABEL</button>
+            <button id="reset-btn" class="tb" type="button" title="Back to the starting view">Reset</button>
+            <div class="tools-wrap" id="toolsWrap">
+                <button id="toolsBtn" class="tb" type="button" aria-haspopup="true" title="Colours, Text size and Print">Tools &#9660;</button>
+                <div class="tools-dd" id="toolsMenu">
+                    <button id="colourBtn" type="button" title="Try different colour schemes">Colours: Night</button>
+                    <button id="textSizeBtn" type="button" title="Enlarge or shrink any word">Text size&hellip;</button>
+                    <button id="printBtn" type="button" title="Print this page on one A4 landscape sheet">Print</button>
+                </div>
+            </div>
+            <button id="fsBtn" class="tb" type="button" onclick="toggleFullScreen()">Full Screen</button>
+        </div>
 
         <div id="learned-vocabulary" class="learned-vocabulary">
             <div class="array-title" id="array-title">ARRAY_TITLE_PLACEHOLDER</div>
@@ -187,11 +478,11 @@
                      darkest sits at the top per his request.
                      Added 2026-07-19 per Alan's request. -->
                 <linearGradient id="tidalHeightGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%"   style="stop-color:#003399;stop-opacity:0.85"/>
-                    <stop offset="25%"  style="stop-color:#0b58b3;stop-opacity:0.78"/>
-                    <stop offset="50%"  style="stop-color:#2299dd;stop-opacity:0.70"/>
-                    <stop offset="75%"  style="stop-color:#33ccee;stop-opacity:0.62"/>
-                    <stop offset="100%" style="stop-color:#6bf3fc;stop-opacity:0.55"/>
+                    <stop offset="0%"   style="stop-color:#003399;stop-opacity:1"/>
+                    <stop offset="25%"  style="stop-color:#0b58b3;stop-opacity:0.88"/>
+                    <stop offset="50%"  style="stop-color:#2299dd;stop-opacity:0.66"/>
+                    <stop offset="75%"  style="stop-color:#33ccee;stop-opacity:0.40"/>
+                    <stop offset="100%" style="stop-color:#6bf3fc;stop-opacity:0.16"/>
                 </linearGradient>
             </defs>
 
@@ -238,9 +529,16 @@
             <circle id="draggableFrame" cx="50" cy="20" r="4"/>
         </svg>
 
-        <button id="modeToggle" class="mode-toggle">STATES_MODE_LABEL</button>
+        <div id="printList"></div>
 
         <div class="watermark">&copy; 2026 Alan William Preston</div>
+    </div>
+
+    <div id="textSizePanel">
+        <div class="tsHead"><span>Text size</span><button type="button" id="tsClose" aria-label="Close">&times;</button></div>
+        <div class="tsTarget" id="tsTarget">Click a word, then slide</div>
+        <input type="range" id="tsRange" min="50" max="300" step="5" value="100">
+        <div class="tsRow"><label><input type="checkbox" id="tsAll"> All words</label><span id="tsVal">100%</span><button type="button" class="tsReset" id="tsReset">Reset</button></div>
     </div>
 
     <div id="quizContainer" class="quiz-container">
@@ -283,6 +581,11 @@
         quiz_button:        "QUIZ_BUTTON_LABEL",   // e.g. "Check"
         quiz_correct:       "QUIZ_CORRECT",        // e.g. "Correct! ✓"
         quiz_wrong:         "QUIZ_WRONG",          // e.g. "Try again"
+        reset_label:        "RESET_LABEL",         // e.g. "Reset"
+        move_hint:          "MOVE_HINT",           // e.g. "You can move this"  (shown for 5 seconds each time the Quiz opens)
+        show_tlr_label:     "SHOW_TLR_LABEL",      // e.g. "Show: TLR"  (the layer button; leave as is to keep the English label)
+        show_tl_label:      "SHOW_TL_LABEL",       // e.g. "Show: TL"
+        show_sl_label:      "SHOW_SL_LABEL",       // e.g. "Show: SL"
     // --- Diacritic / romanization normalization --------------------------
     // Shown near the quiz input so learners know they can type plain vowels.
     diacritic_instructions: "DIACRITIC_INSTRUCTIONS",
@@ -291,6 +594,8 @@
         // ["ā","a"], ["ī","i"], ["ū","u"], ["ē","e"], ["ō","o"]
     ],
     collapse_double_vowels: false,
+    // Optional pairs of letters to treat as one when checking (a language that spells a long vowel two ways), e.g. ["ou","o"], ["ei","e"]. Applied to the typed answer AND the right answer.
+    digraph_map: [],
 
         // --- Phase labels (shown on the four quadrants of the dial) ------
         phase_high:     "PHASE_HIGH",      // e.g. "HIGH TIDE"
@@ -343,6 +648,7 @@ const AnswerUtils = {
         LANG.diacritic_map.forEach(([accented, plain]) => {
             t = t.split(accented).join(plain);
         });
+        (LANG.digraph_map || []).forEach(([a, b]) => { t = t.split(a).join(b); });
         if (LANG.collapse_double_vowels) {
             t = t.replace(/aa/g,'a').replace(/ee/g,'e').replace(/ii/g,'i')
                  .replace(/oo/g,'o').replace(/uu/g,'u');
@@ -359,7 +665,7 @@ const AnswerUtils = {
 
 
     // --- Apply UI strings from config ------------------------------------
-    document.getElementById('title-box').textContent        = LANG.titles[0];
+    document.getElementById('title-box').innerHTML           = LANG.titles[0];   // innerHTML: a title may carry furigana (ruby)
     document.getElementById('drag-instruction').textContent = LANG.drag_instruction;
     document.getElementById('array-title').textContent      = LANG.array_title;
     document.getElementById('toggle-learned').textContent   = LANG.hide_all_label;
@@ -426,7 +732,7 @@ const AnswerUtils = {
         item.className = 'vocabulary-item';
         const tlSpan = document.createElement('span');
         tlSpan.className = 'tl-word';
-        tlSpan.textContent = tl;
+        tlSpan.innerHTML = tl;   // the TL word may carry furigana (ruby)
         const slSpan = document.createElement('span');
         slSpan.className = 'sl-word';
         slSpan.textContent = sl;
@@ -690,7 +996,7 @@ const AnswerUtils = {
         const data = isStatesMode ? LANG.statesData : LANG.transitionsData;
         currentQuizIndex = index;
         const qc = document.getElementById('quizContainer');
-        document.getElementById('quizInput').placeholder = data[index][2];
+        document.getElementById('quizInput').placeholder = data[index][3];   // the QUIZ prompt (was [2], the TLR answer itself)
         document.getElementById('quizInput').value = '';
         document.getElementById('quizFeedback').textContent = '';
         qc.style.display    = 'block';
@@ -786,21 +1092,9 @@ const AnswerUtils = {
             if (!isDragging) return;
             const clientX = e.clientX || (e.touches && e.touches[0].clientX);
             const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-            const rect = svg.getBoundingClientRect();
-
-            // The SVG's viewBox is a square with preserveAspectRatio=
-            // "xMidYMid meet", but the .a4-page container is NOT square
-            // (90vw × 70vh) — letterboxed rather than stretched. This
-            // specific onMove (the Moon's own drag handler) was missed
-            // when the letterbox-aware fix was applied to every other
-            // draggable element in this project — found 2026-07-20 while
-            // cross-checking the file Alan was actually testing against
-            // this working copy.
-            const renderedSize = Math.min(rect.width, rect.height);
-            const offsetX = rect.left + (rect.width  - renderedSize) / 2;
-            const offsetY = rect.top  + (rect.height - renderedSize) / 2;
-            const svgX = ((clientX - offsetX) / renderedSize) * 100;
-            const svgY = ((clientY - offsetY) / renderedSize) * 100;
+            const pt0 = svg.createSVGPoint(); pt0.x = clientX; pt0.y = clientY;
+            const sp = pt0.matrixTransform(svg.getScreenCTM().inverse());
+            const svgX = sp.x, svgY = sp.y;
             const angle = Math.atan2(svgY - 50, svgX - 50);
             const r = 30;
             frame.setAttribute('cx', 50 + r * Math.cos(angle));
@@ -818,7 +1112,7 @@ const AnswerUtils = {
             isDragging = false;
             frame.classList.remove('dragging');
             frame.style.cursor = 'grab';
-            positionFrameOnItem(currentPosition);
+            if (window.__cmpSpeak) window.__cmpSpeak(currentPosition);   // no snap on release (standing preference across Circular templates)
             if (e) { e.preventDefault(); e.stopPropagation(); }
         }
 
@@ -833,7 +1127,7 @@ const AnswerUtils = {
             this.classList.add('hidden');
             setTimeout(() => {
                 currentTextIndex = (currentTextIndex + 1) % LANG.titles.length;
-                this.textContent = LANG.titles[currentTextIndex];
+                this.innerHTML = LANG.titles[currentTextIndex];
                 this.classList.remove('hidden');
             }, 500);
         });
@@ -854,7 +1148,7 @@ const AnswerUtils = {
                 const tb = textBoxElements[currentQuizIndex];
                 if (tb) {
                     const div = tb.querySelector('div');
-                    if (div) { div.textContent = data[currentQuizIndex][1]; div.style.fontSize = '2.5px'; }
+                    if (div && window.__tdlSetK) window.__tdlSetK(currentQuizIndex, 0);
                 }
             }
             qc.style.display = 'none';
@@ -875,6 +1169,555 @@ const AnswerUtils = {
 
     document.addEventListener('DOMContentLoaded', initializeApp);
 
+    </script>
+    <script>
+    /* 2026-11-13 TIDAL DAILY CYCLE: layout that fits any screen (each word sits just outside the dial at its own angle, pushed out when words would touch; the view box grows to hold
+       the longest words), the layer cycle (ROM: TL > SL > Quiz; LOG: TLR > TL > SL > Quiz) on every word, Show All, and the touch-anywhere grab of the moon. */
+    (function () {
+        var SVGNS = 'http://www.w3.org/2000/svg';
+        var FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif'; document.documentElement.style.setProperty('--cx-font', FONT);
+        var BASE = 4.2, R0 = 36.6, GAP = 0.8;
+        var svg = document.getElementById('svgCanvas');
+        var cv = document.createElement('canvas').getContext('2d'), tmp = document.createElement('div');
+        window.LOGV = LANG.statesData[0].length >= 5;
+        window.MODES = LOGV ? [2, 1, 0] : [1, 0];
+        var ANGI = LOGV ? 4 : 3, QI = LOGV ? 3 : 2, displayMode = 0;
+        function plain(s) { tmp.innerHTML = String(s == null ? '' : s); tmp.querySelectorAll('rt, rp').forEach(function (n) { n.parentNode.removeChild(n); }); return tmp.textContent; }
+        function dat() { return isStatesMode ? LANG.statesData : LANG.transitionsData; }
+        function lrn() { return isStatesMode ? learnedItemsStates : learnedItemsTransitions; }
+        function sizeOf(i) { return BASE * (window.tsScale ? window.tsScale(i) : 1); }
+        function wOf(i, txt) { cv.font = '700 ' + sizeOf(i) + 'px ' + FONT; return cv.measureText(plain(txt)).width + 3; }
+        function hOf(i) { return sizeOf(i) * 1.35; }
+        function lab(key, dflt) { var v = LANG[key]; return (v && !/^SHOW_(TLR|TL|SL)_LABEL$/.test(v)) ? v : dflt; }
+        function modeLabel(m) { var row = MODES[m]; return row === 2 ? lab('show_tlr_label', 'Show: TLR') : row === 1 ? lab('show_tl_label', 'Show: TL') : lab('show_sl_label', 'Show: SL'); }
+        function word(i, k) { return dat()[i][MODES[k]]; }
+
+        function rectsFor(ds, kOf) {
+            var out = [], placed = [];
+            for (var i = 0; i < ds.length; i++) {
+                var w = wOf(i, ds[i][MODES[kOf(i)]]), h = hOf(i), a = (ds[i][ANGI] - 90) * Math.PI / 180, ux = Math.cos(a), uy = Math.sin(a);
+                var d = R0 + (w / 2) * Math.abs(ux) + (h / 2) * Math.abs(uy), r;
+                for (var n = 0; n < 200; n++) {
+                    r = { x: 50 + d * ux, y: 50 + d * uy, w: w, h: h };
+                    if (!placed.some(function (p) { return Math.abs(p.x - r.x) < (p.w + w) / 2 + GAP && Math.abs(p.y - r.y) < (p.h + h) / 2 + GAP; })) break;
+                    d += 0.5;
+                }
+                placed.push(r); out[i] = r;
+            }
+            return out;
+        }
+        function applyRect(i, r) {
+            var fo = textBoxElements[i]; if (!fo) return;
+            fo.setAttribute('x', r.x - r.w / 2); fo.setAttribute('y', r.y - r.h / 2);
+            fo.setAttribute('width', r.w); fo.setAttribute('height', r.h); fo.style.overflow = 'visible';
+        }
+        function curK(i) { var d = textBoxElements[i] && textBoxElements[i].querySelector('div'); return d ? parseInt(d.dataset.k || '0') : 0; }
+        window.cmpPlaceAll = function () {
+            if (!svg || !textBoxElements.length) return;
+            var hx = 40, hy = 40;
+            [dat()].forEach(function (ds) {   /* sized for the words of the mode on screen: States (short) gives a big dial, Transitions (long phrases) a smaller one */
+                MODES.forEach(function (_, k) { rectsFor(ds, function () { return k; }).forEach(function (r) { hx = Math.max(hx, Math.abs(r.x - 50) + r.w / 2 + 1.5); hy = Math.max(hy, Math.abs(r.y - 50) + r.h / 2 + 1.5); }); });
+            });
+            svg.setAttribute('viewBox', (50 - hx) + ' ' + (50 - hy) + ' ' + (2 * hx) + ' ' + (2 * hy));
+            rectsFor(dat(), curK).forEach(function (r, i) { applyRect(i, r); });
+        };
+        window.cmpPlaceOne = function (i) {
+            var fo = textBoxElements[i]; if (!fo) return;
+            var w = wOf(i, fo.querySelector('div').innerHTML), h = hOf(i), a = (dat()[i][ANGI] - 90) * Math.PI / 180, ux = Math.cos(a), uy = Math.sin(a), d = R0 + (w / 2) * Math.abs(ux) + (h / 2) * Math.abs(uy);
+            var cx = parseFloat(fo.getAttribute('x')) + parseFloat(fo.getAttribute('width')) / 2, cy = parseFloat(fo.getAttribute('y')) + parseFloat(fo.getAttribute('height')) / 2;
+            var cur = Math.hypot(cx - 50, cy - 50); if (cur > d) d = cur;
+            applyRect(i, { x: 50 + d * ux, y: 50 + d * uy, w: w, h: h });
+        };
+        window.applyTierStyle = function (div, i) { div.style.fontSize = sizeOf(i) + 'px'; div.style.whiteSpace = 'nowrap'; };
+        function setK(i, k) { var d = textBoxElements[i] && textBoxElements[i].querySelector('div'); if (!d) return; d.dataset.k = k; d.innerHTML = word(i, k); applyTierStyle(d, i); cmpPlaceOne(i); }
+        window.__tdlSetK = function (i, k) { setK(i, k); };
+
+        window.__tdlSetMode = function (m) {
+            displayMode = m; document.getElementById('display-mode-toggle').textContent = modeLabel(displayMode);
+            textBoxElements.forEach(function (tb, i) { var d = tb && tb.querySelector('div'); if (!d) return; d.dataset.k = displayMode; d.innerHTML = word(i, displayMode); applyTierStyle(d, i); });
+            window.cmpPlaceAll();
+        };
+        window.cmpModeLabel = modeLabel;
+        window.createTextBoxes = function () {
+            document.querySelectorAll('.textBox').forEach(function (b) { if (b.parentNode) b.parentNode.removeChild(b); });
+            textBoxElements = [];
+            var frame = document.getElementById('draggableFrame');
+            dat().forEach(function (item, i) {
+                var fo = document.createElementNS(SVGNS, 'foreignObject');
+                fo.setAttribute('class', 'textBox'); fo.setAttribute('data-index', i);
+                fo.setAttribute('x', 0); fo.setAttribute('y', 0); fo.setAttribute('width', 16); fo.setAttribute('height', 8);
+                fo.style.overflow = 'visible'; fo.style.pointerEvents = 'auto';
+                var div = document.createElement('div');
+                div.style.cssText = 'display:flex;align-items:center;justify-content:center;width:100%;height:100%;box-sizing:border-box;text-align:center;font-family:Arial,sans-serif;color:black;cursor:pointer;white-space:nowrap;font-weight:bold';
+                div.dataset.k = displayMode; div.innerHTML = word(i, displayMode); applyTierStyle(div, i);
+                fo.appendChild(div);
+                if (lrn()[i]) fo.classList.add('learned');
+                fo.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    var idx = parseInt(this.getAttribute('data-index')), d = this.querySelector('div'), qc = document.getElementById('quizContainer');
+                    if (qc.style.display === 'block' && currentQuizIndex === idx) return;
+                    var k = parseInt(d.dataset.k || '0') + 1;
+                    if (k >= MODES.length) {
+                        if (!document.documentElement.classList.contains('no-quiz') && !lrn()[idx]) { showQuiz(idx, this); return; }   /* the Quiz is hidden on touch phones: the cycle just starts again */
+                        k = 0;
+                    }
+                    setK(idx, k);
+                    if (window.__cmpSpeak) window.__cmpSpeak(idx, true);
+                });
+                if (frame && frame.parentNode) frame.parentNode.insertBefore(fo, frame); else svg.appendChild(fo);
+                textBoxElements.push(fo);
+            });
+            if (frame && frame.parentNode) frame.parentNode.appendChild(frame);
+            window.cmpPlaceAll();
+        };
+
+        /* Show All: every word at once, each at its own angle */
+        var showAll = false, origUpdate = window.updateVisibleTextBoxes;
+        window.updateVisibleTextBoxes = function (itemIndex) {
+            origUpdate(itemIndex);
+            textBoxElements.forEach(function (tb, k) {
+                tb.style.display = ''; tb.style.opacity = '';
+                if (showAll && k !== itemIndex && !lrn()[k]) { tb.classList.remove('hidden'); tb.classList.add('visible'); tb.style.display = 'block'; tb.style.opacity = '0.85'; }
+                else tb.classList.remove('visible');
+            });
+        };
+        var sab = document.getElementById('show-all-toggle');
+        function saLabel() { sab.textContent = showAll ? (LANG.hide_all_label && !/^HIDE_ALL/.test(LANG.hide_all_label) ? LANG.hide_all_label : 'Hide All') : (LANG.show_all_label && !/^SHOW_ALL/.test(LANG.show_all_label) ? LANG.show_all_label : 'Show All'); }
+        sab.addEventListener('click', function () { showAll = !showAll; saLabel(); if (window.__cmpReset) window.__cmpReset(); window.updateVisibleTextBoxes(currentPosition); });
+        saLabel(); window.__cmpSetShowAll = function (v) { showAll = !!v; saLabel(); };
+        document.getElementById('display-mode-toggle').addEventListener('click', function () { window.__tdlSetMode((displayMode + 1) % MODES.length); });
+
+        /* the Quiz: the prompt is the QUIZ column; ROM asks for the TL word, LOG for the romanised (TLR) word */
+        window.showQuiz = function (index) {
+            if (document.documentElement.classList.contains('no-quiz')) return;
+            var prev = currentQuizIndex; if (prev >= 0 && prev !== index && !lrn()[prev]) setK(prev, 0);
+            currentQuizIndex = index;
+            var qc = document.getElementById('quizContainer');
+            document.getElementById('quizInput').placeholder = dat()[index][QI];
+            document.getElementById('quizInput').value = ''; document.getElementById('quizFeedback').textContent = '';
+            qc.style.display = 'block'; qc.style.visibility = 'visible'; qc.style.opacity = '1'; qc.style.zIndex = '9999';
+            setTimeout(function () { try { document.getElementById('quizInput').focus(); } catch (e) {} }, 100);
+        };
+        window.checkQuizAnswer = function () {
+            if (currentQuizIndex < 0) return;
+            var data = dat(), L = lrn(), input = document.getElementById('quizInput').value.trim(), qi = currentQuizIndex;
+            var correct = data[qi][LOGV ? 2 : 1], fb = document.getElementById('quizFeedback');
+            var ok = LOGV ? AnswerUtils.checkAnswer(input, plain(correct)) : input.toLowerCase() === plain(correct).toLowerCase();
+            if (ok) {
+                fb.textContent = LANG.quiz_correct; fb.style.color = 'green'; L[qi] = true;
+                var tb = textBoxElements[qi]; if (tb) tb.classList.add('learned');
+                setK(qi, 0);
+                addToVocabularyArray(qi, data); document.documentElement.classList.add('has-learned');
+                closedIdx = qi;
+                setTimeout(function () { if (currentQuizIndex === closedIdx) { document.getElementById('quizContainer').style.display = 'none'; currentQuizIndex = -1; } }, 1500);
+            } else {
+                fb.textContent = LANG.quiz_wrong; fb.style.color = 'red'; setK(qi, 0);   /* the answer is shown on the dial, as before */
+            }
+        };
+        var rt = null;
+        function reflow() { clearTimeout(rt); rt = setTimeout(function () { window.cmpPlaceAll(); }, 120); }
+        window.addEventListener('resize', reflow); window.addEventListener('orientationchange', reflow);
+        document.getElementById('display-mode-toggle').textContent = modeLabel(0);
+    })();
+    </script>
+    <script>
+    /* Print list: every word beside the dial (states, then transitions), shown only when printing */
+    (function () {
+        var pl = document.getElementById('printList'); if (!pl) return;
+        var esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;'); };
+        var plain = function (t) { var d = document.createElement('div'); d.innerHTML = t; d.querySelectorAll('rt, rp').forEach(function (n) { n.parentNode.removeChild(n); }); return d.textContent; };
+        var row = function (a, b, c, d) { return '<div class="pl-row ' + (LOGV ? '' : 'rom') + '"><span class="pl-h">' + a + '</span>' + (LOGV ? '<span>' + b + '</span>' : '') + '<span>' + c + '</span><span>' + d + '</span></div>'; };
+        function block(ds) { return ds.map(function (d, i) { return row(i + 1, esc(plain(LOGV ? d[2] : '')), d[1], esc(plain(d[0]))); }).join(''); }
+        pl.innerHTML = block(LANG.statesData) + '<div class="pl-gap"></div>' + block(LANG.transitionsData);
+    })();
+    </script>
+    <script>
+    // --- Tools menu: Colours, Text size, Print ---
+    (function () {
+        var $ = function (id) { return document.getElementById(id); };
+        var wrap = $('toolsWrap'), menu = $('toolsMenu'), tb = $('toolsBtn'); if (!wrap) return;
+        tb.addEventListener('click', function (e) {
+            e.stopPropagation(); menu.classList.toggle('active'); menu.style.left = '0px';
+            if (menu.classList.contains('active')) { var b = menu.getBoundingClientRect(), over = b.right - (document.documentElement.clientWidth - 6); if (over > 0) menu.style.left = (-over) + 'px'; }   /* keep the menu on a narrow screen */
+        });
+        document.addEventListener('click', function (e) { if (!wrap.contains(e.target)) menu.classList.remove('active'); });
+        $('printBtn').addEventListener('click', function (e) { e.stopPropagation(); menu.classList.remove('active'); setTimeout(function () { window.print(); }, 50); });
+        // Text size: click a word then slide (that word), or tick All words
+        var panel = $('textSizePanel'), range = $('tsRange'), val = $('tsVal'), tgt = $('tsTarget'), all = $('tsAll');
+        var scales = {}, target = null;
+        window.tsScale = function (i) { return Math.min(3, Math.max(0.5, (scales[i] || 1) * (scales.all || 1))); };
+        window.tsApply = function () {
+            if (window.__cmpReset) window.__cmpReset();
+            textBoxElements.forEach(function (tb, i) { var d = tb && tb.querySelector('div'); if (d) applyTierStyle(d, i); });
+            window.cmpPlaceAll();
+        };
+        function show() {
+            var v = all.checked ? (scales.all || 1) : (target ? (scales[target.i] || 1) : 1);
+            range.value = Math.round(v * 100); val.textContent = Math.round(v * 100) + '%';
+            tgt.textContent = all.checked ? 'All words' : (target ? 'Word: ' + target.label : 'Click a word, then slide');
+        }
+        document.addEventListener('pointerdown', function (e) {
+            if (panel.contains(e.target)) return;
+            var bx = e.target.closest && e.target.closest('.textBox'); if (!bx) return;
+            var i = parseInt(bx.getAttribute('data-index'));
+            target = { i: i, label: (bx.textContent || '').trim().slice(0, 30) };
+            if (panel.style.display === 'block') { all.checked = false; show(); }
+        }, true);
+        range.addEventListener('input', function () {
+            var v = range.value / 100;
+            if (all.checked) scales.all = v; else if (target) scales[target.i] = v; else return;
+            val.textContent = range.value + '%'; window.tsApply();
+        });
+        all.addEventListener('change', show);
+        $('tsReset').addEventListener('click', function () { Object.keys(scales).forEach(function (k) { delete scales[k]; }); window.tsApply(); show(); });
+        $('tsClose').addEventListener('click', function () { panel.style.display = 'none'; });
+        $('textSizeBtn').addEventListener('click', function (e) {
+            e.stopPropagation(); menu.classList.remove('active'); panel.style.display = 'block';
+            if (!panel.dataset.moved) { var r = panel.getBoundingClientRect(); panel.style.left = Math.max(4, (window.innerWidth - r.width) / 2) + 'px'; panel.style.top = '70px'; }
+            show();
+        });
+        (function () {
+            var head = panel.querySelector('.tsHead'), d = null;
+            head.addEventListener('pointerdown', function (e) { if (e.target.id === 'tsClose') return; var r = panel.getBoundingClientRect(); d = { dx: e.clientX - r.left, dy: e.clientY - r.top }; panel.dataset.moved = '1'; head.setPointerCapture(e.pointerId); });
+            head.addEventListener('pointermove', function (e) { if (d) { panel.style.left = (e.clientX - d.dx) + 'px'; panel.style.top = (e.clientY - d.dy) + 'px'; } });
+            head.addEventListener('pointerup', function () { d = null; });
+        })();
+        var SCHEMES = [['Default', ''], ['No colour', 'nocolour'], ['Night', 'night']], ci = 2, cb = $('colourBtn');   /* the page opens in Night colours */
+        cb.addEventListener('click', function (e) {
+            e.stopPropagation(); ci = (ci + 1) % SCHEMES.length;
+            if (SCHEMES[ci][1]) document.documentElement.setAttribute('data-scheme', SCHEMES[ci][1]); else document.documentElement.removeAttribute('data-scheme');
+            cb.textContent = 'Colours: ' + SCHEMES[ci][0];
+        });
+        var keepScheme = null;   /* paper is always printed in the light colours, then the screen scheme comes back */
+        window.addEventListener('beforeprint', function () { keepScheme = document.documentElement.getAttribute('data-scheme'); if (keepScheme === 'night') document.documentElement.removeAttribute('data-scheme'); });
+        window.addEventListener('afterprint', function () { if (keepScheme === 'night') document.documentElement.setAttribute('data-scheme', 'night'); keepScheme = null; });
+    })();
+
+
+    </script>
+    <script>
+    // --- Pull a word out of the dial to inspect it: it follows the finger or mouse and grows (up to 300%); let go and it STAYS for 5 seconds, then snaps back ---
+    (function () {
+        var MAXS = 3, HOLD_MS = 5000, svg = document.getElementById('svgCanvas');
+        var held = new Map();   // index -> { ghost, box, x, y, s, hx, hy, w, h, timer }
+        var g = null, swallow = false;
+        function tf(o) { return 'translate(calc(-50% + ' + o.x + 'px), calc(-50% + ' + o.y + 'px)) scale(' + o.s + ')'; }
+        function makeGhost(box) {
+            var d = box.querySelector('div'), r = d.getBoundingClientRect(), k = svg.getScreenCTM().a;
+            var gh = document.createElement('div'); gh.className = 'cmp-ghost';
+            gh.innerHTML = d.innerHTML; gh.style.textTransform = d.style.textTransform; gh.style.fontSize = (parseFloat(d.style.fontSize) * k) + 'px';
+            document.body.appendChild(gh);
+            var w = gh.offsetWidth, h = gh.offsetHeight, hx = r.left + r.width / 2, hy = r.top + r.height / 2;
+            gh.style.left = hx + 'px'; gh.style.top = hy + 'px';
+            return { ghost: gh, box: box, hx: hx, hy: hy, w: w, h: h, x: 0, y: 0, s: 1, timer: null };
+        }
+        function snapBack(i) {
+            var o = held.get(i); if (!o) return; clearTimeout(o.timer); held.delete(i);
+            var gh = o.ghost; gh.style.transition = 'transform .3s cubic-bezier(.34,1.56,.64,1)';
+            gh.style.transform = 'translate(-50%, -50%) scale(1)';
+            setTimeout(function () { if (gh.parentNode) gh.parentNode.removeChild(gh); o.box.style.visibility = ''; }, 330);
+        }
+        function startHold(i) { var o = held.get(i); if (!o) return; clearTimeout(o.timer); o.timer = setTimeout(function () { snapBack(i); }, HOLD_MS); }
+        window.__cmpReset = function () { held.forEach(function (o) { clearTimeout(o.timer); if (o.ghost.parentNode) o.ghost.parentNode.removeChild(o.ghost); o.box.style.visibility = ''; }); held.clear(); g = null; };
+        ['display-mode-toggle', 'show-all-toggle', 'modeToggle'].forEach(function (id) { document.getElementById(id).addEventListener('click', function () { window.__cmpReset(); }); });
+        window.addEventListener('resize', function () { window.__cmpReset(); });
+
+        document.addEventListener('pointerdown', function (e) {
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+            var gh = e.target.closest && e.target.closest('.cmp-ghost'), box = null, i = -1;
+            if (gh) { held.forEach(function (o, k) { if (o.ghost === gh) { i = k; box = o.box; } }); }
+            else { box = e.target.closest && e.target.closest('.textBox'); if (!box) return; i = parseInt(box.getAttribute('data-index')); var dv = box.querySelector('div'); if (!dv || getComputedStyle(box).display === 'none') return; }
+            if (i < 0) return;
+            var o = held.get(i), hadHold = !!o;
+            if (!o) o = makeGhostFor(box); else clearTimeout(o.timer);
+            g = { i: i, box: box, o: o, id: e.pointerId, x0: e.clientX, y0: e.clientY, ox: o.x, oy: o.y, s0: o.s, hadHold: hadHold, drag: false, fresh: !hadHold };
+            if (gh) { try { gh.setPointerCapture(e.pointerId); } catch (_) {} e.preventDefault(); }
+        }, true);
+        function makeGhostFor(box) { var o = makeGhost(box); o.ghost.style.display = 'none'; held.set(parseInt(box.getAttribute('data-index')), o); o.pending = true; return o; }
+        document.addEventListener('pointermove', function (e) {
+            if (!g || e.pointerId !== g.id) return;
+            var dx = e.clientX - g.x0, dy = e.clientY - g.y0, d = Math.hypot(dx, dy), o = g.o;
+            if (!g.drag) {
+                if (d < 6) return;
+                g.drag = true; o.ghost.style.display = ''; o.ghost.style.transition = 'none'; g.box.style.visibility = 'hidden'; o.pending = false;
+                if (g.fresh && window.__cmpSpeak) window.__cmpSpeak(g.i, true);
+            }
+            var dmax = Math.max(120, Math.min(230, 0.30 * Math.min(window.innerWidth, window.innerHeight)));
+            var s = g.hadHold ? g.s0 : 1 + (MAXS - 1) * Math.min(1, d / dmax);
+            s = Math.min(s, (window.innerWidth - 8) / o.w, (window.innerHeight - 8) / o.h);
+            var hw = o.w * s / 2, hh = o.h * s / 2, tx = o.hx + g.ox + dx, ty = o.hy + g.oy + dy;
+            var cx = Math.min(Math.max(tx, hw + 2), window.innerWidth - hw - 2), cy = Math.min(Math.max(ty, hh + 2), window.innerHeight - hh - 2);
+            o.x = cx - o.hx; o.y = cy - o.hy; o.s = s; o.ghost.style.transform = tf(o);
+            e.preventDefault();
+        }, { passive: false });
+        function release(e) {
+            if (!g || e.pointerId !== g.id) return;
+            var cur = g; g = null;
+            if (cur.drag) { swallow = true; setTimeout(function () { swallow = false; }, 60); startHold(cur.i); return; }
+            if (cur.hadHold) {   // a tap on a held word: flip its layer and start the 5 seconds again
+                cur.box.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                cur.o.ghost.innerHTML = cur.box.querySelector('div').innerHTML; cur.o.ghost.style.textTransform = cur.box.querySelector('div').style.textTransform;
+                startHold(cur.i);
+            } else { var o = held.get(cur.i); if (o && o.pending) { if (o.ghost.parentNode) o.ghost.parentNode.removeChild(o.ghost); held.delete(cur.i); } }
+        }
+        document.addEventListener('pointerup', release, true);
+        document.addEventListener('pointercancel', release, true);
+        document.addEventListener('click', function (e) { if (swallow && e.target.closest && e.target.closest('.textBox')) { e.stopPropagation(); e.preventDefault(); swallow = false; } }, true);
+        document.addEventListener('contextmenu', function (e) { if (e.target.closest && (e.target.closest('.textBox') || e.target.closest('.cmp-ghost'))) e.preventDefault(); });
+    })();
+    </script>
+    <script>
+
+    /* 2026-11-13 AUDIO and FULL SCREEN on the Tidal Daily Cycle. The Audio button cycles: TL + SL (hear the target-language word, then the source-language one) -> TL only -> Silent.
+       The slider is the volume. Language codes come from the App: window.CONCEPTIONARY_AUDIO_LANG / _SL_LANG (e.g. 'id-ID', 'en-NZ'); label overrides window.CONCEPTIONARY_AUDIO_TL_LABEL / _SL_LABEL;
+       recorded files: window.CONCEPTIONARY_AUDIO_FILES[text]; cloud voice: window.CONCEPTIONARY_AUDIO_API_URL.
+       Let go of the moon, or tap a word: it is spoken. The romanised (TLR) line of the LOG file is never spoken. */
+    (function () {
+        var ctl = document.getElementById('cmpCtl'); if (!ctl || document.getElementById('auCycle')) return;
+        var AB = { en: 'ENG', id: 'IND', ms: 'MSA', ja: 'JPN', ko: 'KOR', zh: '中文', fr: 'FRA', de: 'DEU', es: 'SPA', it: 'ITA', pt: 'POR', ru: 'RUS', ar: 'ARA', hi: 'HIN', th: 'THA', vi: 'VIE', mi: 'MRI', fil: 'FIL', tl: 'FIL', nl: 'NLD', sv: 'SWE', tr: 'TUR', pl: 'POL', el: 'ELL', he: 'HEB', sm: 'SMO', to: 'TON', fj: 'FIJ' };
+        var AUDIO_API_URL = window.CONCEPTIONARY_AUDIO_API_URL || '';
+        var st = { mode: 0, vol: 0.8, last: '', lastT: 0, timer: null, cur: null, pt: 'mouse', seq: 0 };   // mode 0 = TL+SL, 1 = TL only, 2 = silent
+        function tlCode() { return window.CONCEPTIONARY_AUDIO_LANG || ''; }
+        function slCode() { return window.CONCEPTIONARY_AUDIO_SL_LANG || ''; }
+        function abbr(code, fb, ov) { if (ov) return ov; if (!code) return fb; var b = code.toLowerCase().split(/[-_]/)[0]; return AB[b] || b.toUpperCase(); }
+        function tlName() { return abbr(tlCode(), 'TL', window.CONCEPTIONARY_AUDIO_TL_LABEL); }
+        function slName() { return abbr(slCode(), 'SL', window.CONCEPTIONARY_AUDIO_SL_LABEL); }
+
+        var wrap = document.createElement('div'); wrap.id = 'audioWrap'; wrap.className = 'audio-wrap';
+        var cyc = document.createElement('button'); cyc.id = 'auCycle'; cyc.type = 'button';
+        var vol = document.createElement('input'); vol.type = 'range'; vol.id = 'auVol2'; vol.min = 0; vol.max = 100; vol.step = 5; vol.value = 80; vol.setAttribute('aria-label', 'Volume');
+        wrap.appendChild(cyc); wrap.appendChild(vol); ctl.insertBefore(wrap, ctl.firstChild);
+        var toast = document.createElement('div'); toast.id = 'auToast'; document.body.appendChild(toast); var toastT = null;
+        function note(text) {
+            toast.textContent = text; toast.style.opacity = '1';
+            var r = wrap.getBoundingClientRect(); toast.style.left = '0px'; toast.style.top = '0px';
+            var w = toast.offsetWidth, h = toast.offsetHeight;
+            toast.style.left = Math.max(6, Math.min(window.innerWidth - w - 6, r.left + r.width / 2 - w / 2)) + 'px';
+            var t = r.top - h - 8; if (t < 6) t = Math.min(window.innerHeight - h - 6, r.bottom + 8);
+            toast.style.top = t + 'px';
+            clearTimeout(toastT); toastT = setTimeout(function () { toast.style.opacity = '0'; }, 2600);
+        }
+        function label() {
+            cyc.textContent = st.mode === 0 ? tlName() + '+' + slName() : st.mode === 1 ? tlName() : 'Silent';
+            cyc.setAttribute('aria-label', 'Audio: ' + cyc.textContent);
+            cyc.title = 'Click to change: ' + tlName() + ' + ' + slName() + ' / ' + tlName() + ' only / Silent. The slider is the volume.';
+        }
+        function describe() { return st.mode === 0 ? 'Audio: hear the target language (' + tlName() + '), then the source language (' + slName() + ')' : st.mode === 1 ? 'Audio: target language (' + tlName() + ') only' : 'Audio: silent'; }
+
+        function pickVoice(code) {
+            var vs = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
+            if (!code) return null;
+            var c = code.toLowerCase(), base = c.split('-')[0], best = null, bs = -1;
+            vs.forEach(function (v) {
+                var l = (v.lang || '').toLowerCase().replace('_', '-');
+                if (l !== c && l.split('-')[0] !== base) return;
+                var s = (l === c ? 4 : 0) + (/natural|neural|online/i.test(v.name) ? 3 : 0) + (/google/i.test(v.name) ? 2 : 0) + (v.localService ? 0 : 1);
+                if (s > bs) { best = v; bs = s; }
+            });
+            return best;
+        }
+        function stop() { st.seq++; try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} if (st.cur) { try { st.cur.pause(); } catch (e) {} st.cur = null; } }
+        function playUrl(u, done) { var a = new Audio(u); a.volume = st.vol; if (st.cur) { try { st.cur.pause(); } catch (e) {} } st.cur = a; if (done) a.onended = done; a.play().catch(function () { note('The browser blocked the sound: tap the page once and try again.'); }); }
+        function viaBrowser(text, code, done) {
+            if (!window.speechSynthesis) { note('This browser cannot speak.'); return; }
+            var v = pickVoice(code);
+            if (code && !v) { note('No ' + code + ' voice on this device.'); return; }
+            var u = new SpeechSynthesisUtterance(text);
+            if (code) u.lang = code; if (v) u.voice = v; u.volume = st.vol;
+            window.__auUtt = u;   // keep a reference: some phones drop the sound if the utterance is garbage-collected
+            var started = false; u.onstart = function () { started = true; };
+            if (done) u.onend = done;
+            u.onerror = function (ev) { if (ev.error && ev.error !== 'interrupted' && ev.error !== 'canceled') note('The device could not speak (' + ev.error + ').'); };
+            var go = function () {
+                try { speechSynthesis.resume(); } catch (e) {}
+                speechSynthesis.speak(u);
+                setTimeout(function () { if (!started && window.__auUtt === u) { try { speechSynthesis.cancel(); } catch (e) {} } }, 2500);   // stuck phone queue: clear it so the next tap works
+            };
+            if (speechSynthesis.speaking || speechSynthesis.pending) { speechSynthesis.cancel(); setTimeout(go, 120); } else go();
+        }
+        function viaCloud(text, code, done) {
+            fetch(AUDIO_API_URL + '?text=' + encodeURIComponent(text) + '&lang=' + encodeURIComponent(code))
+                .then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
+                .then(function (b) { playUrl(URL.createObjectURL(b), done); })
+                .catch(function () { note('The audio service could not be reached.'); });
+        }
+        function speak1(text, code, done) {
+            var files = window.CONCEPTIONARY_AUDIO_FILES;
+            if (files && files[text] && (!code || code === tlCode())) { playUrl(files[text], done); return; }   /* recordings belong to the target language only */
+            if (AUDIO_API_URL && code) viaCloud(text, code, done); else viaBrowser(text, code, done);
+        }
+        var lastItem = '';
+        function speakItem(item) {
+            if (st.mode === 2 || !item) return;
+            var key = item.id + '|' + st.mode, now = Date.now();
+            if (key === st.last && now - st.lastT < 1200) return;   // one phrase, one sound
+            st.last = key; st.lastT = now;
+            var items = [[item.tl, tlCode()]];                      // the target-language word (the script in the LOG file; never the romanised line)
+            if (st.mode === 0) items.push([item.sl, slCode()]);     // then the source-language word
+            st.seq++; var my = st.seq, i = 0;
+            try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
+            (function next() { if (my !== st.seq || i >= items.length) return; var it = items[i++]; if (!it[0]) { next(); return; } speak1(it[0], it[1], function () { setTimeout(next, 150); }); })();
+        }
+        window.__cmpSpeak = function (i, force) { var d = (isStatesMode ? LANG.statesData : LANG.transitionsData)[i]; if (!d) return; if (force) st.last = ''; speakItem({ id: i, tl: String(d[1]).replace(/<rt>[^<]*<\/rt>/g, '').replace(/<[^>]*>/g, ''), sl: d[0] }); };   // the TLR (romanised) line is never spoken
+
+        cyc.addEventListener('click', function (e) {
+            e.stopPropagation();
+            st.mode = (st.mode + 1) % 3; label(); if (st.mode === 2) stop();
+            if (window.speechSynthesis) speechSynthesis.getVoices();
+            note(describe());
+        });
+        vol.addEventListener('input', function () { st.vol = vol.value / 100; if (st.cur) st.cur.volume = st.vol; vol.style.setProperty('--p', vol.value + '%'); });
+        vol.addEventListener('click', function (e) { e.stopPropagation(); });
+        window.addEventListener('load', label); label(); vol.style.setProperty('--p', vol.value + '%');
+        window.__auCycle = { get mode() { return st.mode; }, label: label };
+
+        /* Full Screen (hidden where the browser cannot do it, e.g. iPhone Safari) */
+        var de = document.documentElement, fb = document.getElementById('fsBtn');
+        var req = de.requestFullscreen || de.webkitRequestFullscreen;
+        if (!req) { if (fb) fb.style.display = 'none'; }
+        else {
+            window.toggleFullScreen = function () {
+                var on = document.fullscreenElement || document.webkitFullscreenElement;
+                var fail = function () { if (!fb) return; fb.textContent = 'Not allowed here'; setTimeout(sync, 2500); };
+                if (!on) { try { var p = req.call(de); if (p && p.catch) p.catch(fail); } catch (e) { fail(); } }
+                else { var ex = document.exitFullscreen || document.webkitExitFullscreen; if (ex) ex.call(document); }
+            };
+            var sync = function () { if (fb) fb.textContent = (document.fullscreenElement || document.webkitFullscreenElement) ? 'Exit Full Screen' : 'Full Screen'; };
+            document.addEventListener('fullscreenchange', sync); document.addEventListener('webkitfullscreenchange', sync);
+        }
+    })();
+    
+    </script>
+    <script>
+    /* 2026-11-13 TIDAL DAILY CYCLE: a better moon. A soft glow, a sphere shaded from a warm highlight to a darker limb, craters and a glint. It follows the draggable frame (which stays as the invisible grab handle). */
+    (function () {
+        var svg = document.getElementById('svgCanvas'), frame = document.getElementById('draggableFrame'); if (!svg || !frame || document.getElementById('cxMoon')) return;
+        var NS = 'http://www.w3.org/2000/svg', defs = svg.querySelector('defs');
+        function mk(tag, attrs) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
+        function grad(tag, id, attrs, stops) { var g = mk(tag, Object.assign({ id: id }, attrs)); g.innerHTML = stops.map(function (s) { return '<stop offset="' + s[0] + '" stop-color="' + s[1] + '" stop-opacity="' + (s[2] == null ? 1 : s[2]) + '"/>'; }).join(''); defs.appendChild(g); }
+        grad('radialGradient', 'cxMoonGlow', { cx: '50%', cy: '50%', r: '50%' }, [[0, '#fff6d2', .8], [.45, '#ffe9a6', .35], [1, '#ffe9a6', 0]]);
+        grad('radialGradient', 'cxMoonBody', { cx: '50%', cy: '50%', r: '50%', fx: '36%', fy: '30%' }, [[0, '#fffbe6'], [.30, '#fbe39a'], [.66, '#e6b95a'], [1, '#b98530']]);
+        grad('radialGradient', 'cxMoonLimb', { cx: '50%', cy: '50%', r: '50%' }, [[.62, '#4a2a00', 0], [1, '#4a2a00', .42]]);
+        var g = mk('g', { id: 'cxMoon', 'pointer-events': 'none' });
+        g.appendChild(mk('circle', { 'class': 'glow', cx: 0, cy: 0, r: 8.4, fill: 'url(#cxMoonGlow)' }));
+        var body = mk('g', { 'class': 'body' });
+        body.appendChild(mk('circle', { cx: 0, cy: 0, r: 4.2, fill: 'url(#cxMoonBody)' }));
+        [[-1.35, -1.15, .95], [1.3, -.55, .62], [.15, 1.55, 1.15], [-2.05, .95, .5], [2.0, 1.55, .42], [.75, -2.2, .46], [-.55, .15, .34]].forEach(function (c) {
+            body.appendChild(mk('circle', { cx: c[0], cy: c[1], r: c[2], fill: 'rgba(120,72,14,.30)', stroke: 'rgba(255,244,205,.55)', 'stroke-width': .09 }));
+            body.appendChild(mk('circle', { cx: c[0] - c[2] * .16, cy: c[1] - c[2] * .16, r: c[2] * .78, fill: 'rgba(95,55,8,.22)' }));
+        });
+        body.appendChild(mk('circle', { cx: 0, cy: 0, r: 4.2, fill: 'url(#cxMoonLimb)' }));
+        body.appendChild(mk('ellipse', { cx: -1.35, cy: -1.75, rx: 1.35, ry: .78, fill: '#fff', 'fill-opacity': .38, transform: 'rotate(-32 -1.35 -1.75)' }));
+        body.appendChild(mk('circle', { cx: 0, cy: 0, r: 4.2, fill: 'none', stroke: '#8c5d16', 'stroke-width': .22 }));
+        g.appendChild(body);
+        svg.appendChild(g);
+        function follow() {
+            g.setAttribute('transform', 'translate(' + frame.getAttribute('cx') + ',' + frame.getAttribute('cy') + ')');
+            g.classList.toggle('dragging', frame.classList.contains('dragging'));
+            if (frame.previousSibling !== g) svg.insertBefore(g, frame);
+        }
+        new MutationObserver(follow).observe(frame, { attributes: true, attributeFilter: ['cx', 'cy', 'class'] });
+        follow();
+    })();
+    </script>
+    <script>
+    /* 2026-11-13 TIDAL DAILY CYCLE: touch-anywhere grab of the moon, Reset, movable Quiz and Learned array, no Quiz on touch phones. */
+    (function () {
+        var $ = function (id) { return document.getElementById(id); };
+        var svg = $('svgCanvas'), frame = $('draggableFrame'), de = document.documentElement, qc = $('quizContainer'), arr = $('learned-vocabulary');
+        document.body.appendChild(arr);   /* a fixed-position panel must not sit inside the page frame (its grey-scale filter would trap it) */
+
+        var faceDown = function (e) {
+            if (e.target.closest && (e.target.closest('.textBox') || e.target === frame)) return;
+            var cx = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0].clientX), cy = e.clientY !== undefined ? e.clientY : (e.touches && e.touches[0].clientY);
+            var pt = svg.createSVGPoint(); pt.x = cx; pt.y = cy; var p = pt.matrixTransform(svg.getScreenCTM().inverse());
+            if (Math.hypot(p.x - 50, p.y - 50) > 35) return;
+            isDragging = true; frame.classList.add('dragging');
+            document.dispatchEvent(new MouseEvent('mousemove', { clientX: cx, clientY: cy, bubbles: true }));
+            if (e.cancelable) e.preventDefault();
+        };
+        svg.addEventListener('mousedown', faceDown); svg.addEventListener('touchstart', faceDown, { passive: false });
+
+        /* the Quiz and the Learned array are hidden on touch phones (not enough room); desktop windows of any size keep them */
+        var mq = window.matchMedia('(pointer: coarse) and (max-width: 700px), (pointer: coarse) and (max-height: 520px) and (orientation: landscape)');
+        function syncQuiz() { de.classList.toggle('no-quiz', mq.matches); }
+        syncQuiz(); if (mq.addEventListener) mq.addEventListener('change', syncQuiz); else if (mq.addListener) mq.addListener(syncQuiz);
+
+        /* ---- movable panels: click, grab, drag and drop anywhere on the screen ---- */
+        var tip = document.createElement('div'); tip.id = 'arrayMoveTip'; document.body.appendChild(tip);
+        function movable(el, skip, onGrab) {
+            var st = null, swallow = false;
+            el.addEventListener('pointerdown', function (e) {
+                if ((e.pointerType === 'mouse' && e.button !== 0) || (skip && e.target.closest && e.target.closest(skip))) return;
+                var r = el.getBoundingClientRect(); st = { id: e.pointerId, dx: e.clientX - r.left, dy: e.clientY - r.top, x0: e.clientX, y0: e.clientY, drag: false };
+            });
+            document.addEventListener('pointermove', function (e) {
+                if (!st || e.pointerId !== st.id) return;
+                if (!st.drag) {
+                    if (Math.hypot(e.clientX - st.x0, e.clientY - st.y0) < 5) return;
+                    st.drag = true; var r = el.getBoundingClientRect();
+                    el.style.left = r.left + 'px'; el.style.top = r.top + 'px'; el.style.right = 'auto'; el.style.bottom = 'auto'; el.style.transform = 'none'; el.dataset.moved = '1'; el.style.cursor = 'grabbing';
+                    if (onGrab) onGrab();
+                }
+                var w = el.offsetWidth, h = el.offsetHeight;
+                el.style.left = Math.min(Math.max(e.clientX - st.dx, 0), Math.max(0, window.innerWidth - w)) + 'px';
+                el.style.top = Math.min(Math.max(e.clientY - st.dy, 0), Math.max(0, window.innerHeight - h)) + 'px';
+                e.preventDefault();
+            }, { passive: false });
+            function up(e) { if (!st || e.pointerId !== st.id) return; if (st.drag) { swallow = true; setTimeout(function () { swallow = false; }, 60); el.style.cursor = ''; } st = null; }
+            document.addEventListener('pointerup', up); document.addEventListener('pointercancel', up);
+            el.addEventListener('click', function (e) { if (swallow) { e.stopPropagation(); e.preventDefault(); swallow = false; } }, true);
+            window.addEventListener('resize', function () {
+                if (el.dataset.moved !== '1') return; var r = el.getBoundingClientRect();
+                el.style.left = Math.min(Math.max(r.left, 0), Math.max(0, window.innerWidth - r.width)) + 'px'; el.style.top = Math.min(Math.max(r.top, 0), Math.max(0, window.innerHeight - r.height)) + 'px';
+            });
+        }
+        var tipTimer = null, tipDone = false;
+        function hideTip() { tip.style.opacity = '0'; clearTimeout(tipTimer); }
+        function hintText() { return (LANG.move_hint && LANG.move_hint !== 'MOVE_HINT') ? LANG.move_hint : 'You can move this'; }
+        movable(qc, 'input, button');
+        movable(arr, 'button', hideTip);
+        function placeArray() { if (arr.dataset.moved === '1') return; var r = document.querySelector('.a4-page').getBoundingClientRect(); arr.style.left = (r.left + 12) + 'px'; arr.style.top = (r.top + 110) + 'px'; }
+        window.addEventListener('resize', placeArray);
+        function showArrayTip() {
+            if (tipDone || de.classList.contains('no-quiz')) return; tipDone = true;
+            tip.textContent = hintText(); tip.className = ''; tip.style.opacity = '0'; tip.style.left = '0px'; tip.style.top = '0px';
+            var a = arr.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight, x, y;
+            if (a.left - w - 14 >= 4) { tip.className = 'left'; x = a.left - w - 12; y = a.top + 22 - h / 2; }
+            else if (a.right + w + 14 <= window.innerWidth) { tip.className = 'right'; x = a.right + 12; y = a.top + 22 - h / 2; }
+            else { tip.className = 'below'; x = Math.min(a.left, window.innerWidth - w - 4); y = a.bottom + 12; }
+            tip.style.left = x + 'px'; tip.style.top = Math.max(4, y) + 'px'; tip.style.opacity = '1';
+            clearTimeout(tipTimer); tipTimer = setTimeout(hideTip, 5000);
+        }
+        var oa = window.addToVocabularyArray;
+        window.addToVocabularyArray = function (i, d) { oa(i, d); placeArray(); setTimeout(showArrayTip, 80); };
+
+        /* "You can move this" at the top of the Quiz box: 5 seconds every time it opens */
+        var hint = document.createElement('div'); hint.id = 'quizMoveHint'; hint.textContent = hintText();
+        qc.insertBefore(hint, qc.firstChild);
+        var hintTimer = null, wasOpen = false;
+        new MutationObserver(function () {
+            var open = qc.style.display === 'block';
+            if (open && !wasOpen) { hint.classList.remove('gone'); clearTimeout(hintTimer); hintTimer = setTimeout(function () { hint.classList.add('gone'); }, 5000); }
+            wasOpen = open;
+        }).observe(qc, { attributes: true, attributeFilter: ['style'] });
+
+        /* ---- Reset: back to the opening view (high tide, States, first layer), all Quiz progress cleared ---- */
+        function resetAll() {
+            if (window.__cmpReset) window.__cmpReset();
+            qc.style.display = 'none'; currentQuizIndex = -1; $('quizInput').value = ''; $('quizFeedback').textContent = '';
+            learnedItemsStates.fill(false); learnedItemsTransitions.fill(false);
+            $('learned-items').innerHTML = ''; de.classList.remove('has-learned'); $('toggle-learned').textContent = LANG.hide_all_label; hideTip();
+            if (window.__cmpSetShowAll) window.__cmpSetShowAll(false);
+            var all = $('tsAll'); if (all) all.checked = false; $('tsReset').click(); $('textSizePanel').style.display = 'none';
+            [qc, arr].forEach(function (el) { el.style.left = el.style.top = el.style.right = el.style.bottom = el.style.transform = ''; delete el.dataset.moved; });
+            if (!isStatesMode) toggleMode();
+            window.createTextBoxes(); window.__tdlSetMode(0); positionFrameOnItem(0); placeArray();
+        }
+        var rb = $('reset-btn'); if (rb) { if (LANG.reset_label && LANG.reset_label !== 'RESET_LABEL') rb.textContent = LANG.reset_label; rb.addEventListener('click', resetAll); }
+        document.addEventListener('DOMContentLoaded', placeArray);
+        window.addEventListener('load', placeArray);
+    })();
     </script>
 </body>
 </html>
