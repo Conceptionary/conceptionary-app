@@ -1,7 +1,8 @@
 /* Conceptionary template list - THE ONE PLACE to add, rename or remove a template.
    Used by templates.html (the launcher) and view.html (the Home / Previous / Next bar).
    Each entry: id, label, rom (file name without .html, or null), log (same, or null).
-   Files live in templates/phonographic/ (ROM-...) and templates/logographic/ (LOG-...).
+   Files live in templates/phonographic/ (ROM-...) and templates/logographic/ (LOG-...);
+   worked examples (names ending -ID-EN or -JA-EN) live in examples/id-en/ and examples/ja-en/.
    A link whose file does not exist in the repo is hidden automatically on the live site.
    (c) 2026 Alan William Preston */
 window.CONCEPTIONARY_TEMPLATE_FAMILIES = [
@@ -64,6 +65,17 @@ window.CONCEPTIONARY_TEMPLATE_FAMILIES = [
   ]},
   { name: 'Tense Timeline', items: [
     { id: 'TRG', label: 'Tense timeline: past, present, future (TRG)', rom: 'ROM-TRG-Generic', log: null }
+  ]},
+  /* Worked examples (a real language pair, with recorded audio). Files live in examples/id-en/ and examples/ja-en/.
+     'intro' puts the big "Example templates" heading above the first group; 'anchor' is the id the top link jumps to. */
+  { name: 'Indonesian for English speakers', intro: 'Example templates', anchor: 'examples', items: [
+    { id: 'EX-ID-TDL', label: 'Daily Tidal Cycle (CR-TDL)',  rom: 'ROM-CR-TDL-ID-EN', log: null },
+    { id: 'EX-ID-MOY', label: 'Months of the Year (CR-MOY)', rom: 'ROM-CR-MOY-ID-EN', log: null },
+    { id: 'EX-ID-DOW', label: 'Days of the Week (CR-DOW)',   rom: 'ROM-CR-DOW-ID-EN', log: null }
+  ]},
+  { name: 'Japanese for English speakers', items: [
+    { id: 'EX-JA-TDL', label: 'Daily Tidal Cycle (CR-TDL)',  rom: null, log: 'LOG-CR-TDL-JA-EN' },
+    { id: 'EX-JA-MOY', label: 'Months of the Year (CR-MOY)', rom: null, log: 'LOG-CR-MOY-JA-EN' }
   ]}
 ];
 
@@ -72,7 +84,11 @@ window.CONCEPTIONARY_NAV = (function () {
   var fams = window.CONCEPTIONARY_TEMPLATE_FAMILIES;
   var flat = [];
   fams.forEach(function (f) { f.items.forEach(function (t) { t.family = f.name; flat.push(t); }); });
-  function folder(file) { return file.indexOf('ROM-') === 0 ? 'templates/phonographic/' : 'templates/logographic/'; }
+  function folder(file) {
+    if (/-ID-EN$/.test(file)) return 'examples/id-en/';   /* worked examples: Indonesian for English speakers */
+    if (/-JA-EN$/.test(file)) return 'examples/ja-en/';   /* worked examples: Japanese for English speakers */
+    return file.indexOf('ROM-') === 0 ? 'templates/phonographic/' : 'templates/logographic/';
+  }
   function find(file) {
     for (var i = 0; i < flat.length; i++) {
       if (flat[i].rom === file) return { t: flat[i], kind: 'rom', i: i };

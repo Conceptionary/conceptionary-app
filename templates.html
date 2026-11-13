@@ -19,6 +19,7 @@
   .tag { display:inline-block; min-width:3.1em; text-align:center; padding:1px 6px; border-radius:6px; font-weight:700; font-size:.8rem; color:#fff; }
   .tag.rom { background:var(--rom); } .tag.log { background:var(--log); }
   .toplinks a { color:var(--accent); font-weight:600; margin-right:16px; }
+  h2.big { font-size:1.35rem; margin:34px 0 0; border-bottom:0; }
   h2 { font-size:1.05rem; margin:26px 0 8px; padding-bottom:4px; border-bottom:2px solid var(--line); color:var(--accent); }
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:10px; }
   .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 12px; display:flex; flex-direction:column; gap:8px; }
@@ -41,21 +42,38 @@
     <span><span class="tag rom">ROM</span> phonographic: TL, then SL, then Quiz</span>
     <span><span class="tag log">LOG</span> logographic: TLR, then TL, then SL, then Quiz</span>
   </div>
-  <div class="toplinks"><a href="index.html">Concept Browser (the App)</a></div>
+  <div class="toplinks"><a href="index.html">Concept Browser (the App)</a><a href="#examples">Example templates</a></div>
   <p id="status" aria-live="polite"></p>
 </header>
 <main id="main"></main>
 <footer>&copy; 2026 Alan William Preston</footer>
 
-<script src="conceptionary-templates.js"></script>
 <script>
+/* 2026-11-14 The template list is loaded here (not with a plain script tag) and always asked for fresh, with a changing ?v= on the end,
+   so a phone that kept an old copy of conceptionary-templates.js can no longer show an empty page. If it cannot be loaded, the page says why. */
 (function () {
+  function fail(why) {
+    var m = document.createElement('p'); m.style.cssText = 'padding:16px;font-weight:600';
+    m.textContent = why; (document.getElementById('main') || document.body).appendChild(m);
+  }
+  var s = document.createElement('script');
+  s.src = 'conceptionary-templates.js?v=' + new Date().getTime();
+  s.onload = function () {
+    if (!window.CONCEPTIONARY_NAV) { fail('The template list loaded but looks out of date (it has no navigation helper). Reload this page; if it persists, replace conceptionary-templates.js in the conceptionary-app folder on GitHub with the latest version.'); return; }
+    window.__conceptionaryStart();
+  };
+  s.onerror = function () { fail('The template list (conceptionary-templates.js) could not be loaded. Check that you are online and that the file is in the same folder as this page on GitHub, spelled exactly like that in lower case.'); };
+  document.head.appendChild(s);
+})();
+</script>
+<script>
+window.__conceptionaryStart = function () {
   var N = window.CONCEPTIONARY_NAV, main = document.getElementById('main');
-  if (!N) { var m=document.createElement('p'); m.style.cssText='padding:16px;font-weight:600'; m.innerHTML='The template list (conceptionary-templates.js) did not load. Check that this file is in the same folder as this page on GitHub, spelled exactly like that in lower case.'; (document.getElementById('main')||document.body).appendChild(m); return; }
   var links = [];
   function viewUrl(file) { return 'view.html?t=' + encodeURIComponent(file); }
 
   N.families.forEach(function (fam) {
+    if (fam.intro) { var big = document.createElement('h2'); big.className = 'big'; big.textContent = fam.intro; if (fam.anchor) big.id = fam.anchor; main.appendChild(big); }
     var sec = document.createElement('section');
     var h = document.createElement('h2'); h.textContent = fam.name; sec.appendChild(h);
     var grid = document.createElement('div'); grid.className = 'grid'; sec.appendChild(grid);
@@ -97,7 +115,7 @@
       .catch(function () { /* network hiccup: leave the link visible */ })
       .then(done);
   });
-})();
+};
 </script>
 </body>
 </html>
