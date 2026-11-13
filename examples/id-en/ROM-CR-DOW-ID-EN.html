@@ -682,7 +682,9 @@ html[data-scheme="night"] .segment-highlighted { fill: rgba(255,214,90,.55) !imp
 @keyframes cxSunSpin { to { transform: rotate(360deg); } }
 html[data-scheme="night"] #cxSun .glow { opacity: .8; }
 @media print { #cxSun .rays { animation: none; } #draggableFrame { filter: none; } }
-    </style>
+    /* a word that turns yellow under the pointer (or a touch) always shows black text, in every colour scheme and whether or not it is learned (2026-11-13) */
+html[lang] body .textBox:hover div, html[lang] body .textBox:active div, html[lang] body .textBox.active:hover div, html[lang] body .textBox.learned:hover div { color: #000 !important; text-shadow: none !important; background: #fff176 !important; }
+</style>
 <script>
     /* Language codes for the Audio button (the App normally sets these): Target Language Bahasa Indonesia, Source Language English (New Zealand). */
     window.CONCEPTIONARY_AUDIO_LANG = "id-ID"; window.CONCEPTIONARY_AUDIO_SL_LANG = "en-NZ";

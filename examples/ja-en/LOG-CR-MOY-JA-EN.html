@@ -453,7 +453,9 @@ html:not([data-scheme]) .drag-instruction { color: #24456b; }
 #third-indicator rt { font-size: .55em; line-height: 1; }
 @media print { .a4-page { background: #fff !important; } .month-segment { fill: #e4daf5 !important; } .third-seg.on, .segment-highlighted { fill: none !important; } #cxRingTube { display: none; } }
 @media print { .vocabulary-array, .quiz-container { display: none !important; } }
-    </style>
+    /* a word that turns yellow under the pointer (or a touch) always shows black text, in every colour scheme and whether or not it is learned (2026-11-13) */
+html[lang] body .textBox:hover div, html[lang] body .textBox:active div, html[lang] body .textBox.active:hover div, html[lang] body .textBox.learned:hover div { color: #000 !important; text-shadow: none !important; background: #fff176 !important; }
+</style>
 </head>
 <body>
     <div class="a4-page">

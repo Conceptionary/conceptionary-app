@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Week Cycle - Generic Template</title>
+    <title>Week Cycle - Generic Template (Phonographic)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -387,16 +387,6 @@
             margin-bottom: 3px;
         }
 
-        .vocabulary-item .target-language-romanized {
-            font-style: italic;
-            color: #666;
-            cursor: pointer;
-            padding: 3px 6px;
-            border-radius: 3px;
-            font-size: 0.9em;
-            margin-bottom: 3px;
-        }
-
         .vocabulary-item .source-language {
             color: #555;
             cursor: pointer;
@@ -405,7 +395,6 @@
         }
         
         .vocabulary-item .target-language.hidden,
-        .vocabulary-item .target-language-romanized.hidden,
         .vocabulary-item .source-language.hidden {
             color: transparent;
             user-select: none;
@@ -693,18 +682,20 @@ html[data-scheme="night"] .segment-highlighted { fill: rgba(255,214,90,.55) !imp
 @keyframes cxSunSpin { to { transform: rotate(360deg); } }
 html[data-scheme="night"] #cxSun .glow { opacity: .8; }
 @media print { #cxSun .rays { animation: none; } #draggableFrame { filter: none; } }
-    </style>
+    /* a word that turns yellow under the pointer (or a touch) always shows black text, in every colour scheme and whether or not it is learned (2026-11-13) */
+html[lang] body .textBox:hover div, html[lang] body .textBox:active div, html[lang] body .textBox.active:hover div, html[lang] body .textBox.learned:hover div { color: #000 !important; text-shadow: none !important; background: #fff176 !important; }
+</style>
 </head>
 <body>
     <div class="a4-page">
         <div id="cmpInfo">
-            <div id="title-box" class="title-box"></div>
+            <div id="title-box" class="title-box">Days of the Week</div>
             <div id="day-indicator" class="day-indicator">Day 1</div>
             <div id="drag-instruction" class="drag-instruction">&#128161; Drag the sun!</div>
         </div>
         <div id="cmpCtl">
             <button id="today-indicator" class="today-indicator tb" type="button">Today is</button>
-            <button id="display-mode-toggle" class="display-mode-toggle tb" type="button" title="Change the language shown on every day">Show: TLR</button>
+            <button id="display-mode-toggle" class="display-mode-toggle tb" type="button" title="Change the language shown on every day">Show: TL</button>
             <button id="show-all-toggle" class="tb" type="button" title="Show every day word at once">Show All</button>
             <div class="tools-wrap" id="toolsWrap">
                 <button id="toolsBtn" class="tb" type="button" aria-haspopup="true" title="Colours, Text size, Sun cycle, Day labels and Print">Tools &#9660;</button>
@@ -766,42 +757,78 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
     </div>
 
     <script>
-        // Generic vocabulary data template
-        // Format: [Source Language, Target Language, Target Language Romanized, Quiz Prompt, DayIndex]
+        // =================================================================
+        // LANGUAGE CONFIGURATION BLOCK
+        // Replace these UI strings for a new language pair.
+        // SL = Source Language | TL = Target Language
+        // =================================================================
+        const LANG = {
+            // --- Title cycle (shown in top box; click to cycle) -----------
+            // ROM CONVENTION: TL is shown first (default), then SL on click —
+            // matching the vocabulary-item convention (TL first, SL on
+            // click). Exactly 2 states — no combined bilingual state
+            // (previously this array defaulted to SL and had an extra
+            // "SL_TITLE / TL_TITLE" combined 3rd state; both removed for
+            // consistency with the rest of the ROM family and with the
+            // equivalent fix applied to ROM-CR-TTT-Generic.html).
+            titles: [
+                "TL_TITLE",          // e.g. "Hari-hari dalam Seminggu"
+                "SL_TITLE"           // e.g. "Days of the Week"
+            ],
+            day_label_prefix:   "DAY_LABEL_PREFIX",   // e.g. "Day" -> "Day 1" etc.
+            today_label:        "TODAY_LABEL",        // e.g. "Today is"
+            show_tl_label:      "SHOW_TL_LABEL",       // e.g. "Show: TL"
+            show_sl_label:      "SHOW_SL_LABEL",       // e.g. "Show: SL"
+            hide_sun_label:     "HIDE_SUN_LABEL",      // e.g. "Hide Sun Cycle"
+            show_sun_label:     "SHOW_SUN_LABEL",      // e.g. "Show Sun Cycle"
+            hide_labels_label:  "HIDE_LABELS_LABEL",   // e.g. "Hide Day Labels"
+            show_labels_label:  "SHOW_LABELS_LABEL",   // e.g. "Show Day Labels"
+            drag_instruction:   "DRAG_INSTRUCTION",    // e.g. "Drag the sun!"
+            hide_all_label:     "HIDE_ALL_LABEL",      // e.g. "Hide All"
+            show_all_label:     "SHOW_ALL_LABEL",      // e.g. "Show All"
+            array_title:        "ARRAY_TITLE",         // e.g. "Learned Vocabulary"
+            quiz_correct:       "QUIZ_CORRECT",        // e.g. "Correct!"
+            quiz_wrong:         "QUIZ_WRONG"           // e.g. "Try again"
+        };
+        // =================================================================
+        // END OF LANGUAGE CONFIGURATION BLOCK
+        // =================================================================
+
+        // Generic vocabulary data template for Phonographic languages
+        // Format: [Source Language, Target Language, Quiz Prompt, DayIndex]
         const daysOfWeekData = [
-            ["SL-Day1", "TL-Day1", "TLR-Day1", "What's the Target Language word for 'Day 1'?", 0],
-            ["SL-Day2", "TL-Day2", "TLR-Day2", "What's the Target Language word for 'Day 2'?", 1],
-            ["SL-Day3", "TL-Day3", "TLR-Day3", "What's the Target Language word for 'Day 3'?", 2],
-            ["SL-Day4", "TL-Day4", "TLR-Day4", "What's the Target Language word for 'Day 4'?", 3],
-            ["SL-Day5", "TL-Day5", "TLR-Day5", "What's the Target Language word for 'Day 5'?", 4],
-            ["SL-Day6", "TL-Day6", "TLR-Day6", "What's the Target Language word for 'Day 6'?", 5],
-            ["SL-Day7", "TL-Day7", "TLR-Day7", "What's the Target Language word for 'Day 7'?", 6]
+            ["SL-Day1", "TL-Day1", "What's the Target Language word for 'Day 1'?", 0],
+            ["SL-Day2", "TL-Day2", "What's the Target Language word for 'Day 2'?", 1],
+            ["SL-Day3", "TL-Day3", "What's the Target Language word for 'Day 3'?", 2],
+            ["SL-Day4", "TL-Day4", "What's the Target Language word for 'Day 4'?", 3],
+            ["SL-Day5", "TL-Day5", "What's the Target Language word for 'Day 5'?", 4],
+            ["SL-Day6", "TL-Day6", "What's the Target Language word for 'Day 6'?", 5],
+            ["SL-Day7", "TL-Day7", "What's the Target Language word for 'Day 7'?", 6]
         ];
 
         // Global variables
         let learnedItems = new Array(7).fill(false);
         let textBoxElements = [];
         let addedLearnedItems = new Array(7).fill(false);
-        let displayMode = 0; // 0: TLR (default), 1: TL, 2: SL
+        let displayMode = 0; // 0: TL (default), 1: SL
         let currentDay = 0;
         let isDragging = false;
         let currentTextIndex = 0;
         let currentQuizIndex = -1;
         let showSunCycle = true;
         let showDayLabels = false;   // Day Labels start hidden; Tools > Show Day Labels
-        
-        // Title cycle: TLR (default) → TL → SL → TLR. See "Logographic
-        // UI Conventions" in Conceptionary_Template_Definitions.md.
-        // Previously this array's first element was the literal string
-        // "LOG-CR-DOW Generic" (a disconnected placeholder, not real
-        // content) and its third element combined that same disconnected
-        // string with TL — with no TLR anywhere and no load-time
-        // initialization at all (the title only ever updated on click).
-        const titleTexts = [
-            "TLR_TITLE",
-            "TL_TITLE",
-            "SL_TITLE"
-        ];
+
+        const titleTexts = LANG.titles;
+
+        // Apply static UI strings on load
+        document.getElementById('title-box').textContent          = LANG.titles[0];
+        document.getElementById('today-indicator').textContent    = LANG.today_label;
+        document.getElementById('display-mode-toggle').textContent= LANG.show_tl_label;
+        document.getElementById('sun-cycle-toggle').textContent   = LANG.hide_sun_label;
+        document.getElementById('day-labels-toggle').textContent  = showDayLabels ? LANG.hide_labels_label : LANG.show_labels_label;
+        document.getElementById('drag-instruction').textContent   = LANG.drag_instruction;
+        document.getElementById('toggle-learned').textContent     = LANG.hide_all_label;
+        document.querySelector('#learned-array .array-title').textContent = LANG.array_title;
 
         function normalizeText(text) {
             return text.toLowerCase()
@@ -822,7 +849,7 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
                 const button = document.getElementById("toggle-learned");
                 if (!container || !button) return;
                 
-                const spans = container.querySelectorAll('.vocabulary-item .target-language, .vocabulary-item .target-language-romanized, .vocabulary-item .source-language');
+                const spans = container.querySelectorAll('.vocabulary-item .target-language, .vocabulary-item .source-language');
                 
                 let visibleCount = 0;
                 spans.forEach(span => {
@@ -841,25 +868,22 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
                     }
                 });
                 
-                button.textContent = mostlyVisible ? 'Show All' : 'Hide All';
+                button.textContent = mostlyVisible ? LANG.show_all_label : LANG.hide_all_label;
             } catch (error) {
                 console.error("Error in toggleArrayVisibility:", error);
             }
         }
 
         function cycleDisplayMode() {
-            displayMode = (displayMode + 1) % 3;
+            displayMode = (displayMode + 1) % 2;
             const button = document.getElementById("display-mode-toggle");
             
             switch(displayMode) {
                 case 0:
-                    button.textContent = "Show: TLR";
+                    button.textContent = LANG.show_tl_label;
                     break;
                 case 1:
-                    button.textContent = "Show: TL";
-                    break;
-                case 2:
-                    button.textContent = "Show: SL";
+                    button.textContent = LANG.show_sl_label;
                     break;
             }
             
@@ -873,12 +897,9 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
                     if (div) {
                         switch(displayMode) {
                             case 0:
-                                div.innerHTML = daysOfWeekData[index][2]; // TLR
-                                break;
-                            case 1:
                                 div.innerHTML = daysOfWeekData[index][1]; // TL
                                 break;
-                            case 2:
+                            case 1:
                                 div.innerHTML = daysOfWeekData[index][0]; // SL
                                 break;
                         }
@@ -894,10 +915,10 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
             
             if (showSunCycle) {
                 sunCycleArcs.style.display = "block";
-                button.textContent = "Hide Sun Cycle";
+                button.textContent = LANG.hide_sun_label;
             } else {
                 sunCycleArcs.style.display = "none";
-                button.textContent = "Show Sun Cycle";
+                button.textContent = LANG.show_sun_label;
             }
         }
 
@@ -910,7 +931,7 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
                 label.style.opacity = showDayLabels ? "1" : "0";
             });
             
-            button.textContent = showDayLabels ? "Hide Day Labels" : "Show Day Labels";
+            button.textContent = showDayLabels ? LANG.hide_labels_label : LANG.show_labels_label;
         }
 
         function createSegments() {
@@ -1002,7 +1023,7 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
             const dayLabelsGroup = document.getElementById("dayLabels");
             const center = { x: 50, y: 50 };
             const labelRadius = 20;
-            const dayNames = ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"];
+            const dayNames = daysOfWeekData.map(d => d[1]); // TL day names
             
             for (let i = 0; i < 7; i++) {
                 const angle = (i * 360/7 - 90 + 360/14) * Math.PI / 180;
@@ -1076,7 +1097,7 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
                 div.style.cursor = "pointer";
                 div.style.whiteSpace = "nowrap";
                 div.style.fontWeight = "bold";
-                div.innerHTML = daysOfWeekData[i][2]; // Start with TLR (romanized)
+                div.innerHTML = daysOfWeekData[i][1]; // Start with TL (target language)
                 
                 foreignObject.appendChild(div);
                 
@@ -1087,26 +1108,23 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
                     const index = parseInt(this.getAttribute('data-index'));
                     const div = this.querySelector('div');
                     
+                    console.log("TextBox clicked, index:", index, "current text:", div.innerHTML);
                     
                     if (learnedItems[index]) {
-                        // For learned items, cycle through all three: TLR → TL → SL
-                        if (div.innerHTML === daysOfWeekData[index][2]) { // TLR
-                            div.innerHTML = daysOfWeekData[index][1]; // TL
-                        } else if (div.innerHTML === daysOfWeekData[index][1]) { // TL
+                        // For learned items, cycle through: TL → SL
+                        if (div.innerHTML === daysOfWeekData[index][1]) { // TL
                             div.innerHTML = daysOfWeekData[index][0]; // SL
                         } else { // SL
-                            div.innerHTML = daysOfWeekData[index][2]; // Back to TLR
+                            div.innerHTML = daysOfWeekData[index][1]; // Back to TL
                         }
                     } else {
-                        // For unlearned items: TLR → TL → SL → Quiz
-                        if (div.innerHTML === daysOfWeekData[index][2]) { // TLR (default)
-                            div.innerHTML = daysOfWeekData[index][1]; // Show TL
-                        } else if (div.innerHTML === daysOfWeekData[index][1]) { // TL
+                        // For unlearned items: TL → SL → Quiz
+                        if (div.innerHTML === daysOfWeekData[index][1]) { // TL (default)
                             div.innerHTML = daysOfWeekData[index][0]; // Show SL
                         } else if (div.innerHTML === daysOfWeekData[index][0]) { // SL
                             showQuiz(index, this); // Start quiz
                         } else {
-                            div.innerHTML = daysOfWeekData[index][2]; // Reset to TLR
+                            div.innerHTML = daysOfWeekData[index][1]; // Reset to TL
                         }
                     }
                 });
@@ -1115,6 +1133,7 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
                 textBoxElements.push(foreignObject);
             }
             
+            console.log("Created", textBoxElements.length, "text boxes");
         }
 
         function addToVocabularyArray(index) {
@@ -1123,7 +1142,6 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
                 
                 const sourceLanguage = daysOfWeekData[index][0];
                 const targetLanguage = daysOfWeekData[index][1];
-                const targetLanguageRomanized = daysOfWeekData[index][2];
                 
                 const itemElement = document.createElement('div');
                 itemElement.className = 'vocabulary-item';
@@ -1131,10 +1149,6 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
                 const targetLanguageSpan = document.createElement('span');
                 targetLanguageSpan.className = 'target-language';
                 targetLanguageSpan.innerHTML = targetLanguage;
-                
-                const targetLanguageRomanizedSpan = document.createElement('span');
-                targetLanguageRomanizedSpan.className = 'target-language-romanized';
-                targetLanguageRomanizedSpan.textContent = targetLanguageRomanized;
                 
                 const sourceLanguageSpan = document.createElement('span');
                 sourceLanguageSpan.className = 'source-language';
@@ -1145,18 +1159,12 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
                     this.classList.toggle('hidden');
                 });
                 
-                targetLanguageRomanizedSpan.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    this.classList.toggle('hidden');
-                });
-                
                 sourceLanguageSpan.addEventListener('click', function(e) {
                     e.stopPropagation();
                     this.classList.toggle('hidden');
                 });
                 
                 itemElement.appendChild(targetLanguageSpan);
-                itemElement.appendChild(targetLanguageRomanizedSpan);
                 itemElement.appendChild(sourceLanguageSpan);
                 
                 const learnedItemsContainer = document.getElementById("learned-items");
@@ -1166,6 +1174,7 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
                 const learnedArray = document.getElementById("learned-array");
                 learnedArray.style.display = 'block';
                 
+                console.log("Added vocabulary item:", targetLanguage, sourceLanguage);
             } catch (error) {
                 console.error("Error adding vocabulary item:", error);
             }
@@ -1197,17 +1206,18 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
             });
             
             const dayIndicator = document.getElementById("day-indicator");
-            dayIndicator.textContent = "Day " + (dayIndex + 1);
+            dayIndicator.textContent = LANG.day_label_prefix + " " + (dayIndex + 1);
         }
 
         function showQuiz(index, element) {
+            console.log("Showing quiz for index:", index);
             currentQuizIndex = index;
             
             const quizContainer = document.getElementById("quizContainer");
             const quizInput = document.getElementById("quizInput");
             const quizFeedback = document.getElementById("quizFeedback");
             
-            quizInput.placeholder = daysOfWeekData[index][3];
+            quizInput.placeholder = daysOfWeekData[index][2];
             quizInput.value = '';
             quizFeedback.textContent = '';
             
@@ -1229,18 +1239,15 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
             const quizFeedback = document.getElementById("quizFeedback");
             const userAnswer = quizInput.value.trim();
             const correctAnswerTL = daysOfWeekData[currentQuizIndex][1].replace(/<[^>]*>/g, '');
-            const correctAnswerTLR = daysOfWeekData[currentQuizIndex][2];
             
             const normalizedUserAnswer = normalizeText(userAnswer);
-            const normalizedCorrectTLR = normalizeText(correctAnswerTLR);
+            const normalizedCorrectTL = normalizeText(correctAnswerTL);
             
             if (userAnswer === correctAnswerTL || 
                 userAnswer.toLowerCase() === correctAnswerTL.toLowerCase() ||
-                userAnswer === correctAnswerTLR ||
-                userAnswer.toLowerCase() === correctAnswerTLR.toLowerCase() ||
-                normalizedUserAnswer === normalizedCorrectTLR) {
+                normalizedUserAnswer === normalizedCorrectTL) {
                 
-                quizFeedback.textContent = 'Correct!';
+                quizFeedback.textContent = LANG.quiz_correct;
                 quizFeedback.style.color = 'green';
                 
                 learnedItems[currentQuizIndex] = true;
@@ -1270,15 +1277,15 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
                     currentQuizIndex = -1;
                 }, 1500);
             } else {
-                quizFeedback.textContent = 'Try again';
+                quizFeedback.textContent = LANG.quiz_wrong;
                 quizFeedback.style.color = 'red';
                 
-                // Reset to show TLR when user gets wrong answer
+                // Reset to show TL when user gets wrong answer
                 const textBox = textBoxElements[currentQuizIndex];
                 if (textBox) {
                     const div = textBox.querySelector('div');
                     if (div) {
-                        div.innerHTML = daysOfWeekData[currentQuizIndex][2]; // TLR
+                        div.innerHTML = daysOfWeekData[currentQuizIndex][1]; // TL
                     }
                 }
             }
@@ -1315,6 +1322,7 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
         }
 
         function initializeApp() {
+            console.log("Initializing app...");
             
             const svg = document.getElementById("svgCanvas");
             const frame = document.getElementById("draggableFrame");
@@ -1332,14 +1340,6 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
                 console.error("Critical elements are missing from the DOM");
                 return;
             }
-
-            // Title box: TLR by default (matches the vocabulary-item
-            // convention — see Conceptionary_Template_Definitions.md).
-            // Was previously left showing a static HTML placeholder that
-            // didn't even match titleTexts[0]; now genuinely defaults to
-            // real content from the moment the page loads.
-            titleBox.textContent = titleTexts[0];
-            currentTextIndex = 0;
             
             createSegments();
             createSunCycleArcs();
@@ -1350,15 +1350,18 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
             const todayIndex = getCurrentDayIndex();
             positionFrameOnDay(todayIndex);
             
+            console.log("Initialized with current day: Day", todayIndex + 1);
             
             frame.style.pointerEvents = 'all';
             frame.style.cursor = 'grab';
             
+            console.log("Setting up drag handlers...");
             
             let startDrag = function(e) {
                 isDragging = true;
                 frame.classList.add('dragging');
                 frame.style.cursor = 'grabbing';
+                console.log("Drag started");
                 e.preventDefault();
                 e.stopPropagation();
             };
@@ -1409,6 +1412,7 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
                     frame.classList.remove('dragging');
                     frame.style.cursor = 'grab';
                     if (window.__cmpSpeak) window.__cmpSpeak(currentDay);
+                    console.log("Drag ended");
                     
                     if (e) {
                         e.preventDefault();
@@ -1462,6 +1466,7 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
             todayIndicator.addEventListener('click', function() {
                 const todayIndex = getCurrentDayIndex();
                 positionFrameOnDay(todayIndex);
+                console.log("Returned to today: Day", todayIndex + 1);
             });
             
             document.addEventListener('click', function(e) {
@@ -1474,7 +1479,7 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
                         if (textBox) {
                             const div = textBox.querySelector('div');
                             if (div) {
-                                div.innerHTML = daysOfWeekData[currentQuizIndex][2]; // Reset to TLR
+                                div.innerHTML = daysOfWeekData[currentQuizIndex][1]; // Reset to TL
                             }
                         }
                     }
@@ -1496,6 +1501,7 @@ html[data-scheme="night"] #cxSun .glow { opacity: .8; }
                 }
             }, 15000);
             
+            console.log("App initialized successfully");
         }
 
         document.addEventListener('DOMContentLoaded', initializeApp);
