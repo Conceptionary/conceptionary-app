@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f3d63">
 <title>Conceptionary Templates</title>
 <style>
   :root { --bg:#f4f7fa; --card:#fff; --ink:#1b2a3a; --muted:#5b6b7b; --line:#d3dde7; --rom:#1a6fb5; --log:#b5481a; --accent:#0f4c81; }
@@ -44,6 +46,7 @@
   </div>
   <div class="toplinks"><a href="index.html">Concept Browser (the App)</a><a href="#examples">Example templates</a></div>
   <p id="status" aria-live="polite"></p>
+  <p id="offline" class="sub" style="font-size:.85rem" aria-live="polite"></p>
 </header>
 <main id="main"></main>
 <footer>&copy; 2026 Alan William Preston</footer>
@@ -57,7 +60,7 @@
     m.textContent = why; (document.getElementById('main') || document.body).appendChild(m);
   }
   var s = document.createElement('script');
-  s.src = 'conceptionary-templates.js?v=' + new Date().getTime();
+  s.src = 'conceptionary-templates.js' + (/^https?:$/.test(location.protocol) ? '?v=' + new Date().getTime() : '');   /* a ?query on a local file:// address makes some phones say 'file not found', so it is only added on the live site */
   s.onload = function () {
     if (!window.CONCEPTIONARY_NAV) { fail('The template list loaded but looks out of date (it has no navigation helper). Reload this page; if it persists, replace conceptionary-templates.js in the conceptionary-app folder on GitHub with the latest version.'); return; }
     window.__conceptionaryStart();
@@ -116,6 +119,25 @@ window.__conceptionaryStart = function () {
       .then(done);
   });
 };
+</script>
+<script>
+/* 2026-11-14 Offline use: on the live site this saves the templates on the device (see sw.js). Opened as a plain local file it does nothing. */
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
+</script>
+<script>
+(function () {
+  var el = document.getElementById('offline'); if (!el) return;
+  if (!/^https?:$/.test(location.protocol)) { el.textContent = 'This copy was opened as a local file. For offline use, open the web address once while online, then add it to your home screen.'; return; }
+  if (!('serviceWorker' in navigator) || !window.caches) { el.textContent = ''; return; }
+  function upd() {
+    caches.keys().then(function (ks) {
+      var k = ks.filter(function (x) { return x.indexOf('conceptionary-') === 0; })[0];
+      if (!k) { el.textContent = 'Saving the templates for offline use…'; return null; }
+      return caches.open(k).then(function (c) { return c.keys(); }).then(function (r) { el.textContent = r.length > 12 ? 'Ready for offline use: ' + r.length + ' files are saved on this device.' : 'Saving the templates for offline use…'; });
+    }).catch(function () {});
+  }
+  window.addEventListener('load', function () { upd(); setTimeout(upd, 2500); setTimeout(upd, 8000); });
+})();
 </script>
 </body>
 </html>

@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f3d63">
 <title>Conceptionary Template</title>
 <style>
   :root { --bar:#0f3d63; --bar-ink:#fff; --btn:#1d6aa8; --btn-ink:#fff; --btn-off:#5b7088; }
@@ -51,7 +53,7 @@
     m.textContent = why; document.body.appendChild(m);
   }
   var s = document.createElement('script');
-  s.src = 'conceptionary-templates.js?v=' + new Date().getTime();
+  s.src = 'conceptionary-templates.js' + (/^https?:$/.test(location.protocol) ? '?v=' + new Date().getTime() : '');   /* a ?query on a local file:// address makes some phones say 'file not found', so it is only added on the live site */
   s.onload = function () {
     if (!window.CONCEPTIONARY_NAV) { fail('The template list loaded but looks out of date (it has no navigation helper). Reload this page; if it persists, replace conceptionary-templates.js in the conceptionary-app folder on GitHub with the latest version.'); return; }
     window.__conceptionaryStart();
@@ -134,6 +136,10 @@ window.__conceptionaryStart = function () {
     if (e.key === ']' && $('next').getAttribute('aria-disabled') !== 'true') location.href = $('next').href;
   });
 };
+</script>
+<script>
+/* 2026-11-14 Offline use: on the live site this saves the templates on the device (see sw.js). Opened as a plain local file it does nothing. */
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
 </script>
 </body>
 </html>
