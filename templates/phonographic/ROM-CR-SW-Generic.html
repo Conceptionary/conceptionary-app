@@ -1,162 +1,382 @@
 <!DOCTYPE html>
-<html lang="en">
+<!-- Last updated: 2026-11-17 @ 12:41 p.m. (Mangawhai, NZ) -->
+<html lang="en" data-scheme="night">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Steering Wheel — Directions — Phonographic — Generic</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:#c4eaf8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;font-family:'Segoe UI',Arial,sans-serif;}
-#sb{width:100%;max-width:700px;}
-#sv{width:100%;height:auto;display:block;touch-action:none;cursor:grab;user-select:none;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steering Wheel — Directions — Phonographic — Generic</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #c4eaf8; overflow: hidden; }
+        .a4-page { width: 90vw; height: 88vh; border: 5px solid black; background-color: #c4eaf8; box-sizing: border-box; position: relative; touch-action: none; z-index: 1; overflow: hidden; }
+        .watermark { position: absolute; bottom: 5px; width: 100%; text-align: center; font-size: 11px; color: rgba(0,0,0,0.3); font-weight: bold; pointer-events: none; user-select: none; z-index: 0; }
+        svg { width: 100%; height: 100%; overflow: visible; }
+        .title-box { position: absolute; top: 10px; left: 10px; font-size: 1em; font-weight: bold; text-align: center; cursor: pointer; border: 1px solid black; padding: 10px; background-color: white; color: #0d2d42; z-index: 2; font-family: Arial, sans-serif; }
+        .drag-instruction { position: absolute; top: 60px; right: 10px; font-size: 0.9em; padding: 5px 10px; background-color: rgba(255,255,255,0.9); border: 1px solid #ccc; border-radius: 4px; z-index: 3; opacity: 1; transition: opacity 3s ease; }
+        .drag-instruction.fade { opacity: 0; }
+    /* 2026-11-06 Phone layout, Audio, Print, Full Screen, Tools menu and no Quiz on the Compass */
+    .a4-page { height: 86vh; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr) auto; }
+    .a4-page > svg { grid-column: 1 / 3; grid-row: 2; min-height: 0; width: 100%; height: 100%; }
+    #cmpInfo { position: static; grid-column: 1; grid-row: 1; z-index: 3; display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; margin: 10px; }
+    #cmpInfo .title-box { position: static; transform: none; left: auto; top: auto; }
+    #cmpInfo .title-box.hidden { transform: scale(0.9); }
+    #cmpInfo .day-indicator, #cmpInfo .drag-instruction { position: static; transform: none; left: auto; top: auto; min-width: 0; white-space: normal; }
+    #cmpCtl { position: static; grid-column: 2; grid-row: 1; z-index: 200; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; align-items: flex-start; margin: 10px; }
+    .a4-page > .watermark { position: static; grid-column: 1 / 3; grid-row: 3; padding: 0 0 4px; }
+    #cmpCtl .tb { position: static; transform: none; left: auto; top: auto; min-width: 0; font-weight: normal; background: #3366cc; color: #fff; border: 0; border-radius: 4px; padding: 7px 12px; font: 14px Arial, sans-serif; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+    #cmpCtl .tb:hover { background: #254e9c; }
+    #printList { display: none; }
+    .textBox { -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+.audio-wrap { position: relative; display: flex; flex-direction: column; align-items: stretch; width: 104px; box-sizing: border-box; background-color: #3366cc; color: #fff; border-radius: 4px; padding: 3px 6px 2px; }
+    .audio-wrap:hover { background-color: #254e9c; }
+    .audio-wrap #auCycle { background: transparent; border: 0; color: inherit; font: inherit; font-size: 14px; padding: 4px 0 1px; margin: 0; cursor: pointer; white-space: nowrap; text-align: center; -webkit-tap-highlight-color: transparent; }
+    .controls .audio-wrap #auCycle:hover { background: transparent; }
+    .audio-wrap #auVol2 { width: 100%; height: 14px; margin: 0; padding: 0; background: transparent; -webkit-appearance: none; appearance: none; touch-action: none; cursor: pointer; --p: 80%; }
+    .audio-wrap #auVol2::-webkit-slider-runnable-track { height: 5px; border-radius: 3px; background: linear-gradient(to right, #007FFF 0, #007FFF var(--p), #B0E0E6 var(--p), #B0E0E6 100%); }
+    .audio-wrap #auVol2::-moz-range-track { height: 5px; border-radius: 3px; background: #B0E0E6; }
+    .audio-wrap #auVol2::-moz-range-progress { height: 5px; border-radius: 3px; background: #007FFF; }
+    .audio-wrap #auVol2::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: -4.5px; border: 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c8fbff 0%, #2fd0e8 38%, #7fb8f0 68%, #ff9cc8 100%); box-shadow: 0 1px 2px rgba(0,0,0,.35); }
+    .audio-wrap #auVol2::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c8fbff 0%, #2fd0e8 38%, #7fb8f0 68%, #ff9cc8 100%); box-shadow: 0 1px 2px rgba(0,0,0,.35); }
+    @media (pointer: coarse) { .audio-wrap { width: 112px; } .audio-wrap #auVol2 { height: 20px; } .audio-wrap #auVol2::-webkit-slider-thumb { width: 18px; height: 18px; margin-top: -6.5px; } .audio-wrap #auVol2::-moz-range-thumb { width: 18px; height: 18px; } }
+    @media (max-height: 520px) and (orientation: landscape) { .audio-wrap { width: 86px; padding: 1px 5px 0; } .audio-wrap #auCycle { font-size: 11px; padding: 2px 0 0; } .audio-wrap #auVol2 { height: 13px; } }
+    #auToast { position: fixed; z-index: 1100; background: rgba(40,40,40,.92); color: #fff; font: 14px Arial, sans-serif; padding: 7px 12px; border-radius: 8px; max-width: min(92vw, 360px); text-align: center; pointer-events: none; opacity: 0; transition: opacity .25s ease; }
+    .tools-wrap { position: relative; }
+    #toolsBtn { min-width: 74px; }
+    .tools-dd { display: none; position: absolute; top: 100%; left: 0; margin-top: 4px; min-width: 9.5em; background: #3366cc; border-radius: 6px; overflow: hidden; z-index: 400; box-shadow: 0 4px 12px rgba(0,0,0,.3); }
+    .tools-dd.active { display: block; }
+    .tools-dd button { display: block; width: 100%; text-align: left; background: #3366cc; color: #fff; border: 0; border-bottom: 1px solid rgba(255,255,255,.35); padding: 9px 14px; font: 14px Arial, sans-serif; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+    .tools-dd button:last-child { border-bottom: 0; }
+    .tools-dd button:hover { background: #254e9c; }
+    html[data-scheme="nocolour"] body { background: #e6e6e6; }
+    html[data-scheme="nocolour"] .a4-page { filter: grayscale(1); }
+    @media screen {
+      html[data-scheme="night"] body { background: #0b1330; }
+      html[data-scheme="night"] .a4-page { background: #14213d; border-color: #8a96b8; }
+      html[data-scheme="night"] .circle-path { stroke: #aab4d0; }
+      html[data-scheme="night"] .segment-label { fill: #c5cce0; }
+      html[data-scheme="night"] .textBox div { color: #fff !important; text-shadow: none !important; }
+      html[data-scheme="night"] .title-box, html[data-scheme="night"] .day-indicator { background: #1f2f55; color: #e8eefc; border-color: #8a96b8; }
+      html[data-scheme="night"] .watermark { color: rgba(255,255,255,.45); }
+    }
+    /* Phone held upright: title and direction, buttons, the compass as large as fits, then the watermark */
+    @media (max-width: 700px) and (min-height: 521px) {
+      html, body { overflow: hidden; }
+      body { display: block; height: 100vh; height: 100dvh; padding: 0; }
+      .a4-page { width: 100vw; height: 100vh; height: 100dvh; border: 0; display: grid; grid-template-columns: 100%; grid-template-rows: auto auto minmax(0, 1fr) auto; }
+      #cmpInfo { grid-column: 1; grid-row: 1; justify-content: center; max-width: 96%; margin: 6px 0 0; gap: 4px 6px; }
+      #cmpInfo .title-box { padding: 6px 12px; font-size: .95em; text-align: center; }
+      #cmpInfo .day-indicator { font-size: .95em; padding: 4px 10px; }
+      #cmpInfo .drag-instruction { font-size: .8em; max-width: 92vw; text-align: center; }
+      #cmpCtl { grid-column: 1; grid-row: 2; justify-content: center; margin: 6px 4px; }
+      #cmpCtl .tb { padding: 7px 10px; font-size: 13px; }
+      .a4-page > svg { grid-column: 1; grid-row: 3; }
+      .a4-page > .watermark { grid-column: 1; grid-row: 4; }
+    }
+    /* Phone held sideways (or any short window, e.g. inside the viewer, about 690 x 200): text column on the left, compass at full height on the right */
+    @media (max-height: 520px) and (orientation: landscape) {
+      html, body { overflow: hidden; }
+      body { display: block; height: 100vh; height: 100dvh; padding: 0; }
+      .a4-page { width: 100vw; height: 100vh; height: 100dvh; border: 0; display: grid; grid-template-columns: minmax(190px, 42%) minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; }
+      #cmpInfo { grid-column: 1; grid-row: 1; flex-direction: column; align-items: flex-start; margin: 4px; gap: 3px; }
+      #cmpInfo .title-box { padding: 3px 8px; font-size: .8em; }
+      #cmpInfo .day-indicator { font-size: .8em; padding: 2px 8px; }
+      #cmpInfo .drag-instruction { display: none; }
+      #cmpCtl { grid-column: 1; grid-row: 2; justify-content: flex-start; margin: 2px 4px; gap: 4px; }
+      #cmpCtl .tb { padding: 4px 8px; font-size: 11px; }
+      .a4-page > svg { grid-column: 2; grid-row: 1 / 5; }
+      .a4-page > .watermark { grid-column: 1; grid-row: 4; text-align: left; font-size: 9px; padding: 0 4px 2px; }
+    }
+    /* Print: the compass on the left and every direction listed on the right, on one A4 landscape sheet */
+    @media print {
+      @page { size: A4 landscape; margin: 8mm; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      html, body { height: auto !important; min-height: 0 !important; overflow: visible !important; background: #fff !important; padding: 0 !important; display: block !important; }
+      .a4-page { width: 100% !important; height: 188mm !important; border: 0 !important; overflow: visible !important; display: grid !important; grid-template-columns: 152mm 1fr; grid-template-rows: auto 1fr auto; column-gap: 6mm; filter: none !important; }
+      .a4-page > svg { grid-column: 1; grid-row: 1 / 4; width: 152mm !important; height: 152mm !important; align-self: center; }
+      #cmpInfo { position: static !important; grid-column: 2; grid-row: 1; max-width: none; margin: 0 0 3mm; }
+      #cmpInfo .title-box { font-size: 14pt; border: 0; padding: 0; }
+      #cmpInfo .day-indicator, #cmpInfo .drag-instruction { display: none !important; }
+      #printList { display: block !important; grid-column: 2; grid-row: 2; font: 8.5pt Arial, sans-serif; overflow: hidden; }
+      #printList .pl-row { display: grid; grid-template-columns: 14mm 1fr 1fr 1fr; gap: 2mm; padding: 0.6mm 0; border-bottom: 0.2mm solid #ddd; }
+      #printList .pl-row.rom { grid-template-columns: 14mm 1fr 1fr; }
+      #printList .pl-h { color: #777; }
+      .a4-page > .watermark { position: static !important; grid-column: 2; grid-row: 3; text-align: right; }
+      .textBox { display: block !important; opacity: 1 !important; transform: none !important; }
+      #cmpCtl, .quiz-container, .vocabulary-array, #auToast { display: none !important; }
+    }
+    @media (max-height: 520px) and (orientation: landscape) { .audio-wrap #auVol2::-webkit-slider-thumb { width: 13px; height: 13px; margin-top: -4px; } .audio-wrap #auVol2::-moz-range-thumb { width: 13px; height: 13px; } }
+    #textSizePanel { position: fixed; z-index: 700; display: none; background: #fff; color: #222; border: 1px solid #555; border-radius: 8px; padding: 6px 10px 8px; box-shadow: 0 2px 10px rgba(0,0,0,.35); font: 13px Arial, sans-serif; width: min(300px, 88vw); touch-action: none; }
+    #textSizePanel .tsHead { cursor: grab; display: flex; justify-content: space-between; align-items: center; font-weight: bold; user-select: none; margin-bottom: 4px; }
+    #textSizePanel .tsHead button { border: 0; background: none; font-size: 20px; cursor: pointer; line-height: 1; }
+    #textSizePanel .tsTarget { margin: 2px 0 4px; min-height: 1.2em; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    #textSizePanel input[type=range] { width: 100%; touch-action: pan-y; }
+    #textSizePanel .tsRow { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; }
+    #textSizePanel button.tsReset { padding: 3px 10px; cursor: pointer; }
+    .textBox:hover div { background: #fff176; border-radius: 4px; }
+    .cmp-ghost { position: fixed; z-index: 1000; left: 0; top: 0; background: #fff176; border: 1px solid #b8860b; border-radius: 5px; box-shadow: 0 8px 24px rgba(0,0,0,.45); font-family: Arial, sans-serif; font-weight: bold; color: #000; white-space: nowrap; padding: 2px 5px; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transform-origin: 50% 50%; }
+    @media print { #textSizePanel, .cmp-ghost { display: none !important; } }
+
+    .textBox.visible { display: block; transform: scale(1) translateY(0); }
+
+    </style>
+    <style id="cx-style">
+/* ===== CONCEPTIONARY STYLE SHEET v0.1 (trial on the Compass, 2026-11-06) =====
+   One block of design tokens plus the rules that use them. It sits AFTER the template's own CSS and only changes looks, never behaviour.
+   Colour: ink / muted / surface / line, ONE primary (controls), ONE accent (the active word and highlight). Every text pair is 4.5:1 or better.
+   Type: one system font stack (set by script into --cx-font so the word measuring uses the same font), weights 600 and 700 only.
+   Spacing scale 4 / 8 / 12 / 16 / 24 px. Radius 10 (controls) and 16 (page card). Motion 150-250 ms, switched off by prefers-reduced-motion.
+   NOTE: inside an SVG foreignObject one CSS px is one SVG unit, so borders, radii and shadows on words are written in tiny values. */
+:root {
+  --cx-ink: #1f2937; --cx-muted: #4b5565; --cx-faint: #6b7280;
+  --cx-surface: #ffffff; --cx-bg: #eef1f7; --cx-line: #d3d9e6;
+  --cx-primary: #2a56c6; --cx-primary-dark: #1f428f; --cx-on-primary: #ffffff;
+  --cx-accent: #f2b01e; --cx-accent-soft: #fff4cf;
+  --cx-btn-bg: #e4ecf8; --cx-btn-bg-hover: #d3e0f5; --cx-btn-bg-on: #bcd0f0; --cx-btn-ink: #1d3b80; --cx-btn-line: #bccbe8;
+  --cx-disc-a: #fffdf6; --cx-disc-b: #efe8d4; --cx-disc-line: #d9cfb4;
+  --cx-s1: 4px; --cx-s2: 8px; --cx-s3: 12px; --cx-s4: 16px; --cx-s5: 24px;
+  --cx-r-ctl: 10px; --cx-r-card: 16px;
+  --cx-shadow-sm: 0 1px 2px rgba(20,30,60,.12); --cx-shadow-md: 0 4px 14px rgba(20,30,60,.16);
+  --cx-font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
+  --cx-t: 180ms ease;
+}
+html[data-scheme="night"] {
+  --cx-ink: #e6ebf7; --cx-muted: #b4bfd8; --cx-faint: #8f9cb8;
+  --cx-surface: #172036; --cx-bg: #0d1424; --cx-line: #2e3a58;
+  --cx-primary: #3d63c9; --cx-primary-dark: #2f4fa6; --cx-accent: #f2b01e; --cx-accent-soft: #3a3320;
+  --cx-btn-bg: #24304e; --cx-btn-bg-hover: #2e3c60; --cx-btn-bg-on: #3a4a74; --cx-btn-ink: #d6e0fa; --cx-btn-line: #3b4a70;
+  --cx-disc-a: #1c2846; --cx-disc-b: #121b33; --cx-disc-line: #3a4768;
+}
+body { font-family: var(--cx-font); color: var(--cx-ink); background: var(--cx-bg); }
+@media (min-width: 701px) and (min-height: 521px) {
+  body { background: radial-gradient(ellipse at 50% 30%, #ffffff 0%, var(--cx-bg) 70%); }
+  .a4-page { border: 1px solid var(--cx-line); border-radius: var(--cx-r-card); box-shadow: var(--cx-shadow-md); background: var(--cx-surface); }
+}
+.a4-page { background: var(--cx-surface); }
+/* title and indicator: quiet cards */
+.title-box { font-family: var(--cx-font); font-weight: 700; font-size: 1.05em; color: var(--cx-ink); background: var(--cx-surface); border: 1px solid var(--cx-line); border-radius: var(--cx-r-ctl); box-shadow: var(--cx-shadow-sm); padding: var(--cx-s2) var(--cx-s3); transition: box-shadow var(--cx-t), transform var(--cx-t), opacity .5s ease; }
+.title-box:hover { box-shadow: var(--cx-shadow-md); }
+.direction-indicator, .day-indicator { font-family: var(--cx-font); font-weight: 600; color: var(--cx-ink); background: var(--cx-accent-soft); border: 1px solid var(--cx-accent); border-radius: 999px; padding: var(--cx-s1) var(--cx-s3); }
+.drag-instruction { font-family: var(--cx-font); color: var(--cx-muted); background: var(--cx-surface); border: 1px solid var(--cx-line); border-radius: var(--cx-r-ctl); }
+/* controls: one button style */
+#cmpCtl .tb, .quiz-container button { font-family: var(--cx-font); font-weight: 600; letter-spacing: .01em; background: var(--cx-btn-bg); color: var(--cx-btn-ink); border: 1px solid var(--cx-btn-line); border-radius: var(--cx-r-ctl); box-shadow: var(--cx-shadow-sm); min-height: 38px; transition: background var(--cx-t), transform var(--cx-t), box-shadow var(--cx-t); }
+#cmpCtl .tb:hover { background: var(--cx-btn-bg-hover); box-shadow: var(--cx-shadow-md); }
+#cmpCtl .tb.on { background: var(--cx-btn-bg-on); border-color: var(--cx-primary); }
+#cmpCtl .tb:active, .audio-wrap:active { transform: scale(.97); box-shadow: none; }
+#cmpCtl .tb:focus-visible, .audio-wrap #auCycle:focus-visible, .tools-dd button:focus-visible { outline: 3px solid var(--cx-accent); outline-offset: 2px; }
+.audio-wrap { background: var(--cx-btn-bg); color: var(--cx-btn-ink); border: 1px solid var(--cx-btn-line); border-radius: var(--cx-r-ctl); box-shadow: var(--cx-shadow-sm); transition: background var(--cx-t); }
+.audio-wrap:hover { background: var(--cx-btn-bg-hover); }
+.audio-wrap #auVol2::-webkit-slider-runnable-track { background: linear-gradient(to right, var(--cx-primary) 0, var(--cx-primary) var(--p), var(--cx-btn-line) var(--p), var(--cx-btn-line) 100%) !important; }
+.audio-wrap #auVol2::-moz-range-track { background: var(--cx-btn-line) !important; } .audio-wrap #auVol2::-moz-range-progress { background: var(--cx-primary) !important; }
+.audio-wrap #auCycle { font-family: var(--cx-font); font-weight: 600; }
+.tools-dd { background: var(--cx-surface); border: 1px solid var(--cx-line); border-radius: 12px; box-shadow: var(--cx-shadow-md); }
+.tools-dd button { background: var(--cx-surface); color: var(--cx-btn-ink); font-family: var(--cx-font); border-bottom: 1px solid var(--cx-line); transition: background var(--cx-t); }
+.tools-dd button:hover { background: var(--cx-accent-soft); }
+#textSizePanel { font-family: var(--cx-font); background: var(--cx-surface); color: var(--cx-ink); border: 1px solid var(--cx-line); border-radius: 12px; box-shadow: var(--cx-shadow-md); }
+#textSizePanel button.tsReset { border: 1px solid var(--cx-line); border-radius: 8px; background: var(--cx-surface); color: var(--cx-ink); }
+@media (pointer: coarse) { #cmpCtl .tb { min-height: 44px; } .tools-dd button { padding-top: 12px; padding-bottom: 12px; } }
+@media (max-height: 520px) and (orientation: landscape) { #cmpCtl .tb { min-height: 32px; } }
+/* the dial */
+.circle-path, .compass-circle { stroke: var(--cx-ink); stroke-width: 0.45; }
+.degree-marker { stroke: #aab2c2; } .major-marker { stroke: #6f7889; }
+.degree-label { fill: var(--cx-faint); font-family: var(--cx-font); }
+.segment-label { font-family: var(--cx-font); fill: var(--cx-ink); }
+.quadrant-fill { fill-opacity: .42; }
+.q1-quadrant { fill: #c9defc; } .q2-quadrant { fill: #fdeaa8; } .q3-quadrant { fill: #fcd2ad; } .q4-quadrant { fill: #f8c4de; }
+.compass-rose-decoration { stroke: var(--cx-faint); opacity: .35; }
+.needle-north { fill: #d64545; stroke: #8f2323; } .needle-south { fill: #3b6fd8; stroke: #1f3f8f; }
+.compass-arrow { filter: drop-shadow(0 .6px 1px rgba(20,30,60,.35)); }
+/* words on the dial: the active word is a chip with the accent edge; the others are quiet but fully readable */
+.textBox div { font-family: var(--cx-font) !important; font-weight: 600 !important; color: var(--cx-muted) !important; text-shadow: 0 0 .8px var(--cx-surface) !important; border-radius: 1.6px; transition: background var(--cx-t), color var(--cx-t); }
+.textBox.active div { font-weight: 700 !important; color: var(--cx-ink) !important; background: rgba(255,255,255,.94); box-shadow: 0 0 0 .35px var(--cx-accent), 0 .5px 1.2px rgba(20,30,60,.2); text-shadow: none !important; }
+html[data-scheme="night"] .textBox.active div { background: rgba(23,32,54,.94); }
+.textBox:hover div { background: #fff176 !important; color: #1f2937 !important; }
+.watermark { color: var(--cx-faint); font-family: var(--cx-font); font-weight: 600; opacity: .85; }
+.cmp-ghost { font-family: var(--cx-font); border-radius: 10px; background: #fff176; border-color: var(--cx-accent); color: #1f2937; }
+html[data-scheme="night"] body { background: var(--cx-bg); }
+html[data-scheme="night"] .a4-page, html[data-scheme="night"] .title-box { background: var(--cx-surface); border-color: var(--cx-line); }
+html[data-scheme="night"] .title-box, html[data-scheme="night"] .direction-indicator { color: var(--cx-ink); }
+html[data-scheme="night"] .direction-indicator { background: var(--cx-accent-soft); border-color: var(--cx-accent); }
+html[data-scheme="night"] .quadrant-fill { fill-opacity: .22; }
+html[data-scheme="night"] .tools-dd, html[data-scheme="night"] #textSizePanel { background: var(--cx-surface); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+@media print { body { background: #fff !important; } .textBox div, .textBox.active div { color: #000 !important; background: none !important; box-shadow: none !important; } }
+/* colour disc behind the dial (inserted by script as #cxDisc) */
+#cxDisc { fill: url(#cxDiscGrad); stroke: var(--cx-disc-line); stroke-width: .35; filter: drop-shadow(0 .5px 1.2px rgba(60,50,20,.18)); }
+html[data-scheme="night"] #cxDisc { filter: none; }
+html[data-scheme="nocolour"] #cxDisc { filter: grayscale(1); }
+@media print { #cxDisc { filter: none; } }
+
+/* ===== v0.3: pearl buttons and a silver slider ===== */
+:root {
+  --cx-pearl: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.95) 0%, rgba(255,255,255,.35) 38%, rgba(255,255,255,0) 62%),
+              linear-gradient(135deg, #f8f5ff 0%, #e4edfb 32%, #f3e8f5 62%, #e2f1f3 100%);
+  --cx-pearl-hover: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,1) 0%, rgba(255,255,255,.45) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #f3eefe 0%, #d6e4fa 32%, #efdff3 62%, #d3ebef 100%);
+  --cx-pearl-on: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.75) 0%, rgba(255,255,255,.2) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #cfdcf5 0%, #b3c8ee 35%, #cdbfe9 65%, #b4d9e3 100%);
+  --cx-pearl-edge: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -3px 5px rgba(110,125,175,.20), inset 0 0 0 1px rgba(255,255,255,.35);
+}
+html[data-scheme="night"] {
+  --cx-pearl: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.22) 0%, rgba(255,255,255,.07) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #2c3a5c 0%, #34456d 35%, #3a3560 65%, #2b4458 100%);
+  --cx-pearl-hover: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.3) 0%, rgba(255,255,255,.1) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #34456d 0%, #3f5486 35%, #473f78 65%, #345468 100%);
+  --cx-pearl-on: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.2) 0%, rgba(255,255,255,.05) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #46609c 0%, #4d6bb0 35%, #5a4d98 65%, #3f6f8a 100%);
+  --cx-pearl-edge: inset 0 1px 0 rgba(255,255,255,.28), inset 0 -3px 5px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.06);
+}
+#cmpCtl .tb, .audio-wrap, .tools-dd button {
+  background-image: var(--cx-pearl); background-size: 100% 100%, 220% 220%; background-position: 0 0, 0% 0%; background-repeat: no-repeat;
+  transition: background-position .6s ease, box-shadow var(--cx-t), transform var(--cx-t), border-color var(--cx-t);
+}
+#cmpCtl .tb, .audio-wrap { box-shadow: var(--cx-pearl-edge), 0 1px 2px rgba(20,30,60,.16); }
+#cmpCtl .tb:hover, .audio-wrap:hover { background-image: var(--cx-pearl-hover); background-position: 0 0, 100% 100%; box-shadow: var(--cx-pearl-edge), 0 3px 8px rgba(20,30,60,.20); }
+#cmpCtl .tb.on { background-image: var(--cx-pearl-on); box-shadow: var(--cx-pearl-edge), 0 1px 2px rgba(20,30,60,.16); }
+#cmpCtl .tb:active, .audio-wrap:active { box-shadow: inset 0 2px 5px rgba(60,70,110,.28); }
+.tools-dd button { box-shadow: inset 0 1px 0 rgba(255,255,255,.8); }
+.tools-dd button:hover { background-image: var(--cx-pearl-hover); background-position: 0 0, 100% 100%; }
+/* Audio slider: a silver ball like the compass pivot, on a channel that darkens from light grey (quiet) to black (loud) */
+.audio-wrap #auVol2::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; border: 1px solid #8e9097; box-sizing: border-box; background: linear-gradient(to right, #e4e6ea 0%, #a9abb2 35%, #4a4b51 70%, #0b0b0d 100%) !important; box-shadow: inset 0 1px 1px rgba(0,0,0,.25); }
+.audio-wrap #auVol2::-moz-range-track { height: 6px; border-radius: 3px; border: 1px solid #8e9097; box-sizing: border-box; background: linear-gradient(to right, #e4e6ea 0%, #a9abb2 35%, #4a4b51 70%, #0b0b0d 100%) !important; }
+.audio-wrap #auVol2::-moz-range-progress { background: transparent !important; }
+.audio-wrap #auVol2::-webkit-slider-thumb { box-sizing: border-box; border: 1px solid #555; margin-top: -5px; background: radial-gradient(circle at 35% 35%, #ffffff 0%, #f5f5f5 12%, #b0b0b0 58%, #707070 100%); box-shadow: 0 1px 2px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.35); }
+.audio-wrap #auVol2::-moz-range-thumb { box-sizing: border-box; border: 1px solid #555; background: radial-gradient(circle at 35% 35%, #ffffff 0%, #f5f5f5 12%, #b0b0b0 58%, #707070 100%); box-shadow: 0 1px 2px rgba(0,0,0,.45); }
+@media (pointer: coarse) { .audio-wrap #auVol2::-webkit-slider-thumb { margin-top: -7px; } }
+@media (max-height: 520px) and (orientation: landscape) { .audio-wrap #auVol2::-webkit-slider-thumb { margin-top: -4px; } }
+html[data-scheme="night"] .tools-dd button { box-shadow: inset 0 1px 0 rgba(255,255,255,.10); }
+    
+/* ===== SW: steering wheel, words on the rim, inline Quiz ===== */
+#sv { touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+.sw-off { display: none; }
+.swLabel { -webkit-tap-highlight-color: transparent; }
+.sw-w { font-family: var(--cx-font); paint-order: stroke fill; stroke: rgba(255,255,255,.9); stroke-width: 4px; stroke-linejoin: round; text-anchor: middle; dominant-baseline: middle; }
+.sw-tlr { fill: #1b5e20; font-weight: 600; }
+.sw-tl  { fill: #0d2d42; font-weight: 500; }
+.sw-sl  { fill: #1a4a6a; font-style: italic; font-weight: 500; }
+.sw-ck  { fill: #2e8b57; stroke: rgba(255,255,255,.88); stroke-width: 3px; paint-order: stroke fill; font-size: 24px; text-anchor: middle; }
+.sw-dot { fill: rgba(255,255,255,.38); }
+.sw-dot.d-done { fill: rgba(255,255,255,.85); }
+.sw-dot.d-cur { fill: #0d2d42; }
+.sw-dot.d-ok { fill: #2e8b57; }
+html:not([data-scheme]) .a4-page { background: #c4eaf8; }
+html[data-scheme="night"] .sw-w { stroke: rgba(14,24,46,.92); }
+html[data-scheme="night"] .sw-tlr { fill: #8fe39a; }
+html[data-scheme="night"] .sw-tl { fill: #eef2fc; }
+html[data-scheme="night"] .sw-sl { fill: #b9c8f2; }
+html[data-scheme="night"] .sw-ck { stroke: rgba(14,24,46,.9); fill: #6fdc9c; }
+html[data-scheme="night"] .sw-dot { fill: rgba(255,255,255,.22); }
+html[data-scheme="night"] .sw-dot.d-done { fill: rgba(255,255,255,.62); }
+html[data-scheme="night"] .sw-dot.d-cur { fill: #f2b01e; }
+html[data-scheme="night"] .sw-dot.d-ok { fill: #6fdc9c; }
+html[data-scheme="night"] #rimGlow { stroke: rgba(160,180,230,.55); }
+.swLabel input { color-scheme: light; }
+.drag-instruction { cursor: pointer; max-width: min(430px, 62vw); white-space: normal; }
+.drag-instruction .mut { color: var(--cx-faint); font-style: italic; }
+.title-box { cursor: pointer; }
+@media print { .a4-page { background: #fff !important; } #lg .swLabel { opacity: 1 !important; } .swLabel foreignObject, .sw-dots { display: none !important; } .sw-w { stroke: none; } #rimGlow { display: none; } }
+    </style>
 </head>
 <body>
-<div id="sb">
-<svg id="sv" viewBox="-420 -465 840 850" xmlns="http://www.w3.org/2000/svg">
-
+    <div class="a4-page">
+        <div id="cmpInfo">
+            <div id="title-box" class="title-box"></div>
+            <div id="drag-instruction" class="drag-instruction"></div>
+        </div>
+        <div id="cmpCtl">
+            <button id="display-mode-toggle" class="display-mode-toggle tb" type="button" title="Change the language shown on every phrase">Show: TL</button>
+            <button id="show-all-toggle" class="tb" type="button" title="Show every phrase at once">Show All</button>
+            <button id="reset-btn" class="tb" type="button" title="Back to the starting view">Reset</button>
+            <div class="tools-wrap" id="toolsWrap">
+                <button id="toolsBtn" class="tb" type="button" aria-haspopup="true" title="Colours, Text size and Print">Tools &#9660;</button>
+                <div class="tools-dd" id="toolsMenu">
+                    <button id="colourBtn" type="button" title="Try different colour schemes">Colours: Night</button>
+                    <button id="textSizeBtn" type="button" title="Enlarge or shrink any phrase">Text size&hellip;</button>
+                    <button id="printBtn" type="button" title="Print this page on one A4 landscape sheet">Print</button>
+                </div>
+            </div>
+            <button id="fsBtn" class="tb" type="button" onclick="toggleFullScreen()">Full Screen</button>
+        </div>
+        <svg id="sv" viewBox="-420 -465 840 850" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="rimGrad" x1="0" y1="-195" x2="0" y2="195" gradientUnits="userSpaceOnUse">
-      <stop offset="0%"   stop-color="#b0b0b0"/>
-      <stop offset="18%"  stop-color="#505050"/>
-      <stop offset="50%"  stop-color="#1a1a1a"/>
-      <stop offset="82%"  stop-color="#505050"/>
-      <stop offset="100%" stop-color="#909090"/>
+      <stop offset="0%" stop-color="#b0b0b0"/><stop offset="18%" stop-color="#505050"/><stop offset="50%" stop-color="#1a1a1a"/><stop offset="82%" stop-color="#505050"/><stop offset="100%" stop-color="#909090"/>
     </linearGradient>
-    <radialGradient id="hubGrad" cx="32%" cy="26%" r="72%">
-      <stop offset="0%"   stop-color="#d0d0d0"/>
-      <stop offset="22%"  stop-color="#909090"/>
-      <stop offset="55%"  stop-color="#1e1e1e"/>
-      <stop offset="100%" stop-color="#050505"/>
-    </radialGradient>
-    <radialGradient id="hubInnerGrad" cx="36%" cy="30%" r="66%">
-      <stop offset="0%"   stop-color="#c0c0c0"/>
-      <stop offset="30%"  stop-color="#606060"/>
-      <stop offset="100%" stop-color="#0a0a0a"/>
-    </radialGradient>
-    <radialGradient id="pipGrad" cx="30%" cy="25%" r="65%">
-      <stop offset="0%"   stop-color="#e0e0e0"/>
-      <stop offset="45%"  stop-color="#707070"/>
-      <stop offset="100%" stop-color="#050505"/>
-    </radialGradient>
-    <radialGradient id="handGrad" cx="35%" cy="28%" r="62%">
-      <stop offset="0%"   stop-color="#ffffff"/>
-      <stop offset="60%"  stop-color="#d8d8d8"/>
-      <stop offset="100%" stop-color="#a8a8a8"/>
-    </radialGradient>
-    <radialGradient id="handInnerGrad" cx="38%" cy="32%" r="60%">
-      <stop offset="0%"   stop-color="#f0f0f0"/>
-      <stop offset="100%" stop-color="#c0c0c0"/>
-    </radialGradient>
+    <radialGradient id="hubGrad" cx="32%" cy="26%" r="72%"><stop offset="0%" stop-color="#d0d0d0"/><stop offset="22%" stop-color="#909090"/><stop offset="55%" stop-color="#1e1e1e"/><stop offset="100%" stop-color="#050505"/></radialGradient>
+    <radialGradient id="hubInnerGrad" cx="36%" cy="30%" r="66%"><stop offset="0%" stop-color="#c0c0c0"/><stop offset="30%" stop-color="#606060"/><stop offset="100%" stop-color="#0a0a0a"/></radialGradient>
+    <radialGradient id="pipGrad" cx="30%" cy="25%" r="65%"><stop offset="0%" stop-color="#e0e0e0"/><stop offset="45%" stop-color="#707070"/><stop offset="100%" stop-color="#050505"/></radialGradient>
+    <radialGradient id="handGrad" cx="35%" cy="28%" r="62%"><stop offset="0%" stop-color="#ffffff"/><stop offset="60%" stop-color="#d8d8d8"/><stop offset="100%" stop-color="#a8a8a8"/></radialGradient>
+    <radialGradient id="handInnerGrad" cx="38%" cy="32%" r="60%"><stop offset="0%" stop-color="#f0f0f0"/><stop offset="100%" stop-color="#c0c0c0"/></radialGradient>
   </defs>
-
-  <rect x="-420" y="-465" width="840" height="850" fill="#c4eaf8" rx="12"/>
-
-  <!-- Title box: TL default, SL on hover -->
-  <foreignObject x="-221" y="-465" width="442" height="80">
-    <div id="title-box" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#c4eaf8;border:1.5px solid #4a8aaa;border-radius:0 0 6px 6px;box-sizing:border-box;cursor:pointer;padding:4px 8px;text-align:center;">
-      <span id="ttl-tl" style="font-size:40px;font-family:Segoe UI,Arial,sans-serif;font-weight:700;color:#0d2d42;white-space:nowrap;">TL_TITLE</span>
-      <span id="ttl-sl" style="font-size:38px;font-family:Segoe UI,Arial,sans-serif;font-weight:700;font-style:italic;color:#1a4a6a;white-space:nowrap;display:none;">SL_TITLE</span>
-    </div>
-  </foreignObject>
-
-  <!-- Instructions panel: SL default (so a beginner can read them before
-       knowing the target language), TL on click -->
-  <foreignObject id="fobj-instr" x="-420" y="-295" width="250" height="390">
-    <div id="instr-box" style="width:100%;height:100%;background:rgba(255,255,255,0.82);border:1.5px solid #4a8aaa;border-radius:0 6px 6px 0;padding:12px 14px;box-sizing:border-box;cursor:pointer;overflow:hidden;transition:opacity 0.6s ease;">
-      <div id="instr-tl" style="font-size:20px;font-family:Segoe UI,Arial,sans-serif;color:#0d2d42;line-height:1.45;display:none;">
-        <span style="color:#888;font-style:italic;">INSTR_DISAPPEAR_TL</span><br><br>
-        INSTR_BODY_TL
-      </div>
-      <div id="instr-sl" style="font-size:20px;font-family:Segoe UI,Arial,sans-serif;color:#0d2d42;line-height:1.45;">
-        <span style="color:#888;font-style:italic;">INSTR_DISAPPEAR_SL</span><br><br>
-        INSTR_BODY_SL
-      </div>
-    </div>
-  </foreignObject>
-
-  <!-- Display-all button: TL default label -->
-  <foreignObject x="322" y="-465" width="98" height="98">
-    <div id="disp-btn" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#c4eaf8;border:1.5px solid #4a8aaa;border-radius:0 0 0 6px;box-sizing:border-box;cursor:pointer;padding:4px 6px;text-align:center;">
-      <span id="disp-txt" style="font-size:20px;font-family:Segoe UI,Arial,sans-serif;font-weight:500;color:#0d2d42;line-height:1.3;">DISP_LABEL_0</span>
-    </div>
-  </foreignObject>
-
-  <!-- Rim -->
+  <circle id="rimGlow" cx="0" cy="0" r="194" fill="none" stroke="transparent" stroke-width="2"/>
   <circle cx="0" cy="0" r="183" fill="none" stroke="url(#rimGrad)" stroke-width="20"/>
   <circle cx="0" cy="0" r="174" fill="none" stroke="rgba(180,180,180,0.18)" stroke-width="2"/>
   <circle cx="0" cy="0" r="192" fill="none" stroke="rgba(0,0,0,0.22)" stroke-width="2"/>
-
-  <!-- Hub -->
   <circle cx="0" cy="0" r="36" fill="url(#hubGrad)"/>
   <circle cx="0" cy="0" r="36" fill="none" stroke="rgba(200,200,200,0.25)" stroke-width="1.5"/>
   <circle cx="0" cy="0" r="22" fill="url(#hubInnerGrad)"/>
   <circle cx="0" cy="0" r="22" fill="none" stroke="rgba(180,180,180,0.2)" stroke-width="1"/>
-  <circle cx="0" cy="0" r="9"  fill="url(#pipGrad)"/>
-
-  <!-- Rotating group -->
+  <circle cx="0" cy="0" r="9" fill="url(#pipGrad)"/>
   <g id="st" transform="rotate(0)">
     <line x1="-163" y1="0" x2="163" y2="0" stroke="#1a1a1a" stroke-width="20" stroke-linecap="round"/>
-    <line x1="-145" y1="0" x2="145" y2="0" stroke="#787878" stroke-width="6"  stroke-linecap="round"/>
-    <line x1="-145" y1="0" x2="145" y2="0" stroke="#b8b8b8" stroke-width="2"  stroke-linecap="round"/>
-    <line x1="0" y1="36"  x2="0" y2="163" stroke="#1a1a1a" stroke-width="20" stroke-linecap="round"/>
-    <line x1="0" y1="44"  x2="0" y2="155" stroke="#787878" stroke-width="6"  stroke-linecap="round"/>
-    <line x1="0" y1="44"  x2="0" y2="155" stroke="#b8b8b8" stroke-width="2"  stroke-linecap="round"/>
-    <circle cx="163"  cy="0" r="36" fill="url(#handGrad)" stroke="#a0a0a0" stroke-width="1.5"/>
-    <circle cx="163"  cy="0" r="19" fill="url(#handInnerGrad)" stroke="#c8c8c8" stroke-width="1"/>
-    <circle cx="163"  cy="0" r="7"  fill="#e0e0e0"/>
+    <line x1="-145" y1="0" x2="145" y2="0" stroke="#787878" stroke-width="6" stroke-linecap="round"/>
+    <line x1="-145" y1="0" x2="145" y2="0" stroke="#b8b8b8" stroke-width="2" stroke-linecap="round"/>
+    <line x1="0" y1="36" x2="0" y2="163" stroke="#1a1a1a" stroke-width="20" stroke-linecap="round"/>
+    <line x1="0" y1="44" x2="0" y2="155" stroke="#787878" stroke-width="6" stroke-linecap="round"/>
+    <line x1="0" y1="44" x2="0" y2="155" stroke="#b8b8b8" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="163" cy="0" r="36" fill="url(#handGrad)" stroke="#a0a0a0" stroke-width="1.5"/>
+    <circle cx="163" cy="0" r="19" fill="url(#handInnerGrad)" stroke="#c8c8c8" stroke-width="1"/>
+    <circle cx="163" cy="0" r="7" fill="#e0e0e0"/>
     <circle cx="-163" cy="0" r="36" fill="url(#handGrad)" stroke="#a0a0a0" stroke-width="1.5"/>
     <circle cx="-163" cy="0" r="19" fill="url(#handInnerGrad)" stroke="#c8c8c8" stroke-width="1"/>
-    <circle cx="-163" cy="0" r="7"  fill="#e0e0e0"/>
+    <circle cx="-163" cy="0" r="7" fill="#e0e0e0"/>
   </g>
-
   <g id="lg"></g>
+        </svg>
+        <div id="printList"></div>
+        <div class="watermark">&copy; 2026 Alan William Preston</div>
+    </div>
+    <div id="textSizePanel">
+        <div class="tsHead"><span>Text size</span><button type="button" id="tsClose" aria-label="Close">&times;</button></div>
+        <div class="tsTarget" id="tsTarget">Click a word, then slide</div>
+        <input type="range" id="tsRange" min="50" max="300" step="5" value="100">
+        <div class="tsRow"><label><input type="checkbox" id="tsAll"> All words</label><span id="tsVal">100%</span><button type="button" class="tsReset" id="tsReset">Reset</button></div>
+    </div>
 
-  <text x="415" y="377" text-anchor="end" font-size="24" font-family="Segoe UI,Arial,sans-serif" fill="rgba(8,53,80,0.28)">&#169; 2026 Alan William Preston</text>
-
-</svg>
-</div>
-
-<script>
+    <script>
 /* =====================================================================
    LANGUAGE CONFIGURATION BLOCK
    To create a new language pair, replace ALL values in this section.
    SL = Source Language  |  TL = Target Language (language being learned)
+   PHONOGRAPHIC (ROM) VARIANT: layers TL (default) > SL > Quiz. The Quiz asks for the TL.
 
    STRUCTURE: A rotating steering wheel with up to 20 directional phrases
    positioned around the rim. Each item has:
-     a    — angle (0-360°) on the wheel where it activates while dragging
-     posA — (optional) display angle, if different from 'a' (for items
+     a    - angle (0-360) on the wheel where it activates while dragging
+     posA - (optional) display angle, if different from 'a' (for items
             that should activate over a range but display at one point)
-     py   — (optional) absolute y-position override for the label
-     dy   — (optional) y-offset adjustment from the default position
-     tl   — Target Language phrase (shown by default, Level 1)
-     sl   — Source Language phrase (shown on click, Level 2)
-   Quiz (Level 3) tests the TL spelling.
+     py   - (optional) absolute y-position override for the label
+     dy   - (optional) y-offset adjustment from the default position
+     tl   - Target Language phrase
+     sl   - Source Language phrase
    Do NOT change anything outside this block.
    ===================================================================== */
 
 const LANG = {
-  // --- Title ----------------------------------------------------------
+  // --- Title (click it to change language) -------------------------------
   title_tl: "TL_TITLE",   // e.g. "Tell me where to go"
   title_sl: "SL_TITLE",   // e.g. "Show me the way"
 
-  // --- Instructions panel ----------------------------------------------
+  // --- Instructions (click to change language; they fade after 15 seconds) ---
   instr_disappear_tl: "INSTR_DISAPPEAR_TL", // e.g. "(This will disappear in 15 seconds)"
   instr_disappear_sl: "INSTR_DISAPPEAR_SL",
   instr_body_tl: "INSTR_BODY_TL", // e.g. "Grab either white circle and turn the wheel..."
   instr_body_sl: "INSTR_BODY_SL",
 
-  // --- Display-all button cycle (3 states) ------------------------------
-  // 0: normal mode label (what clicking will show next — all TL)
-  // 1: showing all TL, label = what clicking will show next (all SL)
-  // 2: showing all SL, label = what clicking will show next (normal)
-  // HTML line breaks (<br>) are permitted.
-  display_cycle: [
-    "DISP_LABEL_0", // e.g. "Show<br>all"
-    "DISP_LABEL_1", // e.g. "Show<br>Source Language"
-    "DISP_LABEL_2"  // e.g. "Normal<br>view"
-  ],
+  // --- Buttons ---------------------------------------------------------------
+  reset_label:     "RESET_LABEL",      // e.g. "Reset"
+  show_all_label:  "SHOW_ALL_LABEL",   // e.g. "Show All"
+  hide_all_label:  "HIDE_ALL_LABEL",   // e.g. "Hide All"
+  show_tl_label:   "SHOW_TL_LABEL",    // e.g. "Show: TL"
+  show_sl_label:   "SHOW_SL_LABEL",    // e.g. "Show: SL"
 
   // --- Quiz strings -------------------------------------------------------
   quiz_placeholder: "QUIZ_PLACEHOLDER", // e.g. "What was that word?"
@@ -164,30 +384,30 @@ const LANG = {
   quiz_wrong:       "QUIZ_WRONG",       // e.g. "Try again!"
 
   // --- Vocabulary data (up to 20 directional phrases) ---------------------
-  // Angles: 0° = straight ahead (top), increasing clockwise to 180°
-  // (reverse, bottom), then continuing to 360°/0°. Mirror left/right
+  // Angles: 0 = straight ahead (top), increasing clockwise to 180
+  // (reverse, bottom), then continuing to 360/0. Mirror left/right
   // pairs at equal-but-opposite angles for visual symmetry.
   V: [
-    {a:0,          tl:"TL-StraightAhead",    sl:"SL-StraightAhead",    py:-355},
-    {a:5,  posA:0, tl:"TL-ContinueAsIs",     sl:"SL-ContinueAsIs",     py:-317},
-    {a:15,         tl:"TL-VeerSlightlyR",    sl:"SL-VeerSlightlyR"},
-    {a:340,        tl:"TL-VeerSlightlyL",    sl:"SL-VeerSlightlyL",    dy:15},
-    {a:40,         tl:"TL-VeerR",            sl:"SL-VeerR"},
-    {a:320,        tl:"TL-VeerL",            sl:"SL-VeerL"},
-    {a:70,         tl:"TL-TurnR",            sl:"SL-TurnR"},
-    {a:290,        tl:"TL-TurnL",            sl:"SL-TurnL"},
-    {a:80,         tl:"TL-HangR",            sl:"SL-HangR"},
-    {a:280,        tl:"TL-HangL",            sl:"SL-HangL"},
-    {a:90,         tl:"TL-TurnHardR",        sl:"SL-TurnHardR"},
-    {a:270,        tl:"TL-TurnHardL",        sl:"SL-TurnHardL"},
-    {a:120,        tl:"TL-DoubleBackR",      sl:"SL-DoubleBackR"},
-    {a:240,        tl:"TL-DoubleBackL",      sl:"SL-DoubleBackL"},
-    {a:160,        tl:"TL-UTurn",            sl:"SL-UTurn"},
-    {a:150,        tl:"TL-UeyR",             sl:"SL-UeyR"},
-    {a:210,        tl:"TL-UeyL",             sl:"SL-UeyL"},
-    {a:175,        tl:"TL-BackUp",           sl:"SL-BackUp",           py:210},
-    {a:185,        tl:"TL-GoStraightBack",   sl:"SL-GoStraightBack"},
-    {a:180,        tl:"TL-Reverse",          sl:"SL-Reverse",          py:365}
+    {a:0, tl:"TL-StraightAhead", sl:"SL-StraightAhead", py:-355},
+    {a:5, posA:0, tl:"TL-ContinueAsIs", sl:"SL-ContinueAsIs", py:-317},
+    {a:15, tl:"TL-VeerSlightlyR", sl:"SL-VeerSlightlyR"},
+    {a:340, tl:"TL-VeerSlightlyL", sl:"SL-VeerSlightlyL", dy:15},
+    {a:40, tl:"TL-VeerR", sl:"SL-VeerR"},
+    {a:320, tl:"TL-VeerL", sl:"SL-VeerL"},
+    {a:70, tl:"TL-TurnR", sl:"SL-TurnR"},
+    {a:290, tl:"TL-TurnL", sl:"SL-TurnL"},
+    {a:80, tl:"TL-HangR", sl:"SL-HangR"},
+    {a:280, tl:"TL-HangL", sl:"SL-HangL"},
+    {a:90, tl:"TL-TurnHardR", sl:"SL-TurnHardR"},
+    {a:270, tl:"TL-TurnHardL", sl:"SL-TurnHardL"},
+    {a:120, tl:"TL-DoubleBackR", sl:"SL-DoubleBackR"},
+    {a:240, tl:"TL-DoubleBackL", sl:"SL-DoubleBackL"},
+    {a:160, tl:"TL-UTurn", sl:"SL-UTurn"},
+    {a:150, tl:"TL-UeyR", sl:"SL-UeyR"},
+    {a:210, tl:"TL-UeyL", sl:"SL-UeyL"},
+    {a:175, tl:"TL-BackUp", sl:"SL-BackUp", py:210},
+    {a:185, tl:"TL-GoStraightBack", sl:"SL-GoStraightBack"},
+    {a:180, tl:"TL-Reverse", sl:"SL-Reverse", py:365}
   ]
 };
 /* =====================================================================
@@ -196,172 +416,390 @@ const LANG = {
    ===================================================================== */
 
 
-/* --- Apply title, instructions, display cycle, quiz strings ---------- */
-document.getElementById('ttl-tl').textContent = LANG.title_tl;
-document.getElementById('ttl-sl').textContent = LANG.title_sl;
-
-const instrTlEl = document.getElementById('instr-tl');
-const instrSlEl = document.getElementById('instr-sl');
-instrTlEl.innerHTML = `<span style="color:#888;font-style:italic;">${LANG.instr_disappear_tl}</span><br><br>${LANG.instr_body_tl}`;
-instrSlEl.innerHTML = `<span style="color:#888;font-style:italic;">${LANG.instr_disappear_sl}</span><br><br>${LANG.instr_body_sl}`;
-
-document.getElementById('disp-txt').innerHTML = LANG.display_cycle[0];
-
+/* 2026-11-17 STEERING WHEEL: the wheel and its words as before, now in the standard page with the button row (layer, Show All, Reset, Tools, Full Screen), Audio, a print list,
+   Night colours, Text size, a view box that grows to hold the longest words, and exact drag maths. The Quiz stays inline on each phrase (it is typed live, no Check button). */
 const V = LANG.V;
+const LOGV = V[0].tlr !== undefined;
+const LAYERS = LOGV ? ['tlr', 'tl', 'sl'] : ['tl', 'sl'];
+const NQ = LAYERS.length;   /* k === NQ means the inline Quiz is open */
+const NS = 'http://www.w3.org/2000/svg';
+const FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif'; document.documentElement.style.setProperty('--cx-font', FONT);
+const BASE = { tlr: 26, tl: 26, sl: 22 };
+const sv = document.getElementById('sv'), st = document.getElementById('st'), lg = document.getElementById('lg'), de = document.documentElement;
+let rot = 0, drag = false, prev = 0, inputActive = false, activeIdx = -1, showAll = false, mode = 0, movedDeg = 0;
+const LR = 262, THR = 6, lbls = [], renders = [], pos = [], texts = [], states = V.map(function () { return { k: 0, learned: false }; });
+const scaleOf = function (i) { return window.tsScale ? window.tsScale(i) : 1; };
+const noQuiz = function () { return de.classList.contains('no-quiz'); };
+const lab = function (key, dflt) { var v = LANG[key]; return (v && !/^(SHOW|HIDE|RESET)_[A-Z_]*LABEL$/.test(v)) ? v : dflt; };
 
-const NS='http://www.w3.org/2000/svg';
-const sv=document.getElementById('sv'),st=document.getElementById('st'),lg=document.getElementById('lg');
-let rot=0,drag=false,prev=0,inputActive=false,activeIdx=-1,displayMode=0;
-const LR=262,THR=6,lbls=[],renders=[],states=V.map(()=>({level:1,learned:false}));
+/* answers: typed live; diacritics and spelling variants are tolerated where the language file asks for it */
+const AnswerUtils = {
+    normalize: function (text) {
+        var t = String(text).toLowerCase();
+        (LANG.diacritic_map || []).forEach(function (p) { t = t.split(p[0]).join(p[1]); });
+        (LANG.digraph_map || []).forEach(function (p) { t = t.split(p[0]).join(p[1]); });
+        if (LANG.collapse_double_vowels) t = t.replace(/aa/g, 'a').replace(/ee/g, 'e').replace(/ii/g, 'i').replace(/oo/g, 'o').replace(/uu/g, 'u');
+        return t.replace(/[!?.,]/g, '').replace(/\s+/g, ' ').trim();
+    },
+    check: function (input, correct) { return this.normalize(input) === this.normalize(correct); }
+};
 
-function mkt(txt,sz,it,fw,fc){
-  const t=document.createElementNS(NS,'text');t.setAttribute('x','0');t.setAttribute('y','5');
-  t.setAttribute('text-anchor','middle');t.setAttribute('dominant-baseline','middle');
-  t.setAttribute('font-size',sz);t.setAttribute('font-family','Segoe UI,Arial,sans-serif');
-  t.setAttribute('fill',fc);if(it)t.setAttribute('font-style','italic');if(fw)t.setAttribute('font-weight',fw);
-  t.setAttribute('stroke','rgba(255,255,255,0.9)');t.setAttribute('stroke-width','4');
-  t.setAttribute('stroke-linejoin','round');t.setAttribute('style','paint-order:stroke fill');
-  t.textContent=txt;return t;
+function mkt(txt, layer, i) {
+    var t = document.createElementNS(NS, 'text'); t.setAttribute('x', '0'); t.setAttribute('y', '5');
+    t.setAttribute('class', 'sw-w sw-' + layer); t.setAttribute('font-size', BASE[layer] * scaleOf(i)); t.textContent = txt; return t;
 }
-function nrm(s){return s.toLowerCase().trim().replace(/[!?.,]/g,'');}
 
-V.forEach((v,i)=>{
-  const pa=v.posA!==undefined?v.posA:v.a;const pr=pa*Math.PI/180;
-  const tx=Math.sin(pr)*LR;const ty=v.py!==undefined?v.py:(-Math.cos(pr)*LR)+(v.dy||0);
-  const g=document.createElementNS(NS,'g');
-  g.setAttribute('transform',`translate(${tx.toFixed(1)},${ty.toFixed(1)})`);
-  g.setAttribute('opacity','0');g.style.cursor='pointer';g.style.pointerEvents='none';
+V.forEach(function (v, i) {
+    var pa = v.posA !== undefined ? v.posA : v.a, pr = pa * Math.PI / 180;
+    var tx = Math.sin(pr) * LR, ty = v.py !== undefined ? v.py : (-Math.cos(pr) * LR) + (v.dy || 0);
+    pos[i] = { x: tx, y: ty };
+    var g = document.createElementNS(NS, 'g');
+    g.setAttribute('class', 'swLabel'); g.setAttribute('data-index', i);
+    g.setAttribute('transform', 'translate(' + tx.toFixed(1) + ',' + ty.toFixed(1) + ')');
+    g.setAttribute('opacity', '0'); g.style.cursor = 'pointer'; g.style.pointerEvents = 'none';
 
-  /* Level 1 = TL — dark blue, bold */
-  const t1=mkt(v.tl,26,false,'500','#0d2d42');g.appendChild(t1);
-  /* Level 2 = SL — italic, slightly lighter */
-  const t2=mkt(v.sl,22,true,null,'#1a4a6a');t2.setAttribute('display','none');g.appendChild(t2);
+    var t = {}; texts[i] = t;
+    LAYERS.forEach(function (L) { t[L] = mkt(v[L], L, i); g.appendChild(t[L]); });
 
-  const fo=document.createElementNS(NS,'foreignObject');
-  fo.setAttribute('x','-115');fo.setAttribute('y','-38');fo.setAttribute('width','230');fo.setAttribute('height','76');fo.setAttribute('display','none');
-  const xd=document.createElement('div');xd.style.cssText='width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;';
-  const inp=document.createElement('input');inp.type='text';
-  /* Quiz prompt asks for the TL word */
-  inp.placeholder=LANG.quiz_placeholder;
-  inp.style.cssText='width:218px;font-size:18px;font-family:Segoe UI,Arial,sans-serif;text-align:center;border:2px solid #1a4a6a;background:rgba(255,255,255,0.93);border-radius:6px;padding:4px 8px;outline:none;box-sizing:border-box;color:#0d2d42;';
-  const fb=document.createElement('div');fb.style.cssText='font-size:14px;font-family:Segoe UI,Arial,sans-serif;font-weight:500;min-height:18px;text-align:center;';
-  xd.appendChild(inp);xd.appendChild(fb);fo.appendChild(xd);g.appendChild(fo);
+    var fo = document.createElementNS(NS, 'foreignObject');
+    fo.setAttribute('x', '-115'); fo.setAttribute('y', '-38'); fo.setAttribute('width', '230'); fo.setAttribute('height', LOGV ? '90' : '76');
+    var xd = document.createElement('div'); xd.style.cssText = 'width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;';
+    var inp = document.createElement('input'); inp.type = 'text'; inp.placeholder = LANG.quiz_placeholder; inp.setAttribute('autocomplete', 'off'); inp.setAttribute('autocapitalize', 'off'); inp.setAttribute('spellcheck', 'false');
+    inp.style.cssText = 'width:218px;font-size:18px;font-family:Segoe UI,Arial,sans-serif;text-align:center;border:2px solid #1a4a6a;background:rgba(255,255,255,0.93);border-radius:6px;padding:4px 8px;outline:none;box-sizing:border-box;color:#0d2d42;';
+    var fb = document.createElement('div'); fb.style.cssText = 'font-size:14px;font-family:Segoe UI,Arial,sans-serif;font-weight:500;min-height:18px;text-align:center;';
+    xd.appendChild(inp); xd.appendChild(fb);
+    if (LOGV) { var dn = document.createElement('div'); dn.style.cssText = 'font-size:10px;color:#888;text-align:center;border-top:1px solid #ddd;padding-top:3px;margin-top:2px;'; dn.textContent = LANG.diacritic_instructions; xd.appendChild(dn); }
+    fo.appendChild(xd); fo.classList.add('sw-off'); g.appendChild(fo);
 
-  const dg=document.createElementNS(NS,'g');dg.setAttribute('transform','translate(0,46)');const dots=[];
-  [-14,0,14].forEach((dx,di)=>{
-    const d=document.createElementNS(NS,'circle');d.setAttribute('cx',dx);d.setAttribute('cy','0');d.setAttribute('r','5');
-    d.setAttribute('fill',di===0?'#0d2d42':'rgba(255,255,255,0.38)');dots.push(d);dg.appendChild(d);
-  });g.appendChild(dg);
+    var dg = document.createElementNS(NS, 'g'); dg.setAttribute('class', 'sw-dots'); dg.setAttribute('transform', 'translate(0,' + (LOGV ? 62 : 50) + ')'); var dots = [];
+    (LOGV ? [-21, -7, 7, 21] : [-14, 0, 14]).forEach(function (dx) {
+        var d = document.createElementNS(NS, 'circle'); d.setAttribute('cx', dx); d.setAttribute('cy', '0'); d.setAttribute('r', '5'); d.setAttribute('class', 'sw-dot'); dots.push(d); dg.appendChild(d);
+    }); g.appendChild(dg);
 
-  const ck=document.createElementNS(NS,'text');
-  ck.setAttribute('x','112');ck.setAttribute('y','-28');ck.setAttribute('text-anchor','middle');ck.setAttribute('font-size','24');
-  ck.setAttribute('fill','#2e8b57');ck.setAttribute('stroke','rgba(255,255,255,0.88)');ck.setAttribute('stroke-width','3');
-  ck.setAttribute('style','paint-order:stroke fill');ck.setAttribute('display','none');ck.textContent='\u2713';g.appendChild(ck);
+    var ck = document.createElementNS(NS, 'text'); ck.setAttribute('x', '112'); ck.setAttribute('y', '-28'); ck.setAttribute('class', 'sw-ck sw-off'); ck.textContent = '✓'; g.appendChild(ck);
 
-  function render(){
-    const s=states[i];
-    if(displayMode===1){
-      /* Display all TL */
-      t1.setAttribute('display','');t2.setAttribute('display','none');fo.setAttribute('display','none');
-    } else if(displayMode===2){
-      /* Display all SL */
-      t1.setAttribute('display','none');t2.setAttribute('display','');fo.setAttribute('display','none');
-    } else {
-      t1.setAttribute('display',s.level===1?'':'none');
-      t2.setAttribute('display',s.level===2?'':'none');
-      fo.setAttribute('display',s.level===3?'':'none');
+    function render() {
+        var s = states[i], kk = (showAll && s.k >= NQ) ? 0 : s.k, quiz = !showAll && s.k === NQ;
+        LAYERS.forEach(function (L, j) { t[L].classList.toggle('sw-off', quiz || kk !== j); });
+        fo.classList.toggle('sw-off', !quiz);
+        dots.forEach(function (d, di) { d.setAttribute('class', 'sw-dot' + (s.learned ? ' d-ok' : di < s.k ? ' d-done' : di === s.k ? ' d-cur' : '')); });
+        ck.classList.toggle('sw-off', !s.learned);
+        if (quiz && !s.learned) setTimeout(function () { try { inp.focus(); } catch (e) {} }, 60);
     }
-    dots.forEach((d,di)=>{d.setAttribute('fill',s.learned?'#2e8b57':di<s.level-1?'rgba(255,255,255,0.85)':di===s.level-1?'#0d2d42':'rgba(255,255,255,0.38)');});
-    ck.setAttribute('display',s.learned?'':'none');
-    if(s.level===3&&!s.learned&&displayMode===0) setTimeout(()=>inp.focus(),60);
-  }
-  renders.push(render);
+    renders.push(render);
 
-  function escape(){if(!states[i].learned&&states[i].level>1){inp.value='';fb.textContent='';inp.style.borderColor='#1a4a6a';states[i].level=1;render();}}
-  g._escape=escape;
+    function clear() { inp.value = ''; fb.textContent = ''; inp.style.borderColor = '#1a4a6a'; }
+    g._escape = function () { if (!states[i].learned && states[i].k > 0 && !showAll) { clear(); states[i].k = 0; render(); } };
+    g._clear = clear;
 
-  g.addEventListener('mousedown',e=>e.stopPropagation());g.addEventListener('touchstart',e=>e.stopPropagation(),{passive:false});
-  xd.addEventListener('click',e=>e.stopPropagation());
-  g.addEventListener('click',e=>{
-    e.stopPropagation();if(displayMode>0)return;
-    const s=states[i];
-    if(s.learned){s.level=s.level===1?2:1;}
-    else if(s.level===1){s.level=2;}
-    else if(s.level===2){s.level=3;}
-    render();
-  });
-  inp.addEventListener('mousedown',e=>e.stopPropagation());inp.addEventListener('touchstart',e=>e.stopPropagation(),{passive:false});
-  inp.addEventListener('focus',()=>inputActive=true);inp.addEventListener('blur',()=>inputActive=false);
+    g.addEventListener('mousedown', function (e) { e.stopPropagation(); }); g.addEventListener('touchstart', function (e) { e.stopPropagation(); }, { passive: false });
+    xd.addEventListener('click', function (e) { e.stopPropagation(); });
+    g.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var s = states[i], was = s.k;
+        if (showAll) s.k = (Math.min(s.k, NQ - 1) + 1) % NQ;                /* Show All: a click flips this one word */
+        else if (s.learned) s.k = (s.k + 1) % NQ;                           /* learned words never reopen the Quiz */
+        else if (s.k < NQ - 1) s.k++;
+        else if (s.k === NQ - 1) s.k = noQuiz() ? 0 : NQ;                   /* the Quiz is hidden on touch phones: the cycle just starts again */
+        render();
+        if (s.k !== was && s.k < NQ && window.__cmpSpeak) window.__cmpSpeak(i, true);
+    });
+    inp.addEventListener('mousedown', function (e) { e.stopPropagation(); }); inp.addEventListener('touchstart', function (e) { e.stopPropagation(); }, { passive: false });
+    inp.addEventListener('focus', function () { inputActive = true; }); inp.addEventListener('blur', function () { inputActive = false; });
 
-  let quizTimer=null;
-  inp.addEventListener('input',()=>{
-    clearTimeout(quizTimer);
-    /* Quiz tests TL spelling */
-    const val=nrm(inp.value),tgt=nrm(v.tl);
-    fb.textContent='';inp.style.borderColor='#1a4a6a';
-    if(val==='') return;
-    if(val===tgt){
-      fb.textContent=LANG.quiz_correct;fb.style.color='#2e8b57';inp.style.borderColor='#2e8b57';states[i].learned=true;
-      setTimeout(()=>{states[i].level=1;inp.value='';fb.textContent='';inp.style.borderColor='#1a4a6a';render();},1500);
-      return;
-    }
-    if(tgt.startsWith(val)){inp.style.borderColor='#f0a500';return;}
-    inp.style.borderColor='#f0a500';
-    quizTimer=setTimeout(()=>{
-      if(nrm(inp.value)!==''&&!tgt.startsWith(nrm(inp.value))){
-        fb.textContent=LANG.quiz_wrong;fb.style.color='#c0392b';inp.style.borderColor='#c0392b';
-        setTimeout(()=>{inp.value='';fb.textContent='';inp.style.borderColor='#1a4a6a';},900);
-      }
-    },750);
-  });
-  lg.appendChild(g);lbls.push(g);
+    var quizTimer = null;
+    inp.addEventListener('input', function () {
+        clearTimeout(quizTimer);
+        var val = AnswerUtils.normalize(inp.value), tgt = AnswerUtils.normalize(LOGV ? v.tlr : v.tl);
+        fb.textContent = ''; inp.style.borderColor = '#1a4a6a';
+        if (val === '') return;
+        if (val === tgt) {
+            fb.textContent = LANG.quiz_correct; fb.style.color = '#2e8b57'; inp.style.borderColor = '#2e8b57'; states[i].learned = true;
+            setTimeout(function () { states[i].k = 0; clear(); render(); }, 1500);
+            return;
+        }
+        inp.style.borderColor = '#f0a500';
+        if (tgt.indexOf(val) === 0) return;
+        quizTimer = setTimeout(function () {
+            var cur = AnswerUtils.normalize(inp.value);
+            if (cur !== '' && tgt.indexOf(cur) !== 0) {
+                fb.textContent = LANG.quiz_wrong; fb.style.color = '#c0392b'; inp.style.borderColor = '#c0392b';
+                setTimeout(function () { inp.value = ''; fb.textContent = ''; inp.style.borderColor = '#1a4a6a'; }, 900);
+            }
+        }, 750);
+    });
+    lg.appendChild(g); lbls.push(g);
 });
 
-/* Title box: TL default, SL on hover */
-const ttlTl=document.getElementById('ttl-tl'),ttlSl=document.getElementById('ttl-sl');
-const titleBox=document.getElementById('title-box');
-titleBox.addEventListener('mouseenter',()=>{ttlTl.style.display='none';ttlSl.style.display='';});
-titleBox.addEventListener('mouseleave',()=>{ttlTl.style.display='';ttlSl.style.display='none';});
-titleBox.addEventListener('mousedown',e=>e.stopPropagation());titleBox.addEventListener('click',e=>e.stopPropagation());
+/* ---- the view box: sized from the measured words (every layer, every phrase, the Quiz box) so nothing is clipped on any screen ---- */
+const cv = document.createElement('canvas').getContext('2d');
+function wOf(txt, L, i) { cv.font = (L === 'sl' ? 'italic ' : '') + (L === 'tlr' ? '600 ' : '500 ') + (BASE[L] * scaleOf(i)) + 'px ' + FONT; return cv.measureText(String(txt)).width + 10; }
+window.__swFit = function () {
+    var ymin = -205, ymax = 205, hx = 205;
+    V.forEach(function (v, i) {
+        var hw = 118; LAYERS.forEach(function (L) { hw = Math.max(hw, wOf(v[L], L, i) / 2); });
+        var th = BASE.tl * scaleOf(i) * 0.9;
+        hx = Math.max(hx, Math.abs(pos[i].x) + hw);
+        ymin = Math.min(ymin, pos[i].y - Math.max(40, th)); ymax = Math.max(ymax, pos[i].y + 64 + (scaleOf(i) > 1 ? 10 * scaleOf(i) : 0));
+    });
+    var hy = Math.max(Math.abs(ymin), Math.abs(ymax)) + 10; hx += 10;
+    sv.setAttribute('viewBox', (-hx) + ' ' + (-hy) + ' ' + (2 * hx) + ' ' + (2 * hy));
+};
+window.__swApply = function () {
+    texts.forEach(function (t, i) { LAYERS.forEach(function (L) { t[L].setAttribute('font-size', BASE[L] * scaleOf(i)); }); });
+    window.__swFit();
+};
+window.__swLabel = function (i) { return String(V[i].tl).replace(/<[^>]*>/g, '').slice(0, 30); };
 
-/* Display-all button — cycles: TL / SL / Normal */
-const dispTxt=document.getElementById('disp-txt'),dispBtn=document.getElementById('disp-btn');
-function setDisplayMode(mode){
-  displayMode=mode;
-  if(mode===0){show(rot);}else{lbls.forEach(l=>{l.setAttribute('opacity','1');l.style.pointerEvents='none';});}
-  renders.forEach(r=>r());
+/* ---- title and instructions: click to change language ---- */
+const titleBox = document.getElementById('title-box'), dragInstr = document.getElementById('drag-instruction');
+const titles = LOGV ? [LANG.title_tlr, LANG.title_tl, LANG.title_sl] : [LANG.title_tl, LANG.title_sl];
+let ti = 0; titleBox.textContent = titles[0];
+titleBox.addEventListener('click', function (e) { e.stopPropagation(); ti = (ti + 1) % titles.length; titleBox.textContent = titles[ti]; });
+const instrs = (LOGV ? ['sl', 'tlr', 'tl'] : ['sl', 'tl']).map(function (L) { return '<span class="mut">' + LANG['instr_disappear_' + L] + '</span><br>' + LANG['instr_body_' + L]; });
+let ii = 0; dragInstr.innerHTML = instrs[0];
+dragInstr.addEventListener('click', function (e) { e.stopPropagation(); ii = (ii + 1) % instrs.length; dragInstr.innerHTML = instrs[ii]; });
+setTimeout(function () { dragInstr.classList.add('fade'); setTimeout(function () { dragInstr.style.display = 'none'; }, 3000); }, 15000);
+
+/* ---- buttons: layer, Show All, Reset ---- */
+const layerBtn = document.getElementById('display-mode-toggle'), allBtn = document.getElementById('show-all-toggle');
+function layerLabel() { var L = LAYERS[mode]; return L === 'tlr' ? lab('show_tlr_label', 'Show: TLR') : L === 'tl' ? lab('show_tl_label', 'Show: TL') : lab('show_sl_label', 'Show: SL'); }
+function allLabel() { return showAll ? lab('hide_all_label', 'Hide All') : lab('show_all_label', 'Show All'); }
+function applyVis() {
+    if (showAll) lbls.forEach(function (l) { l.setAttribute('opacity', '1'); l.style.pointerEvents = 'all'; });
+    else show(rot);
 }
-dispBtn.addEventListener('mousedown',e=>e.stopPropagation());
-dispBtn.addEventListener('click',e=>{
-  e.stopPropagation();displayMode=(displayMode+1)%3;
-  dispTxt.innerHTML=LANG.display_cycle[displayMode];setDisplayMode(displayMode);
+function setMode(m) { mode = m; layerBtn.textContent = layerLabel(); states.forEach(function (s, i) { if (!(s.k === NQ)) s.k = mode; lbls[i]._clear(); }); renders.forEach(function (r) { r(); }); }
+layerBtn.textContent = layerLabel(); allBtn.textContent = allLabel();
+layerBtn.addEventListener('click', function () { setMode((mode + 1) % NQ); });
+allBtn.addEventListener('click', function () { showAll = !showAll; allBtn.textContent = allLabel(); renders.forEach(function (r) { r(); }); applyVis(); });
+document.getElementById('reset-btn').addEventListener('click', function () {
+    states.forEach(function (s) { s.k = 0; s.learned = false; }); lbls.forEach(function (l) { l._clear(); });
+    rot = 0; showAll = false; mode = 0; layerBtn.textContent = layerLabel(); allBtn.textContent = allLabel();
+    var all = document.getElementById('tsAll'); if (all) all.checked = false; document.getElementById('tsReset').click(); document.getElementById('textSizePanel').style.display = 'none';
+    renders.forEach(function (r) { r(); }); show(0); window.__swFit();
 });
+(function () { var rb = document.getElementById('reset-btn'); if (LANG.reset_label && !/^RESET_LABEL$/.test(LANG.reset_label)) rb.textContent = LANG.reset_label; })();
 
-/* Instructions panel: TL default, SL on click */
-const fobjInstr=document.getElementById('fobj-instr'),instrBox=document.getElementById('instr-box');
-let instrLang='sl';
-instrBox.addEventListener('mousedown',e=>e.stopPropagation());instrBox.addEventListener('touchstart',e=>e.stopPropagation(),{passive:false});
-instrBox.addEventListener('click',e=>{
-  e.stopPropagation();instrLang=instrLang==='tl'?'sl':'tl';
-  instrTlEl.style.display=instrLang==='tl'?'':'none';instrSlEl.style.display=instrLang==='sl'?'':'none';
-});
-setTimeout(()=>{instrBox.style.opacity='0';setTimeout(()=>fobjInstr.setAttribute('visibility','hidden'),600);},15000);
+/* ---- the Quiz and touch phones: on touch phones there is no Quiz, the cycle starts again ---- */
+(function () {
+    var mq = window.matchMedia('(pointer: coarse) and (max-width: 700px), (pointer: coarse) and (max-height: 520px) and (orientation: landscape)');
+    function sync() { de.classList.toggle('no-quiz', mq.matches); if (mq.matches) { states.forEach(function (s, i) { if (s.k === NQ) { s.k = 0; lbls[i]._clear(); renders[i](); } }); } }
+    sync(); if (mq.addEventListener) mq.addEventListener('change', sync); else if (mq.addListener) mq.addListener(sync);
+})();
 
-/* Core drag + show */
-const nma=a=>((a%360)+360)%360,df=(a,b)=>{const d=Math.abs(nma(a)-nma(b));return Math.min(d,360-d);};
-function best(r){let bi=-1,md=THR;V.forEach((v,i)=>{const d=df(nma(r),v.a);if(d<md){md=d;bi=i;}});return bi;}
-function show(r){
-  st.setAttribute('transform','rotate('+r+')');
-  if(displayMode===0){const ai=best(r);activeIdx=ai;lbls.forEach((l,i)=>{const vis=states[i].learned||i===ai;l.setAttribute('opacity',vis?'1':'0');l.style.pointerEvents=vis?'all':'none';});}
+/* ---- core drag + show ---- */
+const nma = function (a) { return ((a % 360) + 360) % 360; }, df = function (a, b) { var d = Math.abs(nma(a) - nma(b)); return Math.min(d, 360 - d); };
+function best(r) { var bi = -1, md = THR; V.forEach(function (v, i) { var d = df(nma(r), v.a); if (d < md) { md = d; bi = i; } }); return bi; }
+function show(r) {
+    st.setAttribute('transform', 'rotate(' + r + ')');
+    if (!showAll) { var ai = best(r); activeIdx = ai; lbls.forEach(function (l, i) { var vis = states[i].learned || i === ai; l.setAttribute('opacity', vis ? '1' : '0'); l.style.pointerEvents = vis ? 'all' : 'none'; }); }
 }
-sv.addEventListener('click',()=>{if(displayMode>0)return;if(activeIdx>=0&&!states[activeIdx].learned)lbls[activeIdx]._escape();});
-function pang(e){const rc=sv.getBoundingClientRect();const px=e.touches?e.touches[0].clientX:e.clientX;const py=e.touches?e.touches[0].clientY:e.clientY;return Math.atan2(px-rc.left-rc.width/2,rc.top+rc.height/2-py)*180/Math.PI;}
-function dn(e){if(inputActive)return;drag=true;prev=pang(e);sv.style.cursor='grabbing';e.preventDefault();}
-function mv(e){if(!drag)return;const a=pang(e);let d=a-prev;if(d>180)d-=360;if(d<-180)d+=360;rot=Math.max(-180,Math.min(180,rot+d));prev=a;show(rot);e.preventDefault();}
-function up(){drag=false;sv.style.cursor='grab';}
-sv.addEventListener('mousedown',dn);document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
-sv.addEventListener('touchstart',dn,{passive:false});document.addEventListener('touchmove',mv,{passive:false});document.addEventListener('touchend',up);
-show(0);
-</script>
+sv.addEventListener('click', function () { if (showAll || movedDeg > 3) { movedDeg = 0; return; } if (activeIdx >= 0 && !states[activeIdx].learned) lbls[activeIdx]._escape(); });
+function pang(e) {
+    var cx = e.touches ? e.touches[0].clientX : e.clientX, cy = e.touches ? e.touches[0].clientY : e.clientY;
+    var pt = sv.createSVGPoint(); pt.x = cx; pt.y = cy; var p = pt.matrixTransform(sv.getScreenCTM().inverse());   /* the wheel's centre is the SVG origin, whatever the view box */
+    return Math.atan2(p.x, -p.y) * 180 / Math.PI;
+}
+function dn(e) { if (inputActive) return; drag = true; movedDeg = 0; prev = pang(e); sv.style.cursor = 'grabbing'; e.preventDefault(); }
+function mv(e) { if (!drag) return; var a = pang(e), d = a - prev; if (d > 180) d -= 360; if (d < -180) d += 360; movedDeg += Math.abs(d); rot = Math.max(-180, Math.min(180, rot + d)); prev = a; show(rot); e.preventDefault(); }
+function up() { if (!drag) return; drag = false; sv.style.cursor = 'grab'; if (movedDeg > 3 && !showAll && activeIdx >= 0 && window.__cmpSpeak) window.__cmpSpeak(activeIdx); }
+sv.addEventListener('mousedown', dn); document.addEventListener('mousemove', mv); document.addEventListener('mouseup', up);
+sv.addEventListener('touchstart', dn, { passive: false }); document.addEventListener('touchmove', mv, { passive: false }); document.addEventListener('touchend', up);
+
+/* ---- print list: every phrase beside the wheel, shown only when printing ---- */
+(function () {
+    var pl = document.getElementById('printList'); if (!pl) return;
+    var esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;'); };
+    pl.innerHTML = V.map(function (v, i) { return '<div class="pl-row ' + (LOGV ? '' : 'rom') + '"><span class="pl-h">' + (i + 1) + '</span>' + (LOGV ? '<span>' + esc(v.tlr) + '</span>' : '') + '<span>' + esc(v.tl) + '</span><span>' + esc(v.sl) + '</span></div>'; }).join('');
+})();
+window.addEventListener('resize', function () { window.__swFit(); });
+window.__swFit(); renders.forEach(function (r) { r(); }); show(0);
+
+    </script>
+    <script>
+    // --- Tools menu: Colours, Text size, Print ---
+    (function () {
+        var $ = function (id) { return document.getElementById(id); };
+        var wrap = $('toolsWrap'), menu = $('toolsMenu'), tb = $('toolsBtn'); if (!wrap) return;
+        tb.addEventListener('click', function (e) {
+            e.stopPropagation(); menu.classList.toggle('active'); menu.style.left = '0px';
+            if (menu.classList.contains('active')) { var b = menu.getBoundingClientRect(), over = b.right - (document.documentElement.clientWidth - 6); if (over > 0) menu.style.left = (-over) + 'px'; }
+        });
+        document.addEventListener('click', function (e) { if (!wrap.contains(e.target)) menu.classList.remove('active'); });
+        $('printBtn').addEventListener('click', function (e) { e.stopPropagation(); menu.classList.remove('active'); setTimeout(function () { window.print(); }, 50); });
+        // Text size: click a word then slide (that word), or tick All words
+        var panel = $('textSizePanel'), range = $('tsRange'), val = $('tsVal'), tgt = $('tsTarget'), all = $('tsAll');
+        var scales = {}, target = null;
+        window.tsScale = function (i) { return Math.min(3, Math.max(0.5, (scales[i] || 1) * (scales.all || 1))); };
+        window.tsApply = function () {
+            if (window.__swApply) window.__swApply();
+        };
+        function show() {
+            var v = all.checked ? (scales.all || 1) : (target ? (scales[target.i] || 1) : 1);
+            range.value = Math.round(v * 100); val.textContent = Math.round(v * 100) + '%';
+            tgt.textContent = all.checked ? 'All words' : (target ? 'Word: ' + target.label : 'Click a word, then slide');
+        }
+        document.addEventListener('pointerdown', function (e) {
+            if (panel.contains(e.target)) return;
+            var bx = e.target.closest && e.target.closest('.swLabel'); if (!bx) return;
+            var i = parseInt(bx.getAttribute('data-index'));
+            target = { i: i, label: window.__swLabel ? window.__swLabel(i) : String(i) };
+            if (panel.style.display === 'block') { all.checked = false; show(); }
+        }, true);
+        range.addEventListener('input', function () {
+            var v = range.value / 100;
+            if (all.checked) scales.all = v; else if (target) scales[target.i] = v; else return;
+            val.textContent = range.value + '%'; window.tsApply();
+        });
+        all.addEventListener('change', show);
+        $('tsReset').addEventListener('click', function () { Object.keys(scales).forEach(function (k) { delete scales[k]; }); window.tsApply(); show(); });
+        $('tsClose').addEventListener('click', function () { panel.style.display = 'none'; });
+        $('textSizeBtn').addEventListener('click', function (e) {
+            e.stopPropagation(); menu.classList.remove('active'); panel.style.display = 'block';
+            if (!panel.dataset.moved) { var r = panel.getBoundingClientRect(); panel.style.left = Math.max(4, (window.innerWidth - r.width) / 2) + 'px'; panel.style.top = '70px'; }
+            show();
+        });
+        (function () {
+            var head = panel.querySelector('.tsHead'), d = null;
+            head.addEventListener('pointerdown', function (e) { if (e.target.id === 'tsClose') return; var r = panel.getBoundingClientRect(); d = { dx: e.clientX - r.left, dy: e.clientY - r.top }; panel.dataset.moved = '1'; head.setPointerCapture(e.pointerId); });
+            head.addEventListener('pointermove', function (e) { if (d) { panel.style.left = (e.clientX - d.dx) + 'px'; panel.style.top = (e.clientY - d.dy) + 'px'; } });
+            head.addEventListener('pointerup', function () { d = null; });
+        })();
+        var SCHEMES = [['Default', ''], ['No colour', 'nocolour'], ['Night', 'night']], ci = 2, cb = $('colourBtn');   /* the page opens in Night colours */
+        cb.addEventListener('click', function (e) {
+            e.stopPropagation(); ci = (ci + 1) % SCHEMES.length;
+            if (SCHEMES[ci][1]) document.documentElement.setAttribute('data-scheme', SCHEMES[ci][1]); else document.documentElement.removeAttribute('data-scheme');
+            cb.textContent = 'Colours: ' + SCHEMES[ci][0];
+        });
+        var keepScheme = null;   /* paper is always printed in the light colours, then the screen scheme comes back */
+        window.addEventListener('beforeprint', function () { keepScheme = document.documentElement.getAttribute('data-scheme'); if (keepScheme === 'night') document.documentElement.removeAttribute('data-scheme'); });
+        window.addEventListener('afterprint', function () { if (keepScheme === 'night') document.documentElement.setAttribute('data-scheme', 'night'); keepScheme = null; });
+    })();
+
+
+    </script>
+    <script>
+
+    /* 2026-11-17 AUDIO and FULL SCREEN on the Steering Wheel. The Audio button cycles: TL + SL (hear the target-language day, then the source-language one) -> TL only -> Silent.
+       The slider is the volume. Language codes come from the App: window.CONCEPTIONARY_AUDIO_LANG / _SL_LANG (e.g. 'id-ID', 'en-NZ'); label overrides window.CONCEPTIONARY_AUDIO_TL_LABEL / _SL_LABEL;
+       recorded files: window.CONCEPTIONARY_AUDIO_FILES[text]; cloud voice: window.CONCEPTIONARY_AUDIO_API_URL.
+       Let go of the wheel, or tap a phrase: it is spoken. The romanised (TLR) line of the LOG file is never spoken. */
+    (function () {
+        var ctl = document.getElementById('cmpCtl'); if (!ctl || document.getElementById('auCycle')) return;
+        var AB = { en: 'ENG', id: 'IND', ms: 'MSA', ja: 'JPN', ko: 'KOR', zh: '中文', fr: 'FRA', de: 'DEU', es: 'SPA', it: 'ITA', pt: 'POR', ru: 'RUS', ar: 'ARA', hi: 'HIN', th: 'THA', vi: 'VIE', mi: 'MRI', fil: 'FIL', tl: 'FIL', nl: 'NLD', sv: 'SWE', tr: 'TUR', pl: 'POL', el: 'ELL', he: 'HEB', sm: 'SMO', to: 'TON', fj: 'FIJ' };
+        var AUDIO_API_URL = window.CONCEPTIONARY_AUDIO_API_URL || '';
+        var st = { mode: 0, vol: 0.8, last: '', lastT: 0, timer: null, cur: null, pt: 'mouse', seq: 0 };   // mode 0 = TL+SL, 1 = TL only, 2 = silent
+        function tlCode() { return window.CONCEPTIONARY_AUDIO_LANG || ''; }
+        function slCode() { return window.CONCEPTIONARY_AUDIO_SL_LANG || ''; }
+        function abbr(code, fb, ov) { if (ov) return ov; if (!code) return fb; var b = code.toLowerCase().split(/[-_]/)[0]; return AB[b] || b.toUpperCase(); }
+        function tlName() { return abbr(tlCode(), 'TL', window.CONCEPTIONARY_AUDIO_TL_LABEL); }
+        function slName() { return abbr(slCode(), 'SL', window.CONCEPTIONARY_AUDIO_SL_LABEL); }
+
+        var wrap = document.createElement('div'); wrap.id = 'audioWrap'; wrap.className = 'audio-wrap';
+        var cyc = document.createElement('button'); cyc.id = 'auCycle'; cyc.type = 'button';
+        var vol = document.createElement('input'); vol.type = 'range'; vol.id = 'auVol2'; vol.min = 0; vol.max = 100; vol.step = 5; vol.value = 80; vol.setAttribute('aria-label', 'Volume');
+        wrap.appendChild(cyc); wrap.appendChild(vol); ctl.insertBefore(wrap, ctl.firstChild);
+        var toast = document.createElement('div'); toast.id = 'auToast'; document.body.appendChild(toast); var toastT = null;
+        function note(text) {
+            toast.textContent = text; toast.style.opacity = '1';
+            var r = wrap.getBoundingClientRect(); toast.style.left = '0px'; toast.style.top = '0px';
+            var w = toast.offsetWidth, h = toast.offsetHeight;
+            toast.style.left = Math.max(6, Math.min(window.innerWidth - w - 6, r.left + r.width / 2 - w / 2)) + 'px';
+            var t = r.top - h - 8; if (t < 6) t = Math.min(window.innerHeight - h - 6, r.bottom + 8);
+            toast.style.top = t + 'px';
+            clearTimeout(toastT); toastT = setTimeout(function () { toast.style.opacity = '0'; }, 2600);
+        }
+        function label() {
+            cyc.textContent = st.mode === 0 ? tlName() + '+' + slName() : st.mode === 1 ? tlName() : 'Silent';
+            cyc.setAttribute('aria-label', 'Audio: ' + cyc.textContent);
+            cyc.title = 'Click to change: ' + tlName() + ' + ' + slName() + ' / ' + tlName() + ' only / Silent. The slider is the volume.';
+        }
+        function describe() { return st.mode === 0 ? 'Audio: hear the target language (' + tlName() + '), then the source language (' + slName() + ')' : st.mode === 1 ? 'Audio: target language (' + tlName() + ') only' : 'Audio: silent'; }
+
+        function pickVoice(code) {
+            var vs = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
+            if (!code) return null;
+            var c = code.toLowerCase(), base = c.split('-')[0], best = null, bs = -1;
+            vs.forEach(function (v) {
+                var l = (v.lang || '').toLowerCase().replace('_', '-');
+                if (l !== c && l.split('-')[0] !== base) return;
+                var s = (l === c ? 4 : 0) + (/natural|neural|online/i.test(v.name) ? 3 : 0) + (/google/i.test(v.name) ? 2 : 0) + (v.localService ? 0 : 1);
+                if (s > bs) { best = v; bs = s; }
+            });
+            return best;
+        }
+        function stop() { st.seq++; try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} if (st.cur) { try { st.cur.pause(); } catch (e) {} st.cur = null; } }
+        function playUrl(u, done) { var a = new Audio(u); a.volume = st.vol; if (st.cur) { try { st.cur.pause(); } catch (e) {} } st.cur = a; if (done) a.onended = done; a.play().catch(function () { note('The browser blocked the sound: tap the page once and try again.'); }); }
+        function viaBrowser(text, code, done) {
+            if (!window.speechSynthesis) { note('This browser cannot speak.'); return; }
+            var v = pickVoice(code);
+            if (code && !v) { note('No ' + code + ' voice on this device.'); return; }
+            var u = new SpeechSynthesisUtterance(text);
+            if (code) u.lang = code; if (v) u.voice = v; u.volume = st.vol;
+            window.__auUtt = u;   // keep a reference: some phones drop the sound if the utterance is garbage-collected
+            var started = false; u.onstart = function () { started = true; };
+            if (done) u.onend = done;
+            u.onerror = function (ev) { if (ev.error && ev.error !== 'interrupted' && ev.error !== 'canceled') note('The device could not speak (' + ev.error + ').'); };
+            var go = function () {
+                try { speechSynthesis.resume(); } catch (e) {}
+                speechSynthesis.speak(u);
+                setTimeout(function () { if (!started && window.__auUtt === u) { try { speechSynthesis.cancel(); } catch (e) {} } }, 2500);   // stuck phone queue: clear it so the next tap works
+            };
+            if (speechSynthesis.speaking || speechSynthesis.pending) { speechSynthesis.cancel(); setTimeout(go, 120); } else go();
+        }
+        function viaCloud(text, code, done) {
+            fetch(AUDIO_API_URL + '?text=' + encodeURIComponent(text) + '&lang=' + encodeURIComponent(code))
+                .then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
+                .then(function (b) { playUrl(URL.createObjectURL(b), done); })
+                .catch(function () { note('The audio service could not be reached.'); });
+        }
+        function speak1(text, code, done) {
+            var files = window.CONCEPTIONARY_AUDIO_FILES;
+            if (files && files[text] && (!code || code === tlCode())) { playUrl(files[text], done); return; }   /* recordings belong to the target language only */
+            if (AUDIO_API_URL && code) viaCloud(text, code, done); else viaBrowser(text, code, done);
+        }
+        var lastItem = '';
+        function speakItem(item) {
+            if (st.mode === 2 || !item) return;
+            var key = item.id + '|' + st.mode, now = Date.now();
+            if (key === st.last && now - st.lastT < 1200) return;   // one phrase, one sound
+            st.last = key; st.lastT = now;
+            var items = [[item.tl, tlCode()]];                      // the target-language word (the script in the LOG file; never the romanised line)
+            if (st.mode === 0) items.push([item.sl, slCode()]);     // then the source-language word
+            st.seq++; var my = st.seq, i = 0;
+            try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
+            (function next() { if (my !== st.seq || i >= items.length) return; var it = items[i++]; if (!it[0]) { next(); return; } speak1(it[0], it[1], function () { setTimeout(next, 150); }); })();
+        }
+        window.__cmpSpeak = function (i, force) { var d = LANG.V[i]; if (!d) return; if (force) st.last = ''; speakItem({ id: i, tl: String(d.tl).replace(/<[^>]*>/g, ''), sl: d.sl }); };   // the TLR (romanised) line is never spoken
+
+        cyc.addEventListener('click', function (e) {
+            e.stopPropagation();
+            st.mode = (st.mode + 1) % 3; label(); if (st.mode === 2) stop();
+            if (window.speechSynthesis) speechSynthesis.getVoices();
+            note(describe());
+        });
+        vol.addEventListener('input', function () { st.vol = vol.value / 100; if (st.cur) st.cur.volume = st.vol; vol.style.setProperty('--p', vol.value + '%'); });
+        vol.addEventListener('click', function (e) { e.stopPropagation(); });
+        window.addEventListener('load', label); label(); vol.style.setProperty('--p', vol.value + '%');
+        window.__auCycle = { get mode() { return st.mode; }, label: label };
+
+        /* Full Screen (hidden where the browser cannot do it, e.g. iPhone Safari) */
+        var de = document.documentElement, fb = document.getElementById('fsBtn');
+        var req = de.requestFullscreen || de.webkitRequestFullscreen;
+        if (!req) { if (fb) fb.style.display = 'none'; }
+        else {
+            window.toggleFullScreen = function () {
+                var on = document.fullscreenElement || document.webkitFullscreenElement;
+                var fail = function () { if (!fb) return; fb.textContent = 'Not allowed here'; setTimeout(sync, 2500); };
+                if (!on) { try { var p = req.call(de); if (p && p.catch) p.catch(fail); } catch (e) { fail(); } }
+                else { var ex = document.exitFullscreen || document.webkitExitFullscreen; if (ex) ex.call(document); }
+            };
+            var sync = function () { if (fb) fb.textContent = (document.fullscreenElement || document.webkitFullscreenElement) ? 'Exit Full Screen' : 'Full Screen'; };
+            document.addEventListener('fullscreenchange', sync); document.addEventListener('webkitfullscreenchange', sync);
+        }
+    })();
+    
+    </script>
 </body>
 </html>
