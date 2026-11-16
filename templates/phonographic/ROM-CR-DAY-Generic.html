@@ -197,6 +197,7 @@
     /* Show All: a word is pulled out of the cluster, magnified as it is pulled, and snaps back when let go */
     .text-box.sa { cursor: grab; user-select: none; -webkit-user-select: none; touch-action: none; -webkit-touch-callout: none; }
     .text-box.sa:hover, .text-box.sa.grab, .text-box.sa.held { background: #fff176; border-color: #b8860b; }
+    html[lang] body .text-box.sa:hover, html[lang] body .text-box.sa:active, html[lang] body .text-box.sa.grab, html[lang] body .text-box.sa.held, html[lang] body .text-box.sa:hover * { color: #000 !important; text-shadow: none !important; } /* 2026-11-17 black text on the yellow hover, every colour scheme */
     .text-box.sa.lifted { z-index: 1000; box-shadow: 0 8px 24px rgba(0,0,0,.45); cursor: grabbing; }
     html.sa-grab .container > .circle-container { z-index: 1000; }
     /* Phone held upright: title, buttons, the ring (as large as fits), the word box, then the 12/24-hour button and the watermark */

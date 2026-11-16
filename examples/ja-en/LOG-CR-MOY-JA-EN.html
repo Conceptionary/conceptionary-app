@@ -587,6 +587,7 @@ html[lang] body .textBox:hover div, html[lang] body .textBox:active div, html[la
     diacritic_map: [
         ["ā","a"], ["ī","i"], ["ū","u"], ["ē","e"], ["ō","o"]
     ],
+    digraph_map: [["ou","o"], ["ei","e"]],   // ou = ō, ei = ē (the other usual way of writing a long vowel)
     collapse_double_vowels: true,   // uu = ū, oo = ō ... (Hepburn long vowels may be typed doubled)
 
         // --- Months data (12 items) ---------------------------------------
@@ -629,6 +630,7 @@ const AnswerUtils = {
         LANG.diacritic_map.forEach(([accented, plain]) => {
             t = t.split(accented).join(plain);
         });
+        (LANG.digraph_map || []).forEach(([a, b]) => { t = t.split(a).join(b); });   // 2026-11-17 e.g. ou = ō
         if (LANG.collapse_double_vowels) {
             t = t.replace(/aa/g,'a').replace(/ee/g,'e').replace(/ii/g,'i')
                  .replace(/oo/g,'o').replace(/uu/g,'u');

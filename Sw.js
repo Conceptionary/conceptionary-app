@@ -3,7 +3,7 @@
    on the device. After that the whole site opens with no connection. When online, each file is quietly refreshed in the background, so a changed
    template appears the NEXT time the page is opened.
    TO FORCE A FULL REFRESH on every device after a big update: change VERSION below (any new text) and push. */
-var VERSION = 'v1';
+var VERSION = 'v2';
 var CACHE = 'conceptionary-' + VERSION;
 var CORE = ['./', 'templates.html', 'view.html', 'index.html', 'conceptionary-templates.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'registry/conceptionary-registry.json'];
 

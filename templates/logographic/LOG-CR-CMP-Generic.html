@@ -324,7 +324,7 @@ body { font-family: var(--cx-font); color: var(--cx-ink); background: var(--cx-b
 .textBox div { font-family: var(--cx-font) !important; font-weight: 600 !important; color: var(--cx-muted) !important; text-shadow: 0 0 .8px var(--cx-surface) !important; border-radius: 1.6px; transition: background var(--cx-t), color var(--cx-t); }
 .textBox.active div { font-weight: 700 !important; color: var(--cx-ink) !important; background: rgba(255,255,255,.94); box-shadow: 0 0 0 .35px var(--cx-accent), 0 .5px 1.2px rgba(20,30,60,.2); text-shadow: none !important; }
 html[data-scheme="night"] .textBox.active div { background: rgba(23,32,54,.94); }
-.textBox:hover div { background: #fff176 !important; color: #1f2937 !important; }
+html[lang] body .textBox:hover div, html[lang] body .textBox:active div { background: #fff176 !important; color: #000 !important; text-shadow: none !important; } /* 2026-11-17 */
 .watermark { color: var(--cx-faint); font-family: var(--cx-font); font-weight: 600; opacity: .85; }
 .cmp-ghost { font-family: var(--cx-font); border-radius: 10px; background: #fff176; border-color: var(--cx-accent); color: #1f2937; }
 html[data-scheme="night"] body { background: var(--cx-bg); }

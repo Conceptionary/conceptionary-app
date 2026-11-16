@@ -578,6 +578,7 @@ html[lang] body .textBox:hover div, html[lang] body .textBox:active div, html[la
     diacritic_map: [
         // ["ā","a"], ["ī","i"], ["ū","u"], ["ē","e"], ["ō","o"]
     ],
+    digraph_map: [],   // e.g. [["ou","o"]] where "ou" may be typed for ō
     collapse_double_vowels: false,
 
         // --- Months data (12 items) ---------------------------------------
@@ -630,6 +631,7 @@ const AnswerUtils = {
         LANG.diacritic_map.forEach(([accented, plain]) => {
             t = t.split(accented).join(plain);
         });
+        (LANG.digraph_map || []).forEach(([a, b]) => { t = t.split(a).join(b); });   // 2026-11-17 e.g. ou = ō
         if (LANG.collapse_double_vowels) {
             t = t.replace(/aa/g,'a').replace(/ee/g,'e').replace(/ii/g,'i')
                  .replace(/oo/g,'o').replace(/uu/g,'u');
