@@ -1,7 +1,7 @@
 /* Conceptionary offline helper (service worker). (c) 2026 Alan William Preston
    WHAT IT DOES: the first time the site is opened online, it saves every template listed in conceptionary-templates.js (plus the launcher pages)
    on the device. After that the whole site opens with no connection. When online, each file is quietly refreshed in the background, so a changed
-   template appears the NEXT time the page is opened.
+   template appears the NEXT time the page is opened.( 2026-11-17 @ 1.58 p.m. I re-named this with the lower case s
    TO FORCE A FULL REFRESH on every device after a big update: change VERSION below (any new text) and push. */
 var VERSION = 'v2';
 var CACHE = 'conceptionary-' + VERSION;
