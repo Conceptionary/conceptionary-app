@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- Last updated: 2026-11-17 @ 12:41 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-11-17 @ 12:56 p.m. (Mangawhai, NZ) -->
 <html lang="en" data-scheme="night">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Steering Wheel — Directions — Phonographic — Generic</title>
+    <title>Steering Wheel — Directions — Logographic — Generic</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #c4eaf8; overflow: hidden; }
         .a4-page { width: 90vw; height: 88vh; border: 5px solid black; background-color: #c4eaf8; box-sizing: border-box; position: relative; touch-action: none; z-index: 1; overflow: hidden; }
@@ -346,7 +346,7 @@ html[data-scheme="night"] #rimGlow { stroke: rgba(160,180,230,.55); }
    LANGUAGE CONFIGURATION BLOCK
    To create a new language pair, replace ALL values in this section.
    SL = Source Language  |  TL = Target Language (language being learned)
-   PHONOGRAPHIC (ROM) VARIANT: layers TL (default) > SL > Quiz. The Quiz asks for the TL.
+   LOGOGRAPHIC (LOG) VARIANT: layers TLR (romanised, default) > TL (script) > SL > Quiz. The Quiz asks for the TLR.
 
    STRUCTURE: A rotating steering wheel with up to 20 directional phrases
    positioned around the rim. Each item has:
@@ -356,18 +356,22 @@ html[data-scheme="night"] #rimGlow { stroke: rgba(160,180,230,.55); }
      py   - (optional) absolute y-position override for the label
      dy   - (optional) y-offset adjustment from the default position
      tl   - Target Language phrase
+     tlr  - Target Language romanised (the default layer, and what the Quiz asks for)
      sl   - Source Language phrase
    Do NOT change anything outside this block.
    ===================================================================== */
 
 const LANG = {
   // --- Title (click it to change language) -------------------------------
+  title_tlr: "TLR_TITLE",   // e.g. "doko e ikimasu ka"  (shown first)
   title_tl: "TL_TITLE",   // e.g. "Tell me where to go"
   title_sl: "SL_TITLE",   // e.g. "Show me the way"
 
   // --- Instructions (click to change language; they fade after 15 seconds) ---
+  instr_disappear_tlr: "INSTR_DISAPPEAR_TLR",
   instr_disappear_tl: "INSTR_DISAPPEAR_TL", // e.g. "(This will disappear in 15 seconds)"
   instr_disappear_sl: "INSTR_DISAPPEAR_SL",
+  instr_body_tlr: "INSTR_BODY_TLR",
   instr_body_tl: "INSTR_BODY_TL", // e.g. "Grab either white circle and turn the wheel..."
   instr_body_sl: "INSTR_BODY_SL",
 
@@ -375,39 +379,50 @@ const LANG = {
   reset_label:     "RESET_LABEL",      // e.g. "Reset"
   show_all_label:  "SHOW_ALL_LABEL",   // e.g. "Show All"
   hide_all_label:  "HIDE_ALL_LABEL",   // e.g. "Hide All"
+  show_tlr_label:  "SHOW_TLR_LABEL",   // e.g. "Show: TLR"  (the layer button; leave as is to keep the English label)
   show_tl_label:   "SHOW_TL_LABEL",    // e.g. "Show: TL"
   show_sl_label:   "SHOW_SL_LABEL",    // e.g. "Show: SL"
 
   // --- Quiz strings -------------------------------------------------------
-  quiz_placeholder: "QUIZ_PLACEHOLDER", // e.g. "What was that word?"
+  quiz_placeholder: "QUIZ_PLACEHOLDER", // e.g. "Type the romanized reading..."
   quiz_correct:     "QUIZ_CORRECT",     // e.g. "Correct! ✓"
   quiz_wrong:       "QUIZ_WRONG",       // e.g. "Try again!"
+
+  // --- Diacritic / romanization normalization ----------------------------
+  diacritic_instructions: "DIACRITIC_INSTRUCTIONS",
+  // e.g. "Tip: macrons (ā→a, ō→o) may be typed as plain vowels."
+  diacritic_map: [
+      // ["ā","a"], ["ī","i"], ["ū","u"], ["ē","e"], ["ō","o"]
+  ],
+  // Optional pairs of letters to treat as one when checking (a language that spells a long vowel two ways), e.g. ["ou","o"], ["ei","e"]. Applied to the typed answer AND the right answer.
+  digraph_map: [],
+  collapse_double_vowels: false,
 
   // --- Vocabulary data (up to 20 directional phrases) ---------------------
   // Angles: 0 = straight ahead (top), increasing clockwise to 180
   // (reverse, bottom), then continuing to 360/0. Mirror left/right
   // pairs at equal-but-opposite angles for visual symmetry.
   V: [
-    {a:0, tl:"TL-StraightAhead", sl:"SL-StraightAhead", py:-355},
-    {a:5, posA:0, tl:"TL-ContinueAsIs", sl:"SL-ContinueAsIs", py:-317},
-    {a:15, tl:"TL-VeerSlightlyR", sl:"SL-VeerSlightlyR"},
-    {a:340, tl:"TL-VeerSlightlyL", sl:"SL-VeerSlightlyL", dy:15},
-    {a:40, tl:"TL-VeerR", sl:"SL-VeerR"},
-    {a:320, tl:"TL-VeerL", sl:"SL-VeerL"},
-    {a:70, tl:"TL-TurnR", sl:"SL-TurnR"},
-    {a:290, tl:"TL-TurnL", sl:"SL-TurnL"},
-    {a:80, tl:"TL-HangR", sl:"SL-HangR"},
-    {a:280, tl:"TL-HangL", sl:"SL-HangL"},
-    {a:90, tl:"TL-TurnHardR", sl:"SL-TurnHardR"},
-    {a:270, tl:"TL-TurnHardL", sl:"SL-TurnHardL"},
-    {a:120, tl:"TL-DoubleBackR", sl:"SL-DoubleBackR"},
-    {a:240, tl:"TL-DoubleBackL", sl:"SL-DoubleBackL"},
-    {a:160, tl:"TL-UTurn", sl:"SL-UTurn"},
-    {a:150, tl:"TL-UeyR", sl:"SL-UeyR"},
-    {a:210, tl:"TL-UeyL", sl:"SL-UeyL"},
-    {a:175, tl:"TL-BackUp", sl:"SL-BackUp", py:210},
-    {a:185, tl:"TL-GoStraightBack", sl:"SL-GoStraightBack"},
-    {a:180, tl:"TL-Reverse", sl:"SL-Reverse", py:365}
+    {a:0, tl:"TL-StraightAhead", tlr:"TLR-StraightAhead", sl:"SL-StraightAhead", py:-355},
+    {a:5, posA:0, tl:"TL-ContinueAsIs", tlr:"TLR-ContinueAsIs", sl:"SL-ContinueAsIs", py:-317},
+    {a:15, tl:"TL-VeerSlightlyR", tlr:"TLR-VeerSlightlyR", sl:"SL-VeerSlightlyR"},
+    {a:340, tl:"TL-VeerSlightlyL", tlr:"TLR-VeerSlightlyL", sl:"SL-VeerSlightlyL", dy:15},
+    {a:40, tl:"TL-VeerR", tlr:"TLR-VeerR", sl:"SL-VeerR"},
+    {a:320, tl:"TL-VeerL", tlr:"TLR-VeerL", sl:"SL-VeerL"},
+    {a:70, tl:"TL-TurnR", tlr:"TLR-TurnR", sl:"SL-TurnR"},
+    {a:290, tl:"TL-TurnL", tlr:"TLR-TurnL", sl:"SL-TurnL"},
+    {a:80, tl:"TL-HangR", tlr:"TLR-HangR", sl:"SL-HangR"},
+    {a:280, tl:"TL-HangL", tlr:"TLR-HangL", sl:"SL-HangL"},
+    {a:90, tl:"TL-TurnHardR", tlr:"TLR-TurnHardR", sl:"SL-TurnHardR"},
+    {a:270, tl:"TL-TurnHardL", tlr:"TLR-TurnHardL", sl:"SL-TurnHardL"},
+    {a:120, tl:"TL-DoubleBackR", tlr:"TLR-DoubleBackR", sl:"SL-DoubleBackR"},
+    {a:240, tl:"TL-DoubleBackL", tlr:"TLR-DoubleBackL", sl:"SL-DoubleBackL"},
+    {a:160, tl:"TL-UTurn", tlr:"TLR-UTurn", sl:"SL-UTurn"},
+    {a:150, tl:"TL-UeyR", tlr:"TLR-UeyR", sl:"SL-UeyR"},
+    {a:210, tl:"TL-UeyL", tlr:"TLR-UeyL", sl:"SL-UeyL"},
+    {a:175, tl:"TL-BackUp", tlr:"TLR-BackUp", sl:"SL-BackUp", py:210},
+    {a:185, tl:"TL-GoStraightBack", tlr:"TLR-GoStraightBack", sl:"SL-GoStraightBack"},
+    {a:180, tl:"TL-Reverse", tlr:"TLR-Reverse", sl:"SL-Reverse", py:365}
   ]
 };
 /* =====================================================================
@@ -427,7 +442,7 @@ const FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, 
 const BASE = { tlr: 26, tl: 26, sl: 22 };
 const sv = document.getElementById('sv'), st = document.getElementById('st'), lg = document.getElementById('lg'), de = document.documentElement;
 let rot = 0, drag = false, prev = 0, inputActive = false, activeIdx = -1, showAll = false, mode = 0, movedDeg = 0;
-const LR = 262, THR = 6, lbls = [], renders = [], pos = [], texts = [], states = V.map(function () { return { k: 0, learned: false }; });
+const LR = 262, THR = 6, RIM = 206, lbls = [], renders = [], pos = [], cur = [], texts = [], states = V.map(function () { return { k: 0, learned: false }; });
 const scaleOf = function (i) { return window.tsScale ? window.tsScale(i) : 1; };
 const noQuiz = function () { return de.classList.contains('no-quiz'); };
 const lab = function (key, dflt) { var v = LANG[key]; return (v && !/^(SHOW|HIDE|RESET)_[A-Z_]*LABEL$/.test(v)) ? v : dflt; };
@@ -452,7 +467,7 @@ function mkt(txt, layer, i) {
 V.forEach(function (v, i) {
     var pa = v.posA !== undefined ? v.posA : v.a, pr = pa * Math.PI / 180;
     var tx = Math.sin(pr) * LR, ty = v.py !== undefined ? v.py : (-Math.cos(pr) * LR) + (v.dy || 0);
-    pos[i] = { x: tx, y: ty };
+    pos[i] = { x: tx, y: ty }; cur[i] = { x: tx, y: ty };
     var g = document.createElementNS(NS, 'g');
     g.setAttribute('class', 'swLabel'); g.setAttribute('data-index', i);
     g.setAttribute('transform', 'translate(' + tx.toFixed(1) + ',' + ty.toFixed(1) + ')');
@@ -471,7 +486,7 @@ V.forEach(function (v, i) {
     if (LOGV) { var dn = document.createElement('div'); dn.style.cssText = 'font-size:10px;color:#888;text-align:center;border-top:1px solid #ddd;padding-top:3px;margin-top:2px;'; dn.textContent = LANG.diacritic_instructions; xd.appendChild(dn); }
     fo.appendChild(xd); fo.classList.add('sw-off'); g.appendChild(fo);
 
-    var dg = document.createElementNS(NS, 'g'); dg.setAttribute('class', 'sw-dots'); dg.setAttribute('transform', 'translate(0,' + (LOGV ? 62 : 50) + ')'); var dots = [];
+    var dg = document.createElementNS(NS, 'g'); dg.setAttribute('class', 'sw-dots'); dg.setAttribute('transform', 'translate(0,28)'); var dots = [];
     (LOGV ? [-21, -7, 7, 21] : [-14, 0, 14]).forEach(function (dx) {
         var d = document.createElementNS(NS, 'circle'); d.setAttribute('cx', dx); d.setAttribute('cy', '0'); d.setAttribute('r', '5'); d.setAttribute('class', 'sw-dot'); dots.push(d); dg.appendChild(d);
     }); g.appendChild(dg);
@@ -484,6 +499,7 @@ V.forEach(function (v, i) {
         fo.classList.toggle('sw-off', !quiz);
         dots.forEach(function (d, di) { d.setAttribute('class', 'sw-dot' + (s.learned ? ' d-ok' : di < s.k ? ' d-done' : di === s.k ? ' d-cur' : '')); });
         ck.classList.toggle('sw-off', !s.learned);
+        dg.setAttribute('transform', 'translate(0,' + (quiz ? (LOGV ? 62 : 50) : 28) + ')');   /* the dots sit close under the phrase, and below the Quiz box when it is open */
         if (quiz && !s.learned) setTimeout(function () { try { inp.focus(); } catch (e) {} }, 60);
     }
     renders.push(render);
@@ -539,15 +555,45 @@ window.__swFit = function () {
     V.forEach(function (v, i) {
         var hw = 118; LAYERS.forEach(function (L) { hw = Math.max(hw, wOf(v[L], L, i) / 2); });
         var th = BASE.tl * scaleOf(i) * 0.9;
-        hx = Math.max(hx, Math.abs(pos[i].x) + hw);
-        ymin = Math.min(ymin, pos[i].y - Math.max(40, th)); ymax = Math.max(ymax, pos[i].y + 64 + (scaleOf(i) > 1 ? 10 * scaleOf(i) : 0));
+        hx = Math.max(hx, Math.abs(cur[i].x) + hw);
+        ymin = Math.min(ymin, cur[i].y - Math.max(40, th)); ymax = Math.max(ymax, cur[i].y + 72 + (scaleOf(i) > 1 ? 10 * scaleOf(i) : 0));
     });
     var hy = Math.max(Math.abs(ymin), Math.abs(ymax)) + 10; hx += 10;
     sv.setAttribute('viewBox', (-hx) + ' ' + (-hy) + ' ' + (2 * hx) + ' ' + (2 * hy));
 };
+
+/* ---- collision push-out: phrases that would overlap (each other, or the wheel rim) are moved apart; recalculated for the layer shown, the Text size and the language ---- */
+window.__swLayout = function () {
+    var L = LAYERS[mode], DY = LOGV ? 62 : 50, n = V.length, P = pos.map(function (p) { return { x: p.x, y: p.y }; });
+    var R = V.map(function (v, i) { return { hw: wOf(v[L], L, i) / 2 + 3, hh: BASE[L] * scaleOf(i) * 0.62 + 3 }; });
+    function rc(i) { var p = P[i], r = R[i]; return [[p.x - Math.max(r.hw, 30), p.y + 5 - r.hh, p.x + Math.max(r.hw, 30), p.y + 36]]; }   /* the phrase and its three dots below it count as one block */
+    for (var it = 0; it < 400; it++) {
+        var moved = false, RC = P.map(function (_, i) { return rc(i); });
+        for (var i = 0; i < n; i++) for (var j = i + 1; j < n; j++) {
+            for (var a = 0; a < RC[i].length; a++) for (var b = 0; b < RC[j].length; b++) {
+                var A = RC[i][a], B = RC[j][b], ox = Math.min(A[2], B[2]) - Math.max(A[0], B[0]), oy = Math.min(A[3], B[3]) - Math.max(A[1], B[1]);
+                if (ox > 0 && oy > 0) {
+                    moved = true;
+                    if (oy <= ox) { var sy = ((A[1] + A[3]) <= (B[1] + B[3]) ? -1 : 1) * (oy + 2) / 2; P[i].y += sy; P[j].y -= sy; }
+                    else { var sx = ((A[0] + A[2]) <= (B[0] + B[2]) ? -1 : 1) * (ox + 2) / 2; P[i].x += sx; P[j].x -= sx; }
+                    RC[i] = rc(i); RC[j] = rc(j);
+                }
+            }
+        }
+        for (i = 0; i < n; i++) rc(i).forEach(function (q) {
+            var qx = Math.min(Math.max(0, q[0]), q[2]), qy = Math.min(Math.max(0, q[1]), q[3]), d = Math.hypot(qx, qy);
+            if (d < RIM) {
+                var mx = (q[0] + q[2]) / 2, my = (q[1] + q[3]) / 2, m = Math.hypot(mx, my) || 1;
+                P[i].x += mx / m * (RIM - d + 1); P[i].y += my / m * (RIM - d + 1); moved = true;
+            }
+        });
+        if (!moved) break;
+    }
+    P.forEach(function (p, i) { cur[i] = p; lbls[i].setAttribute('transform', 'translate(' + p.x.toFixed(1) + ',' + p.y.toFixed(1) + ')'); });
+};
 window.__swApply = function () {
     texts.forEach(function (t, i) { LAYERS.forEach(function (L) { t[L].setAttribute('font-size', BASE[L] * scaleOf(i)); }); });
-    window.__swFit();
+    window.__swLayout(); window.__swFit();
 };
 window.__swLabel = function (i) { return String(V[i].tl).replace(/<[^>]*>/g, '').slice(0, 30); };
 
@@ -569,7 +615,7 @@ function applyVis() {
     if (showAll) lbls.forEach(function (l) { l.setAttribute('opacity', '1'); l.style.pointerEvents = 'all'; });
     else show(rot);
 }
-function setMode(m) { mode = m; layerBtn.textContent = layerLabel(); states.forEach(function (s, i) { if (!(s.k === NQ)) s.k = mode; lbls[i]._clear(); }); renders.forEach(function (r) { r(); }); }
+function setMode(m) { mode = m; layerBtn.textContent = layerLabel(); states.forEach(function (s, i) { if (!(s.k === NQ)) s.k = mode; lbls[i]._clear(); }); renders.forEach(function (r) { r(); }); window.__swLayout(); window.__swFit(); }
 layerBtn.textContent = layerLabel(); allBtn.textContent = allLabel();
 layerBtn.addEventListener('click', function () { setMode((mode + 1) % NQ); });
 allBtn.addEventListener('click', function () { showAll = !showAll; allBtn.textContent = allLabel(); renders.forEach(function (r) { r(); }); applyVis(); });
@@ -577,7 +623,7 @@ document.getElementById('reset-btn').addEventListener('click', function () {
     states.forEach(function (s) { s.k = 0; s.learned = false; }); lbls.forEach(function (l) { l._clear(); });
     rot = 0; showAll = false; mode = 0; layerBtn.textContent = layerLabel(); allBtn.textContent = allLabel();
     var all = document.getElementById('tsAll'); if (all) all.checked = false; document.getElementById('tsReset').click(); document.getElementById('textSizePanel').style.display = 'none';
-    renders.forEach(function (r) { r(); }); show(0); window.__swFit();
+    renders.forEach(function (r) { r(); }); window.__swLayout(); show(0); window.__swFit();
 });
 (function () { var rb = document.getElementById('reset-btn'); if (LANG.reset_label && !/^RESET_LABEL$/.test(LANG.reset_label)) rb.textContent = LANG.reset_label; })();
 
@@ -614,7 +660,7 @@ sv.addEventListener('touchstart', dn, { passive: false }); document.addEventList
     pl.innerHTML = V.map(function (v, i) { return '<div class="pl-row ' + (LOGV ? '' : 'rom') + '"><span class="pl-h">' + (i + 1) + '</span>' + (LOGV ? '<span>' + esc(v.tlr) + '</span>' : '') + '<span>' + esc(v.tl) + '</span><span>' + esc(v.sl) + '</span></div>'; }).join('');
 })();
 window.addEventListener('resize', function () { window.__swFit(); });
-window.__swFit(); renders.forEach(function (r) { r(); }); show(0);
+window.__swLayout(); window.__swFit(); renders.forEach(function (r) { r(); }); show(0);
 
     </script>
     <script>
@@ -678,6 +724,79 @@ window.__swFit(); renders.forEach(function (r) { r(); }); show(0);
     })();
 
 
+    </script>
+    <script>
+    // --- Pull a word out of the dial to inspect it: it follows the finger or mouse and grows (up to 300%); let go and it STAYS for 5 seconds, then snaps back ---
+    (function () {
+        var MAXS = 3, HOLD_MS = 5000, svg = document.getElementById('sv');
+        var held = new Map();   // index -> { ghost, box, x, y, s, hx, hy, w, h, timer }
+        var g = null, swallow = false;
+        function visText(box) { var t = box.querySelectorAll('text.sw-w'); for (var q = 0; q < t.length; q++) if (!t[q].classList.contains('sw-off')) return t[q]; return null; }
+        function tf(o) { return 'translate(calc(-50% + ' + o.x + 'px), calc(-50% + ' + o.y + 'px)) scale(' + o.s + ')'; }
+        function makeGhost(box) {
+            var d = visText(box), r = d.getBoundingClientRect(), k = svg.getScreenCTM().a;
+            var gh = document.createElement('div'); gh.className = 'cmp-ghost';
+            gh.textContent = d.textContent; gh.style.fontStyle = d.classList.contains('sw-sl') ? 'italic' : ''; gh.style.fontSize = (parseFloat(d.getAttribute('font-size')) * k) + 'px';
+            document.body.appendChild(gh);
+            var w = gh.offsetWidth, h = gh.offsetHeight, hx = r.left + r.width / 2, hy = r.top + r.height / 2;
+            gh.style.left = hx + 'px'; gh.style.top = hy + 'px';
+            return { ghost: gh, box: box, hx: hx, hy: hy, w: w, h: h, x: 0, y: 0, s: 1, timer: null };
+        }
+        function snapBack(i) {
+            var o = held.get(i); if (!o) return; clearTimeout(o.timer); held.delete(i);
+            var gh = o.ghost; gh.style.transition = 'transform .3s cubic-bezier(.34,1.56,.64,1)';
+            gh.style.transform = 'translate(-50%, -50%) scale(1)';
+            setTimeout(function () { if (gh.parentNode) gh.parentNode.removeChild(gh); o.box.style.visibility = ''; }, 330);
+        }
+        function startHold(i) { var o = held.get(i); if (!o) return; clearTimeout(o.timer); o.timer = setTimeout(function () { snapBack(i); }, HOLD_MS); }
+        window.__cmpReset = function () { held.forEach(function (o) { clearTimeout(o.timer); if (o.ghost.parentNode) o.ghost.parentNode.removeChild(o.ghost); o.box.style.visibility = ''; }); held.clear(); g = null; };
+        ['display-mode-toggle', 'show-all-toggle', 'reset-btn'].forEach(function (id) { document.getElementById(id).addEventListener('click', function () { window.__cmpReset(); }); });
+        window.addEventListener('resize', function () { window.__cmpReset(); });
+
+        document.addEventListener('pointerdown', function (e) {
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+            var gh = e.target.closest && e.target.closest('.cmp-ghost'), box = null, i = -1;
+            if (gh) { held.forEach(function (o, k) { if (o.ghost === gh) { i = k; box = o.box; } }); }
+            else { box = e.target.closest && e.target.closest('.swLabel'); if (!box || e.target.closest('foreignObject') || !visText(box)) return; i = parseInt(box.getAttribute('data-index')); }
+            if (i < 0) return;
+            var o = held.get(i), hadHold = !!o;
+            if (!o) o = makeGhostFor(box); else clearTimeout(o.timer);
+            g = { i: i, box: box, o: o, id: e.pointerId, x0: e.clientX, y0: e.clientY, ox: o.x, oy: o.y, s0: o.s, hadHold: hadHold, drag: false, fresh: !hadHold };
+            if (gh) { try { gh.setPointerCapture(e.pointerId); } catch (_) {} e.preventDefault(); }
+        }, true);
+        function makeGhostFor(box) { var o = makeGhost(box); o.ghost.style.display = 'none'; held.set(parseInt(box.getAttribute('data-index')), o); o.pending = true; return o; }
+        document.addEventListener('pointermove', function (e) {
+            if (!g || e.pointerId !== g.id) return;
+            var dx = e.clientX - g.x0, dy = e.clientY - g.y0, d = Math.hypot(dx, dy), o = g.o;
+            if (!g.drag) {
+                if (d < 6) return;
+                g.drag = true; o.ghost.style.display = ''; o.ghost.style.transition = 'none'; g.box.style.visibility = 'hidden'; o.pending = false;
+                if (g.fresh && window.__cmpSpeak) window.__cmpSpeak(g.i, true);
+            }
+            var dmax = Math.max(120, Math.min(230, 0.30 * Math.min(window.innerWidth, window.innerHeight)));
+            var s = g.hadHold ? g.s0 : 1 + (MAXS - 1) * Math.min(1, d / dmax);
+            s = Math.min(s, (window.innerWidth - 8) / o.w, (window.innerHeight - 8) / o.h);
+            var hw = o.w * s / 2, hh = o.h * s / 2, tx = o.hx + g.ox + dx, ty = o.hy + g.oy + dy;
+            var cx = Math.min(Math.max(tx, hw + 2), window.innerWidth - hw - 2), cy = Math.min(Math.max(ty, hh + 2), window.innerHeight - hh - 2);
+            o.x = cx - o.hx; o.y = cy - o.hy; o.s = s; o.ghost.style.transform = tf(o);
+            e.preventDefault();
+        }, { passive: false });
+        function release(e) {
+            if (!g || e.pointerId !== g.id) return;
+            var cur = g; g = null;
+            if (cur.drag) { swallow = true; setTimeout(function () { swallow = false; }, 60); startHold(cur.i); return; }
+            if (cur.hadHold) {   // a tap on a held word: flip its layer and start the 5 seconds again
+                cur.box.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                var vt = visText(cur.box); if (!vt) { snapBack(cur.i); return; }   // the Quiz opened: the word goes back
+                cur.o.ghost.textContent = vt.textContent; cur.o.ghost.style.fontStyle = vt.classList.contains('sw-sl') ? 'italic' : '';
+                startHold(cur.i);
+            } else { var o = held.get(cur.i); if (o && o.pending) { if (o.ghost.parentNode) o.ghost.parentNode.removeChild(o.ghost); held.delete(cur.i); } }
+        }
+        document.addEventListener('pointerup', release, true);
+        document.addEventListener('pointercancel', release, true);
+        document.addEventListener('click', function (e) { if (swallow && e.target.closest && e.target.closest('.swLabel')) { e.stopPropagation(); e.preventDefault(); swallow = false; } }, true);
+        document.addEventListener('contextmenu', function (e) { if (e.target.closest && (e.target.closest('.swLabel') || e.target.closest('.cmp-ghost'))) e.preventDefault(); });
+    })();
     </script>
     <script>
 
