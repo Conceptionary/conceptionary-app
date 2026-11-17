@@ -2,9 +2,11 @@
    Used by templates.html (the launcher) and view.html (the Home / Previous / Next bar).
    Each entry: id, label, rom (file name without .html, or null), log (same, or null).
    Files live in templates/phonographic/ (ROM-...) and templates/logographic/ (LOG-...);
-   worked examples (names ending -ID-EN or -JA-EN) live in examples/id-en/ and examples/ja-en/.
+   worked examples (names ending -ID-EN, -JA-EN or -EN-DE) live in examples/id-en/, examples/ja-en/ and examples/en-de/.
    A link whose file does not exist in the repo is hidden automatically on the live site.
    (c) 2026 Alan William Preston */
+/* Shown after an Update so you can see the phone has the latest list. Change it whenever this list changes. */
+window.CONCEPTIONARY_LIST_DATE = '2026-11-18';
 window.CONCEPTIONARY_TEMPLATE_FAMILIES = [
   { name: 'Single Line', items: [
     { id: 'VL',      label: 'Vertical Line (VL)',         rom: 'ROM-VL-Generic',      log: 'LOG-VL-Generic' },
@@ -57,6 +59,7 @@ window.CONCEPTIONARY_TEMPLATE_FAMILIES = [
     { id: 'CR-SEA-WET',    label: 'CR-SEA-WET',    rom: 'ROM-CR-SEA-WET-Generic',    log: 'LOG-CR-SEA-WET-Generic' },
     { id: 'CR-SEA-TEMP-S', label: 'CR-SEA-TEMP-S', rom: 'ROM-CR-SEA-TEMP-S-Generic', log: 'LOG-CR-SEA-TEMP-S-Generic' },
     { id: 'CR-SEA-TEMP-N', label: 'CR-SEA-TEMP-N', rom: 'ROM-CR-SEA-TEMP-N-Generic', log: 'LOG-CR-SEA-TEMP-N-Generic' },
+    { id: 'CR-RICE', label: 'CR-RICE (rice-growing cycle)', rom: 'ROM-CR-RICE-Generic', log: 'LOG-CR-RICE-Generic' },
     { id: 'CR-TML',  label: 'CR-TML',  rom: 'ROM-CR-TML-Generic',  log: 'LOG-CR-TML-Generic' },
     { id: 'CR-LUN',  label: 'CR-LUN',  rom: 'ROM-CR-LUN-Generic',  log: 'LOG-CR-LUN-Generic' },
     { id: 'CR-MEN',  label: 'CR-MEN',  rom: 'ROM-CR-MEN-Generic',  log: 'LOG-CR-MEN-Generic' },
@@ -71,11 +74,17 @@ window.CONCEPTIONARY_TEMPLATE_FAMILIES = [
   { name: 'Indonesian for English speakers', intro: 'Example templates', anchor: 'examples', items: [
     { id: 'EX-ID-TDL', label: 'Daily Tidal Cycle (CR-TDL)',  rom: 'ROM-CR-TDL-ID-EN', log: null },
     { id: 'EX-ID-MOY', label: 'Months of the Year (CR-MOY)', rom: 'ROM-CR-MOY-ID-EN', log: null },
-    { id: 'EX-ID-DOW', label: 'Days of the Week (CR-DOW)',   rom: 'ROM-CR-DOW-ID-EN', log: null }
+    { id: 'EX-ID-DOW', label: 'Days of the Week (CR-DOW)',   rom: 'ROM-CR-DOW-ID-EN', log: null },
+    { id: 'EX-ID-RICE', label: 'Rice Growing Cycle (CR-RICE)', rom: 'ROM-CR-RICE-ID-EN', log: null },
+    { id: 'EX-ID-WET', label: 'Tropical Seasons, wet and dry (CR-SEA-WET)', rom: 'ROM-CR-SEA-WET-ID-EN', log: null }
   ]},
   { name: 'Japanese for English speakers', items: [
     { id: 'EX-JA-TDL', label: 'Daily Tidal Cycle (CR-TDL)',  rom: null, log: 'LOG-CR-TDL-JA-EN' },
-    { id: 'EX-JA-MOY', label: 'Months of the Year (CR-MOY)', rom: null, log: 'LOG-CR-MOY-JA-EN' }
+    { id: 'EX-JA-MOY', label: 'Months of the Year (CR-MOY)', rom: null, log: 'LOG-CR-MOY-JA-EN' },
+    { id: 'EX-JA-RICE', label: 'Rice Growing Cycle (CR-RICE)', rom: null, log: 'LOG-CR-RICE-JA-EN' }
+  ]},
+  { name: 'English for German speakers', items: [
+    { id: 'EX-DE-SEA-N', label: 'Seasons, Northern Hemisphere (CR-SEA-TEMP-N)', rom: 'ROM-CR-SEA-TEMP-N-EN-DE', log: null }
   ]}
 ];
 
@@ -86,7 +95,8 @@ window.CONCEPTIONARY_NAV = (function () {
   fams.forEach(function (f) { f.items.forEach(function (t) { t.family = f.name; flat.push(t); }); });
   function folder(file) {
     if (/-ID-EN$/.test(file)) return 'examples/id-en/';   /* worked examples: Indonesian for English speakers */
-    if (/-JA-EN$/.test(file)) return 'examples/ja-en/';   /* worked examples: Japanese for English speakers */
+    if (/-JA-EN$/.test(file)) return 'examples/ja-en/';
+    if (/-EN-DE$/.test(file)) return 'examples/en-de/';   /* worked examples: English for German speakers */   /* worked examples: Japanese for English speakers */
     return file.indexOf('ROM-') === 0 ? 'templates/phonographic/' : 'templates/logographic/';
   }
   function find(file) {

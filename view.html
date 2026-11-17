@@ -21,11 +21,15 @@
   /* collapsed: only a thin strip stays, so the template gets the full height (useful on a phone turned sideways) */
   body.collapsed #bar { min-height:0; padding:0; height:16px; justify-content:center; }
   body.collapsed #bar > :not(#toggle) { display:none; }
+  #upd[disabled] { opacity:.6; cursor:wait; }
+  #updNote { position:fixed; left:50%; top:46px; transform:translateX(-50%); max-width:92vw; background:#0f3d63; color:#fff; padding:8px 14px; border-radius:8px; font-size:14px; z-index:5; box-shadow:0 2px 10px rgba(0,0,0,.35); }
   body.collapsed #toggle { min-height:14px; height:14px; padding:0 22px; border-radius:0 0 8px 8px; font-size:11px; line-height:1; }
   @media (max-width:640px) {
     #bar { gap:4px; padding:3px 6px; }
     #bar a, #bar button { padding:6px 8px; }
     #title small, .wide { display:none; }
+    #bar a#app, #bar #upd .wide, #bar #home .wide { display:none; }   /* the Update button joins the bar: App is reachable from Home */
+    #bar #upd { padding:6px 10px; }
   }
   #msg { padding:24px 16px; font-size:1.05rem; }
   #msg a { color:#0f4c81; font-weight:700; }
@@ -33,16 +37,18 @@
 </head>
 <body>
 <div id="bar" role="navigation" aria-label="Template navigation">
-  <a id="home" href="templates.html" title="All templates">&#8962; Home</a>
+  <a id="home" href="templates.html" title="All templates">&#8962;<span class="wide">&nbsp;Home</span></a>
   <a id="prev" href="#" title="Previous template">&#8249; Prev</a>
   <div id="title"></div>
   <a id="other" href="#" title="Switch between phonographic and logographic"></a>
   <a id="next" href="#" title="Next template">Next &#8250;</a>
   <a id="app" class="wide" href="index.html" title="Concept Browser (the App)">App</a>
+  <button id="upd" type="button" title="Update: fetch the newest templates onto this device">&#8635;<span class="wide">&nbsp;Update</span></button>
   <button id="toggle" type="button" title="Hide or show this bar" aria-label="Hide or show this bar">&#9650;</button>
 </div>
 <iframe id="frame" title="Conceptionary template" allow="fullscreen; autoplay" allowfullscreen></iframe>
 <div id="msg" hidden></div>
+<div id="updNote" hidden role="status" aria-live="polite"></div>
 
 <script>
 /* 2026-11-14 The template list is loaded here (not with a plain script tag) and always asked for fresh, with a changing ?v= on the end,
@@ -136,6 +142,17 @@ window.__conceptionaryStart = function () {
     if (e.key === ']' && $('next').getAttribute('aria-disabled') !== 'true') location.href = $('next').href;
   });
 };
+</script>
+<script src="conceptionary-update.js"></script>
+<script>
+/* 2026-11-18 The Update button on the bar: fetches the newest template list, pages and templates (see conceptionary-update.js), then reloads this page. */
+(function () {
+  var b = document.getElementById('upd'), n = document.getElementById('updNote'); if (!b) return;
+  b.addEventListener('click', function () {
+    b.disabled = true; n.hidden = false;
+    window.conceptionaryUpdate({ onStatus: function (t) { n.textContent = t; }, done: function (ok) { b.disabled = false; if (!ok) setTimeout(function () { n.hidden = true; }, 5000); } });
+  });
+})();
 </script>
 <script>
 /* 2026-11-14 Offline use: on the live site this saves the templates on the device (see sw.js). Opened as a plain local file it does nothing. */

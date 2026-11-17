@@ -21,6 +21,10 @@
   .tag { display:inline-block; min-width:3.1em; text-align:center; padding:1px 6px; border-radius:6px; font-weight:700; font-size:.8rem; color:#fff; }
   .tag.rom { background:var(--rom); } .tag.log { background:var(--log); }
   .toplinks a { color:var(--accent); font-weight:600; margin-right:16px; }
+  .upd { display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; margin:8px 0 0; }
+  #updBtn { font:inherit; font-weight:700; color:#fff; background:var(--accent); border:0; border-radius:8px; padding:9px 16px; min-height:40px; cursor:pointer; }
+  #updBtn:disabled { opacity:.6; cursor:wait; } #updBtn:hover, #updBtn:focus { filter:brightness(1.12); outline:2px solid var(--ink); outline-offset:1px; }
+  #updMsg { font-size:.9rem; color:var(--muted); }
   h2.big { font-size:1.35rem; margin:34px 0 0; border-bottom:0; }
   h2 { font-size:1.05rem; margin:26px 0 8px; padding-bottom:4px; border-bottom:2px solid var(--line); color:var(--accent); }
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:10px; }
@@ -45,6 +49,7 @@
     <span><span class="tag log">LOG</span> logographic: TLR, then TL, then SL, then Quiz</span>
   </div>
   <div class="toplinks"><a href="index.html">Concept Browser (the App)</a><a href="#examples">Example templates</a></div>
+  <div class="upd"><button id="updBtn" type="button" title="Fetch the newest template list and templates onto this device">&#8635; Update</button><span id="updMsg" aria-live="polite"></span></div>
   <p id="status" aria-live="polite"></p>
   <p id="offline" class="sub" style="font-size:.85rem" aria-live="polite"></p>
 </header>
@@ -119,6 +124,16 @@ window.__conceptionaryStart = function () {
       .then(done);
   });
 };
+</script>
+<script src="conceptionary-update.js"></script>
+<script>
+/* 2026-11-18 The Update button: fetches the newest template list, launcher pages and templates (see conceptionary-update.js) and reloads. */
+(function () {
+  var b = document.getElementById('updBtn'), m = document.getElementById('updMsg'); if (!b) return;
+  function last() { var l = window.conceptionaryLastUpdate && window.conceptionaryLastUpdate(); m.textContent = l ? 'Last updated on this device: ' + l : ''; }
+  last();
+  b.addEventListener('click', function () { b.disabled = true; window.conceptionaryUpdate({ onStatus: function (t) { m.textContent = t; }, done: function () { b.disabled = false; } }); });
+})();
 </script>
 <script>
 /* 2026-11-14 Offline use: on the live site this saves the templates on the device (see sw.js). Opened as a plain local file it does nothing. */
