@@ -2,10 +2,10 @@
    WHAT IT DOES: the first time the site is opened online, it saves every template listed in conceptionary-templates.js (plus the launcher pages)
    on the device. After that the whole site opens with no connection. When online, each file is quietly refreshed in the background, so a changed
    template appears the NEXT time the page is opened.( 2026-11-17 @ 1.58 p.m. I re-named this with the lower case s
-   2026-11-18: the launcher pages and the template list are now fetched from the network FIRST (the saved copy is used only when offline or slow),
+   2026-11-18: the launcher pages, the template list and the concept registry are now fetched from the network FIRST (the saved copy is used only when offline or slow),
    so a new template list shows at once; and the Update button (conceptionary-update.js) re-fetches everything on demand.
    TO FORCE A FULL REFRESH on every device after a big update: change VERSION below (any new text) and push. */
-var VERSION = 'v3';
+var VERSION = 'v4';
 var CACHE = 'conceptionary-' + VERSION;
 var CORE = ['./', 'templates.html', 'view.html', 'index.html', 'conceptionary-templates.js', 'conceptionary-update.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'registry/conceptionary-registry.json'];
 
@@ -46,7 +46,7 @@ self.addEventListener('fetch', function (e) {
     e.respondWith(fetch(req).then(function (r) { if (r && r.ok && r.type === 'basic') { var k = keyOf(), cl = r.clone(); caches.open(CACHE).then(function (c) { c.put(k, cl); }); } return r; }));
     return;
   }
-  if (/(\/|templates\.html|view\.html|index\.html|conceptionary-templates\.js|conceptionary-update\.js|manifest\.webmanifest)$/.test(url.pathname)) {
+  if (/(\/|templates\.html|view\.html|index\.html|conceptionary-templates\.js|conceptionary-update\.js|manifest\.webmanifest|conceptionary-registry\.json)$/.test(url.pathname)) {
     /* the launcher pages and the template list: network first (so a new list shows at once); the saved copy answers when offline or after 4 seconds */
     e.respondWith(caches.open(CACHE).then(function (c) {
       return new Promise(function (resolve) {

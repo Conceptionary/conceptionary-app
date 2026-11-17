@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-09-27 (Mangawhai, NZ) -->
+<!-- Last updated: 2026-11-18 @ 9:58 a.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <!--
   CONCEPTIONARY — Standalone Web Application
@@ -896,6 +896,7 @@ body {
     <button class="hdr-nav-btn" data-tab="browse">📚 Browse</button>
     <button class="hdr-nav-btn" data-tab="search">🔍 Search</button>
     <a class="hdr-nav-btn" href="https://conceptionary.github.io/conceptionary-app/templates.html" target="_blank" rel="noopener" title="Open the list of all templates" style="text-decoration:none">🧩 Templates</a>
+    <button class="hdr-nav-btn" id="hdrUpdBtn" type="button" title="Update: fetch the newest templates and concepts onto this device">🔄 Update</button>
   </div>
 
   <div class="hdr-lang">
@@ -1249,6 +1250,9 @@ body {
     <a class="mob-btn" href="https://conceptionary.github.io/conceptionary-app/templates.html" target="_blank" rel="noopener" style="text-decoration:none">
       <span class="mbi">🧩</span><span class="mbl">Templates</span>
     </a>
+    <button class="mob-btn" id="mobUpdBtn" type="button" title="Update: fetch the newest templates and concepts onto this device">
+      <span class="mbi">🔄</span><span class="mbl">Update</span>
+    </button>
   </div>
 </nav>
 
@@ -2623,6 +2627,26 @@ document.addEventListener('DOMContentLoaded', () => {
 <script>
 /* 2026-11-17 Offline use: on the live site this saves the templates on the device (see sw.js). Opened as a plain local file it does nothing. */
 if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
+</script>
+<script src="conceptionary-update.js"></script>
+<script>
+/* 2026-11-18 The Update button (header and phone bar): fetches the newest template list, pages, templates and concept registry onto this device (see conceptionary-update.js), then reloads. */
+(function () {
+  var btns = [document.getElementById('hdrUpdBtn'), document.getElementById('mobUpdBtn')].filter(Boolean);
+  function label(b, t) { var l = b.querySelector('.mbl'); if (l) l.textContent = t; else b.textContent = '🔄 ' + t; }
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      btns.forEach(function (x) { x.disabled = true; });
+      window.conceptionaryUpdate({
+        onStatus: function (t) {
+          var m = /^Updating (\d+) of (\d+)/.exec(t);
+          if (m) { btns.forEach(function (x) { label(x, m[1] + '/' + m[2]); }); } else { var u = /^Updated: (\d+) templates/.exec(t); showToast(u ? 'Updated: ' + u[1] + ' templates saved' : t.length > 42 ? t.slice(0, 40) + '…' : t, 6000); }
+        },
+        done: function () { btns.forEach(function (x) { x.disabled = false; label(x, 'Update'); }); }
+      });
+    });
+  });
+})();
 </script>
 </body>
 </html>
