@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Last updated: 2026-11-17 @ 9:34 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-11-18 @ 10:19 a.m. (Mangawhai, NZ) -->
 <html lang="en" data-scheme="night">
 <head>
     <meta charset="UTF-8">
@@ -317,6 +317,9 @@ html.m-trans #learned-vocabulary-left, html:not(.m-trans) #learned-vocabulary-ri
 .drag-instruction { max-width: min(430px, 62vw); white-space: normal; }
 @media (max-width: 700px) { #transDisplay { left: 50%; top: auto; bottom: 8%; transform: translateX(-50%); } }
 @media print { .a4-page { background: #fff !important; } #transDisplay, #segTooltip { display: none !important; } #draggableFrame { stroke-width: .4px; } #langBadge { display: none; } }
+
+/* 2026-11-18 PINCH ZOOM on a phone: one finger still drags (sun, words, panels); two fingers enlarge the whole page with the phone's own zoom. (touch-action: none would forbid the pinch.) */
+html .a4-page, html #svgCanvas, html .textBox, html .cmp-ghost, html .quiz-container, html .learned-vocabulary, html #transDisplay { touch-action: pinch-zoom; }
     </style>
 </head>
 <body>
@@ -687,20 +690,23 @@ var textBoxElements = [];
     function svgPt(p) { var pt = svg.createSVGPoint(); pt.x = p.x; pt.y = p.y; return pt.matrixTransform(svg.getScreenCTM().inverse()); }
     function move(e) {
         if (!dragging) return;
+        if (e.touches && e.touches.length > 1) { dragging = false; frame.classList.remove('dragging'); return; }   /* a second finger: the phone's pinch zoom takes over */
         var p = svgPt(ptr(e)), deg = (Math.atan2(p.y - 50, p.x - 50) * 180 / Math.PI + 90 + 360) % 360;
         frameDeg = deg; setFrame(deg);
         if (transMode) paintTrans(); else refresh();
         if (e.cancelable) e.preventDefault();
     }
+    var lastTouch = 0, fresh = function () { return Date.now() - lastTouch < 700; };   /* the mouse events a phone makes after a touch are ignored */
     function down(e) {
+        if (e.touches) { lastTouch = Date.now(); if (e.touches.length > 1) return; }
         if (e.target.closest && e.target.closest('.textBox, #slideText')) return;
         var p = svgPt(ptr(e)); if (e.target !== frame && e.target !== dot && Math.hypot(p.x - 50, p.y - 50) > 49) return;
-        dragging = true; frame.classList.add('dragging'); move(e); if (e.cancelable) e.preventDefault();
+        dragging = true; frame.classList.add('dragging'); move(e); if (e.cancelable && !e.touches) e.preventDefault();   /* no preventDefault on a touch: it would stop the pinch zoom */
     }
     function up() { if (!dragging) return; dragging = false; frame.classList.remove('dragging'); if (!showAll) { var m = curMonth(); speak(transMode ? m : curS()); } }
-    svg.addEventListener('mousedown', down); svg.addEventListener('touchstart', down, { passive: false });
-    document.addEventListener('mousemove', move); document.addEventListener('touchmove', move, { passive: false });
-    document.addEventListener('mouseup', up); document.addEventListener('touchend', up); document.addEventListener('touchcancel', up);
+    svg.addEventListener('mousedown', function (e) { if (!fresh()) down(e); }); svg.addEventListener('touchstart', down, { passive: true });
+    document.addEventListener('mousemove', function (e) { if (!fresh()) move(e); }); document.addEventListener('touchmove', move, { passive: false });
+    document.addEventListener('mouseup', function (e) { if (!fresh()) up(); }); document.addEventListener('touchend', function (e) { lastTouch = Date.now(); up(); }); document.addEventListener('touchcancel', function () { lastTouch = Date.now(); up(); });
 
     /* ---- buttons ---- */
     var layerBtn = $('display-mode-toggle'), allBtn = $('show-all-toggle'), modeBtn = $('mode-btn');
