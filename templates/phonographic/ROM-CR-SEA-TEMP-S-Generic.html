@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Last updated: 2026-11-17 @ 5:35 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-11-17 @ 9:34 p.m. (Mangawhai, NZ) -->
 <html lang="en" data-scheme="night">
 <head>
     <meta charset="UTF-8">
@@ -302,6 +302,10 @@ html[data-scheme="night"] .vocabulary-item .tl-word { color: #6fdc9c; }
 
 /* the Quiz is a free-floating panel: fixed to the window so that it can be grabbed and dropped anywhere (it was left in the page flow, which made the move do nothing) */
 .quiz-container { position: fixed; }
+
+/* hidden words in the Learned panel must stay hidden in the Night scheme too (the Night colour rule for .tl-word was more specific than the .hidden rule, so TL words never disappeared) */
+html .vocabulary-item .tl-word.hidden, html .vocabulary-item .sl-word.hidden, html .vocabulary-item .tlr-word.hidden, html .vocabulary-item .w.hidden,
+html[data-scheme="night"] .vocabulary-item .tl-word.hidden, html[data-scheme="night"] .vocabulary-item .sl-word.hidden, html[data-scheme="night"] .vocabulary-item .tlr-word.hidden, html[data-scheme="night"] .vocabulary-item .w.hidden { color: transparent !important; user-select: none; }
     </style>
 </head>
 <body>
