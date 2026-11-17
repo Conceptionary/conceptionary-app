@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Last updated: 2026-11-17 @ 4:02 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-11-17 @ 5:35 p.m. (Mangawhai, NZ) -->
 <html lang="en" data-scheme="night">
 <head>
     <meta charset="UTF-8">
@@ -295,6 +295,9 @@ html[data-scheme="night"] .circle-path { stroke: #9fb4ee; }
 .vocabulary-item .sl-word { cursor: pointer; padding: 2px 5px; border-radius: 4px; }
 .vocabulary-item .tl-word.hidden, .vocabulary-item .sl-word.hidden { color: transparent; user-select: none; }
 html[data-scheme="night"] .vocabulary-item .tl-word { color: #6fdc9c; }
+
+/* the Quiz is a free-floating panel: fixed to the window so that it can be grabbed and dropped anywhere (it was left in the page flow, which made the move do nothing) */
+.quiz-container { position: fixed; }
 
 .dry-segment { fill: rgba(173,216,230,.45); } .wet-segment { fill: rgba(128,128,128,.35); }
 html[data-scheme="night"] .dry-segment { fill: rgba(120,180,230,.28); } html[data-scheme="night"] .wet-segment { fill: rgba(170,175,190,.22); }

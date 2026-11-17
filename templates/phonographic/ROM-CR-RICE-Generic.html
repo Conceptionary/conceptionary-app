@@ -1,1384 +1,1156 @@
 <!DOCTYPE html>
-<!-- Last updated: 2026-08-03 (drag-dismiss bug fix; exact time not restated this task, Mangawhai, NZ) -->
-<html lang="en">
+<!-- Last updated: 2026-11-17 @ 5:35 p.m. (Mangawhai, NZ) -->
+<html lang="en" data-scheme="night">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rice Growing Cycle — Generic (Romanized/Phonographic)</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Hiragino Sans', 'Yu Gothic', Meiryo, Arial, sans-serif;
-      background: #f9f9f9;
-      display: flex; justify-content: center; align-items: center;
-      height: 100vh; overflow: hidden; margin: 0; padding: 0;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rice Growing Cycle — Phonographic — Generic</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #c4eaf8; overflow: hidden; }
+        .a4-page { width: 90vw; height: 88vh; border: 5px solid black; background-color: #c4eaf8; box-sizing: border-box; position: relative; touch-action: none; z-index: 1; overflow: hidden; }
+        .watermark { position: absolute; bottom: 5px; width: 100%; text-align: center; font-size: 11px; color: rgba(0,0,0,0.3); font-weight: bold; pointer-events: none; user-select: none; z-index: 0; }
+        svg { width: 100%; height: 100%; overflow: visible; }
+        .title-box { position: absolute; top: 10px; left: 10px; font-size: 1em; font-weight: bold; text-align: center; cursor: pointer; border: 1px solid black; padding: 10px; background-color: white; color: #0d2d42; z-index: 2; font-family: Arial, sans-serif; }
+        .drag-instruction { position: absolute; top: 60px; right: 10px; font-size: 0.9em; padding: 5px 10px; background-color: rgba(255,255,255,0.9); border: 1px solid #ccc; border-radius: 4px; z-index: 3; opacity: 1; transition: opacity 3s ease; }
+        .drag-instruction.fade { opacity: 0; }
+    /* 2026-11-06 Phone layout, Audio, Print, Full Screen, Tools menu and no Quiz on the Compass */
+    .a4-page { height: 86vh; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr) auto; }
+    .a4-page > svg { grid-column: 1 / 3; grid-row: 2; min-height: 0; width: 100%; height: 100%; }
+    #cmpInfo { position: static; grid-column: 1; grid-row: 1; z-index: 3; display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; margin: 10px; }
+    #cmpInfo .title-box { position: static; transform: none; left: auto; top: auto; }
+    #cmpInfo .title-box.hidden { transform: scale(0.9); }
+    #cmpInfo .day-indicator, #cmpInfo .drag-instruction { position: static; transform: none; left: auto; top: auto; min-width: 0; white-space: normal; }
+    #cmpCtl { position: static; grid-column: 2; grid-row: 1; z-index: 200; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; align-items: flex-start; margin: 10px; }
+    .a4-page > .watermark { position: static; grid-column: 1 / 3; grid-row: 3; padding: 0 0 4px; }
+    #cmpCtl .tb { position: static; transform: none; left: auto; top: auto; min-width: 0; font-weight: normal; background: #3366cc; color: #fff; border: 0; border-radius: 4px; padding: 7px 12px; font: 14px Arial, sans-serif; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+    #cmpCtl .tb:hover { background: #254e9c; }
+    #printList { display: none; }
+    .textBox { -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+.audio-wrap { position: relative; display: flex; flex-direction: column; align-items: stretch; width: 104px; box-sizing: border-box; background-color: #3366cc; color: #fff; border-radius: 4px; padding: 3px 6px 2px; }
+    .audio-wrap:hover { background-color: #254e9c; }
+    .audio-wrap #auCycle { background: transparent; border: 0; color: inherit; font: inherit; font-size: 14px; padding: 4px 0 1px; margin: 0; cursor: pointer; white-space: nowrap; text-align: center; -webkit-tap-highlight-color: transparent; }
+    .controls .audio-wrap #auCycle:hover { background: transparent; }
+    .audio-wrap #auVol2 { width: 100%; height: 14px; margin: 0; padding: 0; background: transparent; -webkit-appearance: none; appearance: none; touch-action: none; cursor: pointer; --p: 80%; }
+    .audio-wrap #auVol2::-webkit-slider-runnable-track { height: 5px; border-radius: 3px; background: linear-gradient(to right, #007FFF 0, #007FFF var(--p), #B0E0E6 var(--p), #B0E0E6 100%); }
+    .audio-wrap #auVol2::-moz-range-track { height: 5px; border-radius: 3px; background: #B0E0E6; }
+    .audio-wrap #auVol2::-moz-range-progress { height: 5px; border-radius: 3px; background: #007FFF; }
+    .audio-wrap #auVol2::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: -4.5px; border: 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c8fbff 0%, #2fd0e8 38%, #7fb8f0 68%, #ff9cc8 100%); box-shadow: 0 1px 2px rgba(0,0,0,.35); }
+    .audio-wrap #auVol2::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #c8fbff 0%, #2fd0e8 38%, #7fb8f0 68%, #ff9cc8 100%); box-shadow: 0 1px 2px rgba(0,0,0,.35); }
+    @media (pointer: coarse) { .audio-wrap { width: 112px; } .audio-wrap #auVol2 { height: 20px; } .audio-wrap #auVol2::-webkit-slider-thumb { width: 18px; height: 18px; margin-top: -6.5px; } .audio-wrap #auVol2::-moz-range-thumb { width: 18px; height: 18px; } }
+    @media (max-height: 520px) and (orientation: landscape) { .audio-wrap { width: 86px; padding: 1px 5px 0; } .audio-wrap #auCycle { font-size: 11px; padding: 2px 0 0; } .audio-wrap #auVol2 { height: 13px; } }
+    #auToast { position: fixed; z-index: 1100; background: rgba(40,40,40,.92); color: #fff; font: 14px Arial, sans-serif; padding: 7px 12px; border-radius: 8px; max-width: min(92vw, 360px); text-align: center; pointer-events: none; opacity: 0; transition: opacity .25s ease; }
+    .tools-wrap { position: relative; }
+    #toolsBtn { min-width: 74px; }
+    .tools-dd { display: none; position: absolute; top: 100%; left: 0; margin-top: 4px; min-width: 9.5em; background: #3366cc; border-radius: 6px; overflow: hidden; z-index: 400; box-shadow: 0 4px 12px rgba(0,0,0,.3); }
+    .tools-dd.active { display: block; }
+    .tools-dd button { display: block; width: 100%; text-align: left; background: #3366cc; color: #fff; border: 0; border-bottom: 1px solid rgba(255,255,255,.35); padding: 9px 14px; font: 14px Arial, sans-serif; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+    .tools-dd button:last-child { border-bottom: 0; }
+    .tools-dd button:hover { background: #254e9c; }
+    html[data-scheme="nocolour"] body { background: #e6e6e6; }
+    html[data-scheme="nocolour"] .a4-page { filter: grayscale(1); }
+    @media screen {
+      html[data-scheme="night"] body { background: #0b1330; }
+      html[data-scheme="night"] .a4-page { background: #14213d; border-color: #8a96b8; }
+      html[data-scheme="night"] .circle-path { stroke: #aab4d0; }
+      html[data-scheme="night"] .segment-label { fill: #c5cce0; }
+      html[data-scheme="night"] .textBox div { color: #fff !important; text-shadow: none !important; }
+      html[data-scheme="night"] .title-box, html[data-scheme="night"] .day-indicator { background: #1f2f55; color: #e8eefc; border-color: #8a96b8; }
+      html[data-scheme="night"] .watermark { color: rgba(255,255,255,.45); }
     }
-    .a4-page {
-      width: 90vw; height: 70vh;
-      border: 5px solid #333; background: white;
-      box-sizing: border-box; position: relative; touch-action: none; overflow: hidden;
+    /* Phone held upright: title and direction, buttons, the compass as large as fits, then the watermark */
+    @media (max-width: 700px) and (min-height: 521px) {
+      html, body { overflow: hidden; }
+      body { display: block; height: 100vh; height: 100dvh; padding: 0; }
+      .a4-page { width: 100vw; height: 100vh; height: 100dvh; border: 0; display: grid; grid-template-columns: 100%; grid-template-rows: auto auto minmax(0, 1fr) auto; }
+      #cmpInfo { grid-column: 1; grid-row: 1; justify-content: center; max-width: 96%; margin: 6px 0 0; gap: 4px 6px; }
+      #cmpInfo .title-box { padding: 6px 12px; font-size: .95em; text-align: center; }
+      #cmpInfo .day-indicator { font-size: .95em; padding: 4px 10px; }
+      #cmpInfo .drag-instruction { font-size: .8em; max-width: 92vw; text-align: center; }
+      #cmpCtl { grid-column: 1; grid-row: 2; justify-content: center; margin: 6px 4px; }
+      #cmpCtl .tb { padding: 7px 10px; font-size: 13px; }
+      .a4-page > svg { grid-column: 1; grid-row: 3; }
+      .a4-page > .watermark { grid-column: 1; grid-row: 4; }
     }
-    svg { width: 100%; height: 100%; }
+    /* Phone held sideways (or any short window, e.g. inside the viewer, about 690 x 200): text column on the left, compass at full height on the right */
+    @media (max-height: 520px) and (orientation: landscape) {
+      html, body { overflow: hidden; }
+      body { display: block; height: 100vh; height: 100dvh; padding: 0; }
+      .a4-page { width: 100vw; height: 100vh; height: 100dvh; border: 0; display: grid; grid-template-columns: minmax(190px, 42%) minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; }
+      #cmpInfo { grid-column: 1; grid-row: 1; flex-direction: column; align-items: flex-start; margin: 4px; gap: 3px; }
+      #cmpInfo .title-box { padding: 3px 8px; font-size: .8em; }
+      #cmpInfo .day-indicator { font-size: .8em; padding: 2px 8px; }
+      #cmpInfo .drag-instruction { display: none; }
+      #cmpCtl { grid-column: 1; grid-row: 2; justify-content: flex-start; margin: 2px 4px; gap: 4px; }
+      #cmpCtl .tb { padding: 4px 8px; font-size: 11px; }
+      .a4-page > svg { grid-column: 2; grid-row: 1 / 5; }
+      .a4-page > .watermark { grid-column: 1; grid-row: 4; text-align: left; font-size: 9px; padding: 0 4px 2px; }
+    }
+    /* Print: the compass on the left and every direction listed on the right, on one A4 landscape sheet */
+    @media print {
+      @page { size: A4 landscape; margin: 8mm; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      html, body { height: auto !important; min-height: 0 !important; overflow: visible !important; background: #fff !important; padding: 0 !important; display: block !important; }
+      .a4-page { width: 100% !important; height: 188mm !important; border: 0 !important; overflow: visible !important; display: grid !important; grid-template-columns: 152mm 1fr; grid-template-rows: auto 1fr auto; column-gap: 6mm; filter: none !important; }
+      .a4-page > svg { grid-column: 1; grid-row: 1 / 4; width: 152mm !important; height: 152mm !important; align-self: center; }
+      #cmpInfo { position: static !important; grid-column: 2; grid-row: 1; max-width: none; margin: 0 0 3mm; }
+      #cmpInfo .title-box { font-size: 14pt; border: 0; padding: 0; }
+      #cmpInfo .day-indicator, #cmpInfo .drag-instruction { display: none !important; }
+      #printList { display: block !important; grid-column: 2; grid-row: 2; font: 8.5pt Arial, sans-serif; overflow: hidden; }
+      #printList .pl-row { display: grid; grid-template-columns: 14mm 1fr 1fr 1fr; gap: 2mm; padding: 0.6mm 0; border-bottom: 0.2mm solid #ddd; }
+      #printList .pl-row.rom { grid-template-columns: 14mm 1fr 1fr; }
+      #printList .pl-h { color: #777; }
+      .a4-page > .watermark { position: static !important; grid-column: 2; grid-row: 3; text-align: right; }
+      .textBox { display: block !important; opacity: 1 !important; transform: none !important; }
+      #cmpCtl, .quiz-container, .vocabulary-array, #auToast { display: none !important; }
+    }
+    @media (max-height: 520px) and (orientation: landscape) { .audio-wrap #auVol2::-webkit-slider-thumb { width: 13px; height: 13px; margin-top: -4px; } .audio-wrap #auVol2::-moz-range-thumb { width: 13px; height: 13px; } }
+    #textSizePanel { position: fixed; z-index: 700; display: none; background: #fff; color: #222; border: 1px solid #555; border-radius: 8px; padding: 6px 10px 8px; box-shadow: 0 2px 10px rgba(0,0,0,.35); font: 13px Arial, sans-serif; width: min(300px, 88vw); touch-action: none; }
+    #textSizePanel .tsHead { cursor: grab; display: flex; justify-content: space-between; align-items: center; font-weight: bold; user-select: none; margin-bottom: 4px; }
+    #textSizePanel .tsHead button { border: 0; background: none; font-size: 20px; cursor: pointer; line-height: 1; }
+    #textSizePanel .tsTarget { margin: 2px 0 4px; min-height: 1.2em; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    #textSizePanel input[type=range] { width: 100%; touch-action: pan-y; }
+    #textSizePanel .tsRow { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; }
+    #textSizePanel button.tsReset { padding: 3px 10px; cursor: pointer; }
+    .textBox:hover div { background: #fff176; border-radius: 4px; }
+    .cmp-ghost { position: fixed; z-index: 1000; left: 0; top: 0; background: #fff176; border: 1px solid #b8860b; border-radius: 5px; box-shadow: 0 8px 24px rgba(0,0,0,.45); font-family: Arial, sans-serif; font-weight: bold; color: #000; white-space: nowrap; padding: 2px 5px; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transform-origin: 50% 50%; }
+    @media print { #textSizePanel, .cmp-ghost { display: none !important; } }
 
-    /* ── Textbox inner div ── */
-    .tb-inner {
-      width: 100%; height: 100%;
-      display: flex; align-items: center; justify-content: center;
-      text-align: center; cursor: pointer;
-      border-radius: 2px; border: none;
-      background: rgba(255,255,255,0.05);
-      padding: 0.8px; line-height: 1.2;
-      word-break: break-word; overflow: hidden;
-    }
-    .tb-inner.tl   { font-size:4.3px;  font-weight:bold; color:#000; background:rgba(232,244,255,0.05); border:none; }
-    .tb-inner.sl   { font-size:4.05px; font-weight:bold; color:#000; background:rgba(232,255,243,0.05); border:none; }
-    .tb-inner.quiz { font-size:5.1px;  font-weight:bold; color:#000; background:rgba(245,234,255,0.05); border:none; }
-    .tb-inner.learned { opacity: 0.52; }
+    .textBox.visible { display: block; transform: scale(1) translateY(0); }
 
-    /* ── Title box ── */
-    #titleBox {
-      position: absolute; top: 4%; left: 5%;
-      line-height: 1.35; pointer-events: none; user-select: none;
-    }
-    #titleBox .t1 {
-      font-size: clamp(10px, 2.2vw, 22px);
-      font-weight: bold; font-style: italic; color: #555; display: block;
-    }
-    #titleBox .t2 {
-      font-size: clamp(9px, 1.9vw, 19px);
-      color: #777; display: block;
-    }
+    </style>
+    <style id="cx-style">
+/* ===== CONCEPTIONARY STYLE SHEET v0.1 (trial on the Compass, 2026-11-06) =====
+   One block of design tokens plus the rules that use them. It sits AFTER the template's own CSS and only changes looks, never behaviour.
+   Colour: ink / muted / surface / line, ONE primary (controls), ONE accent (the active word and highlight). Every text pair is 4.5:1 or better.
+   Type: one system font stack (set by script into --cx-font so the word measuring uses the same font), weights 600 and 700 only.
+   Spacing scale 4 / 8 / 12 / 16 / 24 px. Radius 10 (controls) and 16 (page card). Motion 150-250 ms, switched off by prefers-reduced-motion.
+   NOTE: inside an SVG foreignObject one CSS px is one SVG unit, so borders, radii and shadows on words are written in tiny values. */
+:root {
+  --cx-ink: #1f2937; --cx-muted: #4b5565; --cx-faint: #6b7280;
+  --cx-surface: #ffffff; --cx-bg: #eef1f7; --cx-line: #d3d9e6;
+  --cx-primary: #2a56c6; --cx-primary-dark: #1f428f; --cx-on-primary: #ffffff;
+  --cx-accent: #f2b01e; --cx-accent-soft: #fff4cf;
+  --cx-btn-bg: #e4ecf8; --cx-btn-bg-hover: #d3e0f5; --cx-btn-bg-on: #bcd0f0; --cx-btn-ink: #1d3b80; --cx-btn-line: #bccbe8;
+  --cx-disc-a: #fffdf6; --cx-disc-b: #efe8d4; --cx-disc-line: #d9cfb4;
+  --cx-s1: 4px; --cx-s2: 8px; --cx-s3: 12px; --cx-s4: 16px; --cx-s5: 24px;
+  --cx-r-ctl: 10px; --cx-r-card: 16px;
+  --cx-shadow-sm: 0 1px 2px rgba(20,30,60,.12); --cx-shadow-md: 0 4px 14px rgba(20,30,60,.16);
+  --cx-font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
+  --cx-t: 180ms ease;
+}
+html[data-scheme="night"] {
+  --cx-ink: #e6ebf7; --cx-muted: #b4bfd8; --cx-faint: #8f9cb8;
+  --cx-surface: #172036; --cx-bg: #0d1424; --cx-line: #2e3a58;
+  --cx-primary: #3d63c9; --cx-primary-dark: #2f4fa6; --cx-accent: #f2b01e; --cx-accent-soft: #3a3320;
+  --cx-btn-bg: #24304e; --cx-btn-bg-hover: #2e3c60; --cx-btn-bg-on: #3a4a74; --cx-btn-ink: #d6e0fa; --cx-btn-line: #3b4a70;
+  --cx-disc-a: #1c2846; --cx-disc-b: #121b33; --cx-disc-line: #3a4768;
+}
+body { font-family: var(--cx-font); color: var(--cx-ink); background: var(--cx-bg); }
+@media (min-width: 701px) and (min-height: 521px) {
+  body { background: radial-gradient(ellipse at 50% 30%, #ffffff 0%, var(--cx-bg) 70%); }
+  .a4-page { border: 1px solid var(--cx-line); border-radius: var(--cx-r-card); box-shadow: var(--cx-shadow-md); background: var(--cx-surface); }
+}
+.a4-page { background: var(--cx-surface); }
+/* title and indicator: quiet cards */
+.title-box { font-family: var(--cx-font); font-weight: 700; font-size: 1.05em; color: var(--cx-ink); background: var(--cx-surface); border: 1px solid var(--cx-line); border-radius: var(--cx-r-ctl); box-shadow: var(--cx-shadow-sm); padding: var(--cx-s2) var(--cx-s3); transition: box-shadow var(--cx-t), transform var(--cx-t), opacity .5s ease; }
+.title-box:hover { box-shadow: var(--cx-shadow-md); }
+.direction-indicator, .day-indicator { font-family: var(--cx-font); font-weight: 600; color: var(--cx-ink); background: var(--cx-accent-soft); border: 1px solid var(--cx-accent); border-radius: 999px; padding: var(--cx-s1) var(--cx-s3); }
+.drag-instruction { font-family: var(--cx-font); color: var(--cx-muted); background: var(--cx-surface); border: 1px solid var(--cx-line); border-radius: var(--cx-r-ctl); }
+/* controls: one button style */
+#cmpCtl .tb, .quiz-container button { font-family: var(--cx-font); font-weight: 600; letter-spacing: .01em; background: var(--cx-btn-bg); color: var(--cx-btn-ink); border: 1px solid var(--cx-btn-line); border-radius: var(--cx-r-ctl); box-shadow: var(--cx-shadow-sm); min-height: 38px; transition: background var(--cx-t), transform var(--cx-t), box-shadow var(--cx-t); }
+#cmpCtl .tb:hover { background: var(--cx-btn-bg-hover); box-shadow: var(--cx-shadow-md); }
+#cmpCtl .tb.on { background: var(--cx-btn-bg-on); border-color: var(--cx-primary); }
+#cmpCtl .tb:active, .audio-wrap:active { transform: scale(.97); box-shadow: none; }
+#cmpCtl .tb:focus-visible, .audio-wrap #auCycle:focus-visible, .tools-dd button:focus-visible { outline: 3px solid var(--cx-accent); outline-offset: 2px; }
+.audio-wrap { background: var(--cx-btn-bg); color: var(--cx-btn-ink); border: 1px solid var(--cx-btn-line); border-radius: var(--cx-r-ctl); box-shadow: var(--cx-shadow-sm); transition: background var(--cx-t); }
+.audio-wrap:hover { background: var(--cx-btn-bg-hover); }
+.audio-wrap #auVol2::-webkit-slider-runnable-track { background: linear-gradient(to right, var(--cx-primary) 0, var(--cx-primary) var(--p), var(--cx-btn-line) var(--p), var(--cx-btn-line) 100%) !important; }
+.audio-wrap #auVol2::-moz-range-track { background: var(--cx-btn-line) !important; } .audio-wrap #auVol2::-moz-range-progress { background: var(--cx-primary) !important; }
+.audio-wrap #auCycle { font-family: var(--cx-font); font-weight: 600; }
+.tools-dd { background: var(--cx-surface); border: 1px solid var(--cx-line); border-radius: 12px; box-shadow: var(--cx-shadow-md); }
+.tools-dd button { background: var(--cx-surface); color: var(--cx-btn-ink); font-family: var(--cx-font); border-bottom: 1px solid var(--cx-line); transition: background var(--cx-t); }
+.tools-dd button:hover { background: var(--cx-accent-soft); }
+#textSizePanel { font-family: var(--cx-font); background: var(--cx-surface); color: var(--cx-ink); border: 1px solid var(--cx-line); border-radius: 12px; box-shadow: var(--cx-shadow-md); }
+#textSizePanel button.tsReset { border: 1px solid var(--cx-line); border-radius: 8px; background: var(--cx-surface); color: var(--cx-ink); }
+@media (pointer: coarse) { #cmpCtl .tb { min-height: 44px; } .tools-dd button { padding-top: 12px; padding-bottom: 12px; } }
+@media (max-height: 520px) and (orientation: landscape) { #cmpCtl .tb { min-height: 32px; } }
+/* the dial */
+.circle-path, .compass-circle { stroke: var(--cx-ink); stroke-width: 0.45; }
+.degree-marker { stroke: #aab2c2; } .major-marker { stroke: #6f7889; }
+.degree-label { fill: var(--cx-faint); font-family: var(--cx-font); }
+.segment-label { font-family: var(--cx-font); fill: var(--cx-ink); }
+.quadrant-fill { fill-opacity: .42; }
+.q1-quadrant { fill: #c9defc; } .q2-quadrant { fill: #fdeaa8; } .q3-quadrant { fill: #fcd2ad; } .q4-quadrant { fill: #f8c4de; }
+.compass-rose-decoration { stroke: var(--cx-faint); opacity: .35; }
+.needle-north { fill: #d64545; stroke: #8f2323; } .needle-south { fill: #3b6fd8; stroke: #1f3f8f; }
+.compass-arrow { filter: drop-shadow(0 .6px 1px rgba(20,30,60,.35)); }
+/* words on the dial: the active word is a chip with the accent edge; the others are quiet but fully readable */
+.textBox div { font-family: var(--cx-font) !important; font-weight: 600 !important; color: var(--cx-muted) !important; text-shadow: 0 0 .8px var(--cx-surface) !important; border-radius: 1.6px; transition: background var(--cx-t), color var(--cx-t); }
+.textBox.active div { font-weight: 700 !important; color: var(--cx-ink) !important; background: rgba(255,255,255,.94); box-shadow: 0 0 0 .35px var(--cx-accent), 0 .5px 1.2px rgba(20,30,60,.2); text-shadow: none !important; }
+html[data-scheme="night"] .textBox.active div { background: rgba(23,32,54,.94); }
+.textBox:hover div { background: #fff176 !important; color: #1f2937 !important; }
+.watermark { color: var(--cx-faint); font-family: var(--cx-font); font-weight: 600; opacity: .85; }
+.cmp-ghost { font-family: var(--cx-font); border-radius: 10px; background: #fff176; border-color: var(--cx-accent); color: #1f2937; }
+html[data-scheme="night"] body { background: var(--cx-bg); }
+html[data-scheme="night"] .a4-page, html[data-scheme="night"] .title-box { background: var(--cx-surface); border-color: var(--cx-line); }
+html[data-scheme="night"] .title-box, html[data-scheme="night"] .direction-indicator { color: var(--cx-ink); }
+html[data-scheme="night"] .direction-indicator { background: var(--cx-accent-soft); border-color: var(--cx-accent); }
+html[data-scheme="night"] .quadrant-fill { fill-opacity: .22; }
+html[data-scheme="night"] .tools-dd, html[data-scheme="night"] #textSizePanel { background: var(--cx-surface); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+@media print { body { background: #fff !important; } .textBox div, .textBox.active div { color: #000 !important; background: none !important; box-shadow: none !important; } }
+/* colour disc behind the dial (inserted by script as #cxDisc) */
+#cxDisc { fill: url(#cxDiscGrad); stroke: var(--cx-disc-line); stroke-width: .35; filter: drop-shadow(0 .5px 1.2px rgba(60,50,20,.18)); }
+html[data-scheme="night"] #cxDisc { filter: none; }
+html[data-scheme="nocolour"] #cxDisc { filter: grayscale(1); }
+@media print { #cxDisc { filter: none; } }
 
-    /* ── Language mode badge ── */
-    #langBadge {
-      position: absolute; top: 4%; right: 5%;
-      padding: 5px 16px; border-radius: 14px;
-      font-size: clamp(10px, 1.6vw, 16px);
-      font-weight: bold; color: white;
-      background: #1a4f7c; white-space: nowrap;
-      pointer-events: none; user-select: none;
-    }
+/* ===== v0.3: pearl buttons and a silver slider ===== */
+:root {
+  --cx-pearl: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.95) 0%, rgba(255,255,255,.35) 38%, rgba(255,255,255,0) 62%),
+              linear-gradient(135deg, #f8f5ff 0%, #e4edfb 32%, #f3e8f5 62%, #e2f1f3 100%);
+  --cx-pearl-hover: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,1) 0%, rgba(255,255,255,.45) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #f3eefe 0%, #d6e4fa 32%, #efdff3 62%, #d3ebef 100%);
+  --cx-pearl-on: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.75) 0%, rgba(255,255,255,.2) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #cfdcf5 0%, #b3c8ee 35%, #cdbfe9 65%, #b4d9e3 100%);
+  --cx-pearl-edge: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -3px 5px rgba(110,125,175,.20), inset 0 0 0 1px rgba(255,255,255,.35);
+}
+html[data-scheme="night"] {
+  --cx-pearl: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.22) 0%, rgba(255,255,255,.07) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #2c3a5c 0%, #34456d 35%, #3a3560 65%, #2b4458 100%);
+  --cx-pearl-hover: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.3) 0%, rgba(255,255,255,.1) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #34456d 0%, #3f5486 35%, #473f78 65%, #345468 100%);
+  --cx-pearl-on: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.2) 0%, rgba(255,255,255,.05) 40%, rgba(255,255,255,0) 64%),
+              linear-gradient(135deg, #46609c 0%, #4d6bb0 35%, #5a4d98 65%, #3f6f8a 100%);
+  --cx-pearl-edge: inset 0 1px 0 rgba(255,255,255,.28), inset 0 -3px 5px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.06);
+}
+#cmpCtl .tb, .audio-wrap, .tools-dd button {
+  background-image: var(--cx-pearl); background-size: 100% 100%, 220% 220%; background-position: 0 0, 0% 0%; background-repeat: no-repeat;
+  transition: background-position .6s ease, box-shadow var(--cx-t), transform var(--cx-t), border-color var(--cx-t);
+}
+#cmpCtl .tb, .audio-wrap { box-shadow: var(--cx-pearl-edge), 0 1px 2px rgba(20,30,60,.16); }
+#cmpCtl .tb:hover, .audio-wrap:hover { background-image: var(--cx-pearl-hover); background-position: 0 0, 100% 100%; box-shadow: var(--cx-pearl-edge), 0 3px 8px rgba(20,30,60,.20); }
+#cmpCtl .tb.on { background-image: var(--cx-pearl-on); box-shadow: var(--cx-pearl-edge), 0 1px 2px rgba(20,30,60,.16); }
+#cmpCtl .tb:active, .audio-wrap:active { box-shadow: inset 0 2px 5px rgba(60,70,110,.28); }
+.tools-dd button { box-shadow: inset 0 1px 0 rgba(255,255,255,.8); }
+.tools-dd button:hover { background-image: var(--cx-pearl-hover); background-position: 0 0, 100% 100%; }
+/* Audio slider: a silver ball like the compass pivot, on a channel that darkens from light grey (quiet) to black (loud) */
+.audio-wrap #auVol2::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; border: 1px solid #8e9097; box-sizing: border-box; background: linear-gradient(to right, #e4e6ea 0%, #a9abb2 35%, #4a4b51 70%, #0b0b0d 100%) !important; box-shadow: inset 0 1px 1px rgba(0,0,0,.25); }
+.audio-wrap #auVol2::-moz-range-track { height: 6px; border-radius: 3px; border: 1px solid #8e9097; box-sizing: border-box; background: linear-gradient(to right, #e4e6ea 0%, #a9abb2 35%, #4a4b51 70%, #0b0b0d 100%) !important; }
+.audio-wrap #auVol2::-moz-range-progress { background: transparent !important; }
+.audio-wrap #auVol2::-webkit-slider-thumb { box-sizing: border-box; border: 1px solid #555; margin-top: -5px; background: radial-gradient(circle at 35% 35%, #ffffff 0%, #f5f5f5 12%, #b0b0b0 58%, #707070 100%); box-shadow: 0 1px 2px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.35); }
+.audio-wrap #auVol2::-moz-range-thumb { box-sizing: border-box; border: 1px solid #555; background: radial-gradient(circle at 35% 35%, #ffffff 0%, #f5f5f5 12%, #b0b0b0 58%, #707070 100%); box-shadow: 0 1px 2px rgba(0,0,0,.45); }
+@media (pointer: coarse) { .audio-wrap #auVol2::-webkit-slider-thumb { margin-top: -7px; } }
+@media (max-height: 520px) and (orientation: landscape) { .audio-wrap #auVol2::-webkit-slider-thumb { margin-top: -4px; } }
+html[data-scheme="night"] .tools-dd button { box-shadow: inset 0 1px 0 rgba(255,255,255,.10); }
+    
+.textBox, .textBox.active, .textBox.learned { transform: none !important; }
+.textBox.learned div { color: #1b7f3b !important; }
+.quiz-container { background: var(--cx-surface); color: var(--cx-ink); border: 1px solid var(--cx-line); border-radius: var(--cx-r-card); box-shadow: var(--cx-shadow-md); top: 50%; left: 75%; right: auto; transform: translate(-50%, -50%); width: min(340px, 92vw); max-width: none; box-sizing: border-box; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+.quiz-container input { background: var(--cx-surface); color: var(--cx-ink); border: 1px solid var(--cx-line); border-radius: 8px; font-family: var(--cx-font); box-sizing: border-box; cursor: text; user-select: text; -webkit-user-select: text; }
+.quiz-container button:hover { background: var(--cx-btn-bg-hover) !important; color: var(--cx-btn-ink) !important; }
+.learned-vocabulary { position: fixed; z-index: 600; display: none; background: var(--cx-surface); color: var(--cx-ink); border: 1px solid var(--cx-line); border-radius: 12px; box-shadow: var(--cx-shadow-md); top: 110px; left: 12px; width: 200px; max-height: calc(100vh - 40px); overflow-y: auto; touch-action: none; cursor: grab; box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+html .learned-vocabulary.has-items { display: block; }
+html.no-quiz .quiz-container, html.no-quiz .learned-vocabulary, html.no-quiz .learned-vocabulary.has-items, html.no-quiz #arrayMoveTip { display: none !important; }
+.array-title { background: var(--cx-primary); color: #fff; border-radius: 8px; font-family: var(--cx-font); text-align: left; padding: 5px 66px 5px 8px; min-height: 1.4em; }
+.vocabulary-item { background: var(--cx-surface); border-color: var(--cx-line); font-family: var(--cx-font); }
+.vocabulary-item .sl-word { color: var(--cx-muted); }
+.vocabulary-item .tl-word.hidden, .vocabulary-item .sl-word.hidden { background: var(--cx-line); }
+.toggle-visibility { background: var(--cx-btn-bg); color: var(--cx-btn-ink); border: 1px solid var(--cx-btn-line); border-radius: 8px; font-family: var(--cx-font); font-weight: 600; }
+@media (pointer: coarse) { .quiz-container input { font-size: 16px; } }
+#quizMoveHint { font: 600 14px var(--cx-font); color: var(--cx-muted); text-align: center; margin: 0 0 8px; transition: opacity .4s ease, max-height .4s ease, margin .4s ease; max-height: 30px; overflow: hidden; }
+#quizMoveHint.gone { opacity: 0; max-height: 0; margin: 0; }
+#arrayMoveTip { position: fixed; z-index: 1200; background: #1f2937; color: #fff; font: 600 14px var(--cx-font); padding: 7px 12px; border-radius: 10px; pointer-events: none; opacity: 0; transition: opacity .3s ease; white-space: nowrap; }
+#arrayMoveTip::after { content: ""; position: absolute; border: 6px solid transparent; }
+#arrayMoveTip.left::after { left: 100%; top: 50%; margin-top: -6px; border-left-color: #1f2937; }
+#arrayMoveTip.right::after { right: 100%; top: 50%; margin-top: -6px; border-right-color: #1f2937; }
+#arrayMoveTip.below::after { bottom: 100%; left: 24px; border-bottom-color: #1f2937; }
+@media print { .a4-page { background: #fff !important; } .learned-vocabulary, .quiz-container { display: none !important; } #printList .pl-gap { height: 3mm; } }
+/* a word that turns yellow under the pointer (or a touch) always shows black text, in every colour scheme and whether or not it is learned */
+html[lang] .textBox:hover div, html[lang] .textBox:active div, html[lang] .textBox.active:hover div, html[lang] .textBox.learned:hover div { color: #000 !important; text-shadow: none !important; background: #fff176 !important; }
 
-    /* ── Display All button ── */
-    #displayAllBtn {
-      position: absolute; top: 12%; right: 5%;
-      padding: 5px 11px; font-size: clamp(10px, 1.3vw, 13px);
-      background: #555; color: white;
-      border: none; border-radius: 5px; cursor: pointer; z-index: 10;
-      white-space: nowrap;
-    }
-    #displayAllBtn:hover { background: #333; }
-    #displayAllBtn.active-tl   { background: #1a4f7c; }
-    #displayAllBtn.active-sl   { background: #1a5e35; }
+.drag-instruction { max-width: min(430px, 62vw); white-space: normal; }
+/* Learned panels (layout) */
+.learned-vocabulary { padding: 6px; }
+.array-title { font-size: .9em; font-weight: bold; margin-bottom: 5px; }
+.toggle-visibility { position: absolute; top: 7px; right: 8px; font-size: .72em; padding: 3px 8px; cursor: pointer; z-index: 5; }
+.vocab-section { margin-bottom: 8px; }
+.vocabulary-item { display: flex; flex-direction: column; font-size: .8em; margin: 4px 0; padding: 5px 6px; border: 1px solid var(--cx-line); border-radius: 8px; }
+.vocabulary-item .tl-word { font-weight: bold; color: #1b7f3b; cursor: pointer; padding: 2px 5px; border-radius: 4px; }
+.vocabulary-item .sl-word { cursor: pointer; padding: 2px 5px; border-radius: 4px; }
+.vocabulary-item .tl-word.hidden, .vocabulary-item .sl-word.hidden { color: transparent; user-select: none; }
+html[data-scheme="night"] .vocabulary-item .tl-word { color: #6fdc9c; }
 
-    /* ── Mode button ── */
-    #modeBtn {
-      position:absolute; top:80%; right:13px;
-      padding:5px 13px; font-size:11px;
-      background:#2c5a9e; color:white;
-      border:none; border-radius:5px; cursor:pointer; z-index:10;
-    }
-    #modeBtn:hover { background:#1a3870; }
+/* the Quiz is a free-floating panel: fixed to the window so that it can be grabbed and dropped anywhere (it was left in the page flow, which made the move do nothing) */
+.quiz-container { position: fixed; }
 
-    /* ── Watermark ── */
-    .watermark {
-      position:absolute; bottom:6px; left:13px;
-      font-size:10px; color:rgba(0,0,0,0.22);
-      pointer-events:none; user-select:none; white-space:nowrap;
-    }
-
-    /* ── Quiz panel ── */
-    #quizPanel {
-      display:none; position:absolute;
-      background:white; border:2px solid #6c2e98;
-      border-radius:8px; padding:10px 12px; width:195px;
-      box-shadow:0 4px 16px rgba(0,0,0,0.24); z-index:200;
-      cursor: grab;
-    }
-    #quizPanel.dragging { cursor: grabbing; }
-    #quizPanel input { cursor: text; }
-    #quizPrompt { font-size:12px; color:#333; margin-bottom:6px; line-height:1.5; }
-    #quizInput  {
-      width:100%; border:1px solid #bbb; border-radius:4px;
-      padding:4px 7px; font-size:13px; margin-bottom:5px;
-    }
-    .quiz-row { display:flex; gap:5px; }
-    #quizCheck {
-      flex:1; background:#6c2e98; color:white;
-      border:none; border-radius:4px; padding:4px 0;
-      font-size:12px; cursor:pointer;
-    }
-    #quizCheck:hover { background:#561f7e; }
-    #quizClose {
-      background:#888; color:white; border:none;
-      border-radius:4px; padding:4px 8px; font-size:12px; cursor:pointer;
-    }
-    #quizFeedback { font-size:12px; min-height:16px; margin-top:5px; }
-
-    /* ── Drag hint ── */
-    #dragHint {
-      position: absolute; left: 68%; top: 40%;
-      transform: translateY(-50%);
-      font-size: clamp(12px, 1.6vw, 18px);
-      color: #000;
-      pointer-events: none; user-select: none;
-      transition: opacity 0.8s;
-      white-space: nowrap;
-      text-align: left;
-    }
-
-    /* ── Transitions display window ── */
-    #transDisplay {
-      display: none;
-      position: absolute; left: 80%; top: 50%;
-      transform: translate(-50%, -50%);
-      width: 18%; min-width: 150px;
-      background: white;
-      border: 2px solid #b03030;
-      border-radius: 10px;
-      padding: 10px 12px;
-      box-shadow: 0 3px 14px rgba(0,0,0,0.18);
-      z-index: 150; cursor: pointer;
-      text-align: center;
-    }
-    #tdMonth {
-      font-size: clamp(10px, 1.2vw, 13px);
-      color: #888; margin-bottom: 4px;
-      font-style: italic;
-    }
-    #tdContent {
-      font-size: clamp(12px, 1.6vw, 17px);
-      font-weight: bold; line-height: 1.4;
-      min-height: 24px;
-    }
-    #tdContent.td-tl   { color: #1a4f7c; }
-    #tdContent.td-sl   { color: #1a5e35; }
-    #tdContent.td-quiz { color: #6c2e98; }
-    #tdQuizArea {
-      margin-top: 8px; display: none;
-    }
-    #tdInput {
-      width: 100%; border: 1px solid #bbb; border-radius: 4px;
-      padding: 4px 7px; font-size: clamp(11px, 1.4vw, 14px);
-      margin-bottom: 4px;
-    }
-    #tdCheckBtn {
-      width: 100%; background: #6c2e98; color: white;
-      border: none; border-radius: 4px;
-      padding: 4px 0; font-size: clamp(11px, 1.3vw, 13px);
-      cursor: pointer;
-    }
-    #tdCheckBtn:hover { background: #561f7e; }
-    #tdFeedback {
-      font-size: clamp(10px, 1.2vw, 12px);
-      min-height: 14px; margin-top: 4px;
-    }
-    #tdLearned {
-      font-size: clamp(9px, 1.1vw, 11px);
-      color: #1a5e35; margin-top: 3px;
-    }
-
-    /* ── States Mode vocabulary array dropdown ── */
-    #statesVocabArray {
-      display: none;
-      position: absolute; left: 5%; top: 10%;
-      width: 22%; min-width: 160px;
-      z-index: 140;
-    }
-    #statesVocabToggle {
-      background: #1a5e35; color: white;
-      border: none; border-radius: 6px;
-      padding: 5px 10px; font-size: clamp(10px, 1.2vw, 13px);
-      cursor: pointer; width: 100%; text-align: left;
-    }
-    #statesVocabToggle:hover { background: #134a28; }
-    #statesVocabList {
-      display: none;
-      background: white; border: 1px solid #bbb;
-      border-radius: 0 0 6px 6px;
-      max-height: 30vh; overflow-y: auto;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-
-    /* ── Vocabulary array dropdown (Transitions Mode) ── */
-    #vocabArray {
-      display: none;
-      position: absolute; left: 5%; top: 10%;
-      width: 22%; min-width: 160px;
-      z-index: 140;
-    }
-    #vocabToggle {
-      background: #2c5a9e; color: white;
-      border: none; border-radius: 6px;
-      padding: 5px 10px; font-size: clamp(10px, 1.2vw, 13px);
-      cursor: pointer; width: 100%; text-align: left;
-    }
-    #vocabToggle:hover { background: #1a3870; }
-    #vocabList {
-      display: none;
-      background: white; border: 1px solid #bbb;
-      border-radius: 0 0 6px 6px;
-      max-height: 30vh; overflow-y: auto;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    .vocab-entry {
-      padding: 5px 8px; border-bottom: 1px solid #eee;
-      font-size: clamp(9px, 1.1vw, 12px); line-height: 1.5;
-    }
-    .vocab-entry:last-child { border-bottom: none; }
-    .ve-tl   { color: #1a4f7c; }
-    .ve-sl   { color: #1a5e35; }
-
-    /* ── Segment tooltip ── */
-    #segTooltip {
-      display:none; position:absolute;
-      background:rgba(255,255,255,0.97);
-      border:1px solid #bbb; border-radius:6px;
-      padding:5px 10px; font-size:12px; color:#333;
-      white-space:nowrap; pointer-events:none;
-      box-shadow:0 2px 8px rgba(0,0,0,0.18);
-      z-index:300; line-height:1.6;
-    }
-    #segTooltip .tt-month  { font-weight:bold; font-size:13px; }
-    #segTooltip .tt-season { font-size:12px; color:#555; }
-  </style>
+/* ===== RICE: wheel, badge, window ===== */
+#hubBg { fill: var(--cx-surface); }
+#hubTL { fill: var(--cx-ink); } #hubSL { fill: var(--cx-muted); }
+.seg { transition: filter .2s ease; }
+#draggableFrame { cursor: grab; pointer-events: all; }
+#draggableFrame.dragging { cursor: grabbing; opacity: .5; }
+#svgCanvas text { font-family: var(--cx-font); }
+#slideText { stroke: #fff; stroke-width: .5px; paint-order: stroke; }
+#slideText.k-tlr, #tdContent.k-tlr, #langBadge.k-tlr { fill: #b03030; color: #b03030; } #slideText.k-tl { fill: #1a4f7c; } #slideText.k-sl { fill: #1a5e35; }
+#langBadge { display: inline-block; padding: 4px 14px; border-radius: 14px; color: #fff; font: 700 clamp(11px, 1.5vw, 15px) var(--cx-font); white-space: nowrap; pointer-events: none; }
+#langBadge.k-tlr { background: #b03030; color: #fff; } #langBadge.k-tl { background: #1a4f7c; } #langBadge.k-sl { background: #1a5e35; } #langBadge.k-quiz { background: #6c2e98; }
+.title-box { text-align: left; line-height: 1.35; cursor: default; } .title-box .t1 { display: block; font-weight: 700; font-style: italic; font-size: clamp(11px, 1.6vw, 18px); } .title-box .t2 { display: block; font-weight: 400; font-size: clamp(10px, 1.3vw, 15px); opacity: .8; }
+#transDisplay { display: none; position: fixed; touch-action: none; left: 85%; top: 52%; transform: translate(-50%, -50%); width: 18%; min-width: 150px; background: var(--cx-surface); color: var(--cx-ink); border: 2px solid #b03030; border-radius: 12px; padding: 10px 12px; box-shadow: 0 3px 14px rgba(0,0,0,.25); z-index: 30; cursor: grab; text-align: center; }
+#tdMonth { font-size: clamp(10px, 1.2vw, 13px); color: var(--cx-muted); font-style: italic; margin-bottom: 4px; }
+#tdContent { font-weight: 700; line-height: 1.4; min-height: 24px; font-size: 1.1em; }
+#tdContent.k-tlr { color: #d85a5a; } #tdContent.k-tl { color: #1a4f7c; } #tdContent.k-sl { color: #1a8a4c; }
+html[data-scheme="night"] #tdContent.k-tl { color: #8ec5ff; } html[data-scheme="night"] #tdContent.k-sl { color: #6fdc9c; } html[data-scheme="night"] #tdContent.k-tlr { color: #ff9a9a; }
+#tdLearned { font-size: clamp(9px, 1.1vw, 11px); color: #1b7f3b; margin-top: 3px; min-height: 12px; }
+#segTooltip { display: none; position: absolute; background: var(--cx-surface); color: var(--cx-ink); border: 1px solid var(--cx-line); border-radius: 8px; padding: 5px 10px; font-size: 12px; white-space: nowrap; pointer-events: none; box-shadow: 0 2px 8px rgba(0,0,0,.25); z-index: 300; line-height: 1.6; }
+#segTooltip .tt-month { font-weight: 700; font-size: 13px; } #segTooltip .tt-season { color: var(--cx-muted); }
+.array-sub { font: 600 .8em var(--cx-font); color: var(--cx-muted); text-align: center; margin: 4px 0; }
+html.m-trans #learned-vocabulary-left, html:not(.m-trans) #learned-vocabulary-right { display: none !important; }
+.vocabulary-item .tlr-word { font-weight: 700; color: #d85a5a; cursor: pointer; padding: 2px 5px; border-radius: 4px; }
+.vocabulary-item .w.hidden { color: transparent; user-select: none; background: var(--cx-line); }
+.vocabulary-item .mo { font-size: .75em; color: var(--cx-muted); align-self: flex-end; }
+#quizPrompt { font-size: 14px; line-height: 1.5; margin-bottom: 6px; } #quizPrompt strong { color: #1a8a4c; font-size: 16px; }
+.drag-instruction { max-width: min(430px, 62vw); white-space: normal; }
+@media (max-width: 700px) { #transDisplay { left: 50%; top: auto; bottom: 8%; transform: translateX(-50%); } }
+@media print { .a4-page { background: #fff !important; } #transDisplay, #segTooltip { display: none !important; } #draggableFrame { stroke-width: .4px; } #langBadge { display: none; } }
+    </style>
 </head>
 <body>
-<div class="a4-page" id="page">
-  <svg id="mainSvg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+    <div class="a4-page" id="page">
+        <div id="cmpInfo">
+            <div id="title-box" class="title-box"></div>
+            <div id="langBadge" class="k-tl"></div>
+            <div id="drag-instruction" class="drag-instruction"></div>
+        </div>
+        <div id="cmpCtl">
+            <button id="display-mode-toggle" class="display-mode-toggle tb" type="button" title="Change the language shown on every word">Show: TL</button>
+            <button id="show-all-toggle" class="tb" type="button" title="Show every growth stage at once (States mode)">Show All</button>
+            <button id="mode-btn" class="tb" type="button" title="Switch between the growth stages (States) and the farming activities (Transitions)">Transitions</button>
+            <button id="reset-btn" class="tb" type="button" title="Back to the starting view">Reset</button>
+            <div class="tools-wrap" id="toolsWrap">
+                <button id="toolsBtn" class="tb" type="button" aria-haspopup="true" title="Colours, Text size and Print">Tools &#9660;</button>
+                <div class="tools-dd" id="toolsMenu">
+                    <button id="colourBtn" type="button" title="Try different colour schemes">Colours: Night</button>
+                    <button id="textSizeBtn" type="button" title="Enlarge or shrink any word">Text size&hellip;</button>
+                    <button id="printBtn" type="button" title="Print this page on one A4 landscape sheet">Print</button>
+                </div>
+            </div>
+            <button id="fsBtn" class="tb" type="button" onclick="toggleFullScreen()">Full Screen</button>
+        </div>
+        <svg id="svgCanvas" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
     <defs>
-      <!-- Transitions mode ring at r=29 -->
-      <path id="ringPath"
-        d="M 50 21 A 29 29 0 0 1 79 50 A 29 29 0 0 1 50 79 A 29 29 0 0 1 21 50 A 29 29 0 0 1 50 21"/>
-
-      <!-- Water ring text paths at r=44.5 -->
-      <!-- Top half (fallow): clockwise from left (270°) over top to right (90°) -->
+      <path id="ringPath" d="M 50 21 A 29 29 0 0 1 79 50 A 29 29 0 0 1 50 79 A 29 29 0 0 1 21 50 A 29 29 0 0 1 50 21"/>
       <path id="topTextPath" d="M 5.5 50 A 44.5 44.5 0 1 1 94.5 50"/>
-      <!-- Bottom half (flooded): anticlockwise from left (270°) under bottom to right (90°) -->
       <path id="botTextPath" d="M 5.5 50 A 44.5 44.5 0 1 0 94.5 50"/>
-
-      <!-- Arrow marker -->
-      <marker id="arr" markerWidth="3.5" markerHeight="3.5" refX="2" refY="1.75" orient="auto">
-        <path d="M 0 0 L 3.5 1.75 L 0 3.5 Z" fill="#555"/>
-      </marker>
+      <marker id="arr" markerWidth="3.5" markerHeight="3.5" refX="2" refY="1.75" orient="auto"><path d="M 0 0 L 3.5 1.75 L 0 3.5 Z" fill="#888"/></marker>
     </defs>
-
-    <!-- ══════════════════════════════════════════════════════════
-         WATER OUTER RING  (r=42 inner, r=47 outer)
-         Split at 270° (left / Oct–Nov) and 90° (right / Mar–Apr)
-         TOP HALF  = fallow / rain-dependent  (tan/sand)
-         BOTTOM HALF = flooded / controlled  (blue)
-    ══════════════════════════════════════════════════════════ -->
-
-    <!-- Fallow ring — top half, clockwise from 270° over top to 90° -->
-    <path d="M 3 50 A 47 47 0 1 1 97 50 L 92 50 A 42 42 0 1 0 8 50 Z"
-          fill="#b8a070" opacity="0.82"/>
-
-    <!-- Flooded ring — bottom half, clockwise from 90° under bottom to 270° -->
-    <path d="M 97 50 A 47 47 0 1 1 3 50 L 8 50 A 42 42 0 1 0 92 50 Z"
-          fill="#2060a0" opacity="0.85"/>
-
-    <!-- Water ring text labels -->
-    <text font-size="1.7" fill="white" font-weight="bold" letter-spacing="0.05">
-      <textPath href="#topTextPath" startOffset="18%">RING_LABEL_FALLOW_PLACEHOLDER</textPath>
-    </text>
-    <text font-size="1.7" fill="white" font-weight="bold" letter-spacing="0.05">
-      <textPath href="#botTextPath" startOffset="14%">RING_LABEL_FLOODED_PLACEHOLDER</textPath>
-    </text>
-
-    <!-- ══════════════════════════════════════════════════════════
-         12 MONTH SEGMENTS  (r=16 inner, r=42 outer, 30° each)
-         Clockwise from top (0° = 12 o'clock):
-           Jan  0°→30°   midpt 15°
-           Feb  30°→60°  midpt 45°
-           Mar  60°→90°  midpt 75°   ← vocab starts
-           Apr  90°→120° midpt 105°
-           May  120°→150° midpt 135°
-           Jun  150°→180° midpt 165°
-           Jul  180°→210° midpt 195°
-           Aug  210°→240° midpt 225°
-           Sep  240°→270° midpt 255°
-           Oct  270°→300° midpt 285°  ← vocab ends
-           Nov  300°→330° midpt 315°
-           Dec  330°→360° midpt 345°
-
-         Outer r=42 points (50+42·sinθ, 50−42·cosθ):
-           0°  (50.00,  8.00)   30° (71.00, 13.63)   60° (86.37, 29.00)
-          90°  (92.00, 50.00)  120° (86.37, 71.00)  150° (71.00, 86.37)
-         180°  (50.00, 92.00)  210° (29.00, 86.37)  240° (13.63, 71.00)
-         270°   (8.00, 50.00)  300° (13.63, 29.00)  330° (29.00, 13.63)
-
-         Inner r=16 points (50+16·sinθ, 50−16·cosθ):
-           0°  (50.00, 34.00)   30° (58.00, 36.14)   60° (63.86, 42.00)
-          90°  (66.00, 50.00)  120° (63.86, 58.00)  150° (58.00, 63.86)
-         180°  (50.00, 66.00)  210° (42.00, 63.86)  240° (36.14, 58.00)
-         270°  (34.00, 50.00)  300° (36.14, 42.00)  330° (42.00, 36.14)
-    ══════════════════════════════════════════════════════════ -->
-
-    <!-- Jan (0°→30°) fallow -->
-    <path id="seg0"  class="seg" data-seg="0"
-      d="M 50.00 8.00 A 42 42 0 0 1 71.00 13.63 L 58.00 36.14 A 16 16 0 0 0 50.00 34.00 Z"
-      fill="#c8b48a" stroke="white" stroke-width="0.5"/>
-    <!-- Feb (30°→60°) fallow -->
-    <path id="seg1"  class="seg" data-seg="1"
-      d="M 71.00 13.63 A 42 42 0 0 1 86.37 29.00 L 63.86 42.00 A 16 16 0 0 0 58.00 36.14 Z"
-      fill="#c0aa80" stroke="white" stroke-width="0.5"/>
-    <!-- Mar (60°→90°) seed planting -->
-    <path id="seg2"  class="seg" data-seg="2"
-      d="M 86.37 29.00 A 42 42 0 0 1 92.00 50.00 L 66.00 50.00 A 16 16 0 0 0 63.86 42.00 Z"
-      fill="#b09050" stroke="white" stroke-width="0.5"/>
-    <!-- Apr (90°→120°) germination -->
-    <path id="seg3"  class="seg" data-seg="3"
-      d="M 92.00 50.00 A 42 42 0 0 1 86.37 71.00 L 63.86 58.00 A 16 16 0 0 0 66.00 50.00 Z"
-      fill="#90bc58" stroke="white" stroke-width="0.5"/>
-    <!-- May (120°→150°) sprout -->
-    <path id="seg4"  class="seg" data-seg="4"
-      d="M 86.37 71.00 A 42 42 0 0 1 71.00 86.37 L 58.00 63.86 A 16 16 0 0 0 63.86 58.00 Z"
-      fill="#60aa38" stroke="white" stroke-width="0.5"/>
-    <!-- Jun (150°→180°) seedling / transplant -->
-    <path id="seg5"  class="seg" data-seg="5"
-      d="M 71.00 86.37 A 42 42 0 0 1 50.00 92.00 L 50.00 66.00 A 16 16 0 0 0 58.00 63.86 Z"
-      fill="#389828" stroke="white" stroke-width="0.5"/>
-    <!-- Jul (180°→210°) plant / vegetative -->
-    <path id="seg6"  class="seg" data-seg="6"
-      d="M 50.00 92.00 A 42 42 0 0 1 29.00 86.37 L 42.00 63.86 A 16 16 0 0 0 50.00 66.00 Z"
-      fill="#286820" stroke="white" stroke-width="0.5"/>
-    <!-- Aug (210°→240°) plant with flowers -->
-    <path id="seg7"  class="seg" data-seg="7"
-      d="M 29.00 86.37 A 42 42 0 0 1 13.63 71.00 L 36.14 58.00 A 16 16 0 0 0 42.00 63.86 Z"
-      fill="#389030" stroke="white" stroke-width="0.5"/>
-    <!-- Sep (240°→270°) plant with fruit -->
-    <path id="seg8"  class="seg" data-seg="8"
-      d="M 13.63 71.00 A 42 42 0 0 1 8.00 50.00 L 34.00 50.00 A 16 16 0 0 0 36.14 58.00 Z"
-      fill="#90c010" stroke="white" stroke-width="0.5"/>
-    <!-- Oct (270°→300°) seeds / harvest -->
-    <path id="seg9"  class="seg" data-seg="9"
-      d="M 8.00 50.00 A 42 42 0 0 1 13.63 29.00 L 36.14 42.00 A 16 16 0 0 0 34.00 50.00 Z"
-      fill="#d4aa18" stroke="white" stroke-width="0.5"/>
-    <!-- Nov (300°→330°) fallow -->
-    <path id="seg10" class="seg" data-seg="10"
-      d="M 13.63 29.00 A 42 42 0 0 1 29.00 13.63 L 42.00 36.14 A 16 16 0 0 0 36.14 42.00 Z"
-      fill="#b89060" stroke="white" stroke-width="0.5"/>
-    <!-- Dec (330°→360°) fallow -->
-    <path id="seg11" class="seg" data-seg="11"
-      d="M 29.00 13.63 A 42 42 0 0 1 50.00 8.00 L 50.00 34.00 A 16 16 0 0 0 42.00 36.14 Z"
-      fill="#c8b48a" stroke="white" stroke-width="0.5"/>
-
-    <!-- Ring borders -->
+    <path d="M 3 50 A 47 47 0 1 1 97 50 L 92 50 A 42 42 0 1 0 8 50 Z" fill="#b8a070" opacity="0.82"/>
+    <path d="M 97 50 A 47 47 0 1 1 3 50 L 8 50 A 42 42 0 1 0 92 50 Z" fill="#2060a0" opacity="0.85"/>
+    <text font-size="1.7" fill="white" font-weight="bold" letter-spacing="0.05"><textPath id="ringTop" href="#topTextPath" startOffset="18%"></textPath></text>
+    <text font-size="1.7" fill="white" font-weight="bold" letter-spacing="0.05"><textPath id="ringBot" href="#botTextPath" startOffset="14%"></textPath></text>
+    <path id="seg0" class="seg" data-seg="0" d="M 50.00 8.00 A 42 42 0 0 1 71.00 13.63 L 58.00 36.14 A 16 16 0 0 0 50.00 34.00 Z" fill="#c8b48a" stroke="white" stroke-width="0.5"/>
+    <path id="seg1" class="seg" data-seg="1" d="M 71.00 13.63 A 42 42 0 0 1 86.37 29.00 L 63.86 42.00 A 16 16 0 0 0 58.00 36.14 Z" fill="#c0aa80" stroke="white" stroke-width="0.5"/>
+    <path id="seg2" class="seg" data-seg="2" d="M 86.37 29.00 A 42 42 0 0 1 92.00 50.00 L 66.00 50.00 A 16 16 0 0 0 63.86 42.00 Z" fill="#b09050" stroke="white" stroke-width="0.5"/>
+    <path id="seg3" class="seg" data-seg="3" d="M 92.00 50.00 A 42 42 0 0 1 86.37 71.00 L 63.86 58.00 A 16 16 0 0 0 66.00 50.00 Z" fill="#90bc58" stroke="white" stroke-width="0.5"/>
+    <path id="seg4" class="seg" data-seg="4" d="M 86.37 71.00 A 42 42 0 0 1 71.00 86.37 L 58.00 63.86 A 16 16 0 0 0 63.86 58.00 Z" fill="#60aa38" stroke="white" stroke-width="0.5"/>
+    <path id="seg5" class="seg" data-seg="5" d="M 71.00 86.37 A 42 42 0 0 1 50.00 92.00 L 50.00 66.00 A 16 16 0 0 0 58.00 63.86 Z" fill="#389828" stroke="white" stroke-width="0.5"/>
+    <path id="seg6" class="seg" data-seg="6" d="M 50.00 92.00 A 42 42 0 0 1 29.00 86.37 L 42.00 63.86 A 16 16 0 0 0 50.00 66.00 Z" fill="#286820" stroke="white" stroke-width="0.5"/>
+    <path id="seg7" class="seg" data-seg="7" d="M 29.00 86.37 A 42 42 0 0 1 13.63 71.00 L 36.14 58.00 A 16 16 0 0 0 42.00 63.86 Z" fill="#389030" stroke="white" stroke-width="0.5"/>
+    <path id="seg8" class="seg" data-seg="8" d="M 13.63 71.00 A 42 42 0 0 1 8.00 50.00 L 34.00 50.00 A 16 16 0 0 0 36.14 58.00 Z" fill="#90c010" stroke="white" stroke-width="0.5"/>
+    <path id="seg9" class="seg" data-seg="9" d="M 8.00 50.00 A 42 42 0 0 1 13.63 29.00 L 36.14 42.00 A 16 16 0 0 0 34.00 50.00 Z" fill="#d4aa18" stroke="white" stroke-width="0.5"/>
+    <path id="seg10" class="seg" data-seg="10" d="M 13.63 29.00 A 42 42 0 0 1 29.00 13.63 L 42.00 36.14 A 16 16 0 0 0 36.14 42.00 Z" fill="#b89060" stroke="white" stroke-width="0.5"/>
+    <path id="seg11" class="seg" data-seg="11" d="M 29.00 13.63 A 42 42 0 0 1 50.00 8.00 L 50.00 34.00 A 16 16 0 0 0 42.00 36.14 Z" fill="#c8b48a" stroke="white" stroke-width="0.5"/>
     <circle cx="50" cy="50" r="42" fill="none" stroke="#444" stroke-width="0.4"/>
-    <circle cx="50" cy="50" r="16" fill="white" stroke="#444" stroke-width="0.4"/>
-
-    <!-- Clockwise direction arrow near top -->
-    <path d="M 54 8.4 Q 57 6.8 59.5 9.8"
-          fill="none" stroke="#555" stroke-width="0.65" marker-end="url(#arr)"/>
-
-    <!-- ══════════════════════════════════════════════════════════
-         MONTH NAME LABELS  (r=35, tangential rotation)
-         Position: x=50+35·sinθ,  y=50−35·cosθ   (θ = segment midpoint)
-         Rotation = θ degrees about the label centre
-    ══════════════════════════════════════════════════════════ -->
-    <!-- Jan  15°  → (59.05, 16.18) -->
-    <text transform="rotate(15,59.05,16.18)"  x="59.05" y="15.2"
-          text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.70)">Jan</text>
-    <!-- Feb  45°  → (74.75, 25.25) -->
-    <text transform="rotate(45,74.75,25.25)"  x="74.75" y="24.3"
-          text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.70)">Feb</text>
-    <!-- Mar  75°  → (83.82, 40.95) -->
-    <text transform="rotate(75,83.82,40.95)"  x="83.82" y="40.0"
-          text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.78)">Mar</text>
-    <!-- Apr 105°  → (83.82, 59.05) -->
-    <text transform="rotate(105,83.82,59.05)" x="83.82" y="58.1"
-          text-anchor="middle" font-size="2.4" font-weight="bold" fill="white">Apr</text>
-    <!-- May 135°  → (74.75, 74.75) -->
-    <text transform="rotate(135,74.75,74.75)" x="74.75" y="73.8"
-          text-anchor="middle" font-size="2.4" font-weight="bold" fill="white">May</text>
-    <!-- Jun 165°  → (59.05, 83.82) -->
-    <text transform="rotate(165,59.05,83.82)" x="59.05" y="82.9"
-          text-anchor="middle" font-size="2.4" font-weight="bold" fill="white">Jun</text>
-    <!-- Jul 195°  → (40.95, 83.82) -->
-    <text transform="rotate(195,40.95,83.82)" x="40.95" y="82.9"
-          text-anchor="middle" font-size="2.4" font-weight="bold" fill="white">Jul</text>
-    <!-- Aug 225°  → (25.25, 74.75) -->
-    <text transform="rotate(225,25.25,74.75)" x="25.25" y="73.8"
-          text-anchor="middle" font-size="2.4" font-weight="bold" fill="white">Aug</text>
-    <!-- Sep 255°  → (16.18, 59.05) -->
-    <text transform="rotate(255,16.18,59.05)" x="16.18" y="58.1"
-          text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.78)">Sep</text>
-    <!-- Oct 285°  → (16.18, 40.95) -->
-    <text transform="rotate(285,16.18,40.95)" x="16.18" y="40.0"
-          text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.78)">Oct</text>
-    <!-- Nov 315°  → (25.25, 25.25) -->
-    <text transform="rotate(315,25.25,25.25)" x="25.25" y="24.3"
-          text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.70)">Nov</text>
-    <!-- Dec 345°  → (40.95, 16.18) -->
-    <text transform="rotate(345,40.95,16.18)" x="40.95" y="15.2"
-          text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.70)">Dec</text>
-
-    <!-- ══════════════════════════════════════════════════════════
-         CENTRAL HUB
-    ══════════════════════════════════════════════════════════ -->
-    <text x="50" y="45.5" text-anchor="middle" font-size="4.2" fill="#333">🌾</text>
-    <text x="50" y="51"   text-anchor="middle" font-size="2.8" font-weight="bold" fill="#2c3e50">TL_HUB_LABEL</text>
-    <text x="50" y="55.5" text-anchor="middle" font-size="2.2" fill="#555">SL_HUB_LABEL</text>
-
-    <!-- LAYER BADGE → now an HTML element outside SVG -->
-
-    <!-- ══════════════════════════════════════════════════════════
-         TEXTBOXES  (active months Mar=2 … Oct=9)
-         Centre at r=29;  w=18 h=10;  FO x=cx−9, y=cy−5
-         cx=50+29·sinθ,  cy=50−29·cosθ  (θ=segment midpoint)
-
-         Mar  75°: cx=78.01 cy=42.49 → FO(69.01, 37.49)
-         Apr 105°: cx=78.01 cy=57.51 → FO(69.01, 52.51)
-         May 135°: cx=70.51 cy=70.51 → FO(61.51, 65.51)
-         Jun 165°: cx=57.51 cy=78.01 → FO(48.51, 73.01)
-         Jul 195°: cx=42.49 cy=78.01 → FO(33.49, 73.01)
-         Aug 225°: cx=29.49 cy=70.51 → FO(20.49, 65.51)
-         Sep 255°: cx=21.99 cy=57.51 → FO(12.99, 52.51)
-         Oct 285°: cx=21.99 cy=42.49 → FO(12.99, 37.49)
-    ══════════════════════════════════════════════════════════ -->
-
-    <foreignObject id="tb2" x="64.51" y="34.99" width="27" height="15"
-                   style="display:none; overflow:visible;">
-      <div xmlns="http://www.w3.org/1999/xhtml" class="tb-inner tl">TL-S1</div>
-    </foreignObject>
-
-    <foreignObject id="tb3" x="64.51" y="50.01" width="27" height="15"
-                   style="display:none; overflow:visible;">
-      <div xmlns="http://www.w3.org/1999/xhtml" class="tb-inner tl">TL-S2</div>
-    </foreignObject>
-
-    <foreignObject id="tb4" x="57.01" y="63.01" width="27" height="15"
-                   style="display:none; overflow:visible;">
-      <div xmlns="http://www.w3.org/1999/xhtml" class="tb-inner tl">TL-S3</div>
-    </foreignObject>
-
-    <foreignObject id="tb5" x="44.01" y="70.51" width="27" height="15"
-                   style="display:none; overflow:visible;">
-      <div xmlns="http://www.w3.org/1999/xhtml" class="tb-inner tl">TL-S4</div>
-    </foreignObject>
-
-    <foreignObject id="tb6" x="28.99" y="70.51" width="27" height="15"
-                   style="display:none; overflow:visible;">
-      <div xmlns="http://www.w3.org/1999/xhtml" class="tb-inner tl">TL-S5</div>
-    </foreignObject>
-
-    <foreignObject id="tb7" x="15.99" y="63.01" width="27" height="15"
-                   style="display:none; overflow:visible;">
-      <div xmlns="http://www.w3.org/1999/xhtml" class="tb-inner tl">TL-S6</div>
-    </foreignObject>
-
-    <foreignObject id="tb8" x="8.49" y="50.01" width="27" height="15"
-                   style="display:none; overflow:visible;">
-      <div xmlns="http://www.w3.org/1999/xhtml" class="tb-inner tl">TL-S7</div>
-    </foreignObject>
-
-    <foreignObject id="tb9" x="8.49" y="34.99" width="27" height="15"
-                   style="display:none; overflow:visible;">
-      <div xmlns="http://www.w3.org/1999/xhtml" class="tb-inner tl">TL-S8</div>
-    </foreignObject>
-
-    <!-- ══════════════════════════════════════════════════════════
-         TRANSITIONS MODE SLIDING TEXT  (r=29 ring)
-    ══════════════════════════════════════════════════════════ -->
-    <text id="slideText" style="display:none; font-weight:bold; fill:#b03030; cursor:pointer;">
-      <textPath id="slideTP" href="#ringPath" startOffset="20%">TL-T1</textPath>
-    </text>
-
-    <!-- ══════════════════════════════════════════════════════════
-         DRAGGABLE FRAME  (orbits at r=44, between month labels
-         and the water ring inner edge at r=42)
-         Initial position: March midpoint 75°
-         cx=50+44·sin75°=92.50,  cy=50−44·cos75°=38.61
-    ══════════════════════════════════════════════════════════ -->
-    <circle id="dragRing" cx="92.50" cy="38.61" r="4.5"
-            fill="rgba(255,255,180,0.55)" stroke="rgba(80,60,20,0.55)" stroke-width="0.55"
-            style="cursor:grab;"/>
-    <circle id="dragDot"  cx="92.50" cy="38.61" r="1.5"
-            fill="#333" pointer-events="none"/>
-
-    <!-- Drag hint → now an HTML element outside SVG -->
-  </svg>
-
-  <button id="modeBtn">TRANS_MODE_LABEL</button>
-  <div class="watermark">© 2026 Alan William Preston — GP Cycle Template</div>
-  <div id="segTooltip"></div>
-  <div id="dragHint">← grab and drag the sun around the annual cycle →</div>
-  <div id="titleBox">
-    <span class="t1">TL_TITLE</span>
-    <span class="t2">SL_TITLE</span>
-  </div>
-  <div id="langBadge">TL_BADGE_LABEL</div>
-  <button id="displayAllBtn">DISPLAY_ALL_TL_LABEL</button>
-
-  <!-- Transitions Mode display window -->
-  <div id="transDisplay">
-    <div id="tdMonth">January</div>
-    <div id="tdContent" class="td-tl">TL-T-Fallow</div>
-    <div id="tdQuizArea">
-      <input id="tdInput" type="text" autocomplete="off" autocorrect="off"
-             autocapitalize="off" spellcheck="false" placeholder="QUIZ_PLACEHOLDER_LABEL"/>
-      <button id="tdCheckBtn">Check ✓</button>
-      <div id="tdFeedback"></div>
+    <circle id="hubBg" cx="50" cy="50" r="16" stroke="#444" stroke-width="0.4"/>
+    <path d="M 54 8.4 Q 57 6.8 59.5 9.8" fill="none" stroke="#888" stroke-width="0.65" marker-end="url(#arr)"/>
+    <text id="mlab0" transform="rotate(15,59.06,16.19)" x="59.06" y="15.24" text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.70)"></text>
+    <text id="mlab1" transform="rotate(45,74.75,25.25)" x="74.75" y="24.30" text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.70)"></text>
+    <text id="mlab2" transform="rotate(75,83.81,40.94)" x="83.81" y="39.99" text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.78)"></text>
+    <text id="mlab3" transform="rotate(105,83.81,59.06)" x="83.81" y="58.11" text-anchor="middle" font-size="2.4" font-weight="bold" fill="white"></text>
+    <text id="mlab4" transform="rotate(135,74.75,74.75)" x="74.75" y="73.80" text-anchor="middle" font-size="2.4" font-weight="bold" fill="white"></text>
+    <text id="mlab5" transform="rotate(165,59.06,83.81)" x="59.06" y="82.86" text-anchor="middle" font-size="2.4" font-weight="bold" fill="white"></text>
+    <text id="mlab6" transform="rotate(195,40.94,83.81)" x="40.94" y="82.86" text-anchor="middle" font-size="2.4" font-weight="bold" fill="white"></text>
+    <text id="mlab7" transform="rotate(225,25.25,74.75)" x="25.25" y="73.80" text-anchor="middle" font-size="2.4" font-weight="bold" fill="white"></text>
+    <text id="mlab8" transform="rotate(255,16.19,59.06)" x="16.19" y="58.11" text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.78)"></text>
+    <text id="mlab9" transform="rotate(285,16.19,40.94)" x="16.19" y="39.99" text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.78)"></text>
+    <text id="mlab10" transform="rotate(315,25.25,25.25)" x="25.25" y="24.30" text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.70)"></text>
+    <text id="mlab11" transform="rotate(345,40.94,16.19)" x="40.94" y="15.24" text-anchor="middle" font-size="2.4" font-weight="bold" fill="rgba(0,0,0,0.70)"></text>
+    <text x="50" y="45.5" text-anchor="middle" font-size="4.2">🌾</text>
+    <text id="hubTL" x="50" y="51" text-anchor="middle" font-size="2.8" font-weight="bold"></text>
+    <text id="hubSL" x="50" y="55.5" text-anchor="middle" font-size="2.2"></text>
+    <text id="slideText" style="display:none; font-weight:bold; cursor:pointer;"><textPath id="slideTP" href="#ringPath" startOffset="20%"></textPath></text>
+    <circle id="draggableFrame" cx="92.50" cy="38.61" r="4.5" fill="rgba(255,255,180,0.55)" stroke="rgba(80,60,20,0.55)" stroke-width="0.55"/>
+    <circle id="dragDot" cx="92.50" cy="38.61" r="1.5" fill="#333" pointer-events="none"/>
+        </svg>
+        <div id="transDisplay"><div id="tdMonth"></div><div id="tdContent"></div><div id="tdLearned"></div></div>
+        <div id="segTooltip"></div>
+        <div id="printList"></div>
+        <div class="watermark">&copy; 2026 Alan William Preston</div>
     </div>
-    <div id="tdLearned"></div>
-  </div>
+    <div id="learned-vocabulary-left" class="learned-vocabulary">
+        <div class="array-title" id="array-title-left"></div>
+        <button class="toggle-visibility" id="toggle-learned-left" type="button"></button>
+        <div class="array-sub" id="sub-left"></div>
+        <div id="learned-items-left"></div>
+    </div>
+    <div id="learned-vocabulary-right" class="learned-vocabulary">
+        <div class="array-title" id="array-title-right"></div>
+        <button class="toggle-visibility" id="toggle-learned-right" type="button"></button>
+        <div class="array-sub" id="sub-right"></div>
+        <div id="learned-items-right"></div>
+    </div>
+    <div id="textSizePanel">
+        <div class="tsHead"><span>Text size</span><button type="button" id="tsClose" aria-label="Close">&times;</button></div>
+        <div class="tsTarget" id="tsTarget">Click a word, then slide</div>
+        <input type="range" id="tsRange" min="50" max="300" step="5" value="100">
+        <div class="tsRow"><label><input type="checkbox" id="tsAll"> All words</label><span id="tsVal">100%</span><button type="button" class="tsReset" id="tsReset">Reset</button></div>
+    </div>
+    <div id="quizContainer" class="quiz-container">
+        <div id="quizPrompt"></div>
+        <input type="text" id="quizInput" placeholder="QUIZ_PLACEHOLDER" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button id="quizCheck" type="button">QUIZ_BUTTON_LABEL</button>
+        <div id="quizFeedback"></div>
+    </div>
 
-  <!-- States Mode vocabulary array -->
-  <div id="statesVocabArray">
-    <button id="statesVocabToggle">▼ &nbsp;Vocabulary learned</button>
-    <div id="statesVocabList"></div>
-  </div>
+    <script>
+    // =====================================================================
+    // LANGUAGE CONFIGURATION BLOCK
+    // To create a new language pair, replace ALL values in this section.
+    // SL = Source Language  |  TL = Target Language (language being learned)
+    //
+    // THE RICE GROWING CYCLE: a 12-month wheel (January at the top, clockwise)
+    // inside a water ring (top half fallow / rain-dependent, bottom half flooded).
+    // Two modes (the mode button switches between them):
+    //   STATES: the 8 growth stages (March to October) are words beside the wheel.
+    //   TRANSITIONS: 12 farming activities, one per month, slide round the wheel
+    //                and show in a window.
+    // PHONOGRAPHIC (ROM) VARIANT: layers TL (default) > SL > Quiz. The Quiz shows the SL and asks for the TL.
+    //
+    // Do NOT change anything outside this block.
+    // =====================================================================
+    const LANG = {
 
-  <!-- Transitions Mode vocabulary array -->
-  <div id="vocabArray">
-    <button id="vocabToggle">▼ &nbsp;Vocabulary learned</button>
-    <div id="vocabList"></div>
-  </div>
-</div>
+        // --- Title (up to three lines under each other) -------------------
+        title_lines: ["TL_TITLE", "SL_TITLE"],
 
-<!-- Quiz panel -->
-<div id="quizPanel">
-  <div id="quizPrompt">QUIZ_PROMPT_LABEL</div>
-  <input id="quizInput" type="text" autocomplete="off" autocorrect="off"
-         autocapitalize="off" spellcheck="false" placeholder="e.g. TL-S1"/>
-  <div class="quiz-row">
-    <button id="quizCheck">Check ✓</button>
-    <button id="quizClose">✕</button>
-  </div>
-  <div id="quizFeedback"></div>
-</div>
+        // --- UI strings --------------------------------------------------
+        show_tl_label:    "SHOW_TL_LABEL",     // e.g. "Show: TL"
+        show_sl_label:    "SHOW_SL_LABEL",     // e.g. "Show: SL"
+        badge_tl:         "TL_BADGE_LABEL",    // e.g. "TL"
+        badge_sl:         "SL_BADGE_LABEL",    // e.g. "SL"
+        badge_quiz:       "QUIZ_BADGE_LABEL",  // e.g. "Quiz"
+        mode_trans_label: "TRANS_MODE_LABEL",  // the button in States mode, e.g. "Transitions"
+        mode_states_label:"STATES_MODE_LABEL", // the button in Transitions mode, e.g. "States"
+        reset_label:      "RESET_LABEL",       // e.g. "Reset"
+        move_hint:        "MOVE_HINT",         // e.g. "You can move this" (shown for 5 seconds each time the Quiz opens)
+        drag_instruction: "DRAG_INSTRUCTION",  // e.g. "Grab and drag the sun around the annual cycle"
+        array_title:      "ARRAY_TITLE",       // e.g. "Learned Vocabulary"
+        states_title:     "STATES_TITLE",      // heading of the States list, e.g. "Growth stages"
+        trans_title:      "TRANS_TITLE",       // heading of the Transitions list, e.g. "Farming activities"
+        learned_label:    "LEARNED_LABEL",     // e.g. "Learned"
+        hide_all_label:   "HIDE_ALL_LABEL",    // e.g. "Hide All"
+        show_all_label:   "SHOW_ALL_LABEL",    // e.g. "Show All"
+        quiz_prompt:      "QUIZ_PROMPT_LABEL", // e.g. "What is the [TL] for"  (the SL word follows)
+        quiz_placeholder: "QUIZ_PLACEHOLDER",  // e.g. "Type the [TL] word"
+        quiz_button:      "QUIZ_BUTTON_LABEL", // e.g. "Check"
+        quiz_correct:     "QUIZ_CORRECT",      // e.g. "Correct!"
+        quiz_wrong:       "QUIZ_WRONG",        // e.g. "Try again"
 
-<script>
-/* ================================================================
-   ANSWER NORMALISATION — generic, language-agnostic by default.
-   ROM quiz tests TL directly (the target language's own Latin-script
-   spelling) rather than a separate romanized TLR tier, so there's no
-   built-in macron/digraph handling here the way the LOG version needed
-   for Japanese romaji. Populate diacritic_map / digraph_map below if a
-   specific target language instance needs accent-insensitive matching
-   (e.g. Vietnamese diacritics) — empty/case-insensitive-only by default.
-================================================================ */
-const ANSWER_CFG = {
-  diacritic_map: [
-    // ["á","a"], ["é","e"], ["í","i"], ["ó","o"], ["ú","u"]
-  ],
-  digraph_map: [
-    // ["ph","f"]
-  ]
-};
-const AnswerUtils = {
-  norm(s) {
-    if (!s) return '';
-    let t = s.toLowerCase().trim();
-    ANSWER_CFG.diacritic_map.forEach(([a, p]) => { t = t.split(a).join(p); });
-    ANSWER_CFG.digraph_map.forEach(([d, p]) => { t = t.split(d).join(p); });
-    return t.replace(/\s+/g, ' ');
-  },
-  match(input, answer) { return this.norm(input) === this.norm(answer); }
-};
+        // --- Wheel wording ---------------------------------------------------
+        ring_fallow:   "RING_LABEL_FALLOW",    // along the top of the water ring, e.g. "FALLOW / RAIN-DEPENDENT"
+        ring_flooded:  "RING_LABEL_FLOODED",   // along the bottom, e.g. "FLOODED / CONTROLLED"
+        hub_tl:        "TL_HUB_LABEL",         // centre of the wheel, first line
+        hub_sl:        "SL_HUB_LABEL",         // centre of the wheel, second line
+        months:        ["January","February","March","April","May","June","July","August","September","October","November","December"],
+        months_short:  ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+        month_notes:   [   // shown when the pointer rests on a month (desktop)
+            "❄️ Winter · Fallow", "❄️ Winter · Fallow", "🌸 Spring · Seed planting begins", "🌸 Spring · Germination",
+            "🌱 Early Summer · Sprout", "☀️ Summer · Seedling / Transplanting", "☀️ Summer · Vegetative growth", "☀️ Late Summer · Heading & flowering",
+            "🍂 Autumn · Grain filling", "🍂 Autumn · Harvest", "🍂 Late Autumn · Post-harvest fallow", "❄️ Winter · Fallow"
+        ],
 
-/* ================================================================
-   MONTHS  (Jan=0 … Dec=11)
-   vocabIdx: index into vocab[], null = fallow
-================================================================ */
-const MONTHS = [
-  { name:'January',   short:'Jan', angle: 15,  vocabIdx:null },
-  { name:'February',  short:'Feb', angle: 45,  vocabIdx:null },
-  { name:'March',     short:'Mar', angle: 75,  vocabIdx:0    },
-  { name:'April',     short:'Apr', angle:105,  vocabIdx:1    },
-  { name:'May',       short:'May', angle:135,  vocabIdx:2    },
-  { name:'June',      short:'Jun', angle:165,  vocabIdx:3    },
-  { name:'July',      short:'Jul', angle:195,  vocabIdx:4    },
-  { name:'August',    short:'Aug', angle:225,  vocabIdx:5    },
-  { name:'September', short:'Sep', angle:255,  vocabIdx:6    },
-  { name:'October',   short:'Oct', angle:285,  vocabIdx:7    },
-  { name:'November',  short:'Nov', angle:315,  vocabIdx:null },
-  { name:'December',  short:'Dec', angle:345,  vocabIdx:null },
-];
+        // --- Answer checking ----------------------------------------------
+        // diacritic_map: pairs [accented, plain] used to normalise quiz answers.
+        diacritic_map: [
+            // ["á","a"], ["é","e"], ["í","i"], ["ó","o"], ["ú","u"]
+        ],
+        // digraph_map: letter pairs treated as one when checking (applied to the typed AND the right answer).
+        digraph_map: [],
+        // collapse_double_vowels: true makes "aa" = "a" etc.
+        collapse_double_vowels: false,
 
-/* ================================================================
-   VOCABULARY  (8 items, vocabIdx 0–7)
-================================================================ */
-// SL fields default to real English (not a placeholder token) — this is
-// the standing Conceptionary convention, since English is the language
-// most editing/review actually happens in. TL remains an acronymic
-// placeholder until a specific target language is chosen. See the
-// Session Starter, Section 9, "SL default language" for the full rule.
-// ROM quiz tests TL directly (the target language's own Latin-script
-// spelling) — no separate romanized TLR tier, unlike the LOG version.
-const vocab = [
-  { tl:'TL-S1', sl:'Seed planting' },
-  { tl:'TL-S2', sl:'Germination' },
-  { tl:'TL-S3', sl:'Sprout' },
-  { tl:'TL-S4', sl:'Seedling' },
-  { tl:'TL-S5', sl:'Plant' },
-  { tl:'TL-S6', sl:'Plant with flowers' },
-  { tl:'TL-S7', sl:'Plant with fruit' },
-  { tl:'TL-S8', sl:'Seeds' },
-];
+        // --- STATES: the 8 growth stages, March to October ----------------------
+        // Each: { tl, sl }   (the TL may carry <ruby>word<rt>reading</rt></ruby> markup)
+        statesData: [
+            { tl:'TL-S1', sl:'Seed planting' },
+            { tl:'TL-S2', sl:'Germination' },
+            { tl:'TL-S3', sl:'Sprout' },
+            { tl:'TL-S4', sl:'Seedling' },
+            { tl:'TL-S5', sl:'Plant' },
+            { tl:'TL-S6', sl:'Plant with flowers' },
+            { tl:'TL-S7', sl:'Plant with fruit' },
+            { tl:'TL-S8', sl:'Seeds' }
+        ],
 
-/* ================================================================
-   TRANSITIONS MODE VOCABULARY  (12 items, one per month)
-   Each month has its own TL / SL entry.
-   Layer cycling (click): TL → SL → TL
-================================================================ */
-// Jan/Feb/Nov/Dec deliberately share one placeholder set (TL/SL-T-Fallow)
-// since they represent the same real concept (the paddy lying fallow) in
-// the original content — keep this repetition when real vocabulary is
-// authored, don't treat it as four separate concepts.
-const transVocab = [
-  // Jan
-  { tl: 'TL-T-Fallow', sl: 'Leaving the paddy fallow' },
-  // Feb
-  { tl: 'TL-T-Fallow', sl: 'Leaving the paddy fallow' },
-  // Mar
-  { tl: 'TL-T1', sl: 'Selecting the seed rice' },
-  // Apr
-  { tl: 'TL-T2', sl: 'Flooding the paddy' },
-  // May
-  { tl: 'TL-T3', sl: 'Rice planting' },
-  // Jun
-  { tl: 'TL-T4', sl: 'Managing the paddy' },
-  // Jul
-  { tl: 'TL-T5', sl: 'Mid-season drying' },
-  // Aug
-  { tl: 'TL-T6', sl: 'Flowering' },
-  // Sep
-  { tl: 'TL-T7', sl: 'Harvesting the rice' },
-  // Oct
-  { tl: 'TL-T8', sl: 'Draining the paddy' },
-  // Nov
-  { tl: 'TL-T-Fallow', sl: 'Leaving the paddy fallow' },
-  // Dec
-  { tl: 'TL-T-Fallow', sl: 'Leaving the paddy fallow' },
-];
+        // --- TRANSITIONS: one farming activity per month, January to December ---
+        // January, February, November and December share one entry on purpose (the paddy lies fallow).
+        transData: [
+            { tl:'TL-T-Fallow', sl:'Leaving the paddy fallow' },   // Jan
+            { tl:'TL-T-Fallow', sl:'Leaving the paddy fallow' },   // Feb
+            { tl:'TL-T1', sl:'Selecting the seed rice' },   // Mar
+            { tl:'TL-T2', sl:'Flooding the paddy' },   // Apr
+            { tl:'TL-T3', sl:'Rice planting' },   // May
+            { tl:'TL-T4', sl:'Managing the paddy' },   // Jun
+            { tl:'TL-T5', sl:'Mid-season drying' },   // Jul
+            { tl:'TL-T6', sl:'Flowering' },   // Aug
+            { tl:'TL-T7', sl:'Harvesting the rice' },   // Sep
+            { tl:'TL-T8', sl:'Draining the paddy' },   // Oct
+            { tl:'TL-T-Fallow', sl:'Leaving the paddy fallow' },   // Nov
+            { tl:'TL-T-Fallow', sl:'Leaving the paddy fallow' }   // Dec
+        ]
+    };
+    // =====================================================================
+    // END OF LANGUAGE CONFIGURATION BLOCK
+    // No language-specific content appears below this line.
+    // =====================================================================
 
-/* ================================================================
-   TOOLTIP DATA  (12 entries, one per month segment)
-================================================================ */
-const segTipData = [
-  { month:'January',   season:'❄️ Winter · Fallow' },
-  { month:'February',  season:'❄️ Winter · Fallow' },
-  { month:'March',     season:'🌸 Spring · Seed planting begins' },
-  { month:'April',     season:'🌸 Spring · Germination' },
-  { month:'May',       season:'🌱 Early Summer · Sprout' },
-  { month:'June',      season:'☀️ Summer · Seedling / Transplanting' },
-  { month:'July',      season:'☀️ Summer · Vegetative growth' },
-  { month:'August',    season:'☀️ Late Summer · Heading & flowering' },
-  { month:'September', season:'🍂 Autumn · Grain filling' },
-  { month:'October',   season:'🍂 Autumn · Harvest' },
-  { month:'November',  season:'🍂 Late Autumn · Post-harvest fallow' },
-  { month:'December',  season:'❄️ Winter · Fallow' },
-];
+    </script>
+    <script>
 
-/* ================================================================
-   CONSTANTS
-================================================================ */
-const LAYER      = { TL:0, SL:1, QUIZ:2 };
-const BADGE_LBL  = ['TL_BADGE_LABEL','SL_BADGE_LABEL','QUIZ_BADGE_LABEL'];
-const BADGE_COL  = ['#1a4f7c','#1a5e35','#6c2e98'];
-const LAYER_CLS  = ['tl','sl','quiz'];
-const FONT_SZ    = ['4.3px','4.05px','5.1px'];
+/* 2026-11-17 RICE GROWING CYCLE: a 12-month wheel and water ring, the sun on the ring, two modes.
+   STATES: the 8 growth stages are words beside the wheel (pushed apart so none touch; the view box grows to hold them), clicks per word ROM TL > SL > Quiz, LOG TLR > TL > SL > Quiz.
+   TRANSITIONS: the activity for the month slides round the wheel and shows in a window; click it to change layer. A movable Quiz and a movable Learned panel for each mode. */
+var textBoxElements = [];
+(function () {
+    var SVGNS = 'http://www.w3.org/2000/svg', $ = function (id) { return document.getElementById(id); }, de = document.documentElement;
+    var FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif'; de.style.setProperty('--cx-font', FONT);
+    var S = LANG.statesData, T = LANG.transData, LOGV = !!S[0].tlr;
+    var MODES = LOGV ? ['tlr', 'tl', 'sl'] : ['tl', 'sl'], ANS = LOGV ? 'tlr' : 'tl';
+    var FS = LOGV ? { tlr: 4.3, tl: 3.6, sl: 4.05 } : { tl: 4.3, sl: 4.05 };
+    var MONTH_ANGLE = function (m) { return 15 + 30 * m; }, VOCAB = function (m) { return (m >= 2 && m <= 9) ? m - 2 : -1; };
+    var R0 = 50, GAP = 0.8;   /* the water ring ends at r 47 and the sun reaches r 48.5 */
+    var svg = $('svgCanvas'), frame = $('draggableFrame'), dot = $('dragDot'), qc = $('quizContainer'), page = document.querySelector('.a4-page');
+    var cv = document.createElement('canvas').getContext('2d'), tmp = document.createElement('div');
+    var kS = S.map(function () { return 0; }), learnedS = S.map(function () { return false; }), learnedT = T.map(function () { return false; });
+    var transMode = false, showAll = false, layerMode = 0, frameDeg = 75, transK = 0, lastM = -1, quizKind = '', quizIdx = -1, closedKey = '';
+    var noQuiz = function () { return de.classList.contains('no-quiz'); };
+    function plain(s) { tmp.innerHTML = String(s == null ? '' : s); tmp.querySelectorAll('rt, rp').forEach(function (n) { n.parentNode.removeChild(n); }); return tmp.textContent; }
+    function lab(key, dflt) { var v = LANG[key]; return (v && !/^[A-Z_]+$/.test(v)) ? v : dflt; }
+    function word(i, k) { return S[i][MODES[k]]; }
+    function sizeOf(i, k) { return FS[MODES[k]] * (window.tsScale ? window.tsScale(i) : 1); }
+    function wOf(i, k, txt) { cv.font = '700 ' + sizeOf(i, k) + 'px ' + FONT; return cv.measureText(plain(txt)).width + 3; }
+    function hOf(i, k) { return sizeOf(i, k) * 1.35; }
+    function nearest(deg) { return Math.round((((deg - 15) % 360 + 360) % 360) / 30) % 12; }
+    function curMonth() { return nearest(frameDeg); }
+    function curS() { return VOCAB(curMonth()); }
 
-/* ================================================================
-   STATE
-================================================================ */
-let isStatesMode = true;
-let frameAngle   = 75;      // March midpoint
-let isDragging   = false;
+    /* ---- answers ---- */
+    window.AnswerUtils = {
+        normalize: function (text) {
+            var t = String(text).toLowerCase();
+            (LANG.diacritic_map || []).forEach(function (p) { t = t.split(p[0]).join(p[1]); });
+            (LANG.digraph_map || []).forEach(function (p) { t = t.split(p[0]).join(p[1]); });
+            if (LANG.collapse_double_vowels) t = t.replace(/aa/g, 'a').replace(/ee/g, 'e').replace(/ii/g, 'i').replace(/oo/g, 'o').replace(/uu/g, 'u');
+            return t.replace(/[\s\-!?.,]/g, '').trim();
+        },
+        checkAnswer: function (input, correct) { return this.normalize(input) === this.normalize(correct); }
+    };
 
-let tbRevealed   = new Array(12).fill(false);
-let tbLayer      = new Array(12).fill(LAYER.TL);
-let learnedS     = new Array(12).fill(false);
-let learnedT     = new Array(12).fill(false);   // Transitions mode learned items
-let transLayer   = LAYER.TL;
-let transDispLayer = LAYER.TL;
-let displayAllLayer = -1;          // -1 = off; 0/1 = TL/SL all revealed boxes
-let quizIdx      = -1;
-let closedIdx    = -1;
-
-/* ================================================================
-   DOM REFERENCES
-================================================================ */
-const svgEl       = document.getElementById('mainSvg');
-const pageEl      = document.getElementById('page');
-const modeBtnEl   = document.getElementById('modeBtn');
-const dragRingEl  = document.getElementById('dragRing');
-const dragDotEl   = document.getElementById('dragDot');
-const badgeEl        = document.getElementById('langBadge');
-const displayAllBtnEl = document.getElementById('displayAllBtn');
-const transDispEl  = document.getElementById('transDisplay');
-const tdMonthEl    = document.getElementById('tdMonth');
-const tdContentEl  = document.getElementById('tdContent');
-const tdQuizAreaEl = document.getElementById('tdQuizArea');
-const tdInputEl    = document.getElementById('tdInput');
-const tdFbEl       = document.getElementById('tdFeedback');
-const tdLearnedEl  = document.getElementById('tdLearned');
-const vocabArrayEl      = document.getElementById('vocabArray');
-const vocabListEl       = document.getElementById('vocabList');
-const statesVocabArrEl  = document.getElementById('statesVocabArray');
-const statesVocabListEl = document.getElementById('statesVocabList');
-const slideTextEl = document.getElementById('slideText');
-const slideTPEl   = document.getElementById('slideTP');
-const quizPanelEl = document.getElementById('quizPanel');
-const quizInputEl = document.getElementById('quizInput');
-const quizFbEl    = document.getElementById('quizFeedback');
-const quizPrEl    = document.getElementById('quizPrompt');
-const dragHintEl  = document.getElementById('dragHint');
-const tooltipEl   = document.getElementById('segTooltip');
-
-// foEls[i] = null for fallow months (0,1,10,11)
-const foEls  = Array.from({length:12}, (_, i) => document.getElementById('tb' + i) || null);
-const divEls = foEls.map(fo => fo ? fo.querySelector('div') : null);
-
-/* ================================================================
-   GEOMETRY HELPERS
-================================================================ */
-function svgPt(evt) {
-  const pt  = svgEl.createSVGPoint();
-  const src = evt.touches ? evt.touches[0] : evt;
-  pt.x = src.clientX; pt.y = src.clientY;
-  return pt.matrixTransform(svgEl.getScreenCTM().inverse());
-}
-function toAngle(sx, sy) {
-  let a = Math.atan2(sx - 50, -(sy - 50)) * 180 / Math.PI;
-  return (a + 360) % 360;
-}
-function angleToXY(deg, r) {
-  const rad = deg * Math.PI / 180;
-  return { x: 50 + r * Math.sin(rad), y: 50 - r * Math.cos(rad) };
-}
-// Nearest month index from a drag angle
-function nearestSeg(angleDeg) {
-  return Math.round(((angleDeg - 15 + 360) % 360) / 30) % 12;
-}
-
-/* ================================================================
-   BADGE
-================================================================ */
-function updateBadge(layer) {
-  badgeEl.textContent  = BADGE_LBL[layer];
-  badgeEl.style.background = BADGE_COL[layer];
-}
-
-/* ================================================================
-   TRANSITIONS DISPLAY WINDOW
-================================================================ */
-function updateTransDisplay(mIdx) {
-  const m    = MONTHS[mIdx];
-  const item = transVocab[mIdx];
-  tdMonthEl.textContent = m.name;
-  tdLearnedEl.textContent = learnedT[mIdx] ? '✓ Learned' : '';
-
-  // Hide quiz area unless we're in quiz layer
-  tdQuizAreaEl.style.display = 'none';
-  tdFbEl.textContent = '';
-
-  const layer = transDispLayer;
-  tdContentEl.className = 'td-' + ['tl','sl','quiz'][layer];
-
-  if (layer === LAYER.QUIZ) {
-    tdContentEl.textContent = '?';
-    tdQuizAreaEl.style.display = 'block';
-    tdInputEl.value = '';
-    setTimeout(() => tdInputEl.focus(), 60);
-  } else {
-    switch (layer) {
-      case LAYER.TL:  tdContentEl.innerHTML   = item.tl;  break;
-      case LAYER.SL:  tdContentEl.textContent = item.sl;  break;
+    /* ---- placement: each stage word starts beside the water ring on its own month's bearing and moves outward (or a few degrees round) until it touches nothing ---- */
+    function rectsFor(kFn) {
+        var out = [], placed = [];
+        S.forEach(function (_, i) {
+            var k = kFn(i), w = wOf(i, k, word(i, k)), h = hOf(i, k), a = (MONTH_ANGLE(i + 2) - 90) * Math.PI / 180, ux = Math.cos(a), uy = Math.sin(a);
+            var base = R0 + (w / 2) * Math.abs(ux) + (h / 2) * Math.abs(uy), best = null, bc = 1e9;
+            for (var da = 0; da <= 36; da += 3) [da, -da].forEach(function (dg, di) {
+                if (da === 0 && di === 1) return;
+                var aa = a + dg * Math.PI / 180, vx = Math.cos(aa), vy = Math.sin(aa), dmin = R0 + (w / 2) * Math.abs(vx) + (h / 2) * Math.abs(vy);
+                for (var d = dmin; d < dmin + 40; d += 0.5) {
+                    var c = (d - base) + 0.45 * da; if (c >= bc) break;
+                    var r = { x: 50 + d * vx, y: 50 + d * vy, w: w, h: h };
+                    if (!placed.some(function (p) { return Math.abs(p.x - r.x) < (p.w + w) / 2 + GAP && Math.abs(p.y - r.y) < (p.h + h) / 2 + GAP; })) { best = r; bc = c; break; }
+                }
+            });
+            if (!best) best = { x: 50 + (base + 40) * ux, y: 50 + (base + 40) * uy, w: w, h: h };
+            placed.push(best); out[i] = best;
+        });
+        return out;
     }
-  }
-  // Sync ring text layer
-  transLayer = layer === LAYER.QUIZ ? LAYER.TL : layer;
-  updateBadge(layer);
-}
+    function applyRect(i, r) { var fo = textBoxElements[i]; if (!fo) return; fo.setAttribute('x', r.x - r.w / 2); fo.setAttribute('y', r.y - r.h / 2); fo.setAttribute('width', r.w); fo.setAttribute('height', r.h); fo.style.overflow = 'visible'; }
+    function curK(i) { var d = textBoxElements[i] && textBoxElements[i].querySelector('div'); return d ? parseInt(d.dataset.k || '0') : 0; }
+    window.cmpPlaceAll = function () {
+        if (!textBoxElements.length) return;
+        var hx = 50, hy = 50;
+        MODES.forEach(function (_, k) { rectsFor(function () { return k; }).forEach(function (r) { hx = Math.max(hx, Math.abs(r.x - 50) + r.w / 2 + 1.5); hy = Math.max(hy, Math.abs(r.y - 50) + r.h / 2 + 1.5); }); });
+        svg.setAttribute('viewBox', (50 - hx) + ' ' + (50 - hy) + ' ' + (2 * hx) + ' ' + (2 * hy));
+        rectsFor(curK).forEach(function (r, i) { applyRect(i, r); });
+        paintTrans();
+    };
+    function placeOne(i) {
+        var fo = textBoxElements[i]; if (!fo) return;
+        var k = curK(i), w = wOf(i, k, fo.querySelector('div').innerHTML), h = hOf(i, k);
+        var cx = parseFloat(fo.getAttribute('x')) + parseFloat(fo.getAttribute('width')) / 2, cy = parseFloat(fo.getAttribute('y')) + parseFloat(fo.getAttribute('height')) / 2;
+        var c = Math.hypot(cx - 50, cy - 50), ux = (cx - 50) / c, uy = (cy - 50) / c, dmin = R0 + (w / 2) * Math.abs(ux) + (h / 2) * Math.abs(uy);
+        var d = Math.max(c, dmin);   /* same direction as now, never closer than the water ring */
+        applyRect(i, { x: 50 + d * ux, y: 50 + d * uy, w: w, h: h });
+    }
+    window.applyTierStyle = function (div, i) { div.style.fontSize = sizeOf(i, parseInt(div.dataset.k || '0')) + 'px'; div.style.whiteSpace = 'nowrap'; };
+    function setK(i, k) { var d = textBoxElements[i] && textBoxElements[i].querySelector('div'); if (!d) return; kS[i] = k; d.dataset.k = k; d.innerHTML = word(i, k); window.applyTierStyle(d, i); placeOne(i); paintBadge(); }
+    window.__tdlSetK = function (i, k) { setK(i, k); };
 
-function handleTransDisplayClick() {
-  const mIdx = nearestSeg(frameAngle);
-  if (learnedT[mIdx]) {
-    // Already learned: cycle TL→SL only
-    transDispLayer = (transDispLayer + 1) % 2;
-  } else {
-    // Unlearned: advance toward quiz
-    transDispLayer = Math.min(transDispLayer + 1, LAYER.QUIZ);
-  }
-  updateTransDisplay(mIdx);
-  updateSlideText(frameAngle);
-}
+    /* ---- the badge that names the layer now showing ---- */
+    var badge = $('langBadge');
+    function layerName(key) { return key === 'tlr' ? lab('badge_tlr', 'TLR') : key === 'tl' ? lab('badge_tl', 'TL') : key === 'sl' ? lab('badge_sl', 'SL') : lab('badge_quiz', 'Quiz'); }
+    function paintBadge() {
+        var key = quizIdx >= 0 ? 'quiz' : transMode ? MODES[transK] : (curS() >= 0 ? MODES[kS[curS()]] : MODES[layerMode]);
+        badge.textContent = layerName(key); badge.className = 'k-' + key;
+    }
 
-function checkTransAnswer() {
-  const mIdx = nearestSeg(frameAngle);
-  const answer = tdInputEl.value.trim();
-  if (!answer) return;
-  const item = transVocab[mIdx];
+    /* ---- what shows in States mode ---- */
+    function highlightSeg() {
+        var m = transMode ? -1 : curMonth();
+        document.querySelectorAll('.seg').forEach(function (el, i) { el.style.filter = (i === m) ? 'brightness(1.22)' : ''; el.setAttribute('stroke-width', (i === m) ? '1.2' : '0.5'); });
+    }
+    function refresh() {
+        var cs = curS();
+        textBoxElements.forEach(function (tb, i) {
+            var vis = !transMode && (showAll || i === cs || learnedS[i]);
+            tb.classList.toggle('active', vis && i === cs); tb.classList.toggle('learned', !!learnedS[i]);
+            tb.style.display = vis ? 'block' : 'none';
+            tb.style.opacity = !vis ? '0' : (i === cs ? '1' : showAll ? '0.9' : '0.5');
+        });
+        highlightSeg(); paintBadge();
+    }
+    window.updateVisibleTextBoxes = refresh;
+    function setFrame(deg) { var a = (deg - 90) * Math.PI / 180; frame.setAttribute('cx', 50 + 44 * Math.cos(a)); frame.setAttribute('cy', 50 + 44 * Math.sin(a)); dot.setAttribute('cx', 50 + 44 * Math.cos(a)); dot.setAttribute('cy', 50 + 44 * Math.sin(a)); }
 
-  if (AnswerUtils.match(answer, item.tl)) {
-    tdFbEl.style.color   = '#1a5e35';
-    tdFbEl.textContent   = 'QUIZ_CORRECT_LABEL';
-    learnedT[mIdx]       = true;
-    transDispLayer       = LAYER.TL;
-    addToVocabArray(mIdx);
-    setTimeout(() => {
-      updateTransDisplay(mIdx);
-      updateSlideText(frameAngle);
-    }, 1400);
-  } else {
-    tdFbEl.style.color = '#b03030';
-    tdFbEl.textContent = 'QUIZ_WRONG_LABEL';
-    tdInputEl.value    = '';
-    tdInputEl.focus();
-  }
-}
+    /* ---- Transitions mode: sliding text and the window ---- */
+    var slideText = $('slideText'), slideTP = $('slideTP'), td = $('transDisplay'), tdMonth = $('tdMonth'), tdContent = $('tdContent'), tdLearned = $('tdLearned');
+    function paintTrans() {
+        if (!transMode) return;
+        var m = curMonth(); if (m !== lastM) { lastM = m; transK = layerMode; }
+        var it = T[m], key = MODES[transK], sc = window.tsScale ? window.tsScale('t') : 1;
+        slideTP.setAttribute('startOffset', Math.min(Math.max(frameDeg / 360 * 100, 0), 85).toFixed(1) + '%');
+        slideTP.textContent = plain(it[key]); slideText.setAttribute('font-size', FS[key] * sc); slideText.setAttribute('class', 'k-' + key);
+        tdMonth.textContent = LANG.months[m]; tdContent.innerHTML = it[key]; tdContent.className = 'k-' + key; tdContent.style.fontSize = (1.1 * sc) + 'em';
+        tdLearned.textContent = learnedT[m] ? '✓ ' + lab('learned_label', 'Learned') : '';
+        paintBadge();
+    }
+    function transClick() {
+        if (!transMode) return;
+        var m = curMonth(); if (qc.style.display === 'block' && quizKind === 't' && quizIdx === m) return;
+        var k = transK + 1;
+        if (k >= MODES.length) { if (!noQuiz() && !learnedT[m]) { showQuiz('t', m); return; } k = 0; }
+        transK = k; paintTrans(); speak(m);
+    }
+    td.addEventListener('click', function (e) { e.stopPropagation(); transClick(); });
+    slideText.addEventListener('click', function (e) { e.stopPropagation(); transClick(); });
 
-function addToVocabArray(mIdx) {
-  const m    = MONTHS[mIdx];
-  const item = transVocab[mIdx];
-  // Avoid duplicates
-  if (document.getElementById('ve-' + mIdx)) return;
-  const entry = document.createElement('div');
-  entry.className = 'vocab-entry';
-  entry.id = 've-' + mIdx;
-  entry.innerHTML =
-    `<span class="ve-tl">${item.tl}</span> &nbsp;` +
-    `<span class="ve-sl">${item.sl}</span>` +
-    `<span style="color:#aaa;font-size:0.85em;float:right">${m.short}</span>`;
-  vocabListEl.appendChild(entry);
-  vocabArrayEl.style.display = 'block';
-}
+    /* ---- the words ---- */
+    function build() {
+        document.querySelectorAll('.textBox').forEach(function (b) { if (b.parentNode) b.parentNode.removeChild(b); });
+        textBoxElements = [];
+        S.forEach(function (item, i) {
+            var fo = document.createElementNS(SVGNS, 'foreignObject');
+            fo.setAttribute('class', 'textBox'); fo.setAttribute('data-index', i);
+            fo.setAttribute('x', 0); fo.setAttribute('y', 0); fo.setAttribute('width', 16); fo.setAttribute('height', 8); fo.style.overflow = 'visible'; fo.style.pointerEvents = 'auto';
+            var div = document.createElement('div');
+            div.style.cssText = 'display:flex;align-items:center;justify-content:center;width:100%;height:100%;box-sizing:border-box;text-align:center;font-family:Arial,sans-serif;color:black;cursor:pointer;white-space:nowrap;font-weight:bold';
+            div.dataset.k = kS[i]; div.innerHTML = word(i, kS[i]); window.applyTierStyle(div, i);
+            fo.appendChild(div);
+            fo.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var k = kS[i] + 1;
+                if (qc.style.display === 'block' && quizKind === 's' && quizIdx === i) return;
+                if (k >= MODES.length) {
+                    if (!noQuiz() && !learnedS[i]) { showQuiz('s', i); return; }   /* the Quiz is hidden on touch phones: the cycle just starts again */
+                    k = 0;
+                }
+                setK(i, k); speak(i);
+            });
+            svg.insertBefore(fo, slideText); textBoxElements.push(fo);
+        });
+        window.cmpPlaceAll(); refresh();
+    }
 
-function addToStatesVocabArray(mIdx) {
-  const m    = MONTHS[mIdx];
-  if (m.vocabIdx === null) return;
-  const item = vocab[m.vocabIdx];
-  // Avoid duplicates
-  if (document.getElementById('sve-' + mIdx)) return;
-  const entry = document.createElement('div');
-  entry.className = 'vocab-entry';
-  entry.id = 'sve-' + mIdx;
-  entry.innerHTML =
-    `<span class="ve-tl">${item.tl}</span> &nbsp;` +
-    `<span class="ve-sl">${item.sl}</span>` +
-    `<span style="color:#aaa;font-size:0.85em;float:right">${m.short}</span>`;
-  statesVocabListEl.appendChild(entry);
-  statesVocabArrEl.style.display = 'block';
-}
+    /* ---- sound: the word now in view (the RICE page keeps its own list for the Audio button) ---- */
+    window.__riceItem = function (i) { var it = transMode ? T[i] : S[i]; return it ? [it.sl, it.tl] : null; };
+    function speak(i) { if (window.__cmpSpeak && i >= 0) window.__cmpSpeak(i, true); }
 
+    /* ---- grab the sun anywhere on the face of the wheel ---- */
+    var dragging = false;
+    function ptr(e) { var t = e.touches && e.touches[0]; return { x: t ? t.clientX : e.clientX, y: t ? t.clientY : e.clientY }; }
+    function svgPt(p) { var pt = svg.createSVGPoint(); pt.x = p.x; pt.y = p.y; return pt.matrixTransform(svg.getScreenCTM().inverse()); }
+    function move(e) {
+        if (!dragging) return;
+        var p = svgPt(ptr(e)), deg = (Math.atan2(p.y - 50, p.x - 50) * 180 / Math.PI + 90 + 360) % 360;
+        frameDeg = deg; setFrame(deg);
+        if (transMode) paintTrans(); else refresh();
+        if (e.cancelable) e.preventDefault();
+    }
+    function down(e) {
+        if (e.target.closest && e.target.closest('.textBox, #slideText')) return;
+        var p = svgPt(ptr(e)); if (e.target !== frame && e.target !== dot && Math.hypot(p.x - 50, p.y - 50) > 49) return;
+        dragging = true; frame.classList.add('dragging'); move(e); if (e.cancelable) e.preventDefault();
+    }
+    function up() { if (!dragging) return; dragging = false; frame.classList.remove('dragging'); if (!showAll) { var m = curMonth(); speak(transMode ? m : curS()); } }
+    svg.addEventListener('mousedown', down); svg.addEventListener('touchstart', down, { passive: false });
+    document.addEventListener('mousemove', move); document.addEventListener('touchmove', move, { passive: false });
+    document.addEventListener('mouseup', up); document.addEventListener('touchend', up); document.addEventListener('touchcancel', up);
 
-/* ================================================================
-   DISPLAY ALL — cycles all revealed States Mode boxes through
-   TL → SL → back to individual layers
-================================================================ */
-const DA_LABELS = ['DISPLAY_ALL_TL_LABEL', 'DISPLAY_ALL_SL_LABEL'];
-const DA_CLASS  = ['active-tl', 'active-sl'];
+    /* ---- buttons ---- */
+    var layerBtn = $('display-mode-toggle'), allBtn = $('show-all-toggle'), modeBtn = $('mode-btn');
+    function layerLabel() { var c = MODES[layerMode]; return c === 'tlr' ? lab('show_tlr_label', 'Show: TLR') : c === 'tl' ? lab('show_tl_label', 'Show: TL') : lab('show_sl_label', 'Show: SL'); }
+    function allLabel() { return showAll ? lab('hide_all_label', 'Hide All') : lab('show_all_label', 'Show All'); }
+    function modeLabel() { return transMode ? lab('mode_states_label', 'States') : lab('mode_trans_label', 'Transitions'); }
+    function setLayer(m) {
+        layerMode = m; layerBtn.textContent = layerLabel();
+        textBoxElements.forEach(function (tb, i) { var d = tb.querySelector('div'); kS[i] = m; d.dataset.k = m; d.innerHTML = word(i, m); window.applyTierStyle(d, i); });
+        transK = m; window.cmpPlaceAll(); paintBadge();
+    }
+    layerBtn.textContent = layerLabel(); allBtn.textContent = allLabel(); modeBtn.textContent = modeLabel();
+    layerBtn.addEventListener('click', function () { setLayer((layerMode + 1) % MODES.length); });
+    allBtn.addEventListener('click', function () { showAll = !showAll; allBtn.textContent = allLabel(); if (window.__cmpReset) window.__cmpReset(); refresh(); });
+    function closeQuiz(stepBack) {
+        if (quizIdx < 0 && qc.style.display !== 'block') return;
+        if (stepBack && quizIdx >= 0) { if (quizKind === 's' && !learnedS[quizIdx]) setK(quizIdx, 0); else if (quizKind === 't') { transK = 0; } }
+        qc.style.display = 'none'; quizIdx = -1; quizKind = '';
+    }
+    function setMode(tm) {
+        closeQuiz(true); transMode = tm; lastM = -1; transK = layerMode;
+        de.classList.toggle('m-trans', transMode); modeBtn.textContent = modeLabel();
+        slideText.style.display = transMode ? 'block' : 'none'; td.style.display = transMode ? 'block' : 'none';
+        allBtn.style.display = transMode ? 'none' : '';
+        if (window.__cmpReset) window.__cmpReset();
+        paintTrans(); refresh(); syncPanels(); placeArray();
+    }
+    modeBtn.addEventListener('click', function () { setMode(!transMode); });
+    function toggleArr(side) {
+        var c = $('learned-items-' + side), b = $('toggle-learned-' + side), spans = c.querySelectorAll('.vocabulary-item .w'), vis = 0;
+        spans.forEach(function (s) { if (!s.classList.contains('hidden')) vis++; });
+        var most = vis > spans.length / 2; spans.forEach(function (s) { s.classList.toggle('hidden', most); });
+        b.textContent = most ? lab('show_all_label', 'Show All') : lab('hide_all_label', 'Hide All');
+    }
+    $('toggle-learned-left').addEventListener('click', function () { toggleArr('left'); });
+    $('toggle-learned-right').addEventListener('click', function () { toggleArr('right'); });
 
-displayAllBtnEl.addEventListener('click', () => {
-  // Cycle: -1 → 0 → 1 → -1
-  displayAllLayer = displayAllLayer >= 1 ? -1 : displayAllLayer + 1;
-
-  if (displayAllLayer < 0) {
-    displayAllBtnEl.textContent = 'DISPLAY_ALL_TL_LABEL';
-    displayAllBtnEl.className   = '';
-    // Restore: show only current active box
-    const mIdx = nearestSeg(frameAngle);
-    showOnlyBox(mIdx);
-    updateBadge(tbLayer[mIdx] ?? LAYER.TL);
-  } else {
-    displayAllBtnEl.textContent = DA_LABELS[displayAllLayer];
-    displayAllBtnEl.className   = DA_CLASS[displayAllLayer];
-    // Show ALL revealed boxes at this layer simultaneously
-    foEls.forEach((fo, i) => {
-      if (!fo || MONTHS[i].vocabIdx === null) return;
-      if (tbRevealed[i]) {
-        fo.style.display = 'block';
-        tbLayer[i] = displayAllLayer;
-        applyLayer(i, displayAllLayer);
-      }
+    /* ---- title, instructions and the wording on the wheel ---- */
+    var titleBox = $('title-box'); titleBox.innerHTML = LANG.title_lines.map(function (t, n) { return '<span class="' + (n === 0 ? 't1' : 't2') + '">' + t + '</span>'; }).join('');
+    var di = $('drag-instruction'); di.innerHTML = LANG.drag_instruction;
+    setTimeout(function () { di.classList.add('fade'); setTimeout(function () { di.style.display = 'none'; }, 3000); }, 15000);
+    $('ringTop').textContent = LANG.ring_fallow; $('ringBot').textContent = LANG.ring_flooded; $('hubTL').textContent = LANG.hub_tl; $('hubSL').textContent = LANG.hub_sl;
+    for (var mi = 0; mi < 12; mi++) $('mlab' + mi).textContent = LANG.months_short[mi];
+    ['array-title-left', 'array-title-right'].forEach(function (id) { $(id).textContent = LANG.array_title; });
+    $('sub-left').textContent = LANG.states_title; $('sub-right').textContent = LANG.trans_title;
+    $('toggle-learned-left').textContent = lab('hide_all_label', 'Hide All'); $('toggle-learned-right').textContent = lab('hide_all_label', 'Hide All');
+    $('quizInput').placeholder = LANG.quiz_placeholder; $('quizCheck').textContent = LANG.quiz_button;
+    if (LOGV && $('quizDiacriticNote')) $('quizDiacriticNote').textContent = LANG.diacritic_instructions;
+    var rb = $('reset-btn'); if (LANG.reset_label && !/^[A-Z_]+$/.test(LANG.reset_label)) rb.textContent = LANG.reset_label;
+    var tip0 = $('segTooltip');
+    document.querySelectorAll('.seg').forEach(function (seg) {
+        var idx = parseInt(seg.dataset.seg);
+        seg.addEventListener('mouseover', function () { tip0.innerHTML = '<span class="tt-month">' + LANG.months[idx] + '</span>&nbsp;&nbsp;<span class="tt-season">' + LANG.month_notes[idx] + '</span>'; tip0.style.display = 'block'; });
+        seg.addEventListener('mousemove', function (e) {
+            var pr = page.getBoundingClientRect(), left = e.clientX - pr.left + 12, top = e.clientY - pr.top + 14, w = tip0.offsetWidth || 220, h = tip0.offsetHeight || 36;
+            if (left + w > pr.width - 8) left = e.clientX - pr.left - w - 8; if (top + h > pr.height - 8) top = e.clientY - pr.top - h - 8;
+            tip0.style.left = left + 'px'; tip0.style.top = top + 'px';
+        });
+        seg.addEventListener('mouseout', function () { tip0.style.display = 'none'; });
     });
-    updateBadge(displayAllLayer);
-  }
-});
 
-function applyLayer(mIdx, layer) {
-  const m = MONTHS[mIdx];
-  if (m.vocabIdx === null) return;
-  const div  = divEls[mIdx];
-  if (!div) return;
-  const item = vocab[m.vocabIdx];
-  div.className = 'tb-inner ' + LAYER_CLS[layer];
-  if (learnedS[mIdx]) div.classList.add('learned');
-  div.style.fontSize = FONT_SZ[layer];
-  switch (layer) {
-    case LAYER.TL:   div.innerHTML = item.tl;  break;
-    case LAYER.SL:   div.innerHTML = item.sl;  break;
-    case LAYER.QUIZ: div.innerHTML = '?';      break;
-  }
-}
-
-/* ================================================================
-   FRAME POSITIONING
-================================================================ */
-function setFrame(angleDeg) {
-  frameAngle = angleDeg;
-  const p = angleToXY(angleDeg, 44);
-  dragRingEl.setAttribute('cx', p.x.toFixed(2));
-  dragRingEl.setAttribute('cy', p.y.toFixed(2));
-  dragDotEl.setAttribute('cx',  p.x.toFixed(2));
-  dragDotEl.setAttribute('cy',  p.y.toFixed(2));
-}
-function snapFrame() {
-  const mIdx = nearestSeg(frameAngle);
-  setFrame(MONTHS[mIdx].angle);
-  return mIdx;
-}
-
-/* ================================================================
-   SEGMENT HIGHLIGHT
-================================================================ */
-function highlightSeg(activeIdx) {
-  document.querySelectorAll('.seg').forEach((el, i) => {
-    el.style.filter         = (i === activeIdx) ? 'brightness(1.22)' : '';
-    el.setAttribute('stroke-width', (i === activeIdx) ? '1.2' : '0.5');
-  });
-}
-
-/* ================================================================
-   STATES MODE — show only the active textbox, hide all others
-================================================================ */
-function showOnlyBox(mIdx) {
-  foEls.forEach((fo, i) => {
-    if (!fo || MONTHS[i].vocabIdx === null) return;
-    if (i === mIdx) {
-      // Active segment — always show
-      fo.style.display = 'block';
-      if (!tbRevealed[i]) {
-        tbRevealed[i] = true;
-        tbLayer[i]    = LAYER.TL;
-        applyLayer(i, LAYER.TL);
-      }
-    } else if (learnedS[i]) {
-      // Learned — stay visible at TL
-      fo.style.display = 'block';
-      if (tbLayer[i] !== LAYER.TL) {
-        tbLayer[i] = LAYER.TL;
-        applyLayer(i, LAYER.TL);
-      }
-    } else {
-      // Unlearned and not active — hide
-      fo.style.display = 'none';
+    /* ---- the Learned panels (States on the left, Transitions on the right; only the panel for the mode now showing appears) ---- */
+    var arrL = $('learned-vocabulary-left'), arrR = $('learned-vocabulary-right');
+    document.body.appendChild(arrL); document.body.appendChild(arrR);   /* a fixed-position panel must not sit inside the page frame */
+    function syncPanels() { [['left', arrL], ['right', arrR]].forEach(function (p) { p[1].classList.toggle('has-items', $('learned-items-' + p[0]).children.length > 0); }); }
+    function addToArray(kind, i) {
+        var it = kind === 's' ? S[i] : T[i], target = $('learned-items-' + (kind === 's' ? 'left' : 'right')), item = document.createElement('div'); item.className = 'vocabulary-item';
+        function sp(cls, html, isHtml) { var s = document.createElement('span'); s.className = 'w ' + cls; if (isHtml) s.innerHTML = html; else s.textContent = html; s.addEventListener('click', function (e) { e.stopPropagation(); this.classList.toggle('hidden'); }); item.appendChild(s); }
+        if (LOGV) sp('tlr-word', it.tlr, true); sp('tl-word', it.tl, true); sp('sl-word', it.sl, false);
+        var mo = document.createElement('span'); mo.className = 'mo'; mo.textContent = LANG.months_short[kind === 's' ? i + 2 : i]; item.appendChild(mo);
+        target.appendChild(item); syncPanels(); placeArray(); setTimeout(showArrayTip, 80);
     }
-  });
-}
 
-/* ================================================================
-   STATES MODE — handle textbox click
-================================================================ */
-function handleBoxClick(mIdx) {
-  if (!isStatesMode) return;
-  const m = MONTHS[mIdx];
-  if (m.vocabIdx === null) return;
-  let layer = tbLayer[mIdx];
-
-  if (learnedS[mIdx]) {
-    // Learned: cycle TL → SL → TL
-    layer = (layer + 1) % 2;
-    tbLayer[mIdx] = layer;
-    applyLayer(mIdx, layer);
-    updateBadge(layer);
-  } else {
-    // Unlearned: advance TL → SL → Quiz
-    if (layer < LAYER.QUIZ) layer++;
-    tbLayer[mIdx] = layer;
-    if (layer === LAYER.QUIZ) {
-      applyLayer(mIdx, LAYER.QUIZ);
-      showQuiz(mIdx);
-    } else {
-      applyLayer(mIdx, layer);
-      updateBadge(layer);
+    /* ---- the Quiz (the SL word is shown; the learner types the TL, or the TLR in the LOG file) ---- */
+    function showQuiz(kind, i) {
+        if (noQuiz()) return;
+        if (quizIdx >= 0 && !(kind === quizKind && i === quizIdx)) closeQuiz(true);
+        quizKind = kind; quizIdx = i; var it = kind === 's' ? S[i] : T[i];
+        $('quizPrompt').innerHTML = LANG.quiz_prompt.replace(/^[A-Z_]+$/, 'Type the word for') + ':<br><strong>' + plain(it.sl) + '</strong>';
+        $('quizInput').value = ''; $('quizFeedback').textContent = '';
+        qc.style.display = 'block'; qc.style.visibility = 'visible'; qc.style.opacity = '1'; qc.style.zIndex = '9999'; placeQuiz(); paintBadge();
+        setTimeout(function () { try { $('quizInput').focus(); } catch (e) {} }, 100);
     }
-  }
-}
-
-/* ================================================================
-   QUIZ
-================================================================ */
-function showQuiz(mIdx) {
-  const m = MONTHS[mIdx];
-  if (m.vocabIdx === null) return;
-  quizIdx = mIdx;
-  const item = vocab[m.vocabIdx];
-  quizPrEl.innerHTML =
-    `QUIZ_PROMPT_LABEL:<br><strong style="color:#1a5e35;font-size:14px;">${item.sl}</strong>`;
-  quizInputEl.value  = '';
-  quizFbEl.textContent = '';
-  quizFbEl.style.color = '#333';
-
-  // Position quiz panel near the textbox
-  const fo       = foEls[mIdx];
-  const fx       = parseFloat(fo.getAttribute('x'));
-  const fy       = parseFloat(fo.getAttribute('y'));
-  const fw       = parseFloat(fo.getAttribute('width'));
-  const fh       = parseFloat(fo.getAttribute('height'));
-  const svgRect  = svgEl.getBoundingClientRect();
-  const pageRect = pageEl.getBoundingClientRect();
-  const scaleX   = svgRect.width  / 100;
-  const scaleY   = svgRect.height / 100;
-
-  let qLeft = (svgRect.left - pageRect.left) + (fx + fw / 2) * scaleX - 97;
-  let qTop  = (svgRect.top  - pageRect.top)  + (fy + fh + 2) * scaleY;
-  qLeft = Math.max(5, Math.min(qLeft, pageRect.width  - 205));
-  qTop  = Math.max(5, Math.min(qTop,  pageRect.height - 145));
-
-  quizPanelEl.style.left    = qLeft + 'px';
-  quizPanelEl.style.top     = qTop  + 'px';
-  quizPanelEl.style.display = 'block';
-  updateBadge(LAYER.QUIZ);
-  setTimeout(() => quizInputEl.focus(), 60);
-}
-
-function dismissQuiz(stepBack) {
-  const idx = quizIdx;
-  quizPanelEl.style.display = 'none';
-  quizFbEl.textContent = '';
-  quizIdx = -1;
-  if (stepBack && idx >= 0) {
-    closedIdx = idx;
-    tbLayer[idx] = LAYER.TL;
-    applyLayer(idx, LAYER.TL);
-    updateBadge(LAYER.TL);
-    setTimeout(() => { closedIdx = -1; }, 400);
-  }
-}
-
-function checkAnswer() {
-  if (quizIdx < 0) return;
-  const idx  = quizIdx;
-  const m    = MONTHS[idx];
-  if (m.vocabIdx === null) return;
-  const answer = quizInputEl.value.trim();
-  if (!answer) return;
-  const item = vocab[m.vocabIdx];
-
-  if (AnswerUtils.match(answer, item.tl)) {
-    quizFbEl.textContent = 'QUIZ_CORRECT_LABEL';
-    quizFbEl.style.color = '#1a5e35';
-    learnedS[idx] = true;
-    tbLayer[idx]  = LAYER.TL;
-    applyLayer(idx, LAYER.TL);
-    updateBadge(LAYER.TL);
-    addToStatesVocabArray(idx);
-    setTimeout(() => {
-      if (quizIdx === idx || quizIdx === -1) {
-        quizPanelEl.style.display = 'none';
-        quizIdx = -1;
-      }
-    }, 1500);
-  } else {
-    quizFbEl.textContent = 'QUIZ_WRONG_LABEL';
-    quizFbEl.style.color = '#b03030';
-    quizInputEl.value    = '';
-    quizInputEl.focus();
-  }
-}
-
-/* ================================================================
-   TRANSITIONS MODE — sliding text
-================================================================ */
-let _lastTransMIdx = -1;
-
-function updateSlideText(angleDeg) {
-  const mIdx   = nearestSeg(angleDeg);
-
-  // Reset display layer when month changes
-  if (mIdx !== _lastTransMIdx) {
-    transDispLayer = LAYER.TL;
-    _lastTransMIdx = mIdx;
-  }
-
-  // Clamp startOffset so text stays within the visible ring arc
-  const rawPct = (angleDeg / 360) * 100;
-  const offset = Math.min(Math.max(rawPct, 0), 85).toFixed(1) + '%';
-  slideTPEl.setAttribute('startOffset', offset);
-
-  const item = transVocab[mIdx];
-  const layer = (transDispLayer === LAYER.QUIZ) ? LAYER.TL : transDispLayer;
-  let text = '';
-  switch (layer) {
-    case LAYER.TL:  text = item.tl;  break;
-    case LAYER.SL:  text = item.sl;  break;
-  }
-  slideTextEl.setAttribute('fill', BADGE_COL[layer]);
-  slideTextEl.setAttribute('font-size', FONT_SZ[layer]);
-  slideTPEl.textContent = text;
-
-  // Keep display window in sync
-  updateTransDisplay(mIdx);
-}
-
-slideTextEl.addEventListener('click', () => {
-  if (isStatesMode) return;
-  handleTransDisplayClick();
-});
-
-/* ================================================================
-   DRAG HANDLERS
-================================================================ */
-function startDrag(e) {
-  e.preventDefault();
-  isDragging = true;
-  dragRingEl.style.cursor = 'grabbing';
-  if (dragHintEl) dragHintEl.style.opacity = '0';
-}
-function onDrag(e) {
-  if (!isDragging) return;
-  e.preventDefault();
-  const pt    = svgPt(e);
-  const angle = toAngle(pt.x, pt.y);
-  setFrame(angle);
-  if (isStatesMode) {
-    const mIdx = nearestSeg(angle);
-    showOnlyBox(mIdx);
-    highlightSeg(mIdx);
-  } else {
-    updateSlideText(angle);
-  }
-}
-function endDrag() {
-  if (!isDragging) return;
-  isDragging = false;
-  dragRingEl.style.cursor = 'grab';
-  const mIdx = snapFrame();
-  if (isStatesMode) {
-    showOnlyBox(mIdx);
-    highlightSeg(mIdx);
-  } else {
-    updateSlideText(MONTHS[mIdx].angle);
-  }
-}
-
-dragRingEl.addEventListener('mousedown',  e => startDrag(e));
-dragRingEl.addEventListener('touchstart', e => startDrag(e), {passive:false});
-document.addEventListener('mousemove',    e => onDrag(e));
-document.addEventListener('touchmove',    e => onDrag(e), {passive:false});
-document.addEventListener('mouseup',      endDrag);
-document.addEventListener('touchend',     endDrag);
-
-/* ================================================================
-   MODE TOGGLE
-================================================================ */
-modeBtnEl.addEventListener('click', () => {
-  isStatesMode = !isStatesMode;
-  modeBtnEl.textContent = isStatesMode ? 'TRANS_MODE_LABEL' : 'STATES_MODE_LABEL';
-  dismissQuiz(false);
-
-  if (isStatesMode) {
-    slideTextEl.style.display  = 'none';
-    transDispEl.style.display  = 'none';
-    vocabArrayEl.style.display = 'none';
-    dragHintEl.style.opacity   = '1';
-    displayAllBtnEl.style.display = 'block';
-    displayAllBtnEl.textContent   = 'DISPLAY_ALL_TL_LABEL';
-    displayAllBtnEl.className     = '';
-    if (statesVocabListEl.children.length > 0) statesVocabArrEl.style.display = 'block';
-    const mIdx = nearestSeg(frameAngle);
-    showOnlyBox(mIdx);
-    highlightSeg(mIdx);
-    updateBadge(tbLayer[mIdx] ?? LAYER.TL);
-  } else {
-    foEls.forEach(fo => { if (fo) fo.style.display = 'none'; });
-    statesVocabArrEl.style.display = 'none';
-    displayAllBtnEl.style.display  = 'none';
-    displayAllLayer = -1;
-    document.querySelectorAll('.seg').forEach(el => {
-      el.style.filter = '';
-      el.setAttribute('stroke-width', '0.5');
+    /* first opening: the Quiz sits inside the frame, upper right, clear of the activity window; once the learner moves it, it stays where it was dropped */
+    function placeQuiz() {
+        if (qc.dataset.moved === '1') return;
+        var r = page.getBoundingClientRect(), w = qc.offsetWidth, h = qc.offsetHeight;
+        var x = Math.min(Math.max(r.right - w - 16, 0), Math.max(0, window.innerWidth - w)), y = Math.min(r.top + 96, Math.max(0, window.innerHeight - h));
+        qc.style.left = x + 'px'; qc.style.top = y + 'px'; qc.style.right = 'auto'; qc.style.bottom = 'auto'; qc.style.transform = 'none';
+    }
+    function checkQuiz() {
+        if (quizIdx < 0) return;
+        var input = $('quizInput').value.trim(), qi = quizIdx, kind = quizKind, it = kind === 's' ? S[qi] : T[qi], fb = $('quizFeedback');
+        if (!input) return;
+        if (AnswerUtils.checkAnswer(input, plain(it[ANS]))) {
+            fb.textContent = lab('quiz_correct', 'Correct!'); fb.style.color = 'green';
+            if (kind === 's') { learnedS[qi] = true; setK(qi, 0); } else { learnedT[qi] = true; transK = 0; paintTrans(); }
+            addToArray(kind, qi); refresh(); closedKey = kind + qi; paintBadge();
+            setTimeout(function () { if (quizKind + quizIdx === closedKey) { qc.style.display = 'none'; quizIdx = -1; quizKind = ''; paintBadge(); } }, 1500);
+        } else { fb.textContent = lab('quiz_wrong', 'Try again'); fb.style.color = 'red'; $('quizInput').value = ''; $('quizInput').focus(); }
+    }
+    $('quizCheck').addEventListener('click', checkQuiz);
+    $('quizInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') checkQuiz(); });
+    document.addEventListener('click', function (e) {
+        if (qc.style.display !== 'block' || qc.contains(e.target) || (e.target.closest && e.target.closest('.textBox, .cmp-ghost, #transDisplay, #slideText'))) return;
+        closeQuiz(true); if (transMode) paintTrans(); paintBadge();
     });
-    transDispLayer       = LAYER.TL;
-    _lastTransMIdx       = -1;
-    transLayer           = LAYER.TL;
-    slideTextEl.style.display  = 'block';
-    transDispEl.style.display  = 'block';
-    // Only show vocab array if there are learned items
-    if (vocabListEl.children.length > 0) vocabArrayEl.style.display = 'block';
-    updateSlideText(frameAngle);
-    updateBadge(LAYER.TL);
-  }
-});
 
-/* ================================================================
-   TEXTBOX CLICK HANDLERS
-================================================================ */
-foEls.forEach((fo, i) => {
-  if (!fo) return;
-  fo.addEventListener('click', e => {
-    e.stopPropagation();
-    handleBoxClick(i);
-  });
-});
+    /* the Quiz and the Learned panels are hidden on touch phones (not enough room); desktop windows of any size keep them */
+    var mq = window.matchMedia('(pointer: coarse) and (max-width: 700px), (pointer: coarse) and (max-height: 520px) and (orientation: landscape)');
+    function syncQuiz() { de.classList.toggle('no-quiz', mq.matches); if (mq.matches && quizIdx >= 0) { closeQuiz(true); if (transMode) paintTrans(); } }
+    syncQuiz(); if (mq.addEventListener) mq.addEventListener('change', syncQuiz); else if (mq.addListener) mq.addListener(syncQuiz);
 
-/* ── Transitions display window click ── */
-transDispEl.addEventListener('click', e => {
-  if (e.target === tdInputEl || e.target.id === 'tdCheckBtn') return;
-  if (!isStatesMode) handleTransDisplayClick();
-});
-document.getElementById('tdCheckBtn').addEventListener('click', e => {
-  e.stopPropagation(); checkTransAnswer();
-});
-tdInputEl.addEventListener('keydown', e => { if (e.key === 'Enter') checkTransAnswer(); });
-tdInputEl.addEventListener('click',   e => e.stopPropagation());
-
-/* ── States Mode vocab array toggle ── */
-document.getElementById('statesVocabToggle').addEventListener('click', () => {
-  const list = statesVocabListEl;
-  const btn  = document.getElementById('statesVocabToggle');
-  if (list.style.display === 'none' || list.style.display === '') {
-    list.style.display = 'block';
-    btn.textContent = '▲  Vocabulary learned';
-  } else {
-    list.style.display = 'none';
-    btn.textContent = '▼  Vocabulary learned';
-  }
-});
-
-/* ── Transitions Mode vocab array toggle ── */
-document.getElementById('vocabToggle').addEventListener('click', () => {
-  const list = vocabListEl;
-  const btn  = document.getElementById('vocabToggle');
-  if (list.style.display === 'none' || list.style.display === '') {
-    list.style.display = 'block';
-    btn.textContent = '▲  Vocabulary learned';
-  } else {
-    list.style.display = 'none';
-    btn.textContent = '▼  Vocabulary learned';
-  }
-});
-
-/* ================================================================
-   QUIZ PANEL — click, grab, drag and move anywhere on the page
-================================================================ */
-function makeQuizDraggable() {
-  const qp   = quizPanelEl;
-  const page = pageEl;
-  let qDragging = false, offsetX = 0, offsetY = 0;
-
-  function qStart(e) {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
-    e.stopPropagation();
-    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-    const qpRect  = qp.getBoundingClientRect();
-    offsetX = clientX - qpRect.left;
-    offsetY = clientY - qpRect.top;
-    qDragging = true;
-    qp.classList.add('dragging');
-    e.preventDefault();
-  }
-  function qMove(e) {
-    if (!qDragging) return;
-    e.stopPropagation();
-    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-    const pageRect = page.getBoundingClientRect();
-    // quizPanel is position:absolute relative to #page (same coordinate
-    // space showQuiz() already computes qLeft/qTop in) — keep drag in
-    // that same space so a later showQuiz() call still behaves.
-    qp.style.left = (clientX - pageRect.left - offsetX) + 'px';
-    qp.style.top  = (clientY - pageRect.top  - offsetY) + 'px';
-    e.preventDefault();
-  }
-  function qEnd(e) {
-    if (!qDragging) return;
-    qDragging = false;
-    qp.classList.remove('dragging');
-    // A drag-release (mouseup) synthesizes a click event immediately
-    // afterward, targeted at whatever's under the cursor at that exact
-    // pixel — which, on a fast or slightly imprecise drag, can easily
-    // land just outside the panel's own bounds even though the user was
-    // clearly still interacting with it. Without this guard, that
-    // synthetic click gets misread by the outside-click handler below as
-    // "user clicked away," dismissing the quiz immediately after every
-    // drag. Swallow exactly one click event here; quizJustDragged is
-    // consumed and reset by the outside-click handler itself.
-    quizJustDragged = true;
-    if (e) e.stopPropagation();
-  }
-
-  qp.addEventListener('mousedown', qStart);
-  qp.addEventListener('touchstart', qStart, { passive: false });
-  document.addEventListener('mousemove', qMove);
-  document.addEventListener('touchmove', qMove, { passive: false });
-  document.addEventListener('mouseup', qEnd);
-  document.addEventListener('touchend', qEnd);
-}
-let quizJustDragged = false;
-makeQuizDraggable();
-
-/* ================================================================
-   QUIZ CONTROLS (States Mode)
-================================================================ */
-document.getElementById('quizCheck').addEventListener('click', checkAnswer);
-document.getElementById('quizClose').addEventListener('click', () => dismissQuiz(true));
-quizInputEl.addEventListener('keydown', e => { if (e.key === 'Enter') checkAnswer(); });
-
-/* ================================================================
-   OUTSIDE CLICK — dismiss quiz, step back to TL
-================================================================ */
-document.addEventListener('click', e => {
-  // Swallow exactly one click: the synthetic one generated right after
-  // a quiz-panel drag-release ends (see makeQuizDraggable / qEnd above).
-  if (quizJustDragged) {
-    quizJustDragged = false;
-    return;
-  }
-  // States Mode quiz dismiss
-  if (quizPanelEl.style.display !== 'none') {
-    if (!quizPanelEl.contains(e.target) && !e.target.closest('foreignObject')) {
-      dismissQuiz(true);
+    /* ---- movable panels: click, grab, drag and drop anywhere on the screen ---- */
+    var tip = document.createElement('div'); tip.id = 'arrayMoveTip'; document.body.appendChild(tip);
+    function movable(el, skip, onGrab) {
+        var st = null, swallow = false;
+        el.addEventListener('pointerdown', function (e) {
+            if ((e.pointerType === 'mouse' && e.button !== 0) || (skip && e.target.closest && e.target.closest(skip))) return;
+            var r = el.getBoundingClientRect(); st = { id: e.pointerId, dx: e.clientX - r.left, dy: e.clientY - r.top, x0: e.clientX, y0: e.clientY, drag: false };
+        });
+        document.addEventListener('pointermove', function (e) {
+            if (!st || e.pointerId !== st.id) return;
+            if (!st.drag) {
+                if (Math.hypot(e.clientX - st.x0, e.clientY - st.y0) < 5) return;
+                st.drag = true; var r = el.getBoundingClientRect();
+                el.style.left = r.left + 'px'; el.style.top = r.top + 'px'; el.style.right = 'auto'; el.style.bottom = 'auto'; el.style.transform = 'none'; el.dataset.moved = '1'; el.style.cursor = 'grabbing';
+                if (onGrab) onGrab();
+            }
+            var w = el.offsetWidth, h = el.offsetHeight;
+            el.style.left = Math.min(Math.max(e.clientX - st.dx, 0), Math.max(0, window.innerWidth - w)) + 'px';
+            el.style.top = Math.min(Math.max(e.clientY - st.dy, 0), Math.max(0, window.innerHeight - h)) + 'px';
+            e.preventDefault();
+        }, { passive: false });
+        function upP(e) { if (!st || e.pointerId !== st.id) return; if (st.drag) { swallow = true; setTimeout(function () { swallow = false; }, 60); el.style.cursor = ''; } st = null; }
+        document.addEventListener('pointerup', upP); document.addEventListener('pointercancel', upP);
+        el.addEventListener('click', function (e) { if (swallow) { e.stopPropagation(); e.preventDefault(); swallow = false; } }, true);
+        window.addEventListener('resize', function () {
+            if (el.dataset.moved !== '1') return; var r = el.getBoundingClientRect();
+            el.style.left = Math.min(Math.max(r.left, 0), Math.max(0, window.innerWidth - r.width)) + 'px'; el.style.top = Math.min(Math.max(r.top, 0), Math.max(0, window.innerHeight - r.height)) + 'px';
+        });
     }
-  }
-  // Transitions Mode quiz dismiss — click outside transDisplay
-  if (!isStatesMode && transDispLayer === LAYER.QUIZ) {
-    if (!transDispEl.contains(e.target)) {
-      transDispLayer = LAYER.TL;
-      const mIdx = nearestSeg(frameAngle);
-      updateTransDisplay(mIdx);
-      updateSlideText(frameAngle);
+    var tipTimer = null, tipDone = false;
+    function hideTip() { tip.style.opacity = '0'; clearTimeout(tipTimer); }
+    function hintText() { return (LANG.move_hint && LANG.move_hint !== 'MOVE_HINT') ? LANG.move_hint : 'You can move this'; }
+    movable(qc, 'input, button'); movable(td); movable(arrL, 'button', hideTip); movable(arrR, 'button', hideTip);
+    function placeArray() {
+        var r = page.getBoundingClientRect();
+        [arrL, arrR].forEach(function (a) { if (a.dataset.moved !== '1') { a.style.left = (r.left + 12) + 'px'; a.style.top = (r.top + 110) + 'px'; a.style.right = 'auto'; } });
     }
-  }
-});
+    window.addEventListener('resize', placeArray);
+    function showArrayTip() {
+        if (tipDone || noQuiz()) return; tipDone = true;
+        tip.textContent = hintText(); tip.className = ''; tip.style.opacity = '0'; tip.style.left = '0px'; tip.style.top = '0px';
+        var a = (transMode ? arrR : arrL).getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight, x, y;
+        if (a.left - w - 14 >= 4) { tip.className = 'left'; x = a.left - w - 12; y = a.top + 22 - h / 2; }
+        else if (a.right + w + 14 <= window.innerWidth) { tip.className = 'right'; x = a.right + 12; y = a.top + 22 - h / 2; }
+        else { tip.className = 'below'; x = Math.min(a.left, window.innerWidth - w - 4); y = a.bottom + 12; }
+        tip.style.left = x + 'px'; tip.style.top = Math.max(4, y) + 'px'; tip.style.opacity = '1';
+        clearTimeout(tipTimer); tipTimer = setTimeout(hideTip, 5000);
+    }
+    var hint = document.createElement('div'); hint.id = 'quizMoveHint'; hint.textContent = hintText(); qc.insertBefore(hint, qc.firstChild);
+    var hintTimer = null, wasOpen = false;
+    new MutationObserver(function () {
+        var open = qc.style.display === 'block';
+        if (open && !wasOpen) { hint.classList.remove('gone'); clearTimeout(hintTimer); hintTimer = setTimeout(function () { hint.classList.add('gone'); }, 5000); }
+        wasOpen = open;
+    }).observe(qc, { attributes: true, attributeFilter: ['style'] });
 
-/* ================================================================
-   SEGMENT TOOLTIPS
-================================================================ */
-document.querySelectorAll('.seg').forEach(seg => {
-  const idx = parseInt(seg.dataset.seg);
-  seg.addEventListener('mouseover', () => {
-    const d = segTipData[idx];
-    tooltipEl.innerHTML =
-      `<span class="tt-month">${d.month}</span>&nbsp;&nbsp;<span class="tt-season">${d.season}</span>`;
-    tooltipEl.style.display = 'block';
-  });
-  seg.addEventListener('mousemove', e => {
-    const pr  = pageEl.getBoundingClientRect();
-    let left  = e.clientX - pr.left + 12;
-    let top   = e.clientY - pr.top  + 14;
-    const ttW = tooltipEl.offsetWidth  || 220;
-    const ttH = tooltipEl.offsetHeight || 36;
-    if (left + ttW > pr.width  - 8) left = e.clientX - pr.left - ttW - 8;
-    if (top  + ttH > pr.height - 8) top  = e.clientY - pr.top  - ttH - 8;
-    tooltipEl.style.left = left + 'px';
-    tooltipEl.style.top  = top  + 'px';
-  });
-  seg.addEventListener('mouseout', () => { tooltipEl.style.display = 'none'; });
-});
+    /* ---- Reset: back to the opening view (States mode, the sun on March), all Quiz progress cleared ---- */
+    function resetAll() {
+        if (window.__cmpReset) window.__cmpReset();
+        qc.style.display = 'none'; quizIdx = -1; quizKind = ''; $('quizInput').value = ''; $('quizFeedback').textContent = '';
+        learnedS = S.map(function () { return false; }); learnedT = T.map(function () { return false; }); kS = S.map(function () { return 0; });
+        ['left', 'right'].forEach(function (sd) { $('learned-items-' + sd).innerHTML = ''; $('toggle-learned-' + sd).textContent = lab('hide_all_label', 'Hide All'); }); hideTip();
+        showAll = false; layerMode = 0; transK = 0; lastM = -1; frameDeg = 75; setFrame(75); allBtn.textContent = allLabel(); layerBtn.textContent = layerLabel();
+        var all = $('tsAll'); if (all) all.checked = false; $('tsReset').click(); $('textSizePanel').style.display = 'none';
+        [qc, arrL, arrR, td].forEach(function (el) { el.style.left = el.style.top = el.style.right = el.style.bottom = el.style.transform = ''; delete el.dataset.moved; });
+        build(); setMode(false); syncPanels(); placeArray();
+    }
+    rb.addEventListener('click', resetAll);
 
-/* ================================================================
-   INIT — start at March (segment 2, midpoint 75°)
-================================================================ */
-setFrame(75);
-updateBadge(LAYER.TL);
-highlightSeg(2);
-showOnlyBox(2);
-</script>
+    /* ---- print list: the 8 stages, then the 12 activities, beside the wheel (shown only when printing) ---- */
+    (function () {
+        var pl = $('printList'); if (!pl) return;
+        var esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;'); };
+        function row(it, h) { return '<div class="pl-row ' + (LOGV ? '' : 'rom') + '"><span class="pl-h">' + h + '</span>' + (LOGV ? '<span>' + it.tlr + '</span>' : '') + '<span>' + it.tl + '</span><span>' + esc(plain(it.sl)) + '</span></div>'; }
+        pl.innerHTML = S.map(function (it, i) { return row(it, LANG.months_short[i + 2]); }).join('') + '<div class="pl-gap"></div>' + T.map(function (it, i) { return row(it, LANG.months_short[i]); }).join('');
+    })();
+
+    var rt = null; function reflow() { clearTimeout(rt); rt = setTimeout(function () { window.cmpPlaceAll(); }, 120); }
+    window.addEventListener('resize', reflow); window.addEventListener('orientationchange', reflow);
+    window.addEventListener('load', function () { placeArray(); window.cmpPlaceAll(); });
+    qc.style.display = 'none'; setFrame(frameDeg); slideText.style.display = 'none'; td.style.display = 'none';
+    build(); syncPanels(); placeArray();
+})();
+
+    </script>
+    <script>
+    // --- Tools menu: Colours, Text size, Print ---
+    (function () {
+        var $ = function (id) { return document.getElementById(id); };
+        var wrap = $('toolsWrap'), menu = $('toolsMenu'), tb = $('toolsBtn'); if (!wrap) return;
+        tb.addEventListener('click', function (e) {
+            e.stopPropagation(); menu.classList.toggle('active'); menu.style.left = '0px';
+            if (menu.classList.contains('active')) { var b = menu.getBoundingClientRect(), over = b.right - (document.documentElement.clientWidth - 6); if (over > 0) menu.style.left = (-over) + 'px'; }
+        });
+        document.addEventListener('click', function (e) { if (!wrap.contains(e.target)) menu.classList.remove('active'); });
+        $('printBtn').addEventListener('click', function (e) { e.stopPropagation(); menu.classList.remove('active'); setTimeout(function () { window.print(); }, 50); });
+        // Text size: click a word then slide (that word), or tick All words
+        var panel = $('textSizePanel'), range = $('tsRange'), val = $('tsVal'), tgt = $('tsTarget'), all = $('tsAll');
+        var scales = {}, target = null;
+        window.tsScale = function (i) { return Math.min(3, Math.max(0.5, (scales[i] || 1) * (scales.all || 1))); };
+        window.tsApply = function () {
+            if (window.__cmpReset) window.__cmpReset();
+            textBoxElements.forEach(function (tb, i) { var d = tb && tb.querySelector('div'); if (d) applyTierStyle(d, i); });
+            window.cmpPlaceAll();
+        };
+        function show() {
+            var v = all.checked ? (scales.all || 1) : (target ? (scales[target.i] || 1) : 1);
+            range.value = Math.round(v * 100); val.textContent = Math.round(v * 100) + '%';
+            tgt.textContent = all.checked ? 'All words' : (target ? 'Word: ' + target.label : 'Click a word, then slide');
+        }
+        document.addEventListener('pointerdown', function (e) {
+            if (panel.contains(e.target)) return;
+            var bx = e.target.closest && e.target.closest('.textBox'); if (!bx) return;
+            var i = parseInt(bx.getAttribute('data-index'));
+            target = { i: i, label: (bx.textContent || '').trim().slice(0, 30) };
+            if (panel.style.display === 'block') { all.checked = false; show(); }
+        }, true);
+        range.addEventListener('input', function () {
+            var v = range.value / 100;
+            if (all.checked) scales.all = v; else if (target) scales[target.i] = v; else return;
+            val.textContent = range.value + '%'; window.tsApply();
+        });
+        all.addEventListener('change', show);
+        $('tsReset').addEventListener('click', function () { Object.keys(scales).forEach(function (k) { delete scales[k]; }); window.tsApply(); show(); });
+        $('tsClose').addEventListener('click', function () { panel.style.display = 'none'; });
+        $('textSizeBtn').addEventListener('click', function (e) {
+            e.stopPropagation(); menu.classList.remove('active'); panel.style.display = 'block';
+            if (!panel.dataset.moved) { var r = panel.getBoundingClientRect(); panel.style.left = Math.max(4, (window.innerWidth - r.width) / 2) + 'px'; panel.style.top = '70px'; }
+            show();
+        });
+        (function () {
+            var head = panel.querySelector('.tsHead'), d = null;
+            head.addEventListener('pointerdown', function (e) { if (e.target.id === 'tsClose') return; var r = panel.getBoundingClientRect(); d = { dx: e.clientX - r.left, dy: e.clientY - r.top }; panel.dataset.moved = '1'; head.setPointerCapture(e.pointerId); });
+            head.addEventListener('pointermove', function (e) { if (d) { panel.style.left = (e.clientX - d.dx) + 'px'; panel.style.top = (e.clientY - d.dy) + 'px'; } });
+            head.addEventListener('pointerup', function () { d = null; });
+        })();
+        var SCHEMES = [['Default', ''], ['No colour', 'nocolour'], ['Night', 'night']], ci = 2, cb = $('colourBtn');   /* the page opens in Night colours */
+        cb.addEventListener('click', function (e) {
+            e.stopPropagation(); ci = (ci + 1) % SCHEMES.length;
+            if (SCHEMES[ci][1]) document.documentElement.setAttribute('data-scheme', SCHEMES[ci][1]); else document.documentElement.removeAttribute('data-scheme');
+            cb.textContent = 'Colours: ' + SCHEMES[ci][0];
+        });
+        var keepScheme = null;   /* paper is always printed in the light colours, then the screen scheme comes back */
+        window.addEventListener('beforeprint', function () { keepScheme = document.documentElement.getAttribute('data-scheme'); if (keepScheme === 'night') document.documentElement.removeAttribute('data-scheme'); });
+        window.addEventListener('afterprint', function () { if (keepScheme === 'night') document.documentElement.setAttribute('data-scheme', 'night'); keepScheme = null; });
+    })();
+
+
+    </script>
+    <script>
+    // --- Pull a word out of the dial to inspect it: it follows the finger or mouse and grows (up to 300%); let go and it STAYS for 5 seconds, then snaps back ---
+    (function () {
+        var MAXS = 3, HOLD_MS = 5000, svg = document.getElementById('svgCanvas');
+        var held = new Map();   // index -> { ghost, box, x, y, s, hx, hy, w, h, timer }
+        var g = null, swallow = false;
+        function tf(o) { return 'translate(calc(-50% + ' + o.x + 'px), calc(-50% + ' + o.y + 'px)) scale(' + o.s + ')'; }
+        function makeGhost(box) {
+            var d = box.querySelector('div'), r = d.getBoundingClientRect(), k = svg.getScreenCTM().a;
+            var gh = document.createElement('div'); gh.className = 'cmp-ghost';
+            gh.innerHTML = d.innerHTML; gh.style.textTransform = d.style.textTransform; gh.style.fontSize = (parseFloat(d.style.fontSize) * k) + 'px';
+            document.body.appendChild(gh);
+            var w = gh.offsetWidth, h = gh.offsetHeight, hx = r.left + r.width / 2, hy = r.top + r.height / 2;
+            gh.style.left = hx + 'px'; gh.style.top = hy + 'px';
+            return { ghost: gh, box: box, hx: hx, hy: hy, w: w, h: h, x: 0, y: 0, s: 1, timer: null };
+        }
+        function snapBack(i) {
+            var o = held.get(i); if (!o) return; clearTimeout(o.timer); held.delete(i);
+            var gh = o.ghost; gh.style.transition = 'transform .3s cubic-bezier(.34,1.56,.64,1)';
+            gh.style.transform = 'translate(-50%, -50%) scale(1)';
+            setTimeout(function () { if (gh.parentNode) gh.parentNode.removeChild(gh); o.box.style.visibility = ''; }, 330);
+        }
+        function startHold(i) { var o = held.get(i); if (!o) return; clearTimeout(o.timer); o.timer = setTimeout(function () { snapBack(i); }, HOLD_MS); }
+        window.__cmpReset = function () { held.forEach(function (o) { clearTimeout(o.timer); if (o.ghost.parentNode) o.ghost.parentNode.removeChild(o.ghost); o.box.style.visibility = ''; }); held.clear(); g = null; };
+        ['display-mode-toggle', 'show-all-toggle', 'mode-btn', 'reset-btn'].forEach(function (id) { document.getElementById(id).addEventListener('click', function () { window.__cmpReset(); }); });
+        window.addEventListener('resize', function () { window.__cmpReset(); });
+
+        document.addEventListener('pointerdown', function (e) {
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+            var gh = e.target.closest && e.target.closest('.cmp-ghost'), box = null, i = -1;
+            if (gh) { held.forEach(function (o, k) { if (o.ghost === gh) { i = k; box = o.box; } }); }
+            else { box = e.target.closest && e.target.closest('.textBox'); if (!box) return; i = parseInt(box.getAttribute('data-index')); var dv = box.querySelector('div'); if (!dv || getComputedStyle(box).display === 'none') return; }
+            if (i < 0) return;
+            var o = held.get(i), hadHold = !!o;
+            if (!o) o = makeGhostFor(box); else clearTimeout(o.timer);
+            g = { i: i, box: box, o: o, id: e.pointerId, x0: e.clientX, y0: e.clientY, ox: o.x, oy: o.y, s0: o.s, hadHold: hadHold, drag: false, fresh: !hadHold };
+            if (gh) { try { gh.setPointerCapture(e.pointerId); } catch (_) {} e.preventDefault(); }
+        }, true);
+        function makeGhostFor(box) { var o = makeGhost(box); o.ghost.style.display = 'none'; held.set(parseInt(box.getAttribute('data-index')), o); o.pending = true; return o; }
+        document.addEventListener('pointermove', function (e) {
+            if (!g || e.pointerId !== g.id) return;
+            var dx = e.clientX - g.x0, dy = e.clientY - g.y0, d = Math.hypot(dx, dy), o = g.o;
+            if (!g.drag) {
+                if (d < 6) return;
+                g.drag = true; o.ghost.style.display = ''; o.ghost.style.transition = 'none'; g.box.style.visibility = 'hidden'; o.pending = false;
+                if (g.fresh && window.__cmpSpeak) window.__cmpSpeak(g.i, true);
+            }
+            var dmax = Math.max(120, Math.min(230, 0.30 * Math.min(window.innerWidth, window.innerHeight)));
+            var s = g.hadHold ? g.s0 : 1 + (MAXS - 1) * Math.min(1, d / dmax);
+            s = Math.min(s, (window.innerWidth - 8) / o.w, (window.innerHeight - 8) / o.h);
+            var hw = o.w * s / 2, hh = o.h * s / 2, tx = o.hx + g.ox + dx, ty = o.hy + g.oy + dy;
+            var cx = Math.min(Math.max(tx, hw + 2), window.innerWidth - hw - 2), cy = Math.min(Math.max(ty, hh + 2), window.innerHeight - hh - 2);
+            o.x = cx - o.hx; o.y = cy - o.hy; o.s = s; o.ghost.style.transform = tf(o);
+            e.preventDefault();
+        }, { passive: false });
+        function release(e) {
+            if (!g || e.pointerId !== g.id) return;
+            var cur = g; g = null;
+            if (cur.drag) { swallow = true; setTimeout(function () { swallow = false; }, 60); startHold(cur.i); return; }
+            if (cur.hadHold) {   // a tap on a held word: flip its layer and start the 5 seconds again
+                cur.box.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                cur.o.ghost.innerHTML = cur.box.querySelector('div').innerHTML; cur.o.ghost.style.textTransform = cur.box.querySelector('div').style.textTransform;
+                startHold(cur.i);
+            } else { var o = held.get(cur.i); if (o && o.pending) { if (o.ghost.parentNode) o.ghost.parentNode.removeChild(o.ghost); held.delete(cur.i); } }
+        }
+        document.addEventListener('pointerup', release, true);
+        document.addEventListener('pointercancel', release, true);
+        document.addEventListener('click', function (e) { if (swallow && e.target.closest && e.target.closest('.textBox')) { e.stopPropagation(); e.preventDefault(); swallow = false; } }, true);
+        document.addEventListener('contextmenu', function (e) { if (e.target.closest && (e.target.closest('.textBox') || e.target.closest('.cmp-ghost'))) e.preventDefault(); });
+    })();
+    </script>
+    <script>
+
+    /* 2026-11-17 AUDIO and FULL SCREEN on the Seasons. The Audio button cycles: TL + SL (hear the target-language day, then the source-language one) -> TL only -> Silent.
+       The slider is the volume. Language codes come from the App: window.CONCEPTIONARY_AUDIO_LANG / _SL_LANG (e.g. 'id-ID', 'en-NZ'); label overrides window.CONCEPTIONARY_AUDIO_TL_LABEL / _SL_LABEL;
+       recorded files: window.CONCEPTIONARY_AUDIO_FILES[text]; cloud voice: window.CONCEPTIONARY_AUDIO_API_URL.
+       Let go of the sun, or tap a word: it is spoken. The romanised (TLR) line of the LOG file is never spoken. */
+    (function () {
+        var ctl = document.getElementById('cmpCtl'); if (!ctl || document.getElementById('auCycle')) return;
+        var AB = { en: 'ENG', id: 'IND', ms: 'MSA', ja: 'JPN', ko: 'KOR', zh: '中文', fr: 'FRA', de: 'DEU', es: 'SPA', it: 'ITA', pt: 'POR', ru: 'RUS', ar: 'ARA', hi: 'HIN', th: 'THA', vi: 'VIE', mi: 'MRI', fil: 'FIL', tl: 'FIL', nl: 'NLD', sv: 'SWE', tr: 'TUR', pl: 'POL', el: 'ELL', he: 'HEB', sm: 'SMO', to: 'TON', fj: 'FIJ' };
+        var AUDIO_API_URL = window.CONCEPTIONARY_AUDIO_API_URL || '';
+        var st = { mode: 0, vol: 0.8, last: '', lastT: 0, timer: null, cur: null, pt: 'mouse', seq: 0 };   // mode 0 = TL+SL, 1 = TL only, 2 = silent
+        function tlCode() { return window.CONCEPTIONARY_AUDIO_LANG || ''; }
+        function slCode() { return window.CONCEPTIONARY_AUDIO_SL_LANG || ''; }
+        function abbr(code, fb, ov) { if (ov) return ov; if (!code) return fb; var b = code.toLowerCase().split(/[-_]/)[0]; return AB[b] || b.toUpperCase(); }
+        function tlName() { return abbr(tlCode(), 'TL', window.CONCEPTIONARY_AUDIO_TL_LABEL); }
+        function slName() { return abbr(slCode(), 'SL', window.CONCEPTIONARY_AUDIO_SL_LABEL); }
+
+        var wrap = document.createElement('div'); wrap.id = 'audioWrap'; wrap.className = 'audio-wrap';
+        var cyc = document.createElement('button'); cyc.id = 'auCycle'; cyc.type = 'button';
+        var vol = document.createElement('input'); vol.type = 'range'; vol.id = 'auVol2'; vol.min = 0; vol.max = 100; vol.step = 5; vol.value = 80; vol.setAttribute('aria-label', 'Volume');
+        wrap.appendChild(cyc); wrap.appendChild(vol); ctl.insertBefore(wrap, ctl.firstChild);
+        var toast = document.createElement('div'); toast.id = 'auToast'; document.body.appendChild(toast); var toastT = null;
+        function note(text) {
+            toast.textContent = text; toast.style.opacity = '1';
+            var r = wrap.getBoundingClientRect(); toast.style.left = '0px'; toast.style.top = '0px';
+            var w = toast.offsetWidth, h = toast.offsetHeight;
+            toast.style.left = Math.max(6, Math.min(window.innerWidth - w - 6, r.left + r.width / 2 - w / 2)) + 'px';
+            var t = r.top - h - 8; if (t < 6) t = Math.min(window.innerHeight - h - 6, r.bottom + 8);
+            toast.style.top = t + 'px';
+            clearTimeout(toastT); toastT = setTimeout(function () { toast.style.opacity = '0'; }, 2600);
+        }
+        function label() {
+            cyc.textContent = st.mode === 0 ? tlName() + '+' + slName() : st.mode === 1 ? tlName() : 'Silent';
+            cyc.setAttribute('aria-label', 'Audio: ' + cyc.textContent);
+            cyc.title = 'Click to change: ' + tlName() + ' + ' + slName() + ' / ' + tlName() + ' only / Silent. The slider is the volume.';
+        }
+        function describe() { return st.mode === 0 ? 'Audio: hear the target language (' + tlName() + '), then the source language (' + slName() + ')' : st.mode === 1 ? 'Audio: target language (' + tlName() + ') only' : 'Audio: silent'; }
+
+        function pickVoice(code) {
+            var vs = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
+            if (!code) return null;
+            var c = code.toLowerCase(), base = c.split('-')[0], best = null, bs = -1;
+            vs.forEach(function (v) {
+                var l = (v.lang || '').toLowerCase().replace('_', '-');
+                if (l !== c && l.split('-')[0] !== base) return;
+                var s = (l === c ? 4 : 0) + (/natural|neural|online/i.test(v.name) ? 3 : 0) + (/google/i.test(v.name) ? 2 : 0) + (v.localService ? 0 : 1);
+                if (s > bs) { best = v; bs = s; }
+            });
+            return best;
+        }
+        function stop() { st.seq++; try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} if (st.cur) { try { st.cur.pause(); } catch (e) {} st.cur = null; } }
+        function playUrl(u, done) { var a = new Audio(u); a.volume = st.vol; if (st.cur) { try { st.cur.pause(); } catch (e) {} } st.cur = a; if (done) a.onended = done; a.play().catch(function () { note('The browser blocked the sound: tap the page once and try again.'); }); }
+        function viaBrowser(text, code, done) {
+            if (!window.speechSynthesis) { note('This browser cannot speak.'); return; }
+            var v = pickVoice(code);
+            if (code && !v) { note('No ' + code + ' voice on this device.'); return; }
+            var u = new SpeechSynthesisUtterance(text);
+            if (code) u.lang = code; if (v) u.voice = v; u.volume = st.vol;
+            window.__auUtt = u;   // keep a reference: some phones drop the sound if the utterance is garbage-collected
+            var started = false; u.onstart = function () { started = true; };
+            if (done) u.onend = done;
+            u.onerror = function (ev) { if (ev.error && ev.error !== 'interrupted' && ev.error !== 'canceled') note('The device could not speak (' + ev.error + ').'); };
+            var go = function () {
+                try { speechSynthesis.resume(); } catch (e) {}
+                speechSynthesis.speak(u);
+                setTimeout(function () { if (!started && window.__auUtt === u) { try { speechSynthesis.cancel(); } catch (e) {} } }, 2500);   // stuck phone queue: clear it so the next tap works
+            };
+            if (speechSynthesis.speaking || speechSynthesis.pending) { speechSynthesis.cancel(); setTimeout(go, 120); } else go();
+        }
+        function viaCloud(text, code, done) {
+            fetch(AUDIO_API_URL + '?text=' + encodeURIComponent(text) + '&lang=' + encodeURIComponent(code))
+                .then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
+                .then(function (b) { playUrl(URL.createObjectURL(b), done); })
+                .catch(function () { note('The audio service could not be reached.'); });
+        }
+        function speak1(text, code, done) {
+            var files = window.CONCEPTIONARY_AUDIO_FILES;
+            if (files && files[text] && (!code || code === tlCode())) { playUrl(files[text], done); return; }   /* recordings belong to the target language only */
+            if (AUDIO_API_URL && code) viaCloud(text, code, done); else viaBrowser(text, code, done);
+        }
+        var lastItem = '';
+        function speakItem(item) {
+            if (st.mode === 2 || !item) return;
+            var key = item.id + '|' + st.mode, now = Date.now();
+            if (key === st.last && now - st.lastT < 1200) return;   // one phrase, one sound
+            st.last = key; st.lastT = now;
+            var items = [[item.tl, tlCode()]];                      // the target-language word (the script in the LOG file; never the romanised line)
+            if (st.mode === 0) items.push([item.sl, slCode()]);     // then the source-language word
+            st.seq++; var my = st.seq, i = 0;
+            try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
+            (function next() { if (my !== st.seq || i >= items.length) return; var it = items[i++]; if (!it[0]) { next(); return; } speak1(it[0], it[1], function () { setTimeout(next, 150); }); })();
+        }
+        window.__cmpSpeak = function (i, force) { var d = window.__riceItem(i); if (!d) return; if (force) st.last = ''; speakItem({ id: i, tl: String(d[1]).replace(/<rt>[^<]*<\/rt>/g, '').replace(/<[^>]*>/g, ''), sl: d[0] }); };   // the TLR (romanised) line is never spoken
+
+        cyc.addEventListener('click', function (e) {
+            e.stopPropagation();
+            st.mode = (st.mode + 1) % 3; label(); if (st.mode === 2) stop();
+            if (window.speechSynthesis) speechSynthesis.getVoices();
+            note(describe());
+        });
+        vol.addEventListener('input', function () { st.vol = vol.value / 100; if (st.cur) st.cur.volume = st.vol; vol.style.setProperty('--p', vol.value + '%'); });
+        vol.addEventListener('click', function (e) { e.stopPropagation(); });
+        window.addEventListener('load', label); label(); vol.style.setProperty('--p', vol.value + '%');
+        window.__auCycle = { get mode() { return st.mode; }, label: label };
+
+        /* Full Screen (hidden where the browser cannot do it, e.g. iPhone Safari) */
+        var de = document.documentElement, fb = document.getElementById('fsBtn');
+        var req = de.requestFullscreen || de.webkitRequestFullscreen;
+        if (!req) { if (fb) fb.style.display = 'none'; }
+        else {
+            window.toggleFullScreen = function () {
+                var on = document.fullscreenElement || document.webkitFullscreenElement;
+                var fail = function () { if (!fb) return; fb.textContent = 'Not allowed here'; setTimeout(sync, 2500); };
+                if (!on) { try { var p = req.call(de); if (p && p.catch) p.catch(fail); } catch (e) { fail(); } }
+                else { var ex = document.exitFullscreen || document.webkitExitFullscreen; if (ex) ex.call(document); }
+            };
+            var sync = function () { if (fb) fb.textContent = (document.fullscreenElement || document.webkitFullscreenElement) ? 'Exit Full Screen' : 'Full Screen'; };
+            document.addEventListener('fullscreenchange', sync); document.addEventListener('webkitfullscreenchange', sync);
+        }
+    })();
+    
+    </script>
 </body>
 </html>
