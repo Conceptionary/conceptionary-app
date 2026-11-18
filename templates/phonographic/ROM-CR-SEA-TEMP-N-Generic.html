@@ -1,436 +1,19 @@
 <!DOCTYPE html>
 <!-- Last updated: 2026-11-18 @ 3:42 p.m. (Mangawhai, NZ) -->
-<html lang="en" class="no-quiz" data-scheme="night">
+<html lang="en" data-scheme="night">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Week Cycle - Generic Template</title>
+    <title>Seasons of the Year — Temperate (Northern Hemisphere) — Phonographic — Generic</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f9f9f9;
-            overflow: hidden;
-        }
-
-        .a4-page {
-            width: 90vw;
-            height: 70vh;
-            border: 5px solid black;
-            background-color: white;
-            box-sizing: border-box;
-            position: relative;
-            touch-action: none;
-            z-index: 1;
-            overflow: hidden;
-        }
-
-        .watermark {
-            position: absolute;
-            bottom: 5px;
-            width: 100%;
-            text-align: center;
-            font-size: 12px;
-            color: rgba(0, 0, 0, 0.3);
-            font-weight: bold;
-            pointer-events: none;
-            user-select: none;
-            z-index: 0;
-        }
-
-        svg {
-            width: 100%;
-            height: 100%;
-            overflow: visible;
-        }
-
-        .circle-path {
-            stroke: #333;
-            stroke-width: 0.5;
-            fill: none;
-        }
-
-        .weekday-segment {
-            stroke: #ddd;
-            stroke-width: 0.3;
-            fill: rgba(135, 206, 250, 0.2);
-            transition: fill 0.3s ease;
-        }
-
-        .weekend-segment {
-            stroke: #ddd;
-            stroke-width: 0.3;
-            fill: rgba(255, 192, 203, 0.2);
-            transition: fill 0.3s ease;
-        }
-
-        .segment-highlighted {
-            fill: rgba(255, 255, 0, 0.6) !important;
-            stroke: #ffd700;
-            stroke-width: 1px;
-        }
-
-        .segment-label {
-            font-size: 2.5px;
-            font-weight: bold;
-            fill: #333;
-            text-anchor: middle;
-            dominant-baseline: central;
-            pointer-events: none;
-            font-family: Arial, sans-serif;
-            transition: opacity 0.3s ease;
-        }
-
-        .textBox {
-            cursor: pointer;
-            font-size: 0.8em;
-            fill: black;
-            opacity: 0;
-            display: none;
-            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-            transform: scale(0.5);
-            text-anchor: middle;
-            font-family: Arial, sans-serif;
-            pointer-events: all;
-        }
-
-        .textBox.active {
-            opacity: 1;
-            display: block;
-            transform: scale(1) translateY(0);
-        }
-
-        .textBox.learned {
-            opacity: 0.5;
-            display: block;
-            transform: scale(1) translateY(0);
-            fill: green;
-        }
-        
-        .textBox.learned.active {
-            opacity: 1;
-        }
-        
-        .textBox.hidden {
-            opacity: 0;
-            display: none;
-        }
-
-        #draggableFrame {
-            cursor: grab;
-            fill: url(#sunGradient);
-            stroke: #ff7f00;
-            stroke-width: 2px;
-            pointer-events: all;
-            opacity: 0.9;
-            transition: fill 0.2s ease;
-            z-index: 1000;
-        }
-
-        #draggableFrame:hover {
-            fill: url(#sunGradient);
-            stroke: #ff7f00;
-            stroke-width: 3px;
-            cursor: grab;
-        }
-
-        #draggableFrame.dragging {
-            cursor: grabbing;
-            fill: url(#sunGradient);
-            stroke: #ff7f00;
-            stroke-width: 3px;
-        }
-
-        .title-box {
-            position: absolute;
-            top: 2%;
-            left: 75%;
-            transform: translateX(-50%);
-            font-size: 1em;
-            font-weight: bold;
-            text-align: center;
-            cursor: pointer;
-            border: 1px solid black;
-            padding: 10px;
-            background-color: white;
-            z-index: 2;
-            transition: opacity 0.5s ease, transform 0.5s ease;
-            font-family: Arial, sans-serif;
-        }
-        
-        .title-box.hidden {
-            opacity: 0;
-            transform: translateX(-50%) scale(0.9);
-        }
-
-        .day-indicator {
-            position: absolute;
-            top: 10%;
-            left: 95%;
-            transform: translateX(-50%);
-            font-size: 0.75em;
-            padding: 6px 12px;
-            background-color: white;
-            border: 1px solid #555;
-            border-radius: 4px;
-            z-index: 3;
-            white-space: nowrap;
-            font-family: Arial, sans-serif;
-            min-width: 120px;
-            text-align: center;
-        }
-
-        .today-indicator {
-            position: absolute;
-            top: 22%;
-            left: 95%;
-            transform: translateX(-50%);
-            font-size: 0.75em;
-            padding: 6px 12px;
-            background-color: #4CAF50;
-            color: white;
-            border: 1px solid #45a049;
-            border-radius: 4px;
-            cursor: pointer;
-            z-index: 3;
-            white-space: nowrap;
-            font-family: Arial, sans-serif;
-            min-width: 120px;
-            text-align: center;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-
-        .today-indicator:hover {
-            background-color: #45a049;
-        }
-
-        .display-mode-toggle {
-            position: absolute;
-            top: 34%;
-            left: 95%;
-            transform: translateX(-50%);
-            font-size: 0.75em;
-            padding: 6px 12px;
-            background-color: #e8f4fd;
-            border: 1px solid #3366cc;
-            border-radius: 4px;
-            cursor: pointer;
-            z-index: 3;
-            white-space: nowrap;
-            font-family: Arial, sans-serif;
-            min-width: 120px;
-            text-align: center;
-        }
-
-        .sun-cycle-toggle {
-            position: absolute;
-            top: 46%;
-            left: 95%;
-            transform: translateX(-50%);
-            font-size: 0.75em;
-            padding: 6px 12px;
-            background-color: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 4px;
-            cursor: pointer;
-            z-index: 3;
-            white-space: nowrap;
-            font-family: Arial, sans-serif;
-            min-width: 120px;
-            text-align: center;
-        }
-
-        .day-labels-toggle {
-            position: absolute;
-            top: 58%;
-            left: 95%;
-            transform: translateX(-50%);
-            font-size: 0.75em;
-            padding: 6px 12px;
-            background-color: #e8f4e8;
-            border: 1px solid #66cc66;
-            border-radius: 4px;
-            cursor: pointer;
-            z-index: 3;
-            white-space: nowrap;
-            font-family: Arial, sans-serif;
-            min-width: 120px;
-            text-align: center;
-        }
-
-        .drag-instruction {
-            position: absolute;
-            top: 70%;
-            left: 95%;
-            transform: translateX(-50%);
-            font-size: 0.75em;
-            padding: 6px 12px;
-            background-color: rgba(255, 255, 255, 0.9);
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            z-index: 3;
-            opacity: 1;
-            transition: opacity 3s ease;
-            white-space: nowrap;
-            font-family: Arial, sans-serif;
-            min-width: 120px;
-            text-align: center;
-        }
-        
-        .drag-instruction.fade {
-            opacity: 0;
-        }
-
-        .quiz-container {
-            position: fixed;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            border: 3px solid #3366cc;
-            border-radius: 4px;
-            padding: 12px;
-            z-index: 9999;
-            display: none;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            max-width: 360px;
-            width: 360px;
-        }
-        
-        .quiz-container input {
-            width: 100%;
-            padding: 8px;
-            font-size: 14px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            font-family: Arial, sans-serif;
-        }
-        
-        .quiz-container button {
-            width: 100%;
-            padding: 8px;
-            background-color: #3366cc;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        .quiz-container button:hover {
-            background-color: #254e9c;
-        }
-        
-        #quizFeedback {
-            text-align: center;
-            font-weight: bold;
-            margin-top: 8px;
-            min-height: 20px;
-        }
-
-        .vocabulary-array {
-            position: absolute;
-            top: 1%;
-            left: 2%;
-            width: 20%;
-            max-height: 60vh;
-            overflow-y: auto;
-            background-color: rgba(255, 255, 255, 0.95);
-            border: 2px solid #3366cc;
-            border-radius: 8px;
-            padding: 8px;
-            z-index: 4;
-            display: none;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .array-title {
-            font-size: 1em;
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 8px;
-            padding: 6px;
-            background-color: #3366cc;
-            color: white;
-            border-radius: 4px;
-        }
-
-        .vocabulary-item {
-            display: flex;
-            flex-direction: column;
-            font-size: 0.85em;
-            margin: 6px 0;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #f9f9f9;
-            transition: background-color 0.3s ease;
-        }
-
-        .vocabulary-item:hover {
-            background-color: #eaf2ff;
-        }
-
-        .vocabulary-item .target-language {
-            font-weight: bold;
-            color: green;
-            cursor: pointer;
-            padding: 3px 6px;
-            border-radius: 3px;
-            font-family: Arial, sans-serif;
-            margin-bottom: 3px;
-        }
-
-        .vocabulary-item .target-language-romanized {
-            font-style: italic;
-            color: #666;
-            cursor: pointer;
-            padding: 3px 6px;
-            border-radius: 3px;
-            font-size: 0.9em;
-            margin-bottom: 3px;
-        }
-
-        .vocabulary-item .source-language {
-            color: #555;
-            cursor: pointer;
-            padding: 3px 6px;
-            border-radius: 3px;
-        }
-        
-        .vocabulary-item .target-language.hidden,
-        .vocabulary-item .target-language-romanized.hidden,
-        .vocabulary-item .source-language.hidden {
-            color: transparent;
-            user-select: none;
-            background-color: #f0f0f0;
-        }
-
-        .toggle-visibility {
-            display: block;
-            width: 100%;
-            margin-top: 8px;
-            font-size: 0.85em;
-            padding: 6px 12px;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .toggle-visibility:hover {
-            background-color: #e0e0e0;
-        }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #c4eaf8; overflow: hidden; }
+        .a4-page { width: 90vw; height: 88vh; border: 5px solid black; background-color: #c4eaf8; box-sizing: border-box; position: relative; touch-action: none; z-index: 1; overflow: hidden; }
+        .watermark { position: absolute; bottom: 5px; width: 100%; text-align: center; font-size: 11px; color: rgba(0,0,0,0.3); font-weight: bold; pointer-events: none; user-select: none; z-index: 0; }
+        svg { width: 100%; height: 100%; overflow: visible; }
+        .title-box { position: absolute; top: 10px; left: 10px; font-size: 1em; font-weight: bold; text-align: center; cursor: pointer; border: 1px solid black; padding: 10px; background-color: white; color: #0d2d42; z-index: 2; font-family: Arial, sans-serif; }
+        .drag-instruction { position: absolute; top: 60px; right: 10px; font-size: 0.9em; padding: 5px 10px; background-color: rgba(255,255,255,0.9); border: 1px solid #ccc; border-radius: 4px; z-index: 3; opacity: 1; transition: opacity 3s ease; }
+        .drag-instruction.fade { opacity: 0; }
     /* 2026-11-06 Phone layout, Audio, Print, Full Screen, Tools menu and no Quiz on the Compass */
-    html.no-quiz .quiz-container, html.no-quiz .vocabulary-array { display: none !important; }
     .a4-page { height: 86vh; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr) auto; }
     .a4-page > svg { grid-column: 1 / 3; grid-row: 2; min-height: 0; width: 100%; height: 100%; }
     #cmpInfo { position: static; grid-column: 1; grid-row: 1; z-index: 3; display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; margin: 10px; }
@@ -533,14 +116,7 @@
     @media print { #textSizePanel, .cmp-ghost { display: none !important; } }
 
     .textBox.visible { display: block; transform: scale(1) translateY(0); }
-    #cmpCtl .today-indicator { font-weight: bold; }
-    #cmpCtl .today-indicator { background: #3366cc; }
-    </style>
-    <style>
-    /* 2026-11-09 Full Screen: when on, the dial fills the whole screen (no framed box), so the change is plainly visible */
-    html:fullscreen .a4-page, html:-webkit-full-screen .a4-page { width: 100vw !important; height: 100vh !important; height: 100dvh !important; border: 0 !important; }
-    html:fullscreen, html:-webkit-full-screen { background: #fff; }
-    html:fullscreen body, html:-webkit-full-screen body { margin: 0; }
+
     </style>
     <style id="cx-style">
 /* ===== CONCEPTIONARY STYLE SHEET v0.1 (trial on the Compass, 2026-11-06) =====
@@ -667,36 +243,70 @@ html[data-scheme="night"] {
 @media (pointer: coarse) { .audio-wrap #auVol2::-webkit-slider-thumb { margin-top: -7px; } }
 @media (max-height: 520px) and (orientation: landscape) { .audio-wrap #auVol2::-webkit-slider-thumb { margin-top: -4px; } }
 html[data-scheme="night"] .tools-dd button { box-shadow: inset 0 1px 0 rgba(255,255,255,.10); }
-/* ===== DOW: dial, sun and words ===== */
-/* ===== week days (light green = go) and weekend (light red = stop) ===== */
-.weekday-segment { fill: #b4e3ba; fill-opacity: .5; }
-.weekend-segment { fill: #f4aeae; fill-opacity: .5; }
-#cxToast { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 1200; background: rgba(40,40,40,.92); color: #fff; font: 600 14px var(--cx-font, sans-serif); padding: 8px 14px; border-radius: 10px; max-width: min(92vw, 420px); text-align: center; pointer-events: none; opacity: 0; transition: opacity .3s; }
-@media print { #cxToast { display: none; } }
-
-.weekday-segment { stroke: #fff; stroke-opacity: .8; stroke-width: .25; }
-.weekend-segment { stroke: #fff; stroke-opacity: .8; stroke-width: .25; }
-.segment-highlighted { fill: rgba(255,222,89,.75) !important; fill-opacity: 1 !important; stroke: var(--cx-accent); stroke-width: .7px; }
-.circle-path { stroke: var(--cx-muted); stroke-width: .35; }
-html[data-scheme="night"] .weekday-segment, html[data-scheme="night"] .weekend-segment { fill-opacity: .26; stroke-opacity: .25; }
-html[data-scheme="night"] .segment-highlighted { fill: rgba(255,214,90,.55) !important; }
+    
+/* ===== TML: monthly tide dial, Quiz and Learned panel ===== */
+.textBox, .textBox.active, .textBox.learned { transform: none !important; }
 .textBox.learned div { color: #1b7f3b !important; }
-.today-indicator, .display-mode-toggle { font-family: var(--cx-font); }
-/* the sun */
-#draggableFrame, #draggableFrame:hover, #draggableFrame.dragging { stroke: #e8890c; stroke-width: .35px; opacity: 1; filter: drop-shadow(0 .5px 1px rgba(160,80,0,.45)); }
-#draggableFrame:hover, #draggableFrame.dragging { stroke-width: .5px; filter: drop-shadow(0 .6px 1.4px rgba(160,80,0,.6)); }
-#cxSun { pointer-events: none; }
-#cxSun .glow { fill: url(#cxSunGlow); }
-#cxSun .rays { transform-box: fill-box; transform-origin: center; animation: cxSunSpin 40s linear infinite; }
-#cxSun .rays polygon { fill: url(#cxRayGrad); }
-#cxSun.dragging .rays { animation-duration: 8s; }
-#cxSun.dragging .glow { transform-box: fill-box; transform-origin: center; transform: scale(1.18); }
-@keyframes cxSunSpin { to { transform: rotate(360deg); } }
-html[data-scheme="night"] #cxSun .glow { opacity: .8; }
-@media print { #cxSun .rays { animation: none; } #draggableFrame { filter: none; } }
-    /* a word that turns yellow under the pointer (or a touch) always shows black text, in every colour scheme and whether or not it is learned (2026-11-13) */
-html[lang] body .textBox:hover div, html[lang] body .textBox:active div, html[lang] body .textBox.active:hover div, html[lang] body .textBox.learned:hover div { color: #000 !important; text-shadow: none !important; background: #fff176 !important; }
-</style>
+.segment-highlighted { stroke: var(--cx-accent); stroke-width: .9px; filter: none; }
+.quiz-container { background: var(--cx-surface); color: var(--cx-ink); border: 1px solid var(--cx-line); border-radius: var(--cx-r-card); box-shadow: var(--cx-shadow-md); top: 50%; left: 75%; right: auto; transform: translate(-50%, -50%); width: min(340px, 92vw); max-width: none; box-sizing: border-box; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+.quiz-container input { background: var(--cx-surface); color: var(--cx-ink); border: 1px solid var(--cx-line); border-radius: 8px; font-family: var(--cx-font); box-sizing: border-box; cursor: text; user-select: text; -webkit-user-select: text; }
+.quiz-container button:hover { background: var(--cx-btn-bg-hover) !important; color: var(--cx-btn-ink) !important; }
+.learned-vocabulary { position: fixed; z-index: 600; display: none; background: var(--cx-surface); color: var(--cx-ink); border: 1px solid var(--cx-line); border-radius: 12px; box-shadow: var(--cx-shadow-md); top: 110px; left: 12px; width: 200px; max-height: calc(100vh - 40px); overflow-y: auto; touch-action: none; cursor: grab; box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+html .learned-vocabulary.has-items { display: block; }
+html.no-quiz .quiz-container, html.no-quiz .learned-vocabulary, html.no-quiz .learned-vocabulary.has-items, html.no-quiz #arrayMoveTip { display: none !important; }
+.array-title { background: var(--cx-primary); color: #fff; border-radius: 8px; font-family: var(--cx-font); text-align: left; padding: 5px 66px 5px 8px; min-height: 1.4em; }
+.vocabulary-item { background: var(--cx-surface); border-color: var(--cx-line); font-family: var(--cx-font); }
+.vocabulary-item .sl-word { color: var(--cx-muted); }
+.vocabulary-item .tl-word.hidden, .vocabulary-item .sl-word.hidden { background: var(--cx-line); }
+.toggle-visibility { background: var(--cx-btn-bg); color: var(--cx-btn-ink); border: 1px solid var(--cx-btn-line); border-radius: 8px; font-family: var(--cx-font); font-weight: 600; }
+@media (pointer: coarse) { .quiz-container input { font-size: 16px; } }
+#quizMoveHint { font: 600 14px var(--cx-font); color: var(--cx-muted); text-align: center; margin: 0 0 8px; transition: opacity .4s ease, max-height .4s ease, margin .4s ease; max-height: 30px; overflow: hidden; }
+#quizMoveHint.gone { opacity: 0; max-height: 0; margin: 0; }
+#arrayMoveTip { position: fixed; z-index: 1200; background: #1f2937; color: #fff; font: 600 14px var(--cx-font); padding: 7px 12px; border-radius: 10px; pointer-events: none; opacity: 0; transition: opacity .3s ease; white-space: nowrap; }
+#arrayMoveTip::after { content: ""; position: absolute; border: 6px solid transparent; }
+#arrayMoveTip.left::after { left: 100%; top: 50%; margin-top: -6px; border-left-color: #1f2937; }
+#arrayMoveTip.right::after { right: 100%; top: 50%; margin-top: -6px; border-right-color: #1f2937; }
+#arrayMoveTip.below::after { bottom: 100%; left: 24px; border-bottom-color: #1f2937; }
+@media print { .a4-page { background: #fff !important; } .learned-vocabulary, .quiz-container { display: none !important; } #printList .pl-gap { height: 3mm; } }
+/* a word that turns yellow under the pointer (or a touch) always shows black text, in every colour scheme and whether or not it is learned */
+html[lang] .textBox:hover div, html[lang] .textBox:active div, html[lang] .textBox.active:hover div, html[lang] .textBox.learned:hover div { color: #000 !important; text-shadow: none !important; background: #fff176 !important; }
+html[data-scheme="night"] .phase-marker { fill: #e6ebf7; stroke: rgba(14,24,46,.85); }
+
+/* ===== SEA: four seasons, the sun, filter button ===== */
+.circle-path { stroke: var(--cx-ink); stroke-width: .5; fill: none; }
+.season-segment { stroke: rgba(120,130,150,.35); stroke-width: .3; transition: fill .3s ease; }
+.segment-highlighted { stroke: var(--cx-accent); stroke-width: .9px; filter: none; }
+.q1-segment { fill: rgba(176,224,230,.45); } .q2-segment { fill: rgba(144,238,144,.4); } .q3-segment { fill: rgba(255,215,0,.35); } .q4-segment { fill: rgba(255,140,0,.35); }
+html[data-scheme="night"] .q1-segment { fill: rgba(120,180,230,.28); } html[data-scheme="night"] .q2-segment { fill: rgba(110,210,120,.24); } html[data-scheme="night"] .q3-segment { fill: rgba(255,215,0,.22); } html[data-scheme="night"] .q4-segment { fill: rgba(255,140,0,.24); }
+.segment-label { font-family: var(--cx-font); font-size: 2.5px; font-weight: bold; fill: var(--cx-ink); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+html[data-scheme="night"] .segment-label { fill: #c5cce0; }
+html[data-scheme="night"] .circle-path { stroke: #9fb4ee; }
+.seasonal-icon { opacity: .2; pointer-events: none; }
+#draggableFrame { cursor: grab; fill: url(#sunGradient); stroke: #ff7f00; stroke-width: .6px; pointer-events: all; opacity: .95; }
+#draggableFrame:hover, #draggableFrame.dragging { stroke-width: .9px; }
+#draggableFrame.dragging { cursor: grabbing; }
+.array-sub { font: 600 .8em var(--cx-font); color: var(--cx-muted); text-align: center; margin: 4px 0; }
+.drag-instruction { max-width: min(430px, 62vw); white-space: normal; }
+#filter-btn { max-width: 12em; white-space: normal; }
+@media print { .a4-page { background: #fff !important; } #draggableFrame { stroke-width: .4px; } }
+/* Learned panels (layout) */
+.learned-vocabulary { padding: 6px; }
+.array-title { font-size: .9em; font-weight: bold; margin-bottom: 5px; }
+.toggle-visibility { position: absolute; top: 7px; right: 8px; font-size: .72em; padding: 3px 8px; cursor: pointer; z-index: 5; }
+.vocab-section { margin-bottom: 8px; }
+.vocabulary-item { display: flex; flex-direction: column; font-size: .8em; margin: 4px 0; padding: 5px 6px; border: 1px solid var(--cx-line); border-radius: 8px; }
+.vocabulary-item .tl-word { font-weight: bold; color: #1b7f3b; cursor: pointer; padding: 2px 5px; border-radius: 4px; }
+.vocabulary-item .sl-word { cursor: pointer; padding: 2px 5px; border-radius: 4px; }
+.vocabulary-item .tl-word.hidden, .vocabulary-item .sl-word.hidden { color: transparent; user-select: none; }
+html[data-scheme="night"] .vocabulary-item .tl-word { color: #6fdc9c; }
+
+/* the Quiz is a free-floating panel: fixed to the window so that it can be grabbed and dropped anywhere (it was left in the page flow, which made the move do nothing) */
+.quiz-container { position: fixed; }
+
+/* hidden words in the Learned panel must stay hidden in the Night scheme too (the Night colour rule for .tl-word was more specific than the .hidden rule, so TL words never disappeared) */
+html .vocabulary-item .tl-word.hidden, html .vocabulary-item .sl-word.hidden, html .vocabulary-item .tlr-word.hidden, html .vocabulary-item .w.hidden,
+html[data-scheme="night"] .vocabulary-item .tl-word.hidden, html[data-scheme="night"] .vocabulary-item .sl-word.hidden, html[data-scheme="night"] .vocabulary-item .tlr-word.hidden, html[data-scheme="night"] .vocabulary-item .w.hidden { color: transparent !important; user-select: none; }
+    </style>
 <style id="kit-style">
 /* ==== CONCEPTIONARY PHONE KIT (c) 2026 Alan William Preston ==== */
 /* PINCH ZOOM: one finger still drags (sun, words, panels); two fingers zoom the whole page with the phone's own zoom. */
@@ -722,936 +332,501 @@ html.no-quiz #kitProgress { display: none; }
 <body>
     <div class="a4-page">
         <div id="cmpInfo">
-            <div id="title-box" class="title-box"></div>
-            <div id="day-indicator" class="day-indicator">Day 1</div>
-            <div id="drag-instruction" class="drag-instruction">&#128161; Drag the sun!</div>
+            <div id="title-box" class="title-box">TITLE_PLACEHOLDER</div>
+            <div id="drag-instruction" class="drag-instruction">DRAG_INSTRUCTION_PLACEHOLDER</div>
         </div>
         <div id="cmpCtl">
-            <button id="today-indicator" class="today-indicator tb" type="button">Today is</button>
-            <button id="display-mode-toggle" class="display-mode-toggle tb" type="button" title="Change the language shown on every day">Show: TLR</button>
-            <button id="show-all-toggle" class="tb" type="button" title="Show every day word at once">Show All</button>
+            <button id="display-mode-toggle" class="display-mode-toggle tb" type="button" title="Change the language shown on every word">Show: TL</button>
+            <button id="show-all-toggle" class="tb" type="button" title="Show every word at once">Show All</button>
+            <button id="filter-btn" class="tb" type="button" title="Change which words are shown: all, the four seasons, or the significant times">All</button>
+            <button id="reset-btn" class="tb" type="button" title="Back to the starting view">Reset</button>
             <div class="tools-wrap" id="toolsWrap">
-                <button id="toolsBtn" class="tb" type="button" aria-haspopup="true" title="Colours, Text size, Sun cycle, Day labels and Print">Tools &#9660;</button>
+                <button id="toolsBtn" class="tb" type="button" aria-haspopup="true" title="Colours, Text size and Print">Tools &#9660;</button>
                 <div class="tools-dd" id="toolsMenu">
                     <button id="colourBtn" type="button" title="Try different colour schemes">Colours: Night</button>
                     <button id="textSizeBtn" type="button" title="Enlarge or shrink any word">Text size&hellip;</button>
-                    <button id="sun-cycle-toggle" type="button">Hide Sun Cycle</button>
-                    <button id="day-labels-toggle" type="button">Show Day Labels</button>
-                    <button id="weekendBtn" type="button" title="Show how the weekend falls in the Target and Source language countries (Sat-Sun is the default)">Weekend</button>
                     <button id="printBtn" type="button" title="Print this page on one A4 landscape sheet">Print</button>
                 </div>
             </div>
             <button id="fsBtn" class="tb" type="button" onclick="toggleFullScreen()">Full Screen</button>
         </div>
-        
-        <div id="learned-array" class="vocabulary-array">
-            <div class="array-title">Learned Vocabulary</div>
-            <div id="learned-items"></div>
-            <button class="toggle-visibility" id="toggle-learned">Hide All</button>
-        </div>
-        
         <svg id="svgCanvas" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
             <defs>
                 <radialGradient id="sunGradient" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" style="stop-color:#ffff99;stop-opacity:1" />
-                    <stop offset="50%" style="stop-color:#ffcc00;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#ff9900;stop-opacity:0.8" />
+                    <stop offset="0%" style="stop-color:#ffff00;stop-opacity:1"/>
+                    <stop offset="60%" style="stop-color:#ffaa00;stop-opacity:1"/>
+                    <stop offset="100%" style="stop-color:#ff7f00;stop-opacity:1"/>
                 </radialGradient>
             </defs>
-            
-            <circle id="mainCircle" class="circle-path" cx="50" cy="50" r="30"/>
-            
-            <g id="segments"></g>
-            <g id="sunCycleArcs"></g>
-            <g id="dayLabels"></g>
-            <g id="textBoxContainer"></g>
-            
+            <circle id="circlePath" cx="50" cy="50" r="30" class="circle-path"/>
+            <path id="q1-segment" class="season-segment q1-segment" d="M 50 50 L 35.0000 24.0192 A 30 30 0 0 1 75.9808 35.0000 Z"/>
+            <path id="q2-segment" class="season-segment q2-segment" d="M 50 50 L 75.9808 35.0000 A 30 30 0 0 1 65.0000 75.9808 Z"/>
+            <path id="q3-segment" class="season-segment q3-segment" d="M 50 50 L 65.0000 75.9808 A 30 30 0 0 1 24.0192 65.0000 Z"/>
+            <path id="q4-segment" class="season-segment q4-segment" d="M 50 50 L 24.0192 65.0000 A 30 30 0 0 1 35.0000 24.0192 Z"/>
+            <g id="seasonal-decorations" class="seasonal-icon">
+                <path id="q1-snowflake" d="M 50 45 L 50 55 M 45 50 L 55 50 M 47 47 L 53 53 M 47 53 L 53 47" stroke="#87CEEB" stroke-width="0.5" fill="none" opacity="0"/>
+                <path id="q2-koru" d="M 50 48 Q 52 48 52 50 Q 52 52 50 52 Q 48 52 48 50" stroke="#90EE90" stroke-width="0.5" fill="none" opacity="0"/>
+                <circle id="q3-sun" cx="50" cy="50" r="3" fill="#FFD700" opacity="0"/>
+                <path id="q3-rays" d="M 50 44 L 50 42 M 50 56 L 50 58 M 44 50 L 42 50 M 56 50 L 58 50 M 45 45 L 43.5 43.5 M 55 55 L 56.5 56.5 M 55 45 L 56.5 43.5 M 45 55 L 43.5 56.5" stroke="#FFD700" stroke-width="0.5" opacity="0"/>
+                <path id="q4-leaf" d="M 50 48 Q 48 50 50 52 Q 52 50 50 48" fill="#FF8C00" opacity="0"/>
+            </g>
+            <text class="segment-label" x="50" y="20">DEC-FEB</text>
+            <text class="segment-label" x="72" y="50">MAR-MAY</text>
+            <text class="segment-label" x="50" y="80">JUN-AUG</text>
+            <text class="segment-label" x="28" y="50">SEP-NOV</text>
             <circle id="draggableFrame" cx="50" cy="20" r="4"/>
         </svg>
-        
         <div id="printList"></div>
-
-        <div class="watermark">
-            &copy; 2026 Alan William Preston
-        </div>
+        <div class="watermark">&copy; 2026 Alan William Preston</div>
     </div>
-
+    <div id="learned-vocabulary-left" class="learned-vocabulary">
+        <div class="array-title" id="array-title-left"></div>
+        <button class="toggle-visibility" id="toggle-learned-left" type="button"></button>
+        <div class="array-sub" id="sub-left"></div>
+        <div id="learned-items-left"></div>
+    </div>
+    <div id="learned-vocabulary-right" class="learned-vocabulary">
+        <div class="array-title" id="array-title-right"></div>
+        <button class="toggle-visibility" id="toggle-learned-right" type="button"></button>
+        <div class="array-sub" id="sub-right"></div>
+        <div id="learned-items-right"></div>
+    </div>
     <div id="textSizePanel">
         <div class="tsHead"><span>Text size</span><button type="button" id="tsClose" aria-label="Close">&times;</button></div>
         <div class="tsTarget" id="tsTarget">Click a word, then slide</div>
         <input type="range" id="tsRange" min="50" max="300" step="5" value="100">
         <div class="tsRow"><label><input type="checkbox" id="tsAll"> All words</label><span id="tsVal">100%</span><button type="button" class="tsReset" id="tsReset">Reset</button></div>
     </div>
-
     <div id="quizContainer" class="quiz-container">
-        <input type="text" id="quizInput" placeholder="Enter the word">
-        <button id="quizCheck">Check</button>
+        <input type="text" id="quizInput" placeholder="QUIZ_PLACEHOLDER" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button id="quizCheck" type="button">QUIZ_BUTTON_LABEL</button>
         <div id="quizFeedback"></div>
     </div>
 
     <script>
-        // Generic vocabulary data template
-        // Format: [Source Language, Target Language, Target Language Romanized, Quiz Prompt, DayIndex]
-        const daysOfWeekData = [
-            ["SL-Day1", "TL-Day1", "TLR-Day1", "What's the Target Language word for 'Day 1'?", 0],
-            ["SL-Day2", "TL-Day2", "TLR-Day2", "What's the Target Language word for 'Day 2'?", 1],
-            ["SL-Day3", "TL-Day3", "TLR-Day3", "What's the Target Language word for 'Day 3'?", 2],
-            ["SL-Day4", "TL-Day4", "TLR-Day4", "What's the Target Language word for 'Day 4'?", 3],
-            ["SL-Day5", "TL-Day5", "TLR-Day5", "What's the Target Language word for 'Day 5'?", 4],
-            ["SL-Day6", "TL-Day6", "TLR-Day6", "What's the Target Language word for 'Day 6'?", 5],
-            ["SL-Day7", "TL-Day7", "TLR-Day7", "What's the Target Language word for 'Day 7'?", 6]
-        ];
+    // =====================================================================
+    // LANGUAGE CONFIGURATION BLOCK
+    // To create a new language pair, replace ALL values in this section.
+    // SL = Source Language  |  TL = Target Language (language being learned)
+    //
+    // STRUCTURE: 4 fixed quadrants aligned to the NORTHERN HEMISPHERE
+    // calendar: Q1 = Dec-Feb (Winter), Q2 = Mar-May (Spring), Q3 = Jun-Aug
+    // (Summer), Q4 = Sep-Nov (Autumn). The month-range labels are fixed in
+    // the page (they make this the "Northern Hemisphere" variant) and are
+    // NOT part of this block. The Southern Hemisphere variant uses the same
+    // engine with the opposite season mapping, in a separate file.
+    // PHONOGRAPHIC (ROM) VARIANT: layers TL (default) > SL > Quiz. The Quiz asks for the TL.
+    //
+    // Do NOT change anything outside this block.
+    // =====================================================================
+    const LANG = {
 
-        // Global variables
-        let learnedItems = new Array(7).fill(false);
-        let textBoxElements = [];
-        let addedLearnedItems = new Array(7).fill(false);
-        let displayMode = 0; // 0: TLR (default), 1: TL, 2: SL
-        let currentDay = 0;
-        let isDragging = false;
-        let currentTextIndex = 0;
-        let currentQuizIndex = -1;
-        let showSunCycle = true;
-        let showDayLabels = false;   // Day Labels start hidden; Tools > Show Day Labels
-        
-        // Title cycle: TLR (default) → TL → SL → TLR. See "Logographic
-        // UI Conventions" in Conceptionary_Template_Definitions.md.
-        // Previously this array's first element was the literal string
-        // "LOG-CR-DOW Generic" (a disconnected placeholder, not real
-        // content) and its third element combined that same disconnected
-        // string with TL — with no TLR anywhere and no load-time
-        // initialization at all (the title only ever updated on click).
-        const titleTexts = [
-            "TLR_TITLE",
-            "TL_TITLE",
-            "SL_TITLE"
-        ];
+        // --- Title cycle (click the title box to change language) ---------
+        titles: [
+            "SL_TITLE",          // e.g. "Seasons of the Year"
+            "TL_TITLE",          // e.g. "Ngā Raumati"
+            "SL_TITLE / TL_TITLE"
+        ],
 
-        function normalizeText(text) {
-            return text.toLowerCase()
-                .replace(/[āáǎà]/g, 'a')
-                .replace(/[ēéěè]/g, 'e')
-                .replace(/[īíǐì]/g, 'i')
-                .replace(/[ōóǒò]/g, 'o')
-                .replace(/[ūúǔù]/g, 'u')
-                .replace(/[ǖǘǚǜü]/g, 'u')
-                .replace(/'/g, '')
-                .replace(/'/g, '')
-                .trim();
-        }
+        // --- UI strings --------------------------------------------------
+        show_tl_label:    "SHOW_TL_LABEL",     // e.g. "Show: TL"
+        show_sl_label:    "SHOW_SL_LABEL",     // e.g. "Show: SL"
+        reset_label:      "RESET_LABEL",       // e.g. "Reset"
+        move_hint:        "MOVE_HINT",         // e.g. "You can move this" (shown for 5 seconds each time the Quiz opens)
+        drag_instruction: "DRAG_INSTRUCTION",  // e.g. "Drag the sun around to explore the seasons!"
+        array_title:      "ARRAY_TITLE",       // e.g. "Learned Vocabulary"
+        hide_all_label:   "HIDE_ALL_LABEL",    // e.g. "Hide All"
+        show_all_label:   "SHOW_ALL_LABEL",    // e.g. "Show All"
+        quiz_placeholder: "QUIZ_PLACEHOLDER",  // e.g. "Enter the [TL] word"
+        quiz_button:      "QUIZ_BUTTON_LABEL", // e.g. "Check"
+        quiz_correct:     "QUIZ_CORRECT",      // e.g. "Correct!"
+        quiz_wrong:       "QUIZ_WRONG",        // e.g. "Try again"
 
-        function toggleArrayVisibility() {
-            try {
-                const container = document.getElementById("learned-items");
-                const button = document.getElementById("toggle-learned");
-                if (!container || !button) return;
-                
-                const spans = container.querySelectorAll('.vocabulary-item .target-language, .vocabulary-item .target-language-romanized, .vocabulary-item .source-language');
-                
-                let visibleCount = 0;
-                spans.forEach(span => {
-                    if (!span.classList.contains('hidden')) {
-                        visibleCount++;
-                    }
-                });
-                
-                const mostlyVisible = visibleCount > spans.length / 2;
-                
-                spans.forEach(span => {
-                    if (mostlyVisible) {
-                        span.classList.add('hidden');
-                    } else {
-                        span.classList.remove('hidden');
-                    }
-                });
-                
-                button.textContent = mostlyVisible ? 'Show All' : 'Hide All';
-            } catch (error) {
-                console.error("Error in toggleArrayVisibility:", error);
-            }
-        }
+        // --- Filter button (one button; each click shows the next view) ---
+        filter_all_label:         "FILTER_ALL_LABEL",          // e.g. "All"
+        filter_seasons_label:     "FILTER_SEASONS_LABEL",      // e.g. "4 Seasons"
+        filter_significant_label: "FILTER_SIGNIFICANT_LABEL",  // e.g. "Significant Times"
 
-        function cycleDisplayMode() {
-            displayMode = (displayMode + 1) % 3;
-            const button = document.getElementById("display-mode-toggle");
-            
-            switch(displayMode) {
-                case 0:
-                    button.textContent = "Show: TLR";
-                    break;
-                case 1:
-                    button.textContent = "Show: TL";
-                    break;
-                case 2:
-                    button.textContent = "Show: SL";
-                    break;
-            }
-            
-            updateAllTextBoxes();
-        }
+        // --- Side panel section titles ------------------------------------
+        seasons_section_title:     "SEASONS_SECTION_TITLE",      // e.g. "Ngā Raumati (Seasons)"
+        significant_section_title: "SIGNIFICANT_SECTION_TITLE",  // e.g. "Ngā Wā Nui (Significant Times)"
 
-        function updateAllTextBoxes() {
-            textBoxElements.forEach((textBox, index) => {
-                if (textBox && learnedItems[index]) {
-                    const div = textBox.querySelector('div');
-                    if (div) {
-                        switch(displayMode) {
-                            case 0:
-                                div.innerHTML = daysOfWeekData[index][2]; // TLR
-                                break;
-                            case 1:
-                                div.innerHTML = daysOfWeekData[index][1]; // TL
-                                break;
-                            case 2:
-                                div.innerHTML = daysOfWeekData[index][0]; // SL
-                                break;
-                        }
-                    }
-                }
-            });
-        }
+        // --- Answer checking ----------------------------------------------
+        // diacritic_map: pairs [accented, plain] used to normalise quiz answers. Leave empty [] if not needed.
+        diacritic_map: [
+            // ["ā","a"], ["ē","e"], ["ī","i"], ["ō","o"], ["ū","u"]
+        ],
+        // digraph_map: letter pairs treated as one when checking (applied to the typed AND the right answer), e.g. ["ou","o"], ["ei","e"].
+        digraph_map: [],
+        // collapse_double_vowels: true makes "aa" = "a" etc. (languages where a doubled vowel is an alternative macron notation).
+        collapse_double_vowels: false,
 
-        function toggleSunCycle() {
-            showSunCycle = !showSunCycle;
-            const sunCycleArcs = document.getElementById("sunCycleArcs");
-            const button = document.getElementById("sun-cycle-toggle");
-            
-            if (showSunCycle) {
-                sunCycleArcs.style.display = "block";
-                button.textContent = "Hide Sun Cycle";
-            } else {
-                sunCycleArcs.style.display = "none";
-                button.textContent = "Show Sun Cycle";
-            }
-        }
+        // --- Vocabulary data (any number of items) -------------------------
+        // Format: [ SL phrase, TL phrase, Quiz prompt, Angle (0-360), Category ]
+        // Category: "season" (one of the 4 quadrant seasons, listed in the left panel) or "event" / "cultural" (significant times, right panel).
+        // Angle 0 = top of the circle (start of Q1/Dec); increases clockwise.
+        //   Q1 (Dec-Feb): 330-360, 0-60   Q2 (Mar-May): 60-150   Q3 (Jun-Aug): 150-240   Q4 (Sep-Nov): 240-330
+        seasonsData: [
+            ["Winter", "TL-Season1", "QUIZ-Season1", 0, "season"],   // Q1
+            ["Spring", "TL-Season2", "QUIZ-Season2", 90, "season"],   // Q2
+            ["Summer", "TL-Season3", "QUIZ-Season3", 180, "season"],   // Q3
+            ["Autumn/Fall", "TL-Season4", "QUIZ-Season4", 270, "season"],   // Q4
+            ["Spring Equinox", "TL-Event1", "QUIZ-Event1", 80, "event"],   // just before Spring
+            ["Summer Solstice", "TL-Event2", "QUIZ-Event2", 175, "event"],   // just before Summer
+            ["Autumnal Equinox", "TL-Event3", "QUIZ-Event3", 265, "event"],   // just before Autumn
+            ["Winter Solstice", "TL-Event4", "QUIZ-Event4", 355, "event"],   // just before Winter
+            ["SL-Cultural1", "TL-Cultural1", "QUIZ-Cultural1", 45, "cultural"],
+            ["SL-Cultural2", "TL-Cultural2", "QUIZ-Cultural2", 120, "cultural"],
+            ["SL-Cultural3", "TL-Cultural3", "QUIZ-Cultural3", 135, "cultural"],
+            ["SL-Cultural4", "TL-Cultural4", "QUIZ-Cultural4", 190, "cultural"],
+            ["SL-Cultural5", "TL-Cultural5", "QUIZ-Cultural5", 280, "cultural"]
+            // Add or remove event / cultural entries freely.
+        ]
+    };
+    // =====================================================================
+    // END OF LANGUAGE CONFIGURATION BLOCK
+    // No language-specific content appears below this line.
+    // =====================================================================
 
-        function toggleDayLabels() {
-            showDayLabels = !showDayLabels;
-            const dayLabels = document.querySelectorAll(".segment-label");
-            const button = document.getElementById("day-labels-toggle");
-            
-            dayLabels.forEach(label => {
-                label.style.opacity = showDayLabels ? "1" : "0";
-            });
-            
-            button.textContent = showDayLabels ? "Hide Day Labels" : "Show Day Labels";
-        }
-
-        function createSegments() {
-            const segmentsGroup = document.getElementById("segments");
-            const center = { x: 50, y: 50 };
-            const radius = 30;
-            
-            for (let i = 0; i < 7; i++) {
-                const startAngle = (i * 360/7 - 90) * Math.PI / 180;
-                const endAngle = ((i + 1) * 360/7 - 90) * Math.PI / 180;
-                
-                const x1 = center.x + radius * Math.cos(startAngle);
-                const y1 = center.y + radius * Math.sin(startAngle);
-                const x2 = center.x + radius * Math.cos(endAngle);
-                const y2 = center.y + radius * Math.sin(endAngle);
-                
-                const pathData = `M ${center.x},${center.y} L ${x1},${y1} A ${radius},${radius} 0 0,1 ${x2},${y2} Z`;
-                
-                const segment = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                segment.setAttribute("d", pathData);
-                segment.setAttribute("class", (i === 5 || i === 6) ? "weekend-segment" : "weekday-segment");
-                segment.setAttribute("data-day", i);
-                
-                segmentsGroup.appendChild(segment);
-            }
-        }
-
-        function createSunCycleArcs() {
-            const sunCycleGroup = document.getElementById("sunCycleArcs");
-            const center = { x: 50, y: 50 };
-            const innerRadius = 31;
-            const outerRadius = 34;
-            
-            const dayStartAngle = (0 * 360/7 - 90) * Math.PI / 180;
-            const dayEndAngle = (5 * 360/7 - 90) * Math.PI / 180;
-            
-            const nightStartAngle1 = (5 * 360/7 - 90) * Math.PI / 180;
-            const nightEndAngle1 = (7 * 360/7 - 90) * Math.PI / 180;
-            
-            const nightStartAngle2 = (-90) * Math.PI / 180;
-            const nightEndAngle2 = (0 * 360/7 - 90) * Math.PI / 180;
-            
-            function createArc(startAngle, endAngle, color, label, labelAngle) {
-                const x1 = center.x + innerRadius * Math.cos(startAngle);
-                const y1 = center.y + innerRadius * Math.sin(startAngle);
-                const x2 = center.x + outerRadius * Math.cos(startAngle);
-                const y2 = center.y + outerRadius * Math.sin(startAngle);
-                const x3 = center.x + outerRadius * Math.cos(endAngle);
-                const y3 = center.y + outerRadius * Math.sin(endAngle);
-                const x4 = center.x + innerRadius * Math.cos(endAngle);
-                const y4 = center.y + innerRadius * Math.sin(endAngle);
-                
-                const largeArcFlag = (endAngle - startAngle) > Math.PI ? 1 : 0;
-                
-                const pathData = `M ${x1},${y1} L ${x2},${y2} A ${outerRadius},${outerRadius} 0 ${largeArcFlag},1 ${x3},${y3} L ${x4},${y4} A ${innerRadius},${innerRadius} 0 ${largeArcFlag},0 ${x1},${y1} Z`;
-                
-                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                path.setAttribute("d", pathData);
-                path.setAttribute("fill", color);
-                path.setAttribute("stroke", "#999");
-                path.setAttribute("stroke-width", "0.2");
-                
-                sunCycleGroup.appendChild(path);
-                
-                if (label) {
-                    const labelRadius = (innerRadius + outerRadius) / 2;
-                    const labelX = center.x + labelRadius * Math.cos(labelAngle);
-                    const labelY = center.y + labelRadius * Math.sin(labelAngle);
-                    
-                    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                    text.setAttribute("x", labelX);
-                    text.setAttribute("y", labelY);
-                    text.setAttribute("font-size", "2");
-                    text.setAttribute("fill", "#333");
-                    text.setAttribute("text-anchor", "middle");
-                    text.setAttribute("dominant-baseline", "central");
-                    text.textContent = label;
-                    
-                    sunCycleGroup.appendChild(text);
-                }
-            }
-            
-            createArc(dayStartAngle, dayEndAngle, "#ffeb99", "☀", (dayStartAngle + dayEndAngle) / 2);
-            createArc(nightStartAngle1, nightEndAngle1, "#4a5a7a", "☾", (nightStartAngle1 + nightEndAngle1) / 2);
-            createArc(nightStartAngle2, nightEndAngle2, "#4a5a7a", "", null);
-        }
-
-        function createDayLabels() {
-            const dayLabelsGroup = document.getElementById("dayLabels");
-            const center = { x: 50, y: 50 };
-            const labelRadius = 20;
-            const dayNames = ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"];
-            
-            for (let i = 0; i < 7; i++) {
-                const angle = (i * 360/7 - 90 + 360/14) * Math.PI / 180;
-                const x = center.x + labelRadius * Math.cos(angle);
-                const y = center.y + labelRadius * Math.sin(angle);
-                
-                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                text.setAttribute("x", x);
-                text.setAttribute("y", y);
-                text.setAttribute("class", "segment-label"); text.style.opacity = showDayLabels ? "1" : "0";
-                text.textContent = dayNames[i];
-                
-                dayLabelsGroup.appendChild(text);
-            }
-        }
-
-        function getLearnedRadius(index) {
-            // Keep at outer edge for visibility
-            return 36;
-        }
-
-        function getSegmentMidAngle(index) {
-            // Calculate the angle at the midpoint of the segment
-            const segmentStartAngle = index * 360/7;
-            const segmentMidAngle = segmentStartAngle + (360/7) / 2;
-            return (segmentMidAngle - 90) * Math.PI / 180;
-        }
-
-        function createTextBoxes() {
-            const textBoxContainer = document.getElementById("textBoxContainer");
-            const center = { x: 50, y: 50 };
-            const radius = 36; // Positioned outside circle but visible
-            
-            for (let i = 0; i < 7; i++) {
-                // Calculate angle at the MIDPOINT of each segment (50% along the segment)
-                const segmentStartAngle = i * 360/7;
-                const segmentMidAngle = segmentStartAngle + (360/7) / 2; // Add half segment to get midpoint
-                const angle = (segmentMidAngle - 90) * Math.PI / 180; // Convert to radians with -90 offset
-                
-                const x = center.x + radius * Math.cos(angle);
-                const y = center.y + radius * Math.sin(angle);
-                
-                const foreignObject = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
-                foreignObject.setAttribute("x", x - 8);
-                foreignObject.setAttribute("y", y - 4);
-                foreignObject.setAttribute("width", "16");
-                foreignObject.setAttribute("height", "8");
-                foreignObject.setAttribute("class", "textBox");
-                foreignObject.setAttribute("data-index", i);
-                foreignObject.style.overflow = "visible";
-                
-                const div = document.createElement("div");
-                // Vertical centering: previously only text-align:center
-                // (horizontal) was set. A plain div flows from the TOP of
-                // its container, so text rendered near the box's top
-                // edge rather than its true center — the same root-cause
-                // bug found and fixed on LOG-CR-TDL via a debug-marker
-                // test. Fixed the same way here with flexbox, filling
-                // the full box. Fixed 2026-07-21 as part of the
-                // systematic re-fix across the Circular family.
-                div.style.display = "flex";
-                div.style.alignItems = "center";
-                div.style.justifyContent = "center";
-                div.style.width = "100%";
-                div.style.height = "100%";
-                div.style.boxSizing = "border-box";
-                div.style.textAlign = "center";
-                div.style.fontSize = "5.25px";
-                div.style.fontFamily = "Arial, sans-serif";
-                div.style.color = "black";
-                div.style.cursor = "pointer";
-                div.style.whiteSpace = "nowrap";
-                div.style.fontWeight = "bold";
-                div.innerHTML = daysOfWeekData[i][2]; // Start with TLR (romanized)
-                
-                foreignObject.appendChild(div);
-                
-                if (learnedItems[i]) foreignObject.classList.add('learned');
-                
-                foreignObject.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const index = parseInt(this.getAttribute('data-index'));
-                    const div = this.querySelector('div');
-                    
-                    
-                    if (learnedItems[index]) {
-                        // For learned items, cycle through all three: TLR → TL → SL
-                        if (div.innerHTML === daysOfWeekData[index][2]) { // TLR
-                            div.innerHTML = daysOfWeekData[index][1]; // TL
-                        } else if (div.innerHTML === daysOfWeekData[index][1]) { // TL
-                            div.innerHTML = daysOfWeekData[index][0]; // SL
-                        } else { // SL
-                            div.innerHTML = daysOfWeekData[index][2]; // Back to TLR
-                        }
-                    } else {
-                        // For unlearned items: TLR → TL → SL → Quiz
-                        if (div.innerHTML === daysOfWeekData[index][2]) { // TLR (default)
-                            div.innerHTML = daysOfWeekData[index][1]; // Show TL
-                        } else if (div.innerHTML === daysOfWeekData[index][1]) { // TL
-                            div.innerHTML = daysOfWeekData[index][0]; // Show SL
-                        } else if (div.innerHTML === daysOfWeekData[index][0]) { // SL
-                            showQuiz(index, this); // Start quiz
-                        } else {
-                            div.innerHTML = daysOfWeekData[index][2]; // Reset to TLR
-                        }
-                    }
-                });
-                
-                textBoxContainer.appendChild(foreignObject);
-                textBoxElements.push(foreignObject);
-            }
-            
-        }
-
-        function addToVocabularyArray(index) {
-            try {
-                if (addedLearnedItems[index]) return;
-                
-                const sourceLanguage = daysOfWeekData[index][0];
-                const targetLanguage = daysOfWeekData[index][1];
-                const targetLanguageRomanized = daysOfWeekData[index][2];
-                
-                const itemElement = document.createElement('div');
-                itemElement.className = 'vocabulary-item';
-                
-                const targetLanguageSpan = document.createElement('span');
-                targetLanguageSpan.className = 'target-language';
-                targetLanguageSpan.innerHTML = targetLanguage;
-                
-                const targetLanguageRomanizedSpan = document.createElement('span');
-                targetLanguageRomanizedSpan.className = 'target-language-romanized';
-                targetLanguageRomanizedSpan.textContent = targetLanguageRomanized;
-                
-                const sourceLanguageSpan = document.createElement('span');
-                sourceLanguageSpan.className = 'source-language';
-                sourceLanguageSpan.textContent = sourceLanguage;
-                
-                targetLanguageSpan.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    this.classList.toggle('hidden');
-                });
-                
-                targetLanguageRomanizedSpan.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    this.classList.toggle('hidden');
-                });
-                
-                sourceLanguageSpan.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    this.classList.toggle('hidden');
-                });
-                
-                itemElement.appendChild(targetLanguageSpan);
-                itemElement.appendChild(targetLanguageRomanizedSpan);
-                itemElement.appendChild(sourceLanguageSpan);
-                
-                const learnedItemsContainer = document.getElementById("learned-items");
-                learnedItemsContainer.appendChild(itemElement);
-                addedLearnedItems[index] = true;
-                
-                const learnedArray = document.getElementById("learned-array");
-                learnedArray.style.display = 'block';
-                
-            } catch (error) {
-                console.error("Error adding vocabulary item:", error);
-            }
-        }
-
-        function updateVisibleTextBoxes(dayIndex) {
-            const segments = document.querySelectorAll('[data-day]');
-            segments.forEach((segment, index) => {
-                if (index === dayIndex) {
-                    segment.classList.add('segment-highlighted');
-                } else {
-                    segment.classList.remove('segment-highlighted');
-                }
-            });
-            
-            textBoxElements.forEach((textBox, index) => {
-                if (!textBox) return;
-                
-                if (index === dayIndex) {
-                    textBox.classList.add('active');
-                    textBox.classList.remove('hidden');
-                } else if (learnedItems[index]) {
-                    textBox.classList.remove('active');
-                    textBox.classList.remove('hidden');
-                } else {
-                    textBox.classList.remove('active');
-                    textBox.classList.add('hidden');
-                }
-            });
-            
-            const dayIndicator = document.getElementById("day-indicator");
-            dayIndicator.textContent = "Day " + (dayIndex + 1);
-        }
-
-        function showQuiz(index, element) {
-            currentQuizIndex = index;
-            
-            const quizContainer = document.getElementById("quizContainer");
-            const quizInput = document.getElementById("quizInput");
-            const quizFeedback = document.getElementById("quizFeedback");
-            
-            quizInput.placeholder = daysOfWeekData[index][3];
-            quizInput.value = '';
-            quizFeedback.textContent = '';
-            
-            quizContainer.style.display = 'block';
-            
-            setTimeout(() => {
-                try {
-                    quizInput.focus();
-                } catch (e) {
-                    console.error("Error focusing quiz input:", e);
-                }
-            }, 100);
-        }
-
-        function checkQuizAnswer() {
-            if (currentQuizIndex < 0) return;
-            
-            const quizInput = document.getElementById("quizInput");
-            const quizFeedback = document.getElementById("quizFeedback");
-            const userAnswer = quizInput.value.trim();
-            const correctAnswerTL = daysOfWeekData[currentQuizIndex][1].replace(/<[^>]*>/g, '');
-            const correctAnswerTLR = daysOfWeekData[currentQuizIndex][2];
-            
-            const normalizedUserAnswer = normalizeText(userAnswer);
-            const normalizedCorrectTLR = normalizeText(correctAnswerTLR);
-            
-            if (userAnswer === correctAnswerTL || 
-                userAnswer.toLowerCase() === correctAnswerTL.toLowerCase() ||
-                userAnswer === correctAnswerTLR ||
-                userAnswer.toLowerCase() === correctAnswerTLR.toLowerCase() ||
-                normalizedUserAnswer === normalizedCorrectTLR) {
-                
-                quizFeedback.textContent = 'Correct!';
-                quizFeedback.style.color = 'green';
-                
-                learnedItems[currentQuizIndex] = true;
-                const textBox = textBoxElements[currentQuizIndex];
-                if (textBox) {
-                    textBox.classList.add('learned');
-                    const div = textBox.querySelector('div');
-                    if (div) {
-                        div.innerHTML = daysOfWeekData[currentQuizIndex][1]; // Show TL
-                        div.style.color = "green";
-                    }
-                    
-                    const center = { x: 50, y: 50 };
-                    const learnedRadius = getLearnedRadius(currentQuizIndex);
-                    const angle = getSegmentMidAngle(currentQuizIndex); // Use midpoint angle
-                    const x = center.x + learnedRadius * Math.cos(angle);
-                    const y = center.y + learnedRadius * Math.sin(angle);
-                    
-                    textBox.setAttribute("x", x - 8);
-                    textBox.setAttribute("y", y - 4);
-                }
-                
-                addToVocabularyArray(currentQuizIndex);
-                
-                setTimeout(() => { 
-                    document.getElementById("quizContainer").style.display = 'none';
-                    currentQuizIndex = -1;
-                }, 1500);
-            } else {
-                quizFeedback.textContent = 'Try again';
-                quizFeedback.style.color = 'red';
-                
-                // Reset to show TLR when user gets wrong answer
-                const textBox = textBoxElements[currentQuizIndex];
-                if (textBox) {
-                    const div = textBox.querySelector('div');
-                    if (div) {
-                        div.innerHTML = daysOfWeekData[currentQuizIndex][2]; // TLR
-                    }
-                }
-            }
-        }
-
-        function positionFrameOnDay(dayIndex) {
-            const center = { x: 50, y: 50 };
-            const radius = 30;
-            const angle = ((dayIndex + 0.5) * 360/7 - 90) * Math.PI / 180;   // the middle of the day's segment
-            
-            const x = center.x + radius * Math.cos(angle);
-            const y = center.y + radius * Math.sin(angle);
-            
-            const frame = document.getElementById("draggableFrame");
-            frame.setAttribute('cx', x);
-            frame.setAttribute('cy', y);
-            
-            currentDay = dayIndex;
-            updateVisibleTextBoxes(dayIndex);
-        }
-
-        function getCurrentDayIndex() {
-            // Get current day of the week (0 = Sunday, 1 = Monday, etc.)
-            const now = new Date();
-            let dayOfWeek = now.getDay();
-            
-            // Convert Sunday (0) to index 6, and shift others down
-            // Monday = 0, Tuesday = 1, ..., Saturday = 5, Sunday = 6
-            if (dayOfWeek === 0) {
-                return 6; // Sunday
-            } else {
-                return dayOfWeek - 1; // Monday-Saturday
-            }
-        }
-
-        function initializeApp() {
-            
-            const svg = document.getElementById("svgCanvas");
-            const frame = document.getElementById("draggableFrame");
-            const titleBox = document.getElementById("title-box");
-            const displayModeToggle = document.getElementById("display-mode-toggle");
-            const sunCycleToggle = document.getElementById("sun-cycle-toggle");
-            const quizContainer = document.getElementById("quizContainer");
-            const quizInput = document.getElementById("quizInput");
-            const quizCheck = document.getElementById("quizCheck");
-            const toggleLearnedBtn = document.getElementById("toggle-learned");
-            const dayLabelsToggle = document.getElementById("day-labels-toggle");
-            const todayIndicator = document.getElementById("today-indicator");
-            
-            if (!svg || !frame || !titleBox) {
-                console.error("Critical elements are missing from the DOM");
-                return;
-            }
-
-            // Title box: TLR by default (matches the vocabulary-item
-            // convention — see Conceptionary_Template_Definitions.md).
-            // Was previously left showing a static HTML placeholder that
-            // didn't even match titleTexts[0]; now genuinely defaults to
-            // real content from the moment the page loads.
-            titleBox.textContent = titleTexts[0];
-            currentTextIndex = 0;
-            
-            createSegments();
-            createSunCycleArcs();
-            createDayLabels();
-            createTextBoxes();
-            
-            // Position the sun on the current day of the week
-            const todayIndex = getCurrentDayIndex();
-            positionFrameOnDay(todayIndex);
-            
-            
-            frame.style.pointerEvents = 'all';
-            frame.style.cursor = 'grab';
-            
-            
-            let startDrag = function(e) {
-                isDragging = true;
-                frame.classList.add('dragging');
-                frame.style.cursor = 'grabbing';
-                e.preventDefault();
-                e.stopPropagation();
-            };
-            
-            let dragMove = function(e) {
-                if (!isDragging) return;
-                
-                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-                
-                try {
-                    const pt0 = svg.createSVGPoint(); pt0.x = clientX; pt0.y = clientY;
-                    const sp = pt0.matrixTransform(svg.getScreenCTM().inverse());
-                    const svgX = sp.x, svgY = sp.y;
-                    
-                    const centerX = 50;
-                    const centerY = 50;
-                    const deltaX = svgX - centerX;
-                    const deltaY = svgY - centerY;
-                    
-                    let angle = Math.atan2(deltaY, deltaX);
-                    
-                    const radius = 30;
-                    const frameX = centerX + radius * Math.cos(angle);
-                    const frameY = centerY + radius * Math.sin(angle);
-                    
-                    frame.setAttribute('cx', frameX);
-                    frame.setAttribute('cy', frameY);
-                    
-                    const angleDegrees = (angle * 180 / Math.PI + 90 + 360) % 360;
-                    const dayIndex = Math.floor(angleDegrees / (360/7));
-                    const clampedDayIndex = Math.max(0, Math.min(6, dayIndex));
-                    
-                    currentDay = clampedDayIndex;
-                    updateVisibleTextBoxes(clampedDayIndex);
-                    
-                } catch (error) {
-                    console.error("Error during drag:", error);
-                }
-                
-                e.preventDefault();
-                e.stopPropagation();
-            };
-            
-            let endDrag = function(e) {
-                if (isDragging) {
-                    isDragging = false;
-                    frame.classList.remove('dragging');
-                    frame.style.cursor = 'grab';
-                    if (window.__cmpSpeak) window.__cmpSpeak(currentDay);
-                    
-                    if (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }
-                }
-            };
-            
-            function switchTitleText() {
-                titleBox.classList.add('hidden');
-                setTimeout(() => {
-                    currentTextIndex = (currentTextIndex + 1) % titleTexts.length;
-                    titleBox.innerHTML = titleTexts[currentTextIndex];
-                    titleBox.classList.remove('hidden');
-                }, 500);
-            }
-            
-            frame.addEventListener('mousedown', startDrag);
-            frame.addEventListener('touchstart', startDrag, { passive: false });
-            // 2026-11-06: touching or clicking anywhere on the ring grabs the sun (the sun itself is small, especially on a phone)
-            const faceDown = function (e) {
-                if (e.target.closest && e.target.closest('.textBox')) return;
-                const cx = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0].clientX);
-                const cy = e.clientY !== undefined ? e.clientY : (e.touches && e.touches[0].clientY);
-                const pt = svg.createSVGPoint(); pt.x = cx; pt.y = cy;
-                const p = pt.matrixTransform(svg.getScreenCTM().inverse());
-                if (Math.hypot(p.x - 50, p.y - 50) > 35) return;
-                startDrag(e); dragMove(e);
-            };
-            svg.addEventListener('mousedown', faceDown);
-            svg.addEventListener('touchstart', faceDown, { passive: false });
-            
-            document.addEventListener('mousemove', dragMove);
-            document.addEventListener('touchmove', dragMove, { passive: false });
-            document.addEventListener('mouseup', endDrag);
-            document.addEventListener('touchend', endDrag);
-            document.addEventListener('mouseleave', endDrag);
-            
-            titleBox.addEventListener('click', switchTitleText);
-            displayModeToggle.addEventListener('click', cycleDisplayMode);
-            sunCycleToggle.addEventListener('click', toggleSunCycle);
-            dayLabelsToggle.addEventListener('click', toggleDayLabels);
-            quizCheck.addEventListener('click', checkQuizAnswer);
-            quizInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') checkQuizAnswer();
-            });
-            
-            toggleLearnedBtn.addEventListener('click', toggleArrayVisibility);
-            
-            // Today button - returns to current day
-            todayIndicator.addEventListener('click', function() {
-                const todayIndex = getCurrentDayIndex();
-                positionFrameOnDay(todayIndex);
-            });
-            
-            document.addEventListener('click', function(e) {
-                if (quizContainer.style.display !== 'none' && 
-                    !quizContainer.contains(e.target) && 
-                    !textBoxElements.some(box => box && box.contains(e.target))) {
-                    
-                    if (currentQuizIndex >= 0 && !learnedItems[currentQuizIndex]) {
-                        const textBox = textBoxElements[currentQuizIndex];
-                        if (textBox) {
-                            const div = textBox.querySelector('div');
-                            if (div) {
-                                div.innerHTML = daysOfWeekData[currentQuizIndex][2]; // Reset to TLR
-                            }
-                        }
-                    }
-                    
-                    quizContainer.style.display = 'none';
-                    currentQuizIndex = -1;
-                }
-            });
-            
-            quizContainer.style.display = 'none';
-            
-            setTimeout(() => {
-                const dragInstruction = document.getElementById('drag-instruction');
-                if (dragInstruction) {
-                    dragInstruction.classList.add('fade');
-                    setTimeout(() => {
-                        dragInstruction.style.display = 'none';
-                    }, 3000);
-                }
-            }, 15000);
-            
-        }
-
-        document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
     <script>
-    /* 2026-11-06 DAYS OF THE WEEK: layout that fits any screen (each day word sits just outside the sun ring, whatever its length; the view box grows to hold the longest words),
-       layer cycle (ROM: TL > SL; LOG: TLR > TL > SL) that now works on every word, Show All, Tools menu, Print list. The Quiz is hidden (class no-quiz on the html tag) and its code is kept. */
-    (function () {
-        var SVGNS = 'http://www.w3.org/2000/svg';
-        var BASE = 5.25, R0 = 35.5, GAP = 0.8;
-        var svg = document.getElementById('svgCanvas');
-        var cv = document.createElement('canvas').getContext('2d');
-        var tmp = document.createElement('div');
-        function plain(s) { tmp.innerHTML = String(s == null ? '' : s); return tmp.textContent; }
-        function sizeOf(i) { return BASE * (window.tsScale ? window.tsScale(i) : 1); }
-        var FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif'; document.documentElement.style.setProperty('--cx-font', FONT);
-        function wOf(i, txt) { cv.font = '700 ' + sizeOf(i) + 'px ' + FONT; return cv.measureText(plain(txt)).width + 3; }
-        function hOf(i) { return sizeOf(i) * 1.35; }
-        function ang(i) { return ((i + 0.5) * 360 / 7 - 90) * Math.PI / 180; }
-        window.LOGV = daysOfWeekData[0].length >= 5;
-        window.MODES = LOGV ? [2, 1, 0] : [1, 0];
-        function modeLabel(m) { var row = MODES[m]; if (LOGV) return row === 2 ? 'Show: TLR' : row === 1 ? 'Show: TL' : 'Show: SL'; return row === 1 ? LANG.show_tl_label : LANG.show_sl_label; }
-        function dayWord(i, k) { return daysOfWeekData[i][MODES[k]]; }
 
-        function rectsFor(kOf) {
-            var out = [], placed = [];
-            for (var i = 0; i < 7; i++) {
-                var w = wOf(i, dayWord(i, kOf(i))), h = hOf(i), ux = Math.cos(ang(i)), uy = Math.sin(ang(i));
-                var d = R0 + (w / 2) * Math.abs(ux) + (h / 2) * Math.abs(uy), r;
-                for (var n = 0; n < 160; n++) {
-                    r = { x: 50 + d * ux, y: 50 + d * uy, w: w, h: h };
-                    if (!placed.some(function (p) { return Math.abs(p.x - r.x) < (p.w + w) / 2 + GAP && Math.abs(p.y - r.y) < (p.h + h) / 2 + GAP; })) break;
-                    d += 0.5;
+/* 2026-11-17 SEASONS (TEMPERATE, NORTHERN HEMISPHERE): each word sits just outside the dial at its own angle (pushed out when words would touch; the view box grows to hold the longest words),
+   the layer cycle (ROM: TL > SL > Quiz; LOG: TLR > TL > SL > Quiz) on every word, Show All, the filter button, touch-anywhere grab of the sun, two movable Learned panels and a movable Quiz. */
+var textBoxElements = [];
+(function () {
+    var SVGNS = 'http://www.w3.org/2000/svg', $ = function (id) { return document.getElementById(id); }, de = document.documentElement;
+    var FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif'; de.style.setProperty('--cx-font', FONT);
+    var D = LANG.seasonsData, LOGV = D[0].length >= 6;
+    var COL = LOGV ? { sl: 0, tl: 1, tlr: 2, q: 3, ang: 4, cat: 5 } : { sl: 0, tl: 1, q: 2, ang: 3, cat: 4 };
+    var MODES = LOGV ? [2, 1, 0] : [1, 0], ANS = LOGV ? 2 : 1;
+    var R0 = 36, GAP = 0.8;   /* the dial is r 30 and the sun reaches r 34 */
+    var svg = $('svgCanvas'), frame = $('draggableFrame'), qc = $('quizContainer');
+    var cv = document.createElement('canvas').getContext('2d'), tmp = document.createElement('div');
+    var kOf = D.map(function () { return 0; }), learned = D.map(function () { return false; });
+    var cur = 0, filter = 'all', showAll = false, layerMode = 0, frameDeg = D[0][COL.ang], quizIdx = -1, closedIdx = -1;
+    var noQuiz = function () { return de.classList.contains('no-quiz'); };
+    function plain(s) { tmp.innerHTML = String(s == null ? '' : s); tmp.querySelectorAll('rt, rp').forEach(function (n) { n.parentNode.removeChild(n); }); return tmp.textContent; }
+    function lab(key, dflt) { var v = LANG[key]; return (v && !/^[A-Z_]+$/.test(v)) ? v : dflt; }
+    function word(i, k) { return D[i][MODES[k]]; }
+    function cat(i) { return D[i][COL.cat]; }
+    function sizeOf(i) { return (cat(i) === 'season' ? 6 : cat(i) === 'event' ? 4.5 : 3.5) * (window.tsScale ? window.tsScale(i) : 1); }
+    function wOf(i, txt) { cv.font = '700 ' + sizeOf(i) + 'px ' + FONT; return cv.measureText(plain(txt)).width + 3; }
+    function hOf(i) { return sizeOf(i) * 1.35; }
+
+    /* ---- answers ---- */
+    window.AnswerUtils = {
+        normalize: function (text) {
+            var t = String(text).toLowerCase();
+            (LANG.diacritic_map || []).forEach(function (p) { t = t.split(p[0]).join(p[1]); });
+            (LANG.digraph_map || []).forEach(function (p) { t = t.split(p[0]).join(p[1]); });
+            if (LANG.collapse_double_vowels) t = t.replace(/aa/g, 'a').replace(/ee/g, 'e').replace(/ii/g, 'i').replace(/oo/g, 'o').replace(/uu/g, 'u');
+            return t.replace(/[\s\-!?.,]/g, '').trim();
+        },
+        checkAnswer: function (input, correct) { return this.normalize(input) === this.normalize(correct); }
+    };
+
+    /* ---- placement: seasons first, then events, then cultural; each word starts at the dial edge and moves outward until it touches nothing ---- */
+    function fixedRects() { var out = []; svg.querySelectorAll('.segment-label').forEach(function (t) { try { var b = t.getBBox(); if (b.width > 0) out.push({ x: b.x + b.width / 2, y: b.y + b.height / 2, w: b.width + 0.6, h: b.height + 0.6 }); } catch (e) {} }); return out; }
+    var RANK = { season: 0, event: 1, cultural: 2 };
+    function rectsFor(kFn) {
+        var out = [], placed = fixedRects(), order = D.map(function (_, i) { return i; }).sort(function (a, b) { return (RANK[cat(a)] - RANK[cat(b)]) || (a - b); });
+        order.forEach(function (i) {
+            var w = wOf(i, word(i, kFn(i))), h = hOf(i), a = (D[i][COL.ang] - 90) * Math.PI / 180, ux = Math.cos(a), uy = Math.sin(a);
+            /* try the word's own angle first, then slide it a few degrees either way and move it outward: take the free spot that costs least (distance out plus a little for the turn) */
+            var base = R0 + (w / 2) * Math.abs(ux) + (h / 2) * Math.abs(uy), best = null, bc = 1e9;
+            for (var da = 0; da <= 36; da += 3) [da, -da].forEach(function (dg, di) {
+                if (da === 0 && di === 1) return;
+                var aa = a + dg * Math.PI / 180, vx = Math.cos(aa), vy = Math.sin(aa), dmin = R0 + (w / 2) * Math.abs(vx) + (h / 2) * Math.abs(vy);
+                for (var d = dmin; d < dmin + 40; d += 0.5) {
+                    var c = (d - base) + 0.45 * da; if (c >= bc) break;
+                    var r = { x: 50 + d * vx, y: 50 + d * vy, w: w, h: h };
+                    if (!placed.some(function (p) { return Math.abs(p.x - r.x) < (p.w + w) / 2 + GAP && Math.abs(p.y - r.y) < (p.h + h) / 2 + GAP; })) { best = r; bc = c; break; }
                 }
-                placed.push(r); out[i] = r;
+            });
+            if (!best) best = { x: 50 + (base + 40) * ux, y: 50 + (base + 40) * uy, w: w, h: h };
+            placed.push(best); out[i] = best;
+        });
+        return out;
+    }
+    function applyRect(i, r) { var fo = textBoxElements[i]; if (!fo) return; fo.setAttribute('x', r.x - r.w / 2); fo.setAttribute('y', r.y - r.h / 2); fo.setAttribute('width', r.w); fo.setAttribute('height', r.h); fo.style.overflow = 'visible'; }
+    function curK(i) { var d = textBoxElements[i] && textBoxElements[i].querySelector('div'); return d ? parseInt(d.dataset.k || '0') : 0; }
+    window.cmpPlaceAll = function () {
+        if (!textBoxElements.length) return;
+        var hx = 40, hy = 40;
+        MODES.forEach(function (_, k) { rectsFor(function () { return k; }).forEach(function (r) { hx = Math.max(hx, Math.abs(r.x - 50) + r.w / 2 + 1.5); hy = Math.max(hy, Math.abs(r.y - 50) + r.h / 2 + 1.5); }); });
+        svg.setAttribute('viewBox', (50 - hx) + ' ' + (50 - hy) + ' ' + (2 * hx) + ' ' + (2 * hy));
+        rectsFor(curK).forEach(function (r, i) { applyRect(i, r); });
+    };
+    function placeOne(i) {
+        var fo = textBoxElements[i]; if (!fo) return;
+        var w = wOf(i, fo.querySelector('div').innerHTML), h = hOf(i);
+        var cx = parseFloat(fo.getAttribute('x')) + parseFloat(fo.getAttribute('width')) / 2, cy = parseFloat(fo.getAttribute('y')) + parseFloat(fo.getAttribute('height')) / 2;
+        var c = Math.hypot(cx - 50, cy - 50), ux = (cx - 50) / c, uy = (cy - 50) / c, dmin = R0 + (w / 2) * Math.abs(ux) + (h / 2) * Math.abs(uy);
+        var d = Math.max(c, dmin);   /* same direction as now, never closer than the dial edge */
+        applyRect(i, { x: 50 + d * ux, y: 50 + d * uy, w: w, h: h });
+    }
+    window.applyTierStyle = function (div, i) { div.style.fontSize = sizeOf(i) + 'px'; div.style.whiteSpace = 'nowrap'; };
+    function setK(i, k) { var d = textBoxElements[i] && textBoxElements[i].querySelector('div'); if (!d) return; kOf[i] = k; d.dataset.k = k; d.innerHTML = word(i, k); window.applyTierStyle(d, i); placeOne(i); }
+    window.__tdlSetK = function (i, k) { setK(i, k); };
+
+    /* ---- what shows ---- */
+    function inFilter(i) { var c = cat(i); return filter === 'all' || (filter === 'seasons' && c === 'season') || (filter === 'significant' && c !== 'season'); }
+    var QUAD = [['q1', 330, 60], ['q2', 60, 150], ['q3', 150, 240], ['q4', 240, 330]];
+    function highlight(deg) {
+        var n = ((deg % 360) + 360) % 360, act = (n >= 330 || n < 60) ? 'q1' : n < 150 ? 'q2' : n < 240 ? 'q3' : 'q4';
+        QUAD.forEach(function (q) { var s = $(q[0] + '-segment'); if (s) s.classList.toggle('segment-highlighted', q[0] === act); });
+        ['q1-snowflake', 'q2-koru', 'q3-sun', 'q3-rays', 'q4-leaf'].forEach(function (id) { var e = $(id); if (e) e.setAttribute('opacity', '0'); });
+        ({ q1: ['q1-snowflake'], q2: ['q2-koru'], q3: ['q3-sun', 'q3-rays'], q4: ['q4-leaf'] })[act].forEach(function (id) { $(id).setAttribute('opacity', '1'); });
+    }
+    function refresh() {
+        textBoxElements.forEach(function (tb, i) {
+            var vis = inFilter(i) && (showAll || i === cur || learned[i]);
+            tb.classList.toggle('active', vis && i === cur); tb.classList.toggle('learned', !!learned[i]);
+            tb.style.display = vis ? 'block' : 'none';
+            tb.style.opacity = !vis ? '0' : (i === cur ? '1' : showAll ? '0.9' : '0.5');
+        });
+        highlight(frameDeg);
+    }
+    window.updateVisibleTextBoxes = refresh;
+    function setFrame(deg) { var a = (deg - 90) * Math.PI / 180; frame.setAttribute('cx', 50 + 30 * Math.cos(a)); frame.setAttribute('cy', 50 + 30 * Math.sin(a)); }
+    function closest(deg) {
+        var best = -1, md = 361; D.forEach(function (it, i) { if (!inFilter(i)) return; var d = Math.abs(deg - it[COL.ang]); if (d > 180) d = 360 - d; if (d < md) { md = d; best = i; } });
+        return best < 0 ? cur : best;
+    }
+    function goTo(i) { cur = i; frameDeg = D[i][COL.ang]; setFrame(frameDeg); refresh(); }
+
+    /* ---- the words ---- */
+    function build() {
+        document.querySelectorAll('.textBox').forEach(function (b) { if (b.parentNode) b.parentNode.removeChild(b); });
+        textBoxElements = [];
+        D.forEach(function (item, i) {
+            var fo = document.createElementNS(SVGNS, 'foreignObject');
+            fo.setAttribute('class', 'textBox'); fo.setAttribute('data-index', i);
+            fo.setAttribute('x', 0); fo.setAttribute('y', 0); fo.setAttribute('width', 16); fo.setAttribute('height', 8); fo.style.overflow = 'visible'; fo.style.pointerEvents = 'auto';
+            var div = document.createElement('div');
+            div.style.cssText = 'display:flex;align-items:center;justify-content:center;width:100%;height:100%;box-sizing:border-box;text-align:center;font-family:Arial,sans-serif;color:black;cursor:pointer;white-space:nowrap;font-weight:bold';
+            div.dataset.k = kOf[i]; div.innerHTML = word(i, kOf[i]); window.applyTierStyle(div, i);
+            fo.appendChild(div);
+            fo.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var k = kOf[i] + 1;
+                if (qc.style.display === 'block' && quizIdx === i) return;
+                if (k >= MODES.length) {
+                    if (!noQuiz() && !learned[i]) { showQuiz(i); return; }   /* the Quiz is hidden on touch phones: the cycle just starts again */
+                    k = 0;
+                }
+                setK(i, k);
+                if (window.__cmpSpeak) window.__cmpSpeak(i, true);
+            });
+            svg.insertBefore(fo, frame); textBoxElements.push(fo);
+        });
+        svg.appendChild(frame);
+        window.cmpPlaceAll(); refresh();
+    }
+
+    /* ---- grab the sun anywhere on the face of the dial ---- */
+    var dragging = false;
+    function ptr(e) { var t = e.touches && e.touches[0]; return { x: t ? t.clientX : e.clientX, y: t ? t.clientY : e.clientY }; }
+    function svgPt(p) { var pt = svg.createSVGPoint(); pt.x = p.x; pt.y = p.y; return pt.matrixTransform(svg.getScreenCTM().inverse()); }
+    function move(e) {
+        if (!dragging) return;
+        var p = svgPt(ptr(e)), deg = (Math.atan2(p.y - 50, p.x - 50) * 180 / Math.PI + 90 + 360) % 360;
+        frameDeg = deg; setFrame(deg);
+        var idx = closest(deg); if (idx !== cur) { cur = idx; refresh(); } else highlight(deg);
+        if (e.cancelable) e.preventDefault();
+    }
+    function down(e) {
+        if (e.target.closest && e.target.closest('.textBox')) return;
+        var p = svgPt(ptr(e)); if (e.target !== frame && Math.hypot(p.x - 50, p.y - 50) > 37) return;
+        dragging = true; frame.classList.add('dragging'); move(e); if (e.cancelable) e.preventDefault();
+    }
+    function up() { if (!dragging) return; dragging = false; frame.classList.remove('dragging'); if (window.__cmpSpeak && !showAll) window.__cmpSpeak(cur); }
+    svg.addEventListener('mousedown', down); svg.addEventListener('touchstart', down, { passive: false });
+    document.addEventListener('mousemove', move); document.addEventListener('touchmove', move, { passive: false });
+    document.addEventListener('mouseup', up); document.addEventListener('touchend', up); document.addEventListener('touchcancel', up);
+
+    /* ---- buttons ---- */
+    var layerBtn = $('display-mode-toggle'), allBtn = $('show-all-toggle'), filterBtn = $('filter-btn');
+    function layerLabel() { var c = MODES[layerMode]; return c === COL.tlr ? lab('show_tlr_label', 'Show: TLR') : c === COL.tl ? lab('show_tl_label', 'Show: TL') : lab('show_sl_label', 'Show: SL'); }
+    function allLabel() { return showAll ? lab('hide_all_label', 'Hide All') : lab('show_all_label', 'Show All'); }
+    var FILT = ['all', 'seasons', 'significant'];
+    function filterLabel() { return filter === 'all' ? lab('filter_all_label', 'All') : filter === 'seasons' ? lab('filter_seasons_label', '4 Seasons') : lab('filter_significant_label', 'Significant Times'); }
+    function setLayer(m) {
+        layerMode = m; layerBtn.textContent = layerLabel();
+        textBoxElements.forEach(function (tb, i) { var d = tb.querySelector('div'); kOf[i] = m; d.dataset.k = m; d.innerHTML = word(i, m); window.applyTierStyle(d, i); });
+        window.cmpPlaceAll();
+    }
+    layerBtn.textContent = layerLabel(); allBtn.textContent = allLabel(); filterBtn.textContent = filterLabel();
+    layerBtn.addEventListener('click', function () { setLayer((layerMode + 1) % MODES.length); });
+    allBtn.addEventListener('click', function () { showAll = !showAll; allBtn.textContent = allLabel(); if (window.__cmpReset) window.__cmpReset(); refresh(); });
+    filterBtn.addEventListener('click', function () {
+        filter = FILT[(FILT.indexOf(filter) + 1) % FILT.length]; filterBtn.textContent = filterLabel();
+        if (window.__cmpReset) window.__cmpReset();
+        if (!inFilter(cur)) goTo(closest(frameDeg)); else refresh();
+    });
+    $('toggle-learned-left').addEventListener('click', function () { toggleArr('left'); });
+    $('toggle-learned-right').addEventListener('click', function () { toggleArr('right'); });
+    function toggleArr(side) {
+        var c = $('learned-items-' + side), b = $('toggle-learned-' + side), spans = c.querySelectorAll('.vocabulary-item span'), vis = 0;
+        spans.forEach(function (s) { if (!s.classList.contains('hidden')) vis++; });
+        var most = vis > spans.length / 2; spans.forEach(function (s) { s.classList.toggle('hidden', most); });
+        b.textContent = most ? lab('show_all_label', 'Show All') : lab('hide_all_label', 'Hide All');
+    }
+
+    /* ---- title and instructions ---- */
+    var titleBox = $('title-box'), ti = 0; titleBox.innerHTML = LANG.titles[0];
+    titleBox.addEventListener('click', function () { ti = (ti + 1) % LANG.titles.length; titleBox.innerHTML = LANG.titles[ti]; });
+    var di = $('drag-instruction'); di.innerHTML = LANG.drag_instruction;
+    setTimeout(function () { di.classList.add('fade'); setTimeout(function () { di.style.display = 'none'; }, 3000); }, 15000);
+    ['array-title-left', 'array-title-right'].forEach(function (id) { $(id).textContent = LANG.array_title; });
+    $('sub-left').textContent = LANG.seasons_section_title; $('sub-right').textContent = LANG.significant_section_title;
+    $('toggle-learned-left').textContent = lab('hide_all_label', 'Hide All'); $('toggle-learned-right').textContent = lab('hide_all_label', 'Hide All');
+    $('quizInput').placeholder = LANG.quiz_placeholder; $('quizCheck').textContent = LANG.quiz_button;
+    if (LOGV && $('quizDiacriticNote')) $('quizDiacriticNote').textContent = LANG.diacritic_instructions;
+    var rb = $('reset-btn'); if (LANG.reset_label && !/^[A-Z_]+$/.test(LANG.reset_label)) rb.textContent = LANG.reset_label;
+
+    /* ---- the Learned panels (4 Seasons on the left, Significant Times on the right) ---- */
+    var arrL = $('learned-vocabulary-left'), arrR = $('learned-vocabulary-right');
+    document.body.appendChild(arrL); document.body.appendChild(arrR);   /* a fixed-position panel must not sit inside the page frame */
+    function syncPanels() { [['left', arrL], ['right', arrR]].forEach(function (p) { p[1].classList.toggle('has-items', $('learned-items-' + p[0]).children.length > 0); }); }
+    function addToArray(i) {
+        var target = $('learned-items-' + (cat(i) === 'season' ? 'left' : 'right')), item = document.createElement('div'); item.className = 'vocabulary-item';
+        var tl = document.createElement('span'); tl.className = 'tl-word'; tl.innerHTML = D[i][COL.tl];
+        var sl = document.createElement('span'); sl.className = 'sl-word'; sl.textContent = D[i][COL.sl];
+        [tl, sl].forEach(function (s) { s.addEventListener('click', function (e) { e.stopPropagation(); this.classList.toggle('hidden'); }); });
+        item.appendChild(tl); item.appendChild(sl); target.appendChild(item); syncPanels(); placeArray(); setTimeout(showArrayTip, 80);
+    }
+
+    /* ---- the Quiz ---- */
+    function showQuiz(i) {
+        if (noQuiz()) return;
+        if (quizIdx >= 0 && quizIdx !== i && !learned[quizIdx]) setK(quizIdx, 0);
+        quizIdx = i;
+        $('quizInput').placeholder = D[i][COL.q]; $('quizInput').value = ''; $('quizFeedback').textContent = '';
+        qc.style.display = 'block'; qc.style.visibility = 'visible'; qc.style.opacity = '1'; qc.style.zIndex = '9999';
+        setTimeout(function () { try { $('quizInput').focus(); } catch (e) {} }, 100);
+    }
+    function checkQuiz() {
+        if (quizIdx < 0) return;
+        var input = $('quizInput').value.trim(), correct = D[quizIdx][ANS], fb = $('quizFeedback'), qi = quizIdx;
+        if (AnswerUtils.checkAnswer(input, plain(correct))) {
+            fb.textContent = LANG.quiz_correct; fb.style.color = 'green'; learned[qi] = true;
+            setK(qi, 0); addToArray(qi); refresh(); closedIdx = qi;
+            setTimeout(function () { if (quizIdx === closedIdx) { qc.style.display = 'none'; quizIdx = -1; } }, 1500);
+        } else { fb.textContent = LANG.quiz_wrong; fb.style.color = 'red'; }
+    }
+    $('quizCheck').addEventListener('click', checkQuiz);
+    $('quizInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') checkQuiz(); });
+    document.addEventListener('click', function (e) {
+        if (qc.style.display !== 'block' || qc.contains(e.target) || (e.target.closest && e.target.closest('.textBox, .cmp-ghost'))) return;
+        if (quizIdx >= 0 && !learned[quizIdx]) setK(quizIdx, 0);
+        qc.style.display = 'none'; quizIdx = -1;
+    });
+
+    /* the Quiz and the Learned panels are hidden on touch phones (not enough room); desktop windows of any size keep them */
+    var mq = window.matchMedia('(pointer: coarse) and (max-width: 700px), (pointer: coarse) and (max-height: 520px) and (orientation: landscape)');
+    function syncQuiz() { de.classList.toggle('no-quiz', mq.matches); if (mq.matches && quizIdx >= 0) { if (!learned[quizIdx]) setK(quizIdx, 0); qc.style.display = 'none'; quizIdx = -1; } }
+    syncQuiz(); if (mq.addEventListener) mq.addEventListener('change', syncQuiz); else if (mq.addListener) mq.addListener(syncQuiz);
+
+    /* ---- movable panels: click, grab, drag and drop anywhere on the screen ---- */
+    var tip = document.createElement('div'); tip.id = 'arrayMoveTip'; document.body.appendChild(tip);
+    function movable(el, skip, onGrab) {
+        var st = null, swallow = false;
+        el.addEventListener('pointerdown', function (e) {
+            if ((e.pointerType === 'mouse' && e.button !== 0) || (skip && e.target.closest && e.target.closest(skip))) return;
+            var r = el.getBoundingClientRect(); st = { id: e.pointerId, dx: e.clientX - r.left, dy: e.clientY - r.top, x0: e.clientX, y0: e.clientY, drag: false };
+        });
+        document.addEventListener('pointermove', function (e) {
+            if (!st || e.pointerId !== st.id) return;
+            if (!st.drag) {
+                if (Math.hypot(e.clientX - st.x0, e.clientY - st.y0) < 5) return;
+                st.drag = true; var r = el.getBoundingClientRect();
+                el.style.left = r.left + 'px'; el.style.top = r.top + 'px'; el.style.right = 'auto'; el.style.bottom = 'auto'; el.style.transform = 'none'; el.dataset.moved = '1'; el.style.cursor = 'grabbing';
+                if (onGrab) onGrab();
             }
-            return out;
-        }
-        function applyRect(i, r) {
-            var fo = textBoxElements[i]; if (!fo) return;
-            fo.setAttribute('x', r.x - r.w / 2); fo.setAttribute('y', r.y - r.h / 2);
-            fo.setAttribute('width', r.w); fo.setAttribute('height', r.h); fo.style.overflow = 'visible';
-        }
-        function curK(i) { var d = textBoxElements[i] && textBoxElements[i].querySelector('div'); return d ? parseInt(d.dataset.k || '0') : 0; }
-        window.cmpPlaceAll = function () {
-            if (!svg || !textBoxElements.length) return;
-            var hx = 40, hy = 40;
-            MODES.forEach(function (_, k) { rectsFor(function () { return k; }).forEach(function (r) { hx = Math.max(hx, Math.abs(r.x - 50) + r.w / 2 + 1.5); hy = Math.max(hy, Math.abs(r.y - 50) + r.h / 2 + 1.5); }); });
-            svg.setAttribute('viewBox', (50 - hx) + ' ' + (50 - hy) + ' ' + (2 * hx) + ' ' + (2 * hy));
-            rectsFor(curK).forEach(function (r, i) { applyRect(i, r); });
-        };
-        window.cmpPlaceOne = function (i) {
-            var fo = textBoxElements[i]; if (!fo) return;
-            var w = wOf(i, fo.querySelector('div').innerHTML), h = hOf(i), ux = Math.cos(ang(i)), uy = Math.sin(ang(i)), d = R0 + (w / 2) * Math.abs(ux) + (h / 2) * Math.abs(uy);
-            var cx = parseFloat(fo.getAttribute('x')) + parseFloat(fo.getAttribute('width')) / 2, cy = parseFloat(fo.getAttribute('y')) + parseFloat(fo.getAttribute('height')) / 2;
-            var cur = Math.hypot(cx - 50, cy - 50); if (cur > d) d = cur;
-            applyRect(i, { x: 50 + d * ux, y: 50 + d * uy, w: w, h: h });
-        };
-        window.applyTierStyle = function (div, i) { div.style.fontSize = sizeOf(i) + 'px'; div.style.whiteSpace = 'nowrap'; };
+            var w = el.offsetWidth, h = el.offsetHeight;
+            el.style.left = Math.min(Math.max(e.clientX - st.dx, 0), Math.max(0, window.innerWidth - w)) + 'px';
+            el.style.top = Math.min(Math.max(e.clientY - st.dy, 0), Math.max(0, window.innerHeight - h)) + 'px';
+            e.preventDefault();
+        }, { passive: false });
+        function upP(e) { if (!st || e.pointerId !== st.id) return; if (st.drag) { swallow = true; setTimeout(function () { swallow = false; }, 60); el.style.cursor = ''; } st = null; }
+        document.addEventListener('pointerup', upP); document.addEventListener('pointercancel', upP);
+        el.addEventListener('click', function (e) { if (swallow) { e.stopPropagation(); e.preventDefault(); swallow = false; } }, true);
+        window.addEventListener('resize', function () {
+            if (el.dataset.moved !== '1') return; var r = el.getBoundingClientRect();
+            el.style.left = Math.min(Math.max(r.left, 0), Math.max(0, window.innerWidth - r.width)) + 'px'; el.style.top = Math.min(Math.max(r.top, 0), Math.max(0, window.innerHeight - r.height)) + 'px';
+        });
+    }
+    var tipTimer = null, tipDone = false;
+    function hideTip() { tip.style.opacity = '0'; clearTimeout(tipTimer); }
+    function hintText() { return (LANG.move_hint && LANG.move_hint !== 'MOVE_HINT') ? LANG.move_hint : 'You can move this'; }
+    movable(qc, 'input, button'); movable(arrL, 'button', hideTip); movable(arrR, 'button', hideTip);
+    function placeArray() {
+        var r = document.querySelector('.a4-page').getBoundingClientRect();
+        if (arrL.dataset.moved !== '1') { arrL.style.left = (r.left + 12) + 'px'; arrL.style.top = (r.top + 110) + 'px'; arrL.style.right = 'auto'; }
+        if (arrR.dataset.moved !== '1') { arrR.style.left = Math.max(r.left + 12, r.right - 212) + 'px'; arrR.style.top = (r.top + 110) + 'px'; arrR.style.right = 'auto'; }
+    }
+    window.addEventListener('resize', placeArray);
+    function showArrayTip() {
+        if (tipDone || noQuiz()) return; tipDone = true;
+        tip.textContent = hintText(); tip.className = ''; tip.style.opacity = '0'; tip.style.left = '0px'; tip.style.top = '0px';
+        var a = (arrR.classList.contains('has-items') ? arrR : arrL).getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight, x, y;
+        if (a.left - w - 14 >= 4) { tip.className = 'left'; x = a.left - w - 12; y = a.top + 22 - h / 2; }
+        else if (a.right + w + 14 <= window.innerWidth) { tip.className = 'right'; x = a.right + 12; y = a.top + 22 - h / 2; }
+        else { tip.className = 'below'; x = Math.min(a.left, window.innerWidth - w - 4); y = a.bottom + 12; }
+        tip.style.left = x + 'px'; tip.style.top = Math.max(4, y) + 'px'; tip.style.opacity = '1';
+        clearTimeout(tipTimer); tipTimer = setTimeout(hideTip, 5000);
+    }
+    var hint = document.createElement('div'); hint.id = 'quizMoveHint'; hint.textContent = hintText(); qc.insertBefore(hint, qc.firstChild);
+    var hintTimer = null, wasOpen = false;
+    new MutationObserver(function () {
+        var open = qc.style.display === 'block';
+        if (open && !wasOpen) { hint.classList.remove('gone'); clearTimeout(hintTimer); hintTimer = setTimeout(function () { hint.classList.add('gone'); }, 5000); }
+        wasOpen = open;
+    }).observe(qc, { attributes: true, attributeFilter: ['style'] });
 
-        window.cycleDisplayMode = function () {
-            displayMode = (displayMode + 1) % MODES.length;
-            document.getElementById('display-mode-toggle').textContent = modeLabel(displayMode);
-            window.updateAllTextBoxes();
-        };
-        window.updateAllTextBoxes = function () {
-            textBoxElements.forEach(function (tb, i) {
-                var div = tb && tb.querySelector('div'); if (!div) return;
-                div.dataset.k = displayMode; div.innerHTML = dayWord(i, displayMode); applyTierStyle(div, i);
-            });
-            window.cmpPlaceAll();
-        };
-        window.createTextBoxes = function () {
-            var holder = document.getElementById('textBoxContainer');
-            holder.innerHTML = ''; textBoxElements = [];
-            daysOfWeekData.forEach(function (item, i) {
-                var fo = document.createElementNS(SVGNS, 'foreignObject');
-                fo.setAttribute('class', 'textBox'); fo.setAttribute('data-index', i);
-                fo.setAttribute('x', 0); fo.setAttribute('y', 0); fo.setAttribute('width', 16); fo.setAttribute('height', 8);
-                fo.style.overflow = 'visible';
-                var div = document.createElement('div');
-                div.style.cssText = 'display:flex;align-items:center;justify-content:center;width:100%;height:100%;box-sizing:border-box;text-align:center;font-family:Arial,sans-serif;color:black;cursor:pointer;white-space:nowrap;font-weight:bold';
-                div.dataset.k = displayMode; div.innerHTML = dayWord(i, displayMode); applyTierStyle(div, i);
-                fo.appendChild(div);
-                if (learnedItems[i]) fo.classList.add('learned');
-                fo.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    var idx = parseInt(this.getAttribute('data-index')), d = this.querySelector('div');
-                    var qc = document.getElementById('quizContainer');
-                    if (qc.style.display === 'block' && currentQuizIndex === idx) return;
-                    var k = parseInt(d.dataset.k || '0') + 1;
-                    if (k >= MODES.length) {
-                        if (!document.documentElement.classList.contains('no-quiz') && !learnedItems[idx]) { showQuiz(idx, this); return; }
-                        k = 0;
-                    }
-                    d.dataset.k = k; d.innerHTML = dayWord(idx, k); applyTierStyle(d, idx); cmpPlaceOne(idx);
-                    if (window.__cmpSpeak) window.__cmpSpeak(idx, true);
-                });
-                holder.appendChild(fo); textBoxElements.push(fo);
-            });
-            window.cmpPlaceAll();
-        };
+    /* ---- Reset: back to the opening view, all Quiz progress cleared ---- */
+    function resetAll() {
+        if (window.__cmpReset) window.__cmpReset();
+        qc.style.display = 'none'; quizIdx = -1; $('quizInput').value = ''; $('quizFeedback').textContent = '';
+        learned = D.map(function () { return false; }); kOf = D.map(function () { return 0; });
+        ['left', 'right'].forEach(function (sd) { $('learned-items-' + sd).innerHTML = ''; $('toggle-learned-' + sd).textContent = lab('hide_all_label', 'Hide All'); }); hideTip();
+        showAll = false; filter = 'all'; layerMode = 0; layerBtn.textContent = layerLabel(); allBtn.textContent = allLabel(); filterBtn.textContent = filterLabel();
+        var all = $('tsAll'); if (all) all.checked = false; $('tsReset').click(); $('textSizePanel').style.display = 'none';
+        [qc, arrL, arrR].forEach(function (el) { el.style.left = el.style.top = el.style.right = el.style.bottom = el.style.transform = ''; delete el.dataset.moved; });
+        build(); goTo(0); syncPanels(); placeArray();
+    }
+    rb.addEventListener('click', resetAll);
 
-        // Show All: every day word at once, each beside its own segment
-        var showAll = false, origUpdate = window.updateVisibleTextBoxes;
-        window.updateVisibleTextBoxes = function (dayIndex) {
-            origUpdate(dayIndex);
-            textBoxElements.forEach(function (tb, k) {
-                tb.style.display = ''; tb.style.opacity = '';
-                if (showAll && k !== dayIndex && !learnedItems[k]) { tb.classList.remove('hidden'); tb.classList.add('visible'); tb.style.display = 'block'; tb.style.opacity = '0.85'; }
-                else tb.classList.remove('visible');
-            });
-        };
-        var sab = document.getElementById('show-all-toggle');
-        function saLabel() { sab.textContent = showAll ? (typeof LANG !== 'undefined' && LANG.hide_all_label ? LANG.hide_all_label : 'Hide All') : (typeof LANG !== 'undefined' && LANG.show_all_label ? LANG.show_all_label : 'Show All'); }
-        sab.addEventListener('click', function () { showAll = !showAll; saLabel(); if (window.__cmpReset) window.__cmpReset(); window.updateVisibleTextBoxes(currentDay); });
-        saLabel();
-
-        var origShowQuiz = window.showQuiz;
-        window.showQuiz = function (i, el) { if (document.documentElement.classList.contains('no-quiz')) return; origShowQuiz(i, el); };
-        var rt = null;
-        function reflow() { clearTimeout(rt); rt = setTimeout(function () { window.cmpPlaceAll(); }, 120); }
-        window.addEventListener('resize', reflow); window.addEventListener('orientationchange', reflow);
-        // the mode button's first label (ROM sets it from LANG at load; LOG is static)
-        document.getElementById('display-mode-toggle').textContent = modeLabel(0);
+    /* ---- print list: every word beside the dial, shown only when printing ---- */
+    (function () {
+        var pl = $('printList'); if (!pl) return;
+        var esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }, last = '';
+        pl.innerHTML = D.map(function (d, i) {
+            var gap = (last && (last === 'season') !== (cat(i) === 'season')) ? '<div class="pl-gap"></div>' : ''; last = cat(i);
+            return gap + '<div class="pl-row ' + (LOGV ? '' : 'rom') + '"><span class="pl-h">' + (i + 1) + '</span>' + (LOGV ? '<span>' + d[COL.tlr] + '</span>' : '') + '<span>' + d[COL.tl] + '</span><span>' + esc(plain(d[COL.sl])) + '</span></div>';
+        }).join('');
     })();
+    window.__seaLabel = function (i) { return plain(D[i][COL.tl]).slice(0, 30); };
 
+    var rt = null; function reflow() { clearTimeout(rt); rt = setTimeout(function () { window.cmpPlaceAll(); }, 120); }
+    window.addEventListener('resize', reflow); window.addEventListener('orientationchange', reflow);
+    window.addEventListener('load', function () { placeArray(); window.cmpPlaceAll(); });
+    qc.style.display = 'none';
+    build(); goTo(0); syncPanels(); placeArray();
+})();
+
+    </script>
+    <script>
     // --- Tools menu: Colours, Text size, Print ---
     (function () {
         var $ = function (id) { return document.getElementById(id); };
         var wrap = $('toolsWrap'), menu = $('toolsMenu'), tb = $('toolsBtn'); if (!wrap) return;
-        tb.addEventListener('click', function (e) { e.stopPropagation(); menu.classList.toggle('active'); });
+        tb.addEventListener('click', function (e) {
+            e.stopPropagation(); menu.classList.toggle('active'); menu.style.left = '0px';
+            if (menu.classList.contains('active')) { var b = menu.getBoundingClientRect(), over = b.right - (document.documentElement.clientWidth - 6); if (over > 0) menu.style.left = (-over) + 'px'; }
+        });
         document.addEventListener('click', function (e) { if (!wrap.contains(e.target)) menu.classList.remove('active'); });
         $('printBtn').addEventListener('click', function (e) { e.stopPropagation(); menu.classList.remove('active'); setTimeout(function () { window.print(); }, 50); });
         // Text size: click a word then slide (that word), or tick All words
@@ -1694,7 +869,7 @@ html.no-quiz #kitProgress { display: none; }
             head.addEventListener('pointermove', function (e) { if (d) { panel.style.left = (e.clientX - d.dx) + 'px'; panel.style.top = (e.clientY - d.dy) + 'px'; } });
             head.addEventListener('pointerup', function () { d = null; });
         })();
-        var SCHEMES = [['Default', ''], ['No colour', 'nocolour'], ['Night', 'night']], ci = 2, cb = $('colourBtn');   /* 2026-11-09: Night is now the starting scheme */
+        var SCHEMES = [['Default', ''], ['No colour', 'nocolour'], ['Night', 'night']], ci = 2, cb = $('colourBtn');   /* the page opens in Night colours */
         cb.addEventListener('click', function (e) {
             e.stopPropagation(); ci = (ci + 1) % SCHEMES.length;
             if (SCHEMES[ci][1]) document.documentElement.setAttribute('data-scheme', SCHEMES[ci][1]); else document.documentElement.removeAttribute('data-scheme');
@@ -1706,15 +881,8 @@ html.no-quiz #kitProgress { display: none; }
     })();
 
 
-    // --- Print list: every day beside the ring (shown only when printing) ---
-    (function () {
-        var pl = document.getElementById('printList'); if (!pl) return;
-        var esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;'); };
-        var plain = function (t) { var d = document.createElement('div'); d.innerHTML = t; return d.textContent; };
-        var row = function (a, b, c, d) { return '<div class="pl-row ' + (LOGV ? '' : 'rom') + '"><span class="pl-h">' + a + '</span>' + (LOGV ? '<span>' + b + '</span>' : '') + '<span>' + c + '</span><span>' + d + '</span></div>'; };
-        pl.innerHTML = daysOfWeekData.map(function (d, i) { return row(i + 1, esc(plain(LOGV ? d[2] : '')), esc(plain(d[1])), esc(plain(d[0]))); }).join('');
-    })();
-
+    </script>
+    <script>
     // --- Pull a word out of the dial to inspect it: it follows the finger or mouse and grows (up to 300%); let go and it STAYS for 5 seconds, then snaps back ---
     (function () {
         var MAXS = 3, HOLD_MS = 5000, svg = document.getElementById('svgCanvas');
@@ -1724,7 +892,7 @@ html.no-quiz #kitProgress { display: none; }
         function makeGhost(box) {
             var d = box.querySelector('div'), r = d.getBoundingClientRect(), k = svg.getScreenCTM().a;
             var gh = document.createElement('div'); gh.className = 'cmp-ghost';
-            gh.textContent = d.textContent; gh.style.textTransform = d.style.textTransform; gh.style.fontSize = (parseFloat(d.style.fontSize) * k) + 'px';
+            gh.innerHTML = d.innerHTML; gh.style.textTransform = d.style.textTransform; gh.style.fontSize = (parseFloat(d.style.fontSize) * k) + 'px';
             document.body.appendChild(gh);
             var w = gh.offsetWidth, h = gh.offsetHeight, hx = r.left + r.width / 2, hy = r.top + r.height / 2;
             gh.style.left = hx + 'px'; gh.style.top = hy + 'px';
@@ -1738,7 +906,7 @@ html.no-quiz #kitProgress { display: none; }
         }
         function startHold(i) { var o = held.get(i); if (!o) return; clearTimeout(o.timer); o.timer = setTimeout(function () { snapBack(i); }, HOLD_MS); }
         window.__cmpReset = function () { held.forEach(function (o) { clearTimeout(o.timer); if (o.ghost.parentNode) o.ghost.parentNode.removeChild(o.ghost); o.box.style.visibility = ''; }); held.clear(); g = null; };
-        ['display-mode-toggle', 'show-all-toggle'].forEach(function (id) { document.getElementById(id).addEventListener('click', function () { window.__cmpReset(); }); });
+        ['display-mode-toggle', 'show-all-toggle', 'filter-btn', 'reset-btn'].forEach(function (id) { document.getElementById(id).addEventListener('click', function () { window.__cmpReset(); }); });
         window.addEventListener('resize', function () { window.__cmpReset(); });
 
         document.addEventListener('pointerdown', function (e) {
@@ -1775,7 +943,7 @@ html.no-quiz #kitProgress { display: none; }
             if (cur.drag) { swallow = true; setTimeout(function () { swallow = false; }, 60); startHold(cur.i); return; }
             if (cur.hadHold) {   // a tap on a held word: flip its layer and start the 5 seconds again
                 cur.box.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-                cur.o.ghost.textContent = cur.box.querySelector('div').textContent; cur.o.ghost.style.textTransform = cur.box.querySelector('div').style.textTransform;
+                cur.o.ghost.innerHTML = cur.box.querySelector('div').innerHTML; cur.o.ghost.style.textTransform = cur.box.querySelector('div').style.textTransform;
                 startHold(cur.i);
             } else { var o = held.get(cur.i); if (o && o.pending) { if (o.ghost.parentNode) o.ghost.parentNode.removeChild(o.ghost); held.delete(cur.i); } }
         }
@@ -1786,10 +954,11 @@ html.no-quiz #kitProgress { display: none; }
     })();
     </script>
     <script>
-    /* 2026-11-06 AUDIO and FULL SCREEN on the Days of the Week. The Audio button cycles: TL + SL (hear the target-language day, then the source-language one) -> TL only -> Silent.
+
+    /* 2026-11-17 AUDIO and FULL SCREEN on the Seasons. The Audio button cycles: TL + SL (hear the target-language day, then the source-language one) -> TL only -> Silent.
        The slider is the volume. Language codes come from the App: window.CONCEPTIONARY_AUDIO_LANG / _SL_LANG (e.g. 'id-ID', 'en-NZ'); label overrides window.CONCEPTIONARY_AUDIO_TL_LABEL / _SL_LABEL;
        recorded files: window.CONCEPTIONARY_AUDIO_FILES[text]; cloud voice: window.CONCEPTIONARY_AUDIO_API_URL.
-       Let go of the sun, or tap a day word: it is spoken. The romanised (TLR) line of the LOG file is never spoken. */
+       Let go of the sun, or tap a word: it is spoken. The romanised (TLR) line of the LOG file is never spoken. */
     (function () {
         var ctl = document.getElementById('cmpCtl'); if (!ctl || document.getElementById('auCycle')) return;
         var AB = { en: 'ENG', id: 'IND', ms: 'MSA', ja: 'JPN', ko: 'KOR', zh: '中文', fr: 'FRA', de: 'DEU', es: 'SPA', it: 'ITA', pt: 'POR', ru: 'RUS', ar: 'ARA', hi: 'HIN', th: 'THA', vi: 'VIE', mi: 'MRI', fil: 'FIL', tl: 'FIL', nl: 'NLD', sv: 'SWE', tr: 'TUR', pl: 'POL', el: 'ELL', he: 'HEB', sm: 'SMO', to: 'TON', fj: 'FIJ' };
@@ -1861,7 +1030,7 @@ html.no-quiz #kitProgress { display: none; }
         }
         function speak1(text, code, done) {
             var files = window.CONCEPTIONARY_AUDIO_FILES;
-            if (files && files[text]) { playUrl(files[text], done); return; }
+            if (files && files[text] && (!code || code === tlCode())) { playUrl(files[text], done); return; }   /* recordings belong to the target language only */
             if (AUDIO_API_URL && code) viaCloud(text, code, done); else viaBrowser(text, code, done);
         }
         var lastItem = '';
@@ -1876,7 +1045,7 @@ html.no-quiz #kitProgress { display: none; }
             try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
             (function next() { if (my !== st.seq || i >= items.length) return; var it = items[i++]; if (!it[0]) { next(); return; } speak1(it[0], it[1], function () { setTimeout(next, 150); }); })();
         }
-        window.__cmpSpeak = function (i, force) { var d = daysOfWeekData[i]; if (!d) return; if (force) st.last = ''; speakItem({ id: i, tl: String(d[1]).replace(/<[^>]*>/g, ''), sl: d[0] }); };   // the TLR (romanised) line is never spoken
+        window.__cmpSpeak = function (i, force) { var d = LANG.seasonsData[i]; if (!d) return; if (force) st.last = ''; speakItem({ id: i, tl: String(d[1]).replace(/<rt>[^<]*<\/rt>/g, '').replace(/<[^>]*>/g, ''), sl: d[0] }); };   // the TLR (romanised) line is never spoken
 
         cyc.addEventListener('click', function (e) {
             e.stopPropagation();
@@ -1904,182 +1073,7 @@ html.no-quiz #kitProgress { display: none; }
             document.addEventListener('fullscreenchange', sync); document.addEventListener('webkitfullscreenchange', sync);
         }
     })();
-    </script>
-    <script>
-    /* 2026-11-09 style v0.3 + sun: a cream face behind the dial, and a sun with a glow and slowly turning rays that follows the draggable frame */
-    (function () {
-        var svg = document.getElementById('svgCanvas'); if (!svg || document.getElementById('cxDisc')) return;
-        var NS = 'http://www.w3.org/2000/svg', defs = svg.querySelector('defs');
-        function mk(tag, attrs) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
-        var g = mk('radialGradient', { id: 'cxDiscGrad', cx: '50%', cy: '45%', r: '60%' });
-        g.innerHTML = '<stop offset="0%" style="stop-color:var(--cx-disc-a)"/><stop offset="100%" style="stop-color:var(--cx-disc-b)"/>';
-        defs.appendChild(g);
-        var disc = mk('circle', { id: 'cxDisc', cx: 50, cy: 50, r: 34.6 });
-        defs.parentNode.insertBefore(disc, defs.nextSibling);
-
-        /* the sun */
-        var sg = document.getElementById('sunGradient');
-        if (sg) {
-            sg.setAttribute('cx', '50%'); sg.setAttribute('cy', '50%'); sg.setAttribute('r', '55%'); sg.setAttribute('fx', '38%'); sg.setAttribute('fy', '33%');
-            sg.innerHTML = '<stop offset="0%" style="stop-color:#fffef2"/><stop offset="28%" style="stop-color:#fff1a0"/><stop offset="65%" style="stop-color:#ffc62e"/><stop offset="100%" style="stop-color:#f08a0c"/>';
-        }
-        var gl = mk('radialGradient', { id: 'cxSunGlow', cx: '50%', cy: '50%', r: '50%' });
-        gl.innerHTML = '<stop offset="0%" stop-color="#ffd54a" stop-opacity=".75"/><stop offset="55%" stop-color="#ffd54a" stop-opacity=".3"/><stop offset="100%" stop-color="#ffd54a" stop-opacity="0"/>';
-        var rg = mk('linearGradient', { id: 'cxRayGrad', x1: '0', y1: '0', x2: '1', y2: '1' });
-        rg.innerHTML = '<stop offset="0%" stop-color="#ffd23f"/><stop offset="100%" stop-color="#f59a0c"/>';
-        defs.appendChild(gl); defs.appendChild(rg);
-        var sun = mk('g', { id: 'cxSun' });
-        sun.appendChild(mk('circle', { 'class': 'glow', cx: 0, cy: 0, r: 8.2 }));
-        var rays = mk('g', { 'class': 'rays' }), N = 16, pts = '';
-        for (var i = 0; i < N; i++) {
-            var a = i * 2 * Math.PI / N, tip = (i % 2 === 0) ? 6.0 : 5.0, half = (i % 2 === 0) ? 0.17 : 0.15, r0 = 3.7;
-            function P(r, ang) { return (r * Math.cos(ang)).toFixed(3) + ',' + (r * Math.sin(ang)).toFixed(3); }
-            var poly = mk('polygon', { points: P(r0, a - half) + ' ' + P(tip, a) + ' ' + P(r0, a + half) });
-            rays.appendChild(poly);
-        }
-        sun.appendChild(rays);
-        var frame = document.getElementById('draggableFrame');
-        svg.insertBefore(sun, document.getElementById('textBoxContainer'));
-        function follow() { sun.setAttribute('transform', 'translate(' + frame.getAttribute('cx') + ',' + frame.getAttribute('cy') + ')'); sun.classList.toggle('dragging', frame.classList.contains('dragging')); }
-        new MutationObserver(follow).observe(frame, { attributes: true, attributeFilter: ['cx', 'cy', 'class'] });
-        follow();
-    })();
-    </script>
-    <script>
-    /* 2026-11-09 night and day: seven "night" cones (pink - grey - black - grey - pink), each as wide as a day segment but shifted half a segment, so the blackest line (midnight)
-       falls on the boundary between two days and the pink edges (sunrise / sunset) fall at the middle of each day, where the sun stands. Plus a yellow beam of light from the
-       two sides of the sun's diameter to the centre of the circle. Both are drawn above the segments and below the words, and go with the Sun Cycle button. */
-    (function () {
-        var svg = document.getElementById('svgCanvas'), frame = document.getElementById('draggableFrame'), cyc = document.getElementById('sunCycleArcs');
-        if (!svg || !frame || !cyc || document.getElementById('cxNight')) return;
-        var NS = 'http://www.w3.org/2000/svg', R = 30, SL = 28;   // SL = slivers per cone
-        function mk(tag, attrs) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
-        var defs = svg.querySelector('defs');
-        var lg = mk('linearGradient', { id: 'cxBeamGrad', gradientUnits: 'userSpaceOnUse', x1: SL, y1: 0, x2: 0, y2: 0 });
-        lg.innerHTML = '<stop offset="0%" stop-color="#ffe45c" stop-opacity=".78"/><stop offset="55%" stop-color="#ffd23a" stop-opacity=".34"/><stop offset="100%" stop-color="#ffd23a" stop-opacity=".06"/>';
-        defs.appendChild(lg);
-        var g = mk('g', { id: 'cxNight', 'pointer-events': 'none' });
-        /* ONE smooth repeating conic gradient (7 cones). The cone starts at the middle of a day (pink = sunrise / sunset), is blackest on the boundary between two days (midnight). */
-        var W = 360 / 7, fo = mk('foreignObject', { x: 50 - R, y: 50 - R, width: 2 * R, height: 2 * R });
-        var d = document.createElement('div'); d.id = 'cxNightDisc';
-        /* stops as [fraction of the cone, red, green, blue, strength]: a wide sky-blue daylight band at the edge (the middle of the day), a NARROW transition (pink, orange, grey) and a wide black midnight band in the middle */
-        var ST = [[0, 120, 200, 240, 0.8], [0.24, 120, 200, 240, 0.76], [0.27, 255, 182, 200, 0.45], [0.295, 255, 150, 70, 0.6], [0.315, 125, 120, 130, 0.75], [0.34, 10, 10, 20, 0.94], [0.5, 8, 8, 18, 0.94], [0.66, 10, 10, 20, 0.94], [0.685, 125, 120, 130, 0.75], [0.705, 255, 150, 70, 0.6], [0.73, 255, 182, 200, 0.45], [0.76, 120, 200, 240, 0.76], [1, 120, 200, 240, 0.8]];
-        d.style.cssText = 'width:100%;height:100%;border-radius:50%;-webkit-print-color-adjust:exact;print-color-adjust:exact;background:repeating-conic-gradient(from ' + (W / 2).toFixed(4) + 'deg at 50% 50%,' +
-            ST.map(function (p) { return 'rgba(' + p[1] + ',' + p[2] + ',' + p[3] + ',' + p[4] + ') ' + (W * p[0]).toFixed(3) + 'deg'; }).join(',') + ')';
-        fo.appendChild(d); g.appendChild(fo);
-        var beam = mk('g', { id: 'cxBeam' });
-        var tri = mk('polygon', { points: '0,0 ' + SL + ',-4 ' + SL + ',4' }); tri.setAttribute('fill', 'url(#cxBeamGrad)'); beam.appendChild(tri);
-        g.appendChild(beam);
-        cyc.parentNode.insertBefore(g, cyc.nextSibling);
-        function follow() {
-            var x = parseFloat(frame.getAttribute('cx')) - 50, y = parseFloat(frame.getAttribute('cy')) - 50, d = Math.hypot(x, y) || 1;
-            var sc = d / SL;   // the beam is drawn 28 long; scale it to the real sun-to-centre distance
-            beam.setAttribute('transform', 'translate(50,50) rotate(' + (Math.atan2(y, x) * 180 / Math.PI).toFixed(2) + ') scale(' + sc.toFixed(4) + ',1)');
-        }
-        function vis() { g.style.display = (cyc.style.display === 'none') ? 'none' : ''; }
-        new MutationObserver(follow).observe(frame, { attributes: true, attributeFilter: ['cx', 'cy'] });
-        new MutationObserver(vis).observe(cyc, { attributes: true, attributeFilter: ['style'] });
-        follow(); vis();
-    })();
-    </script>
-    <script>
-    /* 2026-11-09 WEEKENDS: the week-day / weekend colours (light green = go, light red = stop) on the segments and on the outer rim, and a Tools > Weekend button
-       that shows how the weekend falls in the Target and Source languages' countries. Default = western Sat-Sun; the other patterns stay hidden until the button is used.
-       Day numbers: 0 Mon, 1 Tue, 2 Wed, 3 Thu, 4 Fri, 5 Sat, 6 Sun.  See Conceptionary_Weekend_Reference.md for the sources and for how to add or change a country. */
-    (function () {
-        var NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], WEST = [5, 6], FS = [4, 5];
-        /* by country (the part after the dash in a code such as ar-SA or he-IL) - first choice */
-        var BY_COUNTRY = {
-            IL: FS, SA: FS, KW: FS, QA: FS, BH: FS, OM: FS, EG: FS, IQ: FS, JO: FS, SY: FS, YE: FS, SD: FS, DZ: FS, LY: FS, BD: FS, MV: FS, AF: FS,
-            IR: [4], PS: [4], DJ: [4], SO: [4], NP: [5], BN: [4, 6],
-            AE: WEST, MA: WEST, TN: WEST, LB: WEST   /* Arabic-speaking, but Sat-Sun: these stop the Arabic fallback below */
-        };
-        /* by language alone (a code with no country, e.g. ar or he) - second choice */
-        var BY_LANG = { he: FS, ar: FS, fa: [4], ne: [5], dv: FS, so: [4] };
-        var CK = 'url(#cxRimBlue)', CR = 'url(#cxRimGrey)';   /* rim: sky-blue (week days) and light-grey (weekend) rounded, bevelled tubes */
-        (function () {
-            var NS = 'http://www.w3.org/2000/svg', defs = document.querySelector('#svgCanvas defs');
-            function grad(id, stops) { var g = document.createElementNS(NS, 'radialGradient'); g.setAttribute('id', id); g.setAttribute('gradientUnits', 'userSpaceOnUse'); g.setAttribute('cx', 50); g.setAttribute('cy', 50); g.setAttribute('r', 34);
-                g.innerHTML = stops.map(function (s) { return '<stop offset="' + s[0] + '" stop-color="' + s[1] + '"/>'; }).join(''); defs.appendChild(g); }
-            grad('cxRimBlue', [[.9118, '#f6fcff'], [.93, '#cdeafc'], [.955, '#87ceeb'], [.978, '#5fb2e2'], [1, '#bfe3f7']]);
-            grad('cxRimGrey', [[.9118, '#fcfcfc'], [.93, '#e6e8eb'], [.955, '#c4c8ce'], [.978, '#9ba1a9'], [1, '#d6d9de']]);
-        })();
-        function parse(v) {   /* accepts [4,5] or 'Fri,Sat' / 'Fri-Sat' */
-            if (!v) return null; if (Array.isArray(v)) return v.slice().sort();
-            var out = []; String(v).split(/[ ,;+\/&-]+/).forEach(function (t) { var i = NAMES.map(function (n) { return n.toLowerCase(); }).indexOf(t.slice(0, 3).toLowerCase()); if (i >= 0 && out.indexOf(i) < 0) out.push(i); });
-            return out.length ? out.sort() : null;
-        }
-        function lookup(code, override) {
-            var o = parse(override); if (o) return o;
-            if (!code) return WEST;
-            var p = String(code).replace('_', '-').split('-'), lang = p[0].toLowerCase(), reg = (p[p.length > 1 ? p.length - 1 : 0] || '').toUpperCase();
-            if (p.length > 1 && BY_COUNTRY[reg]) return BY_COUNTRY[reg];
-            return BY_LANG[lang] || WEST;
-        }
-        function key(a) { return a.join(','); }
-        function nice(a) {
-            if (a.length === 1) return NAMES[a[0]] + ' only';
-            var run = a.every(function (d, i) { return i === 0 || d === a[i - 1] + 1; });
-            return run ? NAMES[a[0]] + '–' + NAMES[a[a.length - 1]] : a.map(function (d) { return NAMES[d]; }).join(' + ');
-        }
-        var svg = document.getElementById('svgCanvas'), grp = document.getElementById('sunCycleArcs'), btn = document.getElementById('weekendBtn');
-        if (!svg || !grp || !btn) return;
-        var cur = WEST, opts = [], oi = 0;
-        function arcPath(a0, n) {
-            var W = 2 * Math.PI / 7, s = a0 * W - Math.PI / 2, e = (a0 + n) * W - Math.PI / 2, ri = 31, ro = 34;
-            function P(r, t) { return (50 + r * Math.cos(t)).toFixed(3) + ',' + (50 + r * Math.sin(t)).toFixed(3); }
-            var big = (e - s) > Math.PI ? 1 : 0;
-            return 'M ' + P(ri, s) + ' L ' + P(ro, s) + ' A ' + ro + ',' + ro + ' 0 ' + big + ',1 ' + P(ro, e) + ' L ' + P(ri, e) + ' A ' + ri + ',' + ri + ' 0 ' + big + ',0 ' + P(ri, s) + ' Z';
-        }
-        function apply(wk) {
-            cur = wk;
-            var isWk = [0, 1, 2, 3, 4, 5, 6].map(function (d) { return wk.indexOf(d) >= 0; });
-            document.querySelectorAll('#segments path').forEach(function (p) {
-                var d = parseInt(p.getAttribute('data-day')); p.setAttribute('class', (isWk[d] ? 'weekend-segment' : 'weekday-segment') + (p.classList.contains('segment-highlighted') ? ' segment-highlighted' : ''));
-            });
-            /* rim: runs of the same kind, wrapping round the circle */
-            while (grp.firstChild) grp.removeChild(grp.firstChild);
-            var start = 0; while (start < 7 && isWk[start] === isWk[(start + 6) % 7]) start++;   /* first day that begins a run */
-            if (start === 7) start = 0;
-            var runs = [], i = 0;
-            while (i < 7) { var d0 = (start + i) % 7, kind = isWk[d0], n = 1; while (i + n < 7 && isWk[(start + i + n) % 7] === kind) n++; runs.push({ d0: d0, n: n, wk: kind }); i += n; }
-            var bestWd = null, bestWe = null;
-            runs.forEach(function (r) { if (r.wk) { if (!bestWe || r.n > bestWe.n) bestWe = r; } else if (!bestWd || r.n > bestWd.n) bestWd = r; });
-            runs.forEach(function (r) {
-                var p = document.createElementNS('http://www.w3.org/2000/svg', 'path'), a = r.d0;
-                p.setAttribute('d', arcPath(a, r.n)); p.setAttribute('fill', r.wk ? CR : CK); p.setAttribute('stroke', r.wk ? '#8e949c' : '#5a9cc4'); p.setAttribute('stroke-width', '0.18'); grp.appendChild(p);
-                /* shiny highlight along the inner third of the tube */
-                var sa = a * 2 * Math.PI / 7 - Math.PI / 2, ea = (a + r.n) * 2 * Math.PI / 7 - Math.PI / 2, pad = 0.045, hr = 32.0, h = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                h.setAttribute('d', 'M ' + (50 + hr * Math.cos(sa + pad)).toFixed(3) + ',' + (50 + hr * Math.sin(sa + pad)).toFixed(3) + ' A ' + hr + ',' + hr + ' 0 ' + ((ea - sa) > Math.PI ? 1 : 0) + ',1 ' + (50 + hr * Math.cos(ea - pad)).toFixed(3) + ',' + (50 + hr * Math.sin(ea - pad)).toFixed(3));
-                h.setAttribute('fill', 'none'); h.setAttribute('stroke', '#fff'); h.setAttribute('stroke-opacity', '.8'); h.setAttribute('stroke-width', '.35'); h.setAttribute('stroke-linecap', 'round'); grp.appendChild(h);
-                if ((r === bestWd && !r.wk) || (r === bestWe && r.wk)) {
-                    var ang = (a + r.n / 2) * 2 * Math.PI / 7 - Math.PI / 2, t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    t.setAttribute('x', 50 + 32.5 * Math.cos(ang)); t.setAttribute('y', 50 + 32.5 * Math.sin(ang)); t.setAttribute('font-size', '2'); t.setAttribute('fill', '#333'); t.setAttribute('text-anchor', 'middle'); t.setAttribute('dominant-baseline', 'central');
-                    t.textContent = r.wk ? '☾' : '☀'; grp.appendChild(t);
-                }
-            });
-        }
-        function labelOf(kind) { return kind === 'TL' ? (window.CONCEPTIONARY_AUDIO_TL_LABEL || window.CONCEPTIONARY_AUDIO_LANG || 'TL') : (window.CONCEPTIONARY_AUDIO_SL_LABEL || window.CONCEPTIONARY_AUDIO_SL_LANG || 'SL'); }
-        function build() {
-            var tl = lookup(window.CONCEPTIONARY_AUDIO_LANG, window.CONCEPTIONARY_WEEKEND_TL), sl = lookup(window.CONCEPTIONARY_AUDIO_SL_LANG, window.CONCEPTIONARY_WEEKEND_SL);
-            opts = [{ wk: WEST, who: 'western' }];
-            if (key(tl) !== key(WEST)) opts.push({ wk: tl, who: labelOf('TL') + ' (TL)' });
-            if (key(sl) !== key(WEST) && key(sl) !== key(tl)) opts.push({ wk: sl, who: labelOf('SL') + ' (SL)' });
-        }
-        var toast = document.createElement('div'); toast.id = 'cxToast'; document.body.appendChild(toast); var tt = null;
-        function say(msg) { toast.textContent = msg; toast.style.opacity = '1'; clearTimeout(tt); tt = setTimeout(function () { toast.style.opacity = '0'; }, 3200); }
-        btn.addEventListener('click', function (e) {
-            e.stopPropagation(); var m = document.getElementById('toolsMenu'); if (m) m.classList.remove('active');
-            build();
-            if (opts.length === 1) { oi = 0; apply(WEST); btn.textContent = 'Weekend'; say('No different weekend for these languages: the weekend is ' + nice(WEST) + '.'); return; }
-            oi = (oi + 1) % opts.length; apply(opts[oi].wk);
-            btn.textContent = oi === 0 ? 'Weekend' : 'Weekend: ' + nice(opts[oi].wk);
-            say('Weekend: ' + nice(opts[oi].wk) + (oi === 0 ? ' (western)' : ' – ' + opts[oi].who));
-        });
-        window.__cxWeekend = { apply: apply, lookup: lookup, nice: nice };
-        document.addEventListener('DOMContentLoaded', function () { apply(WEST); });   /* runs after the page has built its rim */
-        if (document.readyState !== 'loading') apply(WEST);
-    })();
+    
     </script>
 <script id="kit-script">
 /* ==== CONCEPTIONARY PHONE KIT (c) 2026 Alan William Preston ==== */
