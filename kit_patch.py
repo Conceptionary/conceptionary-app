@@ -22,19 +22,19 @@ LAY = r"""function lay(i, txt) {   /* WRAP: a phrase wider than WRAPMAX (about a
 def wrapit(s,path):
     if 'function lay(' in s:
         return s.replace("dv.style.lineHeight = multi ? '1.2' : ''; }","dv.style.lineHeight = multi ? '1.2' : ''; fo.dataset.wrap = multi ? '1' : ''; }") if 'fo.dataset.wrap = multi' not in s else s
-    old_w="function wOf(i, txt) { cv.font = '700 ' + sizeOf(i) + 'px ' + FONT; return cv.measureText(plain(txt)).width + 3; }"
-    old_h="function hOf(i) { return sizeOf(i) * 1.35; }"
-    s=once(s,old_w+"\n        "+old_h if 'dow/' in path else old_w+"\n    "+old_h, LAY)
-    if 'dow/' in path:
-        s=once(s,"var w = wOf(i, dayWord(i, kOf(i))), h = hOf(i), ux","var tx_ = dayWord(i, kOf(i)), w = wOf(i, tx_), h = hOf(i, tx_), ux")
-        s=once(s,"var w = wOf(i, fo.querySelector('div').innerHTML), h = hOf(i), ux","var tx_ = fo.querySelector('div').innerHTML, w = wOf(i, tx_), h = hOf(i, tx_), ux")
-        s=once(s,"fo.setAttribute('width', r.w); fo.setAttribute('height', r.h); fo.style.overflow = 'visible';","fo.setAttribute('width', r.w); fo.setAttribute('height', r.h); fo.style.overflow = 'visible';\n            var dv = fo.querySelector('div'); if (dv) { var multi = r.h > sizeOf(i) * 1.6; dv.style.whiteSpace = multi ? 'normal' : 'nowrap'; dv.style.lineHeight = multi ? '1.2' : ''; fo.dataset.wrap = multi ? '1' : ''; }")
-    else:
-        s=once(s,"var w = wOf(i, word(i, kFn(i))), h = hOf(i), a =","var tx_ = word(i, kFn(i)), w = wOf(i, tx_), h = hOf(i, tx_), a =")
-        s=once(s,"var w = wOf(i, fo.querySelector('div').innerHTML), h = hOf(i);","var tx_ = fo.querySelector('div').innerHTML, w = wOf(i, tx_), h = hOf(i, tx_);")
-        s=once(s,"fo.setAttribute('width', r.w); fo.setAttribute('height', r.h);","fo.setAttribute('width', r.w); fo.setAttribute('height', r.h); var dv = fo.querySelector('div'); if (dv) { var multi = r.h > sizeOf(i) * 1.6; dv.style.whiteSpace = multi ? 'normal' : 'nowrap'; dv.style.lineHeight = multi ? '1.2' : ''; fo.dataset.wrap = multi ? '1' : ''; }")
+    m=re.search(r"( *)function wOf\(i, txt\) \{ cv\.font = '700 ' \+ sizeOf\(i\) \+ 'px ' \+ FONT; return cv\.measureText\(plain\(txt\)\)\.width \+ 3; \}\n *function hOf\(i\) \{ return sizeOf\(i\) \* 1\.35; \}",s)
+    if not m: print('  WRAP skipped (no wOf/hOf)',path); return s
+    s=s[:m.start()]+m.group(1)+LAY+s[m.end():]
+    s,n1=re.subn(r"\bw = wOf\(i, ([^;]*?)\), h = hOf\(i\)",r"tx_ = \1, w = wOf(i, tx_), h = hOf(i, tx_)",s)
+    s=re.sub(r"var tx_ = ([^;]*?), w = wOf",r"var tx_ = \1, w = wOf",s)
+    # the first form was 'var w = wOf(' -> 'var tx_ = ..., w = ...' ; fix a leading 'var tx_'
+    n2=0
+    def dv(mm):
+        nonlocal n2; n2+=1
+        return mm.group(0)+" var dv = fo.querySelector('div'); if (dv) { var multi = r.h > sizeOf(i) * 1.6; dv.style.whiteSpace = multi ? 'normal' : 'nowrap'; dv.style.lineHeight = multi ? '1.2' : ''; fo.dataset.wrap = multi ? '1' : ''; }"
+    s=re.sub(r"fo\.setAttribute\('width', r\.w\); fo\.setAttribute\('height', r\.h\);",dv,s,count=1)
+    print('  wrap sites',n1,n2)
     return s
-
 def run(path):
     s=open(path).read()
     s=re.sub(r'<style id="kit-style">.*?</style>\n','',s,flags=re.S); s=re.sub(r'<script id="kit-script">.*?</script>\n','',s,flags=re.S)
@@ -42,18 +42,22 @@ def run(path):
     s=once(s,'</body>','<script id="kit-script">\n'+js+'</script>\n</body>')
     s=re.sub(r'<!-- Last updated:[^>]*-->\n?','',s)
     s=once(s,'<!DOCTYPE html>','<!DOCTYPE html>\n'+stamp) if s.startswith('<!DOCTYPE html>') else s
-    if 'sea/' in path:
-        if 'max-width: 0px' not in s: s=once(s,"var mq = window.matchMedia('(pointer: coarse) and (max-width: 700px), (pointer: coarse) and (max-height: 520px) and (orientation: landscape)');","var mq = window.matchMedia('(max-width: 0px) and (min-width: 1px)');   /* the Quiz now shows on phones too, as a bottom sheet (phone kit) */")
+    if 'max-width: 0px' not in s:
+        s,nmq=re.subn(r"var mq = window\.matchMedia\('\(pointer: coarse\) and \(max-width: 700px\), \(pointer: coarse\) and \(max-height: 520px\) and \(orientation: landscape\)'\);","var mq = window.matchMedia('(max-width: 0px) and (min-width: 1px)');   /* the Quiz now shows on phones too (phone kit) */",s)
+        if not nmq: print('  NOTE: no mq line found in',path)
+    s=s.replace('<html lang="en" class="no-quiz"','<html lang="en"')
     if 'dow/' in path:
-        s=s.replace('<html lang="en" class="no-quiz"','<html lang="en"')
         s=s.replace("if (files && files[text]) { playUrl(files[text], done); return; }","if (files && files[text] && (!code || code === tlCode())) { playUrl(files[text], done); return; }")
-        s=s.replace("if (files && files[text] && (!code || code === tlCode()) && (!code || code === tlCode()))","if (files && files[text] && (!code || code === tlCode()))")
-    if 'dow/' in path:
+    if 'function checkQuizAnswer' in s:
         if '__kitLast' not in s:
-            m=re.search(r"( +)const normalizedUserAnswer = normalizeText\(userAnswer\);\n",s); assert m
-            s=s[:m.end()]+m.group(1)+"window.__kitLast = { input: userAnswer, correct: correctAnswerTL, ok: false };\n"+s[m.end():]
+            m=re.search(r"( +)const normalizedUserAnswer = normalizeText\(userAnswer\);\n",s)
+            if m: s=s[:m.end()]+m.group(1)+"window.__kitLast = { input: userAnswer, correct: correctAnswerTL, ok: false };\n"+s[m.end():]
+            else: print('  NOTE: no normalizedUserAnswer line in',path)
         if '__kitAlt(userAnswer' not in s:
-            s,n=re.subn(r"(normalizedUserAnswer === normalizedCorrectTLR?)\) \{",r"\1 || window.__kitAlt(userAnswer, correctAnswerTL)) {",s,count=1); assert n==1
+            s,n=re.subn(r"(normalizedUserAnswer === normalizedCorrectTLR?)\) \{",r"\1 || window.__kitAlt(userAnswer, correctAnswerTL)) {",s,count=1)
+            if n!=1:
+                s,n2=re.subn(r"( +)if \((\w+)\.toLowerCase\(\) === (\w+)\.toLowerCase\(\)\) \{",lambda m:m.group(1)+"window.__kitLast = { input: "+m.group(2)+", correct: "+m.group(3)+", ok: false };\n"+m.group(1)+"if ("+m.group(2)+".toLowerCase() === "+m.group(3)+".toLowerCase() || window.__kitAlt("+m.group(2)+", "+m.group(3)+")) {",s,count=1)
+                if n2!=1 and 'AnswerUtils.checkAnswer(' not in s: print('  NOTE: answer condition not patched in',path)
     s=wrapit(s,path)
     open(path,'w').write(s); print('patched',path)
 for p in sys.argv[1:]: run(p)

@@ -32,8 +32,22 @@
     busy = true;
     try {
       var R = faceR(), pad = 0.8, wrapped = boxes().some(function (fo) { return fo.dataset.wrap === '1'; }), shares = CFG.share ? [CFG.share] : (wrapped ? [0.84, 0.78, 0.72, 0.66, 0.60, 0.55] : [0.84]), g = null;
+      /* everything drawn on the dial that is not a word (labels, moon icons, ticks) must stay on screen: measure how far it reaches from the centre */
+      var halfW = R;
+      try {
+        var m = svg.getScreenCTM(); if (m) { var inv = m.inverse();
+          Array.prototype.forEach.call(svg.children, function (el) {
+            if (/^(foreignObject|defs|style|title|desc)$/i.test(el.tagName)) return;
+            if (el.querySelector && el.querySelector('foreignObject')) return;     /* the words are placed separately */
+            var r = el.getBoundingClientRect(); if (!r.width || !r.height) return;
+            var p1 = new DOMPoint(r.left, r.top).matrixTransform(inv), p2 = new DOMPoint(r.right, r.bottom).matrixTransform(inv);
+            if (p2.x - p1.x > 130) return;                  /* a background shape, not a mark on the dial */
+            halfW = Math.max(halfW, Math.abs(p1.x - 50), Math.abs(p2.x - 50));
+          });
+        }
+      } catch (err) {}
       function build(share) {
-        var vw = 2 * R / share, vh = vw * ch / cw, vx = 50 - vw / 2, vy = 50 - vh / 2;
+        var vw = Math.max(2 * R / share, 2 * halfW + 3), vh = vw * ch / cw, vx = 50 - vw / 2, vy = 50 - vh / 2;
         var bs = boxes().map(function (fo) { return { fo: fo, x: +fo.getAttribute('x'), y: +fo.getAttribute('y'), w: +fo.getAttribute('width'), h: +fo.getAttribute('height') }; });
         bs.forEach(function (b) { b.x = Math.min(Math.max(b.x, vx + pad), vx + vw - pad - b.w); b.y = Math.min(Math.max(b.y, vy + pad), vy + vh - pad - b.h); });
         var hit = 0; bs.forEach(function (b) { var nx = Math.min(Math.max(50, b.x), b.x + b.w), ny = Math.min(Math.max(50, b.y), b.y + b.h); var depth = R - Math.hypot(nx - 50, ny - 50); if (depth > (CFG.slack || 9)) hit++; window.__kitDepth = Math.max(window.__kitDepth || 0, 0); });
@@ -72,7 +86,7 @@
   prog.id = 'kitProgress'; partyEl.id = 'kitParty'; hintEl.id = 'kitHint';
   if (page) page.appendChild(prog); document.body.appendChild(partyEl); document.body.appendChild(hintEl);
   function total() { try { return CFG.total ? CFG.total() : tbe().length; } catch (e) { return 0; } }
-  function learnedN() { var n = 0; document.querySelectorAll('[id^="learned-items"]').forEach(function (c) { n += c.querySelectorAll('.vocabulary-item').length; }); return n; }
+  function learnedN() { return tbe().filter(function (fo) { return fo && fo.classList.contains('learned'); }).length; }   /* counted on the words of the mode now showing */
   var prev = 0, tot = 0;
   function paint(first) {
     tot = total(); var n = learnedN(); if (!tot) { prog.style.display = 'none'; return; } prog.style.display = '';
@@ -83,9 +97,10 @@
     }
     prev = n;
   }
-  var mo = new MutationObserver(function () { paint(false); });
-  document.querySelectorAll('[id^="learned-items"]').forEach(function (c) { mo.observe(c, { childList: true }); });
-  paint(true); window.addEventListener('load', function () { setTimeout(function () { paint(true); }, 300); setTimeout(function () { paint(true); }, 1200); });
+  var lastTot = -1, ptimer = 0;
+  function repaint() { clearTimeout(ptimer); ptimer = setTimeout(function () { var t = total(); var silent = (t !== lastTot); lastTot = t; paint(silent); }, 30); }
+  if (svg) new MutationObserver(repaint).observe(svg, { attributes: true, attributeFilter: ['class'], childList: true, subtree: true });
+  paint(true); window.addEventListener('load', function () { setTimeout(function () { lastTot = total(); paint(true); }, 300); setTimeout(function () { lastTot = total(); paint(true); }, 1200); });
   var seen = false; try { seen = localStorage.getItem('conceptionary-hint-v1') === '1'; } catch (e) {}
   if (!seen) {
     var touch = window.matchMedia('(pointer: coarse)').matches;
@@ -109,7 +124,7 @@
       return lab('quiz_close', 'Almost! Check letter') + ' ' + (i + 1);
     return '';
   };
-  if (window.AnswerUtils && AnswerUtils.checkAnswer) {
+  if (typeof AnswerUtils !== 'undefined' && AnswerUtils.checkAnswer) {
     var oc = AnswerUtils.checkAnswer;
     AnswerUtils.checkAnswer = function (input, correct) { var ok = oc.call(AnswerUtils, input, correct) || window.__kitAlt(input, correct); window.__kitLast = { input: input, correct: correct, ok: ok }; return ok; };
   }

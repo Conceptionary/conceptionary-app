@@ -29,9 +29,10 @@ html .quiz-container .kit-grip { display: none; }
 html.kit-phone .quiz-container { position: fixed !important; left: 0 !important; right: 0 !important; top: var(--kit-qtop, 26%) !important; bottom: auto !important; transform: none !important; width: auto !important; max-width: none !important; margin: 0 !important; box-sizing: border-box; border-radius: 0 0 16px 16px !important; padding: 8px 10px !important; z-index: 9999 !important; box-shadow: 0 4px 18px rgba(0,0,0,.45); cursor: grab !important; }
 html.kit-phone .quiz-container.kit-moved { right: auto !important; bottom: auto !important; width: min(94vw, 380px) !important; border-radius: 16px !important; padding-bottom: 8px !important; box-shadow: 0 6px 24px rgba(0,0,0,.5); }
 html.kit-phone .quiz-container::before, html.kit-phone .quiz-container::after, html.kit-phone #quizMoveHint { display: none !important; content: none !important; }
-html.kit-phone .quiz-container { display: none; flex-wrap: nowrap; align-items: stretch; gap: 0; }
+html.kit-phone .quiz-container { display: none; flex-wrap: wrap; align-items: stretch; gap: 0; }
+html.kit-phone .quiz-container #quizDiacriticNote { flex: 1 1 100%; order: 5; position: static !important; margin: 5px 2px 0 !important; padding: 0 !important; font-size: 12px; line-height: 1.25; text-align: center; max-width: none !important; width: auto !important; }
 html.kit-phone .quiz-container[style*="display: block"] { display: flex !important; }
-html.kit-phone .quiz-container input { flex: 1 1 auto; width: auto !important; min-width: 0; margin: 0 !important; height: 46px; box-sizing: border-box; font-size: 16px; border-radius: 10px 0 0 10px !important; cursor: text; }
+html.kit-phone .quiz-container input { flex: 1 1 0; width: auto !important; min-width: 0; margin: 0 !important; height: 46px; box-sizing: border-box; font-size: 16px; border-radius: 10px 0 0 10px !important; cursor: text; }
 html.kit-phone .quiz-container #quizCheck { flex: 0 0 48px; width: 48px; height: 46px; min-height: 46px; margin: 0 !important; padding: 0 !important; font-size: 0 !important; line-height: 1; border-radius: 0 10px 10px 0 !important; position: relative; }
 html.kit-phone .quiz-container #quizCheck::after { content: "\2713"; font-size: 24px; font-weight: 700; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
 html.kit-phone .quiz-container #quizFeedback { position: absolute; left: 10px; right: 10px; top: calc(100% + 6px); margin: 0 !important; padding: 5px 10px; border-radius: 10px; text-align: center; font-weight: 700; font-size: 15px; background: rgba(255,255,255,.94); box-shadow: 0 2px 8px rgba(0,0,0,.35); pointer-events: none; }
@@ -49,3 +50,4 @@ html:not(.kit-phone) .quiz-container:not(.kit-moved) { top: 50%; left: 75%; tran
 #cmpCtl #reset-btn.kit-icon { display: inline-flex; align-items: center; justify-content: center; padding: 6px 10px; min-width: 40px; }
 #cmpCtl #reset-btn.kit-icon svg { width: 20px; height: 20px; fill: currentColor; pointer-events: none; }
 html .quiz-container #quizFeedback:empty { display: none; }
+html.kit-phone .quiz-container input, html.kit-phone .quiz-container input:focus { outline: 2px solid #8fb4ff; outline-offset: -2px; }
