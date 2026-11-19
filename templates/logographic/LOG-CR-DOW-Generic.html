@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Last updated: 2026-11-20 @ 12:38 a.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-11-20 @ 1:14 a.m. (Mangawhai, NZ) -->
 <html lang="en" data-scheme="night">
 <head>
     <meta charset="UTF-8">
@@ -2348,6 +2348,20 @@ html .quiz-container #quizFeedback:empty { display: none; }
         positionFrameOnDay(getCurrentDayIndex());
       } catch (err) { if (window.console) console.error('Reset failed', err); }
     });
+  })();
+
+  /* 8. TOOLS MENU LINKS: the User Manual and the Index of Exercises (change the two addresses here, in this one place) ------------- */
+  var USER_MANUAL_URL = 'https://sites.google.com/view/conceptionary/home/user-manual';
+  var EXERCISES_URL = 'https://sites.google.com/view/conceptionary/home/index-of-exercises';
+  (function () {
+    var menu = document.getElementById('toolsMenu'); if (!menu || document.getElementById('manualBtn')) return;
+    function add(id, label, title, url) {
+      var b = document.createElement('button'); b.id = id; b.type = 'button'; b.textContent = label; b.title = title;
+      b.addEventListener('click', function (e) { e.stopPropagation(); menu.classList.remove('active'); window.open(url, '_blank', 'noopener'); });
+      menu.appendChild(b);
+    }
+    add('manualBtn', lab('manual_label', 'User Manual'), lab('manual_title', 'How to use these templates (opens the Conceptionary website)'), USER_MANUAL_URL);
+    add('exercisesBtn', lab('exercises_label', 'Exercises & Tests'), lab('exercises_title', 'Practise this vocabulary (opens the Index of Exercises)'), EXERCISES_URL);
   })();
 })();
 </script>
