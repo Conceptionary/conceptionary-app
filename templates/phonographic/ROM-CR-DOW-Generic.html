@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Last updated: 2026-11-19 @ 10:57 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-11-20 @ 12:07 a.m. (Mangawhai, NZ) -->
 <html lang="en" data-scheme="night">
 <head>
     <meta charset="UTF-8">
@@ -725,11 +725,19 @@ html.kit-phone .quiz-container #quizCheck { flex: 0 0 48px; width: 48px; height:
 html.kit-phone .quiz-container #quizCheck::after { content: "\2713"; font-size: 24px; font-weight: 700; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
 html.kit-phone .quiz-container #quizFeedback { position: absolute; left: 10px; right: 10px; bottom: calc(100% + 6px); margin: 0 !important; padding: 5px 10px; border-radius: 10px; text-align: center; font-weight: 700; font-size: 15px; background: rgba(255,255,255,.94); box-shadow: 0 2px 8px rgba(0,0,0,.35); pointer-events: none; }
 html.kit-phone .quiz-container #quizFeedback:empty { display: none; }
-html.kit-phone #kitProgress { bottom: auto; top: 6px; left: 6px; }
+html.kit-phone #kitProgress { bottom: 28px; top: auto; left: 8px; }
 html.kit-phone.kit-quiz-open #kitProgress { opacity: 0; }
 /* FULL SCREEN: the browser's own pinch zoom is switched off in full screen, so the kit zooms the circle itself */
 html.kit-fs .a4-page, html.kit-fs #svgCanvas, html.kit-fs .textBox { touch-action: none; }
 html.kit-fs #svgCanvas { transform-origin: 0 0; will-change: transform; }
+
+/* QUIZ BOX: the answer box and the button sit exactly inside the frame; it opens centred at 75% across and 50% down */
+html .quiz-container input, html .quiz-container button { box-sizing: border-box; }
+html:not(.kit-phone) .quiz-container:not(.kit-moved) { top: 50%; left: 75%; transform: translate(-50%, -50%); }
+/* RESET ICON BUTTON (Days of the Week) */
+#cmpCtl #reset-btn.kit-icon { display: inline-flex; align-items: center; justify-content: center; padding: 6px 10px; min-width: 40px; }
+#cmpCtl #reset-btn.kit-icon svg { width: 20px; height: 20px; fill: currentColor; pointer-events: none; }
+html .quiz-container #quizFeedback:empty { display: none; }
 </style>
 </head>
 <body>
@@ -1564,8 +1572,21 @@ html.kit-fs #svgCanvas { transform-origin: 0 0; will-change: transform; }
         function plain(s) { tmp.innerHTML = String(s == null ? '' : s); return tmp.textContent; }
         function sizeOf(i) { return BASE * (window.tsScale ? window.tsScale(i) : 1); }
         var FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif'; document.documentElement.style.setProperty('--cx-font', FONT);
-        function wOf(i, txt) { cv.font = '700 ' + sizeOf(i) + 'px ' + FONT; return cv.measureText(plain(txt)).width + 3; }
-        function hOf(i) { return sizeOf(i) * 1.35; }
+        function lay(i, txt) {   /* WRAP: a phrase wider than WRAPMAX (about a third of the circle) breaks at its spaces onto 2 or 3 lines */
+        var s = sizeOf(i); cv.font = '700 ' + s + 'px ' + FONT;
+        var t = plain(txt).replace(/\s+/g, ' ').trim(), full = cv.measureText(t).width, words = t.split(' '), longest = 0;
+        words.forEach(function (x) { longest = Math.max(longest, cv.measureText(x).width); });
+        var cap = Math.max(WRAPMAX, longest);
+        if (words.length < 2 || full <= cap) return { w: full + 3, h: s * 1.35, n: 1 };
+        function wrap(cp) { var lines = [], cu = ''; words.forEach(function (x) { var tr = cu ? cu + ' ' + x : x; if (cu && cv.measureText(tr).width > cp) { lines.push(cu); cu = x; } else cu = tr; }); lines.push(cu); return lines; }
+        var lines = wrap(cap); while (lines.length > 3 && cap < full) { cap += 1; lines = wrap(cap); }
+        while (cap > longest && wrap(cap - 1).length === lines.length) cap -= 1;   /* the narrowest box that keeps the same number of lines */
+        lines = wrap(cap); var wm = 0; lines.forEach(function (l) { wm = Math.max(wm, cv.measureText(l).width); });
+        return { w: wm * 1.05 + 3, h: s * (1.2 * lines.length + 0.15), n: lines.length };
+    }
+    var WRAPMAX = 22;
+    function wOf(i, txt) { return lay(i, txt).w; }
+    function hOf(i, txt) { return txt == null ? sizeOf(i) * 1.35 : lay(i, txt).h; }
         function ang(i) { return ((i + 0.5) * 360 / 7 - 90) * Math.PI / 180; }
         window.LOGV = daysOfWeekData[0].length >= 5;
         window.MODES = LOGV ? [2, 1, 0] : [1, 0];
@@ -1575,7 +1596,7 @@ html.kit-fs #svgCanvas { transform-origin: 0 0; will-change: transform; }
         function rectsFor(kOf) {
             var out = [], placed = [];
             for (var i = 0; i < 7; i++) {
-                var w = wOf(i, dayWord(i, kOf(i))), h = hOf(i), ux = Math.cos(ang(i)), uy = Math.sin(ang(i));
+                var tx_ = dayWord(i, kOf(i)), w = wOf(i, tx_), h = hOf(i, tx_), ux = Math.cos(ang(i)), uy = Math.sin(ang(i));
                 var d = R0 + (w / 2) * Math.abs(ux) + (h / 2) * Math.abs(uy), r;
                 for (var n = 0; n < 160; n++) {
                     r = { x: 50 + d * ux, y: 50 + d * uy, w: w, h: h };
@@ -1590,6 +1611,7 @@ html.kit-fs #svgCanvas { transform-origin: 0 0; will-change: transform; }
             var fo = textBoxElements[i]; if (!fo) return;
             fo.setAttribute('x', r.x - r.w / 2); fo.setAttribute('y', r.y - r.h / 2);
             fo.setAttribute('width', r.w); fo.setAttribute('height', r.h); fo.style.overflow = 'visible';
+            var dv = fo.querySelector('div'); if (dv) { var multi = r.h > sizeOf(i) * 1.6; dv.style.whiteSpace = multi ? 'normal' : 'nowrap'; dv.style.lineHeight = multi ? '1.2' : ''; fo.dataset.wrap = multi ? '1' : ''; }
         }
         function curK(i) { var d = textBoxElements[i] && textBoxElements[i].querySelector('div'); return d ? parseInt(d.dataset.k || '0') : 0; }
         window.cmpPlaceAll = function () {
@@ -1601,7 +1623,7 @@ html.kit-fs #svgCanvas { transform-origin: 0 0; will-change: transform; }
         };
         window.cmpPlaceOne = function (i) {
             var fo = textBoxElements[i]; if (!fo) return;
-            var w = wOf(i, fo.querySelector('div').innerHTML), h = hOf(i), ux = Math.cos(ang(i)), uy = Math.sin(ang(i)), d = R0 + (w / 2) * Math.abs(ux) + (h / 2) * Math.abs(uy);
+            var tx_ = fo.querySelector('div').innerHTML, w = wOf(i, tx_), h = hOf(i, tx_), ux = Math.cos(ang(i)), uy = Math.sin(ang(i)), d = R0 + (w / 2) * Math.abs(ux) + (h / 2) * Math.abs(uy);
             var cx = parseFloat(fo.getAttribute('x')) + parseFloat(fo.getAttribute('width')) / 2, cy = parseFloat(fo.getAttribute('y')) + parseFloat(fo.getAttribute('height')) / 2;
             var cur = Math.hypot(cx - 50, cy - 50); if (cur > d) d = cur;
             applyRect(i, { x: 50 + d * ux, y: 50 + d * uy, w: w, h: h });
@@ -2143,10 +2165,17 @@ html.kit-fs #svgCanvas { transform-origin: 0 0; will-change: transform; }
     var cw = svg.clientWidth, ch = svg.clientHeight; if (!cw || !ch) return;
     busy = true;
     try {
-      var R = faceR(), vw = 2 * R / (CFG.share || 0.84), vh = vw * ch / cw, vx = 50 - vw / 2, vy = 50 - vh / 2, pad = 0.8;
+      var R = faceR(), pad = 0.8, wrapped = boxes().some(function (fo) { return fo.dataset.wrap === '1'; }), shares = CFG.share ? [CFG.share] : (wrapped ? [0.84, 0.78, 0.72, 0.66, 0.60, 0.55] : [0.84]), g = null;
+      function build(share) {
+        var vw = 2 * R / share, vh = vw * ch / cw, vx = 50 - vw / 2, vy = 50 - vh / 2;
+        var bs = boxes().map(function (fo) { return { fo: fo, x: +fo.getAttribute('x'), y: +fo.getAttribute('y'), w: +fo.getAttribute('width'), h: +fo.getAttribute('height') }; });
+        bs.forEach(function (b) { b.x = Math.min(Math.max(b.x, vx + pad), vx + vw - pad - b.w); b.y = Math.min(Math.max(b.y, vy + pad), vy + vh - pad - b.h); });
+        var hit = 0; bs.forEach(function (b) { var nx = Math.min(Math.max(50, b.x), b.x + b.w), ny = Math.min(Math.max(50, b.y), b.y + b.h); var depth = R - Math.hypot(nx - 50, ny - 50); if (depth > (CFG.slack || 9)) hit++; window.__kitDepth = Math.max(window.__kitDepth || 0, 0); });
+        return { vx: vx, vy: vy, vw: vw, vh: vh, bs: bs, hit: hit };
+      }
+      for (var si = 0; si < shares.length; si++) { g = build(shares[si]); if (!g.hit) break; }   /* a smaller circle only when the words would sit on it */
+      var vx = g.vx, vy = g.vy, vw = g.vw, vh = g.vh, bs = g.bs;
       var vb = vx + ' ' + vy + ' ' + vw + ' ' + vh; svg.setAttribute('viewBox', vb); last = vb;
-      var bs = boxes().map(function (fo) { return { fo: fo, x: +fo.getAttribute('x'), y: +fo.getAttribute('y'), w: +fo.getAttribute('width'), h: +fo.getAttribute('height') }; });
-      bs.forEach(function (b) { b.x = Math.min(Math.max(b.x, vx + pad), vx + vw - pad - b.w); b.y = Math.min(Math.max(b.y, vy + pad), vy + vh - pad - b.h); });
       for (var it = 0; it < 120; it++) {
         var moved = false;
         for (var i = 0; i < bs.length; i++) for (var j = i + 1; j < bs.length; j++) {
@@ -2296,6 +2325,27 @@ html.kit-fs #svgCanvas { transform-origin: 0 0; will-change: transform; }
     }, { capture: true, passive: false });
     document.addEventListener('touchend', function (e) { if (!e.touches || e.touches.length < 2) g = null; }, { capture: true, passive: true });
     document.addEventListener('touchcancel', function () { g = null; }, { capture: true, passive: true });
+  })();
+
+  /* 7. RESET BUTTON for Days of the Week (the Seasons files already have one): back to the opening view, all learned words cleared -- */
+  (function () {
+    var ctl = document.getElementById('cmpCtl');
+    if (!ctl || document.getElementById('reset-btn') || typeof daysOfWeekData === 'undefined') return;
+    var b = document.createElement('button'); b.id = 'reset-btn'; b.type = 'button'; b.className = 'tb kit-icon';
+    var t = lab('reset_label', 'Reset'); b.title = t; b.setAttribute('aria-label', t);
+    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4V1L7.5 5.5 12 10V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-9z"/></svg>';
+    var fs = document.getElementById('fsBtn'); ctl.insertBefore(b, fs && fs.parentNode === ctl ? fs : null);
+    b.addEventListener('click', function () {
+      try {
+        if (window.__cmpReset) window.__cmpReset();
+        var q = document.getElementById('quizContainer'); if (q) q.style.display = 'none';
+        currentQuizIndex = -1; document.getElementById('quizInput').value = ''; document.getElementById('quizFeedback').textContent = '';
+        learnedItems.fill(false); addedLearnedItems.fill(false);
+        var li = document.getElementById('learned-items'); if (li) li.innerHTML = '';
+        if (window.createTextBoxes) window.createTextBoxes();
+        positionFrameOnDay(getCurrentDayIndex());
+      } catch (err) { if (window.console) console.error('Reset failed', err); }
+    });
   })();
 })();
 </script>
