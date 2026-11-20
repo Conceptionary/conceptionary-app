@@ -6,7 +6,7 @@
    A link whose file does not exist in the repo is hidden automatically on the live site.
    (c) 2026 Alan William Preston */
 /* Shown after an Update so you can see the phone has the latest list. Change it whenever this list changes. */
-window.CONCEPTIONARY_LIST_DATE = '2026-11-18';
+window.CONCEPTIONARY_LIST_DATE = '2026-11-21';
 window.CONCEPTIONARY_TEMPLATE_FAMILIES = [
   { name: 'Single Line', items: [
     { id: 'VL',      label: 'Vertical Line (VL)',         rom: 'ROM-VL-Generic',      log: 'LOG-VL-Generic' },
@@ -76,12 +76,14 @@ window.CONCEPTIONARY_TEMPLATE_FAMILIES = [
     { id: 'EX-ID-MOY', label: 'Months of the Year (CR-MOY)', rom: 'ROM-CR-MOY-ID-EN', log: null },
     { id: 'EX-ID-DOW', label: 'Days of the Week (CR-DOW)',   rom: 'ROM-CR-DOW-ID-EN', log: null },
     { id: 'EX-ID-RICE', label: 'Rice Growing Cycle (CR-RICE)', rom: 'ROM-CR-RICE-ID-EN', log: null },
-    { id: 'EX-ID-WET', label: 'Tropical Seasons, wet and dry (CR-SEA-WET)', rom: 'ROM-CR-SEA-WET-ID-EN', log: null }
+    { id: 'EX-ID-WET', label: 'Tropical Seasons, wet and dry (CR-SEA-WET)', rom: 'ROM-CR-SEA-WET-ID-EN', log: null },
+    { id: 'EX-ID-SW', label: 'Driving Directions (CR-SW)', rom: 'ROM-CR-SW-ID-EN', log: null }
   ]},
   { name: 'Japanese for English speakers', items: [
     { id: 'EX-JA-TDL', label: 'Daily Tidal Cycle (CR-TDL)',  rom: null, log: 'LOG-CR-TDL-JA-EN' },
     { id: 'EX-JA-MOY', label: 'Months of the Year (CR-MOY)', rom: null, log: 'LOG-CR-MOY-JA-EN' },
-    { id: 'EX-JA-RICE', label: 'Rice Growing Cycle (CR-RICE)', rom: null, log: 'LOG-CR-RICE-JA-EN' }
+    { id: 'EX-JA-RICE', label: 'Rice Growing Cycle (CR-RICE)', rom: null, log: 'LOG-CR-RICE-JA-EN' },
+    { id: 'EX-JA-SW', label: 'Driving Directions (CR-SW)', rom: null, log: 'LOG-CR-SW-JA-EN' }
   ]},
   { name: 'English for German speakers', items: [
     { id: 'EX-DE-SEA-N', label: 'Seasons, Northern Hemisphere (CR-SEA-TEMP-N)', rom: 'ROM-CR-SEA-TEMP-N-EN-DE', log: null }
