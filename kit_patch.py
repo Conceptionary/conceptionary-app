@@ -19,6 +19,19 @@ LAY = r"""function lay(i, txt) {   /* WRAP: a phrase wider than WRAPMAX (about a
     var WRAPMAX = 22;
     function wOf(i, txt) { return lay(i, txt).w; }
     function hOf(i, txt) { return txt == null ? sizeOf(i) * 1.35 : lay(i, txt).h; }"""
+
+LAYR = LAY.replace("function lay(i, txt)","function lay(i, k, txt)").replace("var s = sizeOf(i);","var s = sizeOf(i, k);").replace("function wOf(i, txt) { return lay(i, txt).w; }","function wOf(i, k, txt) { return lay(i, k, txt).w; }").replace("function hOf(i, txt) { return txt == null ? sizeOf(i) * 1.35 : lay(i, txt).h; }","function hOf(i, k, txt) { return txt == null ? sizeOf(i, k) * 1.35 : lay(i, k, txt).h; }")
+def rice(s):
+    """Rice: two modes (States/Transitions); wOf(i,k,txt) / hOf(i,k); the counter reads learnedS / learnedT."""
+    if 'window.__KIT = {' not in s: s=once(s,'<script id="kit-script">','<script>window.__KIT = { faceR: 50, adapt: true };   /* Rice: the words sit OUTSIDE the water ring, so the circle shrinks until they fit */</script>\n<script id="kit-script">')
+    if 'window.__kitCount = function' not in s: s=once(s,"window.updateVisibleTextBoxes = refresh;","window.updateVisibleTextBoxes = refresh;\n    window.__kitCount = function () { return transMode ? [learnedT.filter(Boolean).length, T.length] : [learnedS.filter(Boolean).length, S.length]; };   /* phone kit: Learned n/total for the mode now showing */")
+    if 'kit: Quiz placed by CSS' not in s: s=once(s,"function placeQuiz() {\n        if (qc.dataset.moved === '1') return;","function placeQuiz() {   /* kit: Quiz placed by CSS */\n        return;\n        if (qc.dataset.moved === '1') return;")
+    if 'function lay(' not in s:
+        s=once(s,"function wOf(i, k, txt) { cv.font = '700 ' + sizeOf(i, k) + 'px ' + FONT; return cv.measureText(plain(txt)).width + 3; }\n    function hOf(i, k) { return sizeOf(i, k) * 1.35; }",LAYR)
+        s=once(s,"w = wOf(i, k, word(i, k)), h = hOf(i, k), a =","w = wOf(i, k, word(i, k)), h = hOf(i, k, word(i, k)), a =")
+        s=once(s,"var k = curK(i), w = wOf(i, k, fo.querySelector('div').innerHTML), h = hOf(i, k);","var k = curK(i), w = wOf(i, k, fo.querySelector('div').innerHTML), h = hOf(i, k, fo.querySelector('div').innerHTML);")
+        s=once(s,"fo.setAttribute('width', r.w); fo.setAttribute('height', r.h); fo.style.overflow = 'visible'; }","fo.setAttribute('width', r.w); fo.setAttribute('height', r.h); fo.style.overflow = 'visible'; var dv = fo.querySelector('div'); if (dv) { var multi = r.h > sizeOf(i, curK(i)) * 1.6; dv.style.whiteSpace = multi ? 'normal' : 'nowrap'; dv.style.lineHeight = multi ? '1.2' : ''; fo.dataset.wrap = multi ? '1' : ''; } }")
+    return s
 def wrapit(s,path):
     if 'function lay(' in s:
         return s.replace("dv.style.lineHeight = multi ? '1.2' : ''; }","dv.style.lineHeight = multi ? '1.2' : ''; fo.dataset.wrap = multi ? '1' : ''; }") if 'fo.dataset.wrap = multi' not in s else s
@@ -58,6 +71,7 @@ def run(path):
             if n!=1:
                 s,n2=re.subn(r"( +)if \((\w+)\.toLowerCase\(\) === (\w+)\.toLowerCase\(\)\) \{",lambda m:m.group(1)+"window.__kitLast = { input: "+m.group(2)+", correct: "+m.group(3)+", ok: false };\n"+m.group(1)+"if ("+m.group(2)+".toLowerCase() === "+m.group(3)+".toLowerCase() || window.__kitAlt("+m.group(2)+", "+m.group(3)+")) {",s,count=1)
                 if n2!=1 and 'AnswerUtils.checkAnswer(' not in s: print('  NOTE: answer condition not patched in',path)
-    s=wrapit(s,path)
+    if 'rice/' in path: s=rice(s)
+    else: s=wrapit(s,path)
     open(path,'w').write(s); print('patched',path)
 for p in sys.argv[1:]: run(p)

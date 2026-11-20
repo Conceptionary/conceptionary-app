@@ -31,7 +31,7 @@
     var cw = svg.clientWidth, ch = svg.clientHeight; if (!cw || !ch) return;
     busy = true;
     try {
-      var R = faceR(), pad = 0.8, wrapped = boxes().some(function (fo) { return fo.dataset.wrap === '1'; }), shares = CFG.share ? [CFG.share] : (wrapped ? [0.84, 0.78, 0.72, 0.66, 0.60, 0.55] : [0.84]), g = null;
+      var R = faceR(), pad = 0.8, wrapped = boxes().some(function (fo) { return fo.dataset.wrap === '1'; }), shares = CFG.share ? [CFG.share] : ((wrapped || CFG.adapt) ? [0.84, 0.78, 0.72, 0.66, 0.60, 0.55] : [0.84]), g = null;
       /* everything drawn on the dial that is not a word (labels, moon icons, ticks) must stay on screen: measure how far it reaches from the centre */
       var halfW = R;
       try {
@@ -85,8 +85,8 @@
   var page = document.querySelector('.a4-page'), prog = document.createElement('div'), partyEl = document.createElement('div'), hintEl = document.createElement('div');
   prog.id = 'kitProgress'; partyEl.id = 'kitParty'; hintEl.id = 'kitHint';
   if (page) page.appendChild(prog); document.body.appendChild(partyEl); document.body.appendChild(hintEl);
-  function total() { try { return CFG.total ? CFG.total() : tbe().length; } catch (e) { return 0; } }
-  function learnedN() { return tbe().filter(function (fo) { return fo && fo.classList.contains('learned'); }).length; }   /* counted on the words of the mode now showing */
+  function total() { try { if (window.__kitCount) return window.__kitCount()[1]; return CFG.total ? CFG.total() : tbe().length; } catch (e) { return 0; } }
+  function learnedN() { if (window.__kitCount) { try { return window.__kitCount()[0]; } catch (e) { return 0; } } return tbe().filter(function (fo) { return fo && fo.classList.contains('learned'); }).length; }   /* counted on the words of the mode now showing */
   var prev = 0, tot = 0;
   function paint(first) {
     tot = total(); var n = learnedN(); if (!tot) { prog.style.display = 'none'; return; } prog.style.display = '';
@@ -100,6 +100,7 @@
   var lastTot = -1, ptimer = 0;
   function repaint() { clearTimeout(ptimer); ptimer = setTimeout(function () { var t = total(); var silent = (t !== lastTot); lastTot = t; paint(silent); }, 30); }
   if (svg) new MutationObserver(repaint).observe(svg, { attributes: true, attributeFilter: ['class'], childList: true, subtree: true });
+  var tdp = document.getElementById('transDisplay'); if (tdp) new MutationObserver(repaint).observe(tdp, { childList: true, characterData: true, subtree: true });   /* two-mode templates (Rice): transition words show here */
   paint(true); window.addEventListener('load', function () { setTimeout(function () { lastTot = total(); paint(true); }, 300); setTimeout(function () { lastTot = total(); paint(true); }, 1200); });
   var seen = false; try { seen = localStorage.getItem('conceptionary-hint-v1') === '1'; } catch (e) {}
   if (!seen) {
