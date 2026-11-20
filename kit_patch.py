@@ -21,6 +21,11 @@ LAY = r"""function lay(i, txt) {   /* WRAP: a phrase wider than WRAPMAX (about a
     function hOf(i, txt) { return txt == null ? sizeOf(i) * 1.35 : lay(i, txt).h; }"""
 
 LAYR = LAY.replace("function lay(i, txt)","function lay(i, k, txt)").replace("var s = sizeOf(i);","var s = sizeOf(i, k);").replace("function wOf(i, txt) { return lay(i, txt).w; }","function wOf(i, k, txt) { return lay(i, k, txt).w; }").replace("function hOf(i, txt) { return txt == null ? sizeOf(i) * 1.35 : lay(i, txt).h; }","function hOf(i, k, txt) { return txt == null ? sizeOf(i, k) * 1.35 : lay(i, k, txt).h; }")
+def sw(s):
+    """Steering Wheel: the svg is #sv; the wheel lays out all its phrases itself (__swFit), so the kit must not re-fit it."""
+    if 'window.__KIT = {' not in s: s=once(s,'<script id="kit-script">','<script>window.__KIT = { svgId: "sv", nofit: true, keepNoQuiz: true, hintTouch: "Turn the wheel with one finger. Tap a phrase to see it in the other language. Pinch with two fingers to zoom.", hint: "Turn the wheel. Click a phrase to see it in the other language." };</script>\n<script id="kit-script">')
+    if 'window.__kitCount = function' not in s: s=once(s,"window.__swLayout(); window.__swFit(); renders.forEach(function (r) { r(); }); show(0);","window.__kitCount = function () { return [states.filter(function (x) { return x.learned; }).length, states.length]; };   /* phone kit: Learned n/total */\nwindow.__swLayout(); window.__swFit(); renders.forEach(function (r) { r(); }); show(0);")
+    return s
 def rice(s):
     """Rice: two modes (States/Transitions); wOf(i,k,txt) / hOf(i,k); the counter reads learnedS / learnedT."""
     if 'window.__KIT = {' not in s: s=once(s,'<script id="kit-script">','<script>window.__KIT = { faceR: 50, adapt: true };   /* Rice: the words sit OUTSIDE the water ring, so the circle shrinks until they fit */</script>\n<script id="kit-script">')
@@ -55,7 +60,7 @@ def run(path):
     s=once(s,'</body>','<script id="kit-script">\n'+js+'</script>\n</body>')
     s=re.sub(r'<!-- Last updated:[^>]*-->\n?','',s)
     s=once(s,'<!DOCTYPE html>','<!DOCTYPE html>\n'+stamp) if s.startswith('<!DOCTYPE html>') else s
-    if 'max-width: 0px' not in s:
+    if 'max-width: 0px' not in s and 'sw/' not in path:   # SW keeps its Quiz off on phones (an inline Quiz inside the wheel; Alan's earlier decision) until he decides otherwise
         s,nmq=re.subn(r"var mq = window\.matchMedia\('\(pointer: coarse\) and \(max-width: 700px\), \(pointer: coarse\) and \(max-height: 520px\) and \(orientation: landscape\)'\);","var mq = window.matchMedia('(max-width: 0px) and (min-width: 1px)');   /* the Quiz now shows on phones too (phone kit) */",s)
         if not nmq: print('  NOTE: no mq line found in',path)
     s=s.replace('<html lang="en" class="no-quiz"','<html lang="en"')
@@ -71,6 +76,7 @@ def run(path):
             if n!=1:
                 s,n2=re.subn(r"( +)if \((\w+)\.toLowerCase\(\) === (\w+)\.toLowerCase\(\)\) \{",lambda m:m.group(1)+"window.__kitLast = { input: "+m.group(2)+", correct: "+m.group(3)+", ok: false };\n"+m.group(1)+"if ("+m.group(2)+".toLowerCase() === "+m.group(3)+".toLowerCase() || window.__kitAlt("+m.group(2)+", "+m.group(3)+")) {",s,count=1)
                 if n2!=1 and 'AnswerUtils.checkAnswer(' not in s: print('  NOTE: answer condition not patched in',path)
+    if 'sw/' in path: s=sw(s)
     if 'rice/' in path: s=rice(s)
     else: s=wrapit(s,path)
     open(path,'w').write(s); print('patched',path)

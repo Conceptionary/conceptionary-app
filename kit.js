@@ -14,7 +14,7 @@
   ['mousedown', 'mousemove', 'mouseup'].forEach(function (t) { document.addEventListener(t, function (e) { if (e.isTrusted && Date.now() - lastT < 700) e.stopImmediatePropagation(); }, true); });   /* the mouse events a phone makes after a touch */
 
   /* 2. A BIGGER CIRCLE ON A PORTRAIT PHONE: the view box is fitted to the circle, and the words are slid inside the screen ------- */
-  var svg = document.getElementById('svgCanvas'), phone = window.matchMedia('(max-width: 700px) and (orientation: portrait)'), busy = false, last = '';
+  var svg = document.getElementById(CFG.svgId || 'svgCanvas'), phone = window.matchMedia('(max-width: 700px) and (orientation: portrait)'), busy = false, last = '';
   function faceR() {
     if (CFG.faceR) return CFG.faceR;
     var r = 0; svg.querySelectorAll('circle').forEach(function (c) {
@@ -27,7 +27,7 @@
   function tbe() { try { return textBoxElements; } catch (e) { return []; } }
   function boxes() { return tbe().filter(function (fo) { return fo && fo.style.display !== 'none' && fo.getAttribute('width'); }); }
   function fit() {
-    if (!svg || busy || !phone.matches) return;
+    if (!svg || busy || !phone.matches || CFG.nofit) return;
     var cw = svg.clientWidth, ch = svg.clientHeight; if (!cw || !ch) return;
     busy = true;
     try {
@@ -105,7 +105,7 @@
   var seen = false; try { seen = localStorage.getItem('conceptionary-hint-v1') === '1'; } catch (e) {}
   if (!seen) {
     var touch = window.matchMedia('(pointer: coarse)').matches;
-    hintEl.textContent = lab('first_hint', touch ? 'Drag the sun. Tap a word to see it in the other language. Pinch with two fingers to zoom.' : 'Drag the sun. Click a word to see it in the other language.');
+    hintEl.textContent = lab('first_hint', touch ? (CFG.hintTouch || 'Drag the sun. Tap a word to see it in the other language. Pinch with two fingers to zoom.' ): (CFG.hint || 'Drag the sun. Click a word to see it in the other language.'));
     setTimeout(function () { hintEl.classList.add('on'); }, 1200);
     var gone = false, hide = function () { if (gone) return; gone = true; hintEl.classList.remove('on'); try { localStorage.setItem('conceptionary-hint-v1', '1'); } catch (e) {} };
     setTimeout(hide, 11000);
@@ -138,7 +138,7 @@
 
   /* 5. THE QUIZ BOX: phone flag, drag anywhere (also by the answer box), stay above the on-screen keyboard ------------------------- */
   var QMQ = window.matchMedia('(pointer: coarse) and (max-width: 700px), (pointer: coarse) and (max-height: 520px) and (orientation: landscape)');
-  function syncPhone() { de.classList.toggle('kit-phone', QMQ.matches); de.classList.remove('no-quiz'); }
+  function syncPhone() { de.classList.toggle('kit-phone', QMQ.matches); if (!CFG.keepNoQuiz) de.classList.remove('no-quiz'); }
   syncPhone(); if (QMQ.addEventListener) QMQ.addEventListener('change', syncPhone);
   var qc = document.querySelector('.quiz-container'), vv = window.visualViewport;
   if (qc) {

@@ -1,6 +1,6 @@
 /* ==== CONCEPTIONARY PHONE KIT (c) 2026 Alan William Preston ==== */
 /* PINCH ZOOM: one finger still drags (sun, words, panels); two fingers zoom the whole page with the phone's own zoom. */
-html .a4-page, html #svgCanvas, html .textBox, html .cmp-ghost, html .quiz-container, html .learned-vocabulary, html .vocabulary-array, html #transDisplay { touch-action: pinch-zoom; }
+html .a4-page, html #svgCanvas, html #sv, html .textBox, html .cmp-ghost, html .quiz-container, html .learned-vocabulary, html .vocabulary-array, html #transDisplay { touch-action: pinch-zoom; }
 /* TAP TARGETS: at least 44 px on touch screens */
 @media (pointer: coarse) {
   html #cmpCtl .tb, html #cmpCtl button, html .quiz-container button, html .learned-vocabulary button, html .vocabulary-array button, html .tools-dd button, html .tools-dd .tools-item { min-height: 44px; }
@@ -40,8 +40,8 @@ html.kit-phone .quiz-container #quizFeedback:empty { display: none; }
 html.kit-phone #kitProgress { bottom: 28px; top: auto; left: 8px; }
 html.kit-phone.kit-quiz-open #kitProgress { opacity: 0; }
 /* FULL SCREEN: the browser's own pinch zoom is switched off in full screen, so the kit zooms the circle itself */
-html.kit-fs .a4-page, html.kit-fs #svgCanvas, html.kit-fs .textBox { touch-action: none; }
-html.kit-fs #svgCanvas { transform-origin: 0 0; will-change: transform; }
+html.kit-fs .a4-page, html.kit-fs #svgCanvas, html.kit-fs #sv, html.kit-fs .textBox { touch-action: none; }
+html.kit-fs #svgCanvas, html.kit-fs #sv { transform-origin: 0 0; will-change: transform; }
 
 /* QUIZ BOX: the answer box and the button sit exactly inside the frame; it opens centred at 75% across and 50% down */
 html .quiz-container input, html .quiz-container button { box-sizing: border-box; }
