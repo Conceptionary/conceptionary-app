@@ -23,8 +23,26 @@ LAY = r"""function lay(i, txt) {   /* WRAP: a phrase wider than WRAPMAX (about a
 LAYR = LAY.replace("function lay(i, txt)","function lay(i, k, txt)").replace("var s = sizeOf(i);","var s = sizeOf(i, k);").replace("function wOf(i, txt) { return lay(i, txt).w; }","function wOf(i, k, txt) { return lay(i, k, txt).w; }").replace("function hOf(i, txt) { return txt == null ? sizeOf(i) * 1.35 : lay(i, txt).h; }","function hOf(i, k, txt) { return txt == null ? sizeOf(i, k) * 1.35 : lay(i, k, txt).h; }")
 def sw(s):
     """Steering Wheel: the svg is #sv; the wheel lays out all its phrases itself (__swFit), so the kit must not re-fit it."""
-    if 'window.__KIT = {' not in s: s=once(s,'<script id="kit-script">','<script>window.__KIT = { svgId: "sv", nofit: true, keepNoQuiz: true, hintTouch: "Turn the wheel with one finger. Tap a phrase to see it in the other language. Pinch with two fingers to zoom.", hint: "Turn the wheel. Click a phrase to see it in the other language." };</script>\n<script id="kit-script">')
+    if 'window.__KIT = {' not in s: s=once(s,'<script id="kit-script">','<script>window.__KIT = { svgId: "sv", nofit: true, hintTouch: "Turn the wheel with one finger. Tap a phrase to see it in the other language. Pinch with two fingers to zoom.", hint: "Turn the wheel. Click a phrase to see it in the other language." };</script>\n<script id="kit-script">')
     if 'window.__kitCount = function' not in s: s=once(s,"window.__swLayout(); window.__swFit(); renders.forEach(function (r) { r(); }); show(0);","window.__kitCount = function () { return [states.filter(function (x) { return x.learned; }).length, states.length]; };   /* phone kit: Learned n/total */\nwindow.__swLayout(); window.__swFit(); renders.forEach(function (r) { r(); }); show(0);")
+    if 'const swDock = ' not in s:
+        s=once(s,"const noQuiz = function () { return de.classList.contains('no-quiz'); };","""const noQuiz = function () { return de.classList.contains('no-quiz'); };
+/* PHONE QUIZ DOCK (phone kit): on a phone the answer box lives in a box under the wheel (portrait) or under the buttons at the lower left (landscape), above the on-screen keyboard */
+const swDock = document.createElement('div'); swDock.id = 'swQuizDock'; document.body.appendChild(swDock);
+window.__swDockKeep = function () {
+    var vv = window.visualViewport; function keep() {
+        if (!swDock.classList.contains('on')) { swDock.style.translate = ''; return; }
+        swDock.style.translate = '0px 0px'; var r = swDock.getBoundingClientRect(), bottom = vv ? vv.offsetTop + vv.height : window.innerHeight, dy = Math.max(0, r.bottom - bottom + 10);
+        swDock.style.translate = dy ? '0px ' + (-dy) + 'px' : '0px 0px';
+    }
+    [30, 200, 450, 800].forEach(function (ms) { setTimeout(keep, ms); });
+};
+if (window.visualViewport) { window.visualViewport.addEventListener('resize', function () { window.__swDockKeep(); }); window.visualViewport.addEventListener('scroll', function () { window.__swDockKeep(); }); }""")
+        s=once(s,"fo.classList.toggle('sw-off', !quiz);","""var useDock = quiz && de.classList.contains('kit-phone');
+        if (useDock) { if (window.__swOwn && window.__swOwn[0] !== xd) window.__swOwn[1].appendChild(window.__swOwn[0]); window.__swOwn = [xd, fo]; swDock.appendChild(xd); swDock.classList.add('on'); window.__swDockKeep(); }
+        else if (xd.parentNode !== fo) { fo.appendChild(xd); if (window.__swOwn && window.__swOwn[0] === xd) { swDock.classList.remove('on'); window.__swOwn = null; window.__swDockKeep(); } }
+        fo.classList.toggle('sw-off', !quiz || useDock);""")
+        s=once(s,"(quiz ? (LOGV ? 62 : 50) : 28)","(quiz && !useDock ? (LOGV ? 62 : 50) : 28)")
     return s
 def rice(s):
     """Rice: two modes (States/Transitions); wOf(i,k,txt) / hOf(i,k); the counter reads learnedS / learnedT."""
@@ -60,7 +78,7 @@ def run(path):
     s=once(s,'</body>','<script id="kit-script">\n'+js+'</script>\n</body>')
     s=re.sub(r'<!-- Last updated:[^>]*-->\n?','',s)
     s=once(s,'<!DOCTYPE html>','<!DOCTYPE html>\n'+stamp) if s.startswith('<!DOCTYPE html>') else s
-    if 'max-width: 0px' not in s and 'sw/' not in path:   # SW keeps its Quiz off on phones (an inline Quiz inside the wheel; Alan's earlier decision) until he decides otherwise
+    if 'max-width: 0px' not in s:
         s,nmq=re.subn(r"var mq = window\.matchMedia\('\(pointer: coarse\) and \(max-width: 700px\), \(pointer: coarse\) and \(max-height: 520px\) and \(orientation: landscape\)'\);","var mq = window.matchMedia('(max-width: 0px) and (min-width: 1px)');   /* the Quiz now shows on phones too (phone kit) */",s)
         if not nmq: print('  NOTE: no mq line found in',path)
     s=s.replace('<html lang="en" class="no-quiz"','<html lang="en"')
