@@ -92,6 +92,44 @@ def wrapit(s,path):
     s=re.sub(r"fo\.setAttribute\('width', r\.w\); fo\.setAttribute\('height', r\.h\);",dv,s,count=1)
     print('  wrap sites',n1,n2)
     return s
+def day(s):
+    """Parts of the Day: HTML clock (svg + html frame + html word boxes inside #circle-container); its own phone layout; its own Quiz (ids renamed to the kit's)."""
+    for a,b in (("'quiz-input'","'quizInput'"),('id="quiz-input"','id="quizInput"'),("'quiz-submit'","'quizCheck'"),('id="quiz-submit"','id="quizCheck"'),("'quiz-feedback'","'quizFeedback'"),('id="quiz-feedback"','id="quizFeedback"'),('class="quiz-feedback"','class="quizFeedback"'),('.quiz-feedback {','.quizFeedback {'),('id="quiz-container"','id="quizContainer"'),("getElementById('quiz-container')","getElementById('quizContainer')")):
+        s=s.replace(a,b)
+    s=re.sub(r"quizContainer\.classList\.add\('visible'\);(?! quizContainer\.style)","quizContainer.classList.add('visible'); quizContainer.style.display = 'block';",s)
+    s=re.sub(r"quizContainer\.classList\.remove\('visible'\);(?! quizContainer\.style)","quizContainer.classList.remove('visible'); quizContainer.style.display = 'none';",s)
+    s=s.replace("fb.style.color = '#f44336';","fb.style.color = 'red';")
+    if 'id="dayZoom"' not in s:
+        s=once(s,'<svg id="clock-svg"','<div id="dayClip" style="position:absolute;inset:0;overflow:hidden"><div id="dayZoom" style="position:absolute;inset:0"><svg id="clock-svg"')   # the ring and its frame zoom together inside this box; the words stay outside it
+        s=once(s,'<div id="draggable-frame" class="draggable-frame"></div>','<div id="draggable-frame" class="draggable-frame"></div></div></div>')
+    if 'window.__KIT = {' not in s: s=once(s,'<script id="kit-script">','<script>window.__KIT = { svgId: "dayZoom", progHost: ".container", nofit: true, hintTouch: "Drag the blue frame round the clock. Tap a word to see it in the other language. Pinch with two fingers to zoom.", hint: "Drag the blue frame round the clock. Click a word to see it in the other language." };   /* Day: the ring scales itself (isCompact), so the kit does not re-fit it; Full Screen zoom moves the whole circle */</script>\n<script id="kit-script">')
+    if "closest('.text-box.sa, .text-box.active:not(.learned)')" not in s:   # pull-out inspection also on the word shown in the ordinary view (not only in Show All)
+        s=once(s,"const box = e.target.closest ? e.target.closest('.text-box.sa') : null;","const box = e.target.closest ? e.target.closest('.text-box.sa, .text-box.active:not(.learned)') : null;")
+    if 'kit: the ring may be zoomed' not in s:
+        s=once(s,"    const rect   = circleContainer.getBoundingClientRect();\n    const dx     =","    const rect   = svg.getBoundingClientRect();   /* kit: the ring may be zoomed in Full Screen, so the angle is measured from the ring's own centre */\n    const dx     =")
+    if 'window.__kitReset = function' not in s:
+        s=once(s,"// --- Event listeners ------------------------------------------------","""window.__kitCount = function () { return [learned.size, vocabularyData.length]; };
+window.__kitReset = function () {   /* phone kit: the Reset button - every learned word cleared, the frame back at sunrise */
+    learned.clear(); currentItem = null; showAllState = 0;
+    quizContainer.classList.remove('visible'); quizContainer.style.display = 'none';
+    textBoxContainer.innerHTML = ''; createTextBoxes();
+    document.querySelectorAll('.sector').forEach(x => x.classList.remove('active'));
+    applyShowAll(); updateProgress(); positionDraggableFrame(6);
+};
+
+// --- Event listeners ------------------------------------------------""")
+    # answers: alternatives (LANG.alt_answers) and "almost" feedback; LOG also goes through AnswerUtils (macrons, ou/ei)
+    if 'window.__kitLast = { input: answer' not in s:
+        if 'const AnswerUtils = {' in s:
+            s=once(s,"        if (answer.toLowerCase() === correct) {","        window.__kitLast = { input: answer, correct: item.tlr, ok: false };\n        if ((typeof AnswerUtils !== 'undefined' ? AnswerUtils.checkAnswer(answer, item.tlr) : answer.toLowerCase() === correct) || window.__kitAlt(answer, item.tlr)) {")
+        else:
+            s=once(s,"        if (answer.toLowerCase() === correct) {","        window.__kitLast = { input: answer, correct: item.tl, ok: false };\n        if (answer.toLowerCase() === correct || window.__kitAlt(answer, item.tl)) {")
+    if 'const AnswerUtils = {' in s and '(LANG.digraph_map ||' not in s:
+        s=once(s,"        if (LANG.collapse_double_vowels) {","        (LANG.digraph_map || []).forEach(([a, b]) => { t = t.split(a).join(b); });   /* a long vowel written two ways (ou / ei) */\n        if (LANG.collapse_double_vowels) {")
+    if 'const AnswerUtils = {' in s and 'id="quizDiacriticNote"' not in s:
+        s=once(s,'    <div id="quizFeedback" class="quizFeedback"></div>','    <div id="quizDiacriticNote" style="font-size:12px;color:#555;margin-top:8px;"></div>\n    <div id="quizFeedback" class="quizFeedback"></div>')
+        s=once(s,"    document.getElementById('quizInput').focus();\n","    document.getElementById('quizInput').focus();\n    document.getElementById('quizDiacriticNote').textContent = LANG.diacritic_instructions || '';\n")
+    return s
 def run(path):
     s=open(path).read()
     s=re.sub(r'<style id="kit-style">.*?</style>\n','',s,flags=re.S); s=re.sub(r'<script id="kit-script">.*?</script>\n','',s,flags=re.S)
@@ -117,6 +155,7 @@ def run(path):
                 if n2!=1 and 'AnswerUtils.checkAnswer(' not in s: print('  NOTE: answer condition not patched in',path)
     if 'sw/' in path: s=sw(s)
     if 'cmp/' in path: s=cmp_(s)
+    if 'day/' in path: s=day(s)
     if 'rice/' in path: s=rice(s)
     else: s=wrapit(s,path)
     open(path,'w').write(s); print('patched',path)

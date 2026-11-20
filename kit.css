@@ -1,9 +1,9 @@
 /* ==== CONCEPTIONARY PHONE KIT (c) 2026 Alan William Preston ==== */
 /* PINCH ZOOM: one finger still drags (sun, words, panels); two fingers zoom the whole page with the phone's own zoom. */
-html .a4-page, html #svgCanvas, html #sv, html .textBox, html .cmp-ghost, html .quiz-container, html .learned-vocabulary, html .vocabulary-array, html #transDisplay { touch-action: pinch-zoom; }
+html .a4-page, html #svgCanvas, html #sv, html #dayZoom, html #clock-svg, html .text-box, html .textBox, html .cmp-ghost, html .quiz-container, html .learned-vocabulary, html .vocabulary-array, html #transDisplay { touch-action: pinch-zoom; }
 /* TAP TARGETS: at least 44 px on touch screens */
 @media (pointer: coarse) {
-  html #cmpCtl .tb, html #cmpCtl button, html .quiz-container button, html .learned-vocabulary button, html .vocabulary-array button, html .tools-dd button, html .tools-dd .tools-item { min-height: 44px; }
+  html #cmpCtl .tb, html #cmpCtl button, html #dayCtl .tb, html #dayCtl button, html .quiz-container button, html .learned-vocabulary button, html .vocabulary-array button, html .tools-dd button, html .tools-dd .tools-item { min-height: 44px; }
   html #cmpCtl .tb, html #cmpCtl button { min-width: 44px; }
   html .quiz-container input { min-height: 44px; }
 }
@@ -40,15 +40,15 @@ html.kit-phone .quiz-container #quizFeedback:empty { display: none; }
 html.kit-phone #kitProgress { bottom: 28px; top: auto; left: 8px; }
 html.kit-phone.kit-quiz-open #kitProgress { opacity: 0; }
 /* FULL SCREEN: the browser's own pinch zoom is switched off in full screen, so the kit zooms the circle itself */
-html.kit-fs .a4-page, html.kit-fs #svgCanvas, html.kit-fs #sv, html.kit-fs .textBox { touch-action: none; }
-html.kit-fs #svgCanvas, html.kit-fs #sv { transform-origin: 0 0; will-change: transform; }
+html.kit-fs .a4-page, html.kit-fs #svgCanvas, html.kit-fs #sv, html.kit-fs #dayZoom, html.kit-fs #clock-svg, html.kit-fs .draggable-frame, html.kit-fs .text-box, html.kit-fs .textBox { touch-action: none; }
+html.kit-fs #svgCanvas, html.kit-fs #sv, html.kit-fs #dayZoom { transform-origin: 0 0; will-change: transform; }
 
 /* QUIZ BOX: the answer box and the button sit exactly inside the frame; it opens centred at 75% across and 50% down */
 html .quiz-container input, html .quiz-container button { box-sizing: border-box; }
 html:not(.kit-phone) .quiz-container:not(.kit-moved) { top: 50%; left: 75%; transform: translate(-50%, -50%); }
 /* RESET ICON BUTTON (Days of the Week) */
-#cmpCtl #reset-btn.kit-icon { display: inline-flex; align-items: center; justify-content: center; padding: 6px 10px; min-width: 40px; }
-#cmpCtl #reset-btn.kit-icon svg { width: 20px; height: 20px; fill: currentColor; pointer-events: none; }
+#cmpCtl #reset-btn.kit-icon, #dayCtl #reset-btn.kit-icon { display: inline-flex; align-items: center; justify-content: center; padding: 6px 10px; min-width: 40px; }
+#cmpCtl #reset-btn.kit-icon svg, #dayCtl #reset-btn.kit-icon svg { width: 20px; height: 20px; fill: currentColor; pointer-events: none; }
 html .quiz-container #quizFeedback:empty { display: none; }
 html.kit-phone .quiz-container input, html.kit-phone .quiz-container input:focus { outline: 2px solid #8fb4ff; outline-offset: -2px; }
 /* STEERING WHEEL PHONE QUIZ DOCK: under the wheel in portrait, under the buttons at the lower left in landscape */
@@ -58,3 +58,15 @@ html.kit-phone #swQuizDock > div { height: auto !important; }
 html.kit-phone #swQuizDock input { width: 100% !important; height: 46px; font-size: 16px !important; }
 @media (max-height: 520px) and (orientation: landscape) { html.kit-phone #swQuizDock.on { left: 8px; transform: none; bottom: 26px; width: min(44vw, 330px); } }
 body:has(#swQuizDock.on) #kitProgress { opacity: 0; }
+/* PARTS OF THE DAY: the question sits on a small first row of the phone Quiz box */
+html.kit-phone .quiz-container #quiz-question { flex: 1 1 100%; margin: 0 2px 5px !important; font-size: 13px; line-height: 1.25; text-align: center; }
+/* PARTS OF THE DAY: on a phone-sized window the Learned pill replaces its own progress bar (which would sit on the word slot) */
+#kitProgress.kit-day { display: none !important; }
+@media (max-width: 700px), (max-height: 520px) and (orientation: landscape) {
+  html .progress-bar:has(#progress-text) { display: none !important; }
+  #kitProgress.kit-day { display: block !important; }
+}
+/* PARTS OF THE DAY: the word shown in the ordinary view can be pulled out and enlarged too (as in Show All): yellow under the pointer, then back after 5 seconds */
+html .text-box.active:not(.learned):not(.sa) { cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+html .text-box.active:not(.learned):not(.sa):hover, html .text-box.active:not(.learned).grab, html .text-box.active:not(.learned).held { background: #fff176; border-color: #b8860b; color: #000; }
+html .text-box.lifted { z-index: 1000; box-shadow: 0 8px 24px rgba(0,0,0,.45); cursor: grabbing; }
