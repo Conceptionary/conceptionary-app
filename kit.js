@@ -218,7 +218,7 @@
   /* 7. RESET BUTTON for Days of the Week (the Seasons files already have one): back to the opening view, all learned words cleared -- */
   (function () {
     var ctl = document.getElementById('cmpCtl');
-    if (!ctl || document.getElementById('reset-btn') || typeof daysOfWeekData === 'undefined') return;
+    if (!ctl || document.getElementById('reset-btn') || (typeof daysOfWeekData === 'undefined' && !window.__kitReset)) return;
     var b = document.createElement('button'); b.id = 'reset-btn'; b.type = 'button'; b.className = 'tb kit-icon';
     var t = lab('reset_label', 'Reset'); b.title = t; b.setAttribute('aria-label', t);
     b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4V1L7.5 5.5 12 10V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-9z"/></svg>';
@@ -228,6 +228,7 @@
         if (window.__cmpReset) window.__cmpReset();
         var q = document.getElementById('quizContainer'); if (q) q.style.display = 'none';
         currentQuizIndex = -1; document.getElementById('quizInput').value = ''; document.getElementById('quizFeedback').textContent = '';
+        if (window.__kitReset) { window.__kitReset(); return; }   /* templates with their own reset steps (Compass) */
         learnedItems.fill(false); addedLearnedItems.fill(false);
         var li = document.getElementById('learned-items'); if (li) li.innerHTML = '';
         if (window.createTextBoxes) window.createTextBoxes();

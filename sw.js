@@ -5,7 +5,7 @@
    2026-11-18: the launcher pages, the template list and the concept registry are now fetched from the network FIRST (the saved copy is used only when offline or slow),
    so a new template list shows at once; and the Update button (conceptionary-update.js) re-fetches everything on demand.
    TO FORCE A FULL REFRESH on every device after a big update: change VERSION below (any new text) and push. */
-var VERSION = 'v5';
+var VERSION = 'v6';
 var CACHE = 'conceptionary-' + VERSION;
 var CORE = ['./', 'templates.html', 'view.html', 'index.html', 'conceptionary-templates.js', 'conceptionary-update.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'registry/conceptionary-registry.json'];
 

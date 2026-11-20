@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" class="no-quiz">
+<!-- Last updated: 2026-11-21 @ 1:52 a.m. (Mangawhai, NZ) -->
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -250,136 +251,72 @@
     #textSizePanel input[type=range] { width: 100%; touch-action: pan-y; }
     #textSizePanel .tsRow { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; }
     #textSizePanel button.tsReset { padding: 3px 10px; cursor: pointer; }
-    .textBox:hover div { background: #fff176; border-radius: 4px; }
+    .textBox:hover div { background: #fff176 !important; color: #000 !important; border-radius: 4px; } /* 2026-11-17 */
     .cmp-ghost { position: fixed; z-index: 1000; left: 0; top: 0; background: #fff176; border: 1px solid #b8860b; border-radius: 5px; box-shadow: 0 8px 24px rgba(0,0,0,.45); font-family: Arial, sans-serif; font-weight: bold; color: #000; white-space: nowrap; padding: 2px 5px; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transform-origin: 50% 50%; }
     @media print { #textSizePanel, .cmp-ghost { display: none !important; } }
     </style>
-    <style id="cx-style">
-/* ===== CONCEPTIONARY STYLE SHEET v0.1 (trial on the Compass, 2026-11-06) =====
-   One block of design tokens plus the rules that use them. It sits AFTER the template's own CSS and only changes looks, never behaviour.
-   Colour: ink / muted / surface / line, ONE primary (controls), ONE accent (the active word and highlight). Every text pair is 4.5:1 or better.
-   Type: one system font stack (set by script into --cx-font so the word measuring uses the same font), weights 600 and 700 only.
-   Spacing scale 4 / 8 / 12 / 16 / 24 px. Radius 10 (controls) and 16 (page card). Motion 150-250 ms, switched off by prefers-reduced-motion.
-   NOTE: inside an SVG foreignObject one CSS px is one SVG unit, so borders, radii and shadows on words are written in tiny values. */
-:root {
-  --cx-ink: #1f2937; --cx-muted: #4b5565; --cx-faint: #6b7280;
-  --cx-surface: #ffffff; --cx-bg: #eef1f7; --cx-line: #d3d9e6;
-  --cx-primary: #2a56c6; --cx-primary-dark: #1f428f; --cx-on-primary: #ffffff;
-  --cx-accent: #f2b01e; --cx-accent-soft: #fff4cf;
-  --cx-btn-bg: #e4ecf8; --cx-btn-bg-hover: #d3e0f5; --cx-btn-bg-on: #bcd0f0; --cx-btn-ink: #1d3b80; --cx-btn-line: #bccbe8;
-  --cx-disc-a: #fffdf6; --cx-disc-b: #efe8d4; --cx-disc-line: #d9cfb4;
-  --cx-s1: 4px; --cx-s2: 8px; --cx-s3: 12px; --cx-s4: 16px; --cx-s5: 24px;
-  --cx-r-ctl: 10px; --cx-r-card: 16px;
-  --cx-shadow-sm: 0 1px 2px rgba(20,30,60,.12); --cx-shadow-md: 0 4px 14px rgba(20,30,60,.16);
-  --cx-font: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
-  --cx-t: 180ms ease;
+<style id="kit-style">
+/* ==== CONCEPTIONARY PHONE KIT (c) 2026 Alan William Preston ==== */
+/* PINCH ZOOM: one finger still drags (sun, words, panels); two fingers zoom the whole page with the phone's own zoom. */
+html .a4-page, html #svgCanvas, html #sv, html .textBox, html .cmp-ghost, html .quiz-container, html .learned-vocabulary, html .vocabulary-array, html #transDisplay { touch-action: pinch-zoom; }
+/* TAP TARGETS: at least 44 px on touch screens */
+@media (pointer: coarse) {
+  html #cmpCtl .tb, html #cmpCtl button, html .quiz-container button, html .learned-vocabulary button, html .vocabulary-array button, html .tools-dd button, html .tools-dd .tools-item { min-height: 44px; }
+  html #cmpCtl .tb, html #cmpCtl button { min-width: 44px; }
+  html .quiz-container input { min-height: 44px; }
 }
-html[data-scheme="night"] {
-  --cx-ink: #e6ebf7; --cx-muted: #b4bfd8; --cx-faint: #8f9cb8;
-  --cx-surface: #172036; --cx-bg: #0d1424; --cx-line: #2e3a58;
-  --cx-primary: #3d63c9; --cx-primary-dark: #2f4fa6; --cx-accent: #f2b01e; --cx-accent-soft: #3a3320;
-  --cx-btn-bg: #24304e; --cx-btn-bg-hover: #2e3c60; --cx-btn-bg-on: #3a4a74; --cx-btn-ink: #d6e0fa; --cx-btn-line: #3b4a70;
-  --cx-disc-a: #1c2846; --cx-disc-b: #121b33; --cx-disc-line: #3a4768;
-}
-body { font-family: var(--cx-font); color: var(--cx-ink); background: var(--cx-bg); }
-@media (min-width: 701px) and (min-height: 521px) {
-  body { background: radial-gradient(ellipse at 50% 30%, #ffffff 0%, var(--cx-bg) 70%); }
-  .a4-page { border: 1px solid var(--cx-line); border-radius: var(--cx-r-card); box-shadow: var(--cx-shadow-md); background: var(--cx-surface); }
-}
-.a4-page { background: var(--cx-surface); }
-/* title and indicator: quiet cards */
-.title-box { font-family: var(--cx-font); font-weight: 700; font-size: 1.05em; color: var(--cx-ink); background: var(--cx-surface); border: 1px solid var(--cx-line); border-radius: var(--cx-r-ctl); box-shadow: var(--cx-shadow-sm); padding: var(--cx-s2) var(--cx-s3); transition: box-shadow var(--cx-t), transform var(--cx-t), opacity .5s ease; }
-.title-box:hover { box-shadow: var(--cx-shadow-md); }
-.direction-indicator, .day-indicator { font-family: var(--cx-font); font-weight: 600; color: var(--cx-ink); background: var(--cx-accent-soft); border: 1px solid var(--cx-accent); border-radius: 999px; padding: var(--cx-s1) var(--cx-s3); }
-.drag-instruction { font-family: var(--cx-font); color: var(--cx-muted); background: var(--cx-surface); border: 1px solid var(--cx-line); border-radius: var(--cx-r-ctl); }
-/* controls: one button style */
-#cmpCtl .tb, .quiz-container button { font-family: var(--cx-font); font-weight: 600; letter-spacing: .01em; background: var(--cx-btn-bg); color: var(--cx-btn-ink); border: 1px solid var(--cx-btn-line); border-radius: var(--cx-r-ctl); box-shadow: var(--cx-shadow-sm); min-height: 38px; transition: background var(--cx-t), transform var(--cx-t), box-shadow var(--cx-t); }
-#cmpCtl .tb:hover { background: var(--cx-btn-bg-hover); box-shadow: var(--cx-shadow-md); }
-#cmpCtl .tb.on { background: var(--cx-btn-bg-on); border-color: var(--cx-primary); }
-#cmpCtl .tb:active, .audio-wrap:active { transform: scale(.97); box-shadow: none; }
-#cmpCtl .tb:focus-visible, .audio-wrap #auCycle:focus-visible, .tools-dd button:focus-visible { outline: 3px solid var(--cx-accent); outline-offset: 2px; }
-.audio-wrap { background: var(--cx-btn-bg); color: var(--cx-btn-ink); border: 1px solid var(--cx-btn-line); border-radius: var(--cx-r-ctl); box-shadow: var(--cx-shadow-sm); transition: background var(--cx-t); }
-.audio-wrap:hover { background: var(--cx-btn-bg-hover); }
-.audio-wrap #auVol2::-webkit-slider-runnable-track { background: linear-gradient(to right, var(--cx-primary) 0, var(--cx-primary) var(--p), var(--cx-btn-line) var(--p), var(--cx-btn-line) 100%) !important; }
-.audio-wrap #auVol2::-moz-range-track { background: var(--cx-btn-line) !important; } .audio-wrap #auVol2::-moz-range-progress { background: var(--cx-primary) !important; }
-.audio-wrap #auCycle { font-family: var(--cx-font); font-weight: 600; }
-.tools-dd { background: var(--cx-surface); border: 1px solid var(--cx-line); border-radius: 12px; box-shadow: var(--cx-shadow-md); }
-.tools-dd button { background: var(--cx-surface); color: var(--cx-btn-ink); font-family: var(--cx-font); border-bottom: 1px solid var(--cx-line); transition: background var(--cx-t); }
-.tools-dd button:hover { background: var(--cx-accent-soft); }
-#textSizePanel { font-family: var(--cx-font); background: var(--cx-surface); color: var(--cx-ink); border: 1px solid var(--cx-line); border-radius: 12px; box-shadow: var(--cx-shadow-md); }
-#textSizePanel button.tsReset { border: 1px solid var(--cx-line); border-radius: 8px; background: var(--cx-surface); color: var(--cx-ink); }
-@media (pointer: coarse) { #cmpCtl .tb { min-height: 44px; } .tools-dd button { padding-top: 12px; padding-bottom: 12px; } }
-@media (max-height: 520px) and (orientation: landscape) { #cmpCtl .tb { min-height: 32px; } }
-/* the dial */
-.circle-path, .compass-circle { stroke: var(--cx-ink); stroke-width: 0.45; }
-.degree-marker { stroke: #aab2c2; } .major-marker { stroke: #6f7889; }
-.degree-label { fill: var(--cx-faint); font-family: var(--cx-font); }
-.segment-label { font-family: var(--cx-font); fill: var(--cx-ink); }
-.quadrant-fill { fill-opacity: .42; }
-.q1-quadrant { fill: #c9defc; } .q2-quadrant { fill: #fdeaa8; } .q3-quadrant { fill: #fcd2ad; } .q4-quadrant { fill: #f8c4de; }
-.compass-rose-decoration { stroke: var(--cx-faint); opacity: .35; }
-.needle-north { fill: #d64545; stroke: #8f2323; } .needle-south { fill: #3b6fd8; stroke: #1f3f8f; }
-.compass-arrow { filter: drop-shadow(0 .6px 1px rgba(20,30,60,.35)); }
-/* words on the dial: the active word is a chip with the accent edge; the others are quiet but fully readable */
-.textBox div { font-family: var(--cx-font) !important; font-weight: 600 !important; color: var(--cx-muted) !important; text-shadow: 0 0 .8px var(--cx-surface) !important; border-radius: 1.6px; transition: background var(--cx-t), color var(--cx-t); }
-.textBox.active div { font-weight: 700 !important; color: var(--cx-ink) !important; background: rgba(255,255,255,.94); box-shadow: 0 0 0 .35px var(--cx-accent), 0 .5px 1.2px rgba(20,30,60,.2); text-shadow: none !important; }
-html[data-scheme="night"] .textBox.active div { background: rgba(23,32,54,.94); }
-html[lang] body .textBox:hover div, html[lang] body .textBox:active div { background: #fff176 !important; color: #000 !important; text-shadow: none !important; } /* 2026-11-17 */
-.watermark { color: var(--cx-faint); font-family: var(--cx-font); font-weight: 600; opacity: .85; }
-.cmp-ghost { font-family: var(--cx-font); border-radius: 10px; background: #fff176; border-color: var(--cx-accent); color: #1f2937; }
-html[data-scheme="night"] body { background: var(--cx-bg); }
-html[data-scheme="night"] .a4-page, html[data-scheme="night"] .title-box { background: var(--cx-surface); border-color: var(--cx-line); }
-html[data-scheme="night"] .title-box, html[data-scheme="night"] .direction-indicator { color: var(--cx-ink); }
-html[data-scheme="night"] .direction-indicator { background: var(--cx-accent-soft); border-color: var(--cx-accent); }
-html[data-scheme="night"] .quadrant-fill { fill-opacity: .22; }
-html[data-scheme="night"] .tools-dd, html[data-scheme="night"] #textSizePanel { background: var(--cx-surface); }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
-@media print { body { background: #fff !important; } .textBox div, .textBox.active div { color: #000 !important; background: none !important; box-shadow: none !important; } }
-/* colour disc behind the dial (inserted by script as #cxDisc) */
-#cxDisc { fill: url(#cxDiscGrad); stroke: var(--cx-disc-line); stroke-width: .35; filter: drop-shadow(0 .5px 1.2px rgba(60,50,20,.18)); }
-html[data-scheme="night"] #cxDisc { filter: none; }
-html[data-scheme="nocolour"] #cxDisc { filter: grayscale(1); }
-@media print { #cxDisc { filter: none; } }
+/* PROGRESS COUNTER, FIRST-USE HINT, CELEBRATION */
+#kitProgress { position: absolute; left: 10px; bottom: 8px; z-index: 40; padding: 3px 11px; border-radius: 14px; font: 600 13px/1.3 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: rgba(15,61,99,.88); color: #fff; box-shadow: 0 1px 5px rgba(0,0,0,.3); pointer-events: none; transition: background .4s; }
+#kitProgress.done { background: #1b7f3b; }
+html.no-quiz #kitProgress { display: none; }
+#kitHint { position: fixed; left: 50%; bottom: 64px; transform: translateX(-50%); z-index: 3000; max-width: min(92vw, 420px); padding: 10px 16px; border-radius: 14px; font: 600 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; text-align: center; background: #0f3d63; color: #fff; box-shadow: 0 3px 14px rgba(0,0,0,.4); opacity: 0; transition: opacity .5s; pointer-events: none; }
+#kitHint.on { opacity: 1; }
+#kitParty { position: fixed; left: 50%; top: 38%; transform: translate(-50%, -50%) scale(.6); z-index: 3100; padding: 18px 28px; border-radius: 20px; font: 700 22px/1.3 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; text-align: center; background: #fff8d6; color: #5a3b00; border: 3px solid #e0a800; box-shadow: 0 8px 30px rgba(0,0,0,.4); opacity: 0; pointer-events: none; }
+#kitParty.on { animation: kitPop 3.4s ease-out forwards; }
+@keyframes kitPop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.5); } 12% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); } 20% { transform: translate(-50%, -50%) scale(1); } 85% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -60%) scale(1); } }
+@media print { #kitProgress, #kitHint, #kitParty { display: none !important; } }
+/* LEARNED PANELS are never shown: a learned word stays in its own place in the circle, in green (the Learned counter shows progress) */
+html .learned-vocabulary, html .vocabulary-array, html #arrayMoveTip { display: none !important; }
+html .textBox.learned div { text-shadow: 0 0 8px rgba(80,200,120,.55); }
+/* THE QUIZ BOX: grab it anywhere (including the answer box) and drop it anywhere */
+html .quiz-container, html .quiz-container * { touch-action: none; }
+html .quiz-container input { touch-action: none; }
+html .quiz-container.kit-moved { right: auto !important; bottom: auto !important; transform: none !important; margin: 0 !important; }
+html .quiz-container .kit-grip { display: none; }
+/* PHONE QUIZ: a one-row box along the bottom of the screen: answer box with a small check box at its right end */
+html.kit-phone .quiz-container { position: fixed !important; left: 0 !important; right: 0 !important; top: var(--kit-qtop, 26%) !important; bottom: auto !important; transform: none !important; width: auto !important; max-width: none !important; margin: 0 !important; box-sizing: border-box; border-radius: 0 0 16px 16px !important; padding: 8px 10px !important; z-index: 9999 !important; box-shadow: 0 4px 18px rgba(0,0,0,.45); cursor: grab !important; }
+html.kit-phone .quiz-container.kit-moved { right: auto !important; bottom: auto !important; width: min(94vw, 380px) !important; border-radius: 16px !important; padding-bottom: 8px !important; box-shadow: 0 6px 24px rgba(0,0,0,.5); }
+html.kit-phone .quiz-container::before, html.kit-phone .quiz-container::after, html.kit-phone #quizMoveHint { display: none !important; content: none !important; }
+html.kit-phone .quiz-container { display: none; flex-wrap: wrap; align-items: stretch; gap: 0; }
+html.kit-phone .quiz-container #quizDiacriticNote { flex: 1 1 100%; order: 5; position: static !important; margin: 5px 2px 0 !important; padding: 0 !important; font-size: 12px; line-height: 1.25; text-align: center; max-width: none !important; width: auto !important; }
+html.kit-phone .quiz-container[style*="display: block"] { display: flex !important; }
+html.kit-phone .quiz-container input { flex: 1 1 0; width: auto !important; min-width: 0; margin: 0 !important; height: 46px; box-sizing: border-box; font-size: 16px; border-radius: 10px 0 0 10px !important; cursor: text; }
+html.kit-phone .quiz-container #quizCheck { flex: 0 0 48px; width: 48px; height: 46px; min-height: 46px; margin: 0 !important; padding: 0 !important; font-size: 0 !important; line-height: 1; border-radius: 0 10px 10px 0 !important; position: relative; }
+html.kit-phone .quiz-container #quizCheck::after { content: "\2713"; font-size: 24px; font-weight: 700; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+html.kit-phone .quiz-container #quizFeedback { position: absolute; left: 10px; right: 10px; top: calc(100% + 6px); margin: 0 !important; padding: 5px 10px; border-radius: 10px; text-align: center; font-weight: 700; font-size: 15px; background: rgba(255,255,255,.94); box-shadow: 0 2px 8px rgba(0,0,0,.35); pointer-events: none; }
+html.kit-phone .quiz-container #quizFeedback:empty { display: none; }
+html.kit-phone #kitProgress { bottom: 28px; top: auto; left: 8px; }
+html.kit-phone.kit-quiz-open #kitProgress { opacity: 0; }
+/* FULL SCREEN: the browser's own pinch zoom is switched off in full screen, so the kit zooms the circle itself */
+html.kit-fs .a4-page, html.kit-fs #svgCanvas, html.kit-fs #sv, html.kit-fs .textBox { touch-action: none; }
+html.kit-fs #svgCanvas, html.kit-fs #sv { transform-origin: 0 0; will-change: transform; }
 
-/* ===== v0.3: pearl buttons and a silver slider ===== */
-:root {
-  --cx-pearl: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.95) 0%, rgba(255,255,255,.35) 38%, rgba(255,255,255,0) 62%),
-              linear-gradient(135deg, #f8f5ff 0%, #e4edfb 32%, #f3e8f5 62%, #e2f1f3 100%);
-  --cx-pearl-hover: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,1) 0%, rgba(255,255,255,.45) 40%, rgba(255,255,255,0) 64%),
-              linear-gradient(135deg, #f3eefe 0%, #d6e4fa 32%, #efdff3 62%, #d3ebef 100%);
-  --cx-pearl-on: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.75) 0%, rgba(255,255,255,.2) 40%, rgba(255,255,255,0) 64%),
-              linear-gradient(135deg, #cfdcf5 0%, #b3c8ee 35%, #cdbfe9 65%, #b4d9e3 100%);
-  --cx-pearl-edge: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -3px 5px rgba(110,125,175,.20), inset 0 0 0 1px rgba(255,255,255,.35);
-}
-html[data-scheme="night"] {
-  --cx-pearl: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.22) 0%, rgba(255,255,255,.07) 40%, rgba(255,255,255,0) 64%),
-              linear-gradient(135deg, #2c3a5c 0%, #34456d 35%, #3a3560 65%, #2b4458 100%);
-  --cx-pearl-hover: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.3) 0%, rgba(255,255,255,.1) 40%, rgba(255,255,255,0) 64%),
-              linear-gradient(135deg, #34456d 0%, #3f5486 35%, #473f78 65%, #345468 100%);
-  --cx-pearl-on: radial-gradient(120% 150% at 22% 0%, rgba(255,255,255,.2) 0%, rgba(255,255,255,.05) 40%, rgba(255,255,255,0) 64%),
-              linear-gradient(135deg, #46609c 0%, #4d6bb0 35%, #5a4d98 65%, #3f6f8a 100%);
-  --cx-pearl-edge: inset 0 1px 0 rgba(255,255,255,.28), inset 0 -3px 5px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.06);
-}
-#cmpCtl .tb, .audio-wrap, .tools-dd button {
-  background-image: var(--cx-pearl); background-size: 100% 100%, 220% 220%; background-position: 0 0, 0% 0%; background-repeat: no-repeat;
-  transition: background-position .6s ease, box-shadow var(--cx-t), transform var(--cx-t), border-color var(--cx-t);
-}
-#cmpCtl .tb, .audio-wrap { box-shadow: var(--cx-pearl-edge), 0 1px 2px rgba(20,30,60,.16); }
-#cmpCtl .tb:hover, .audio-wrap:hover { background-image: var(--cx-pearl-hover); background-position: 0 0, 100% 100%; box-shadow: var(--cx-pearl-edge), 0 3px 8px rgba(20,30,60,.20); }
-#cmpCtl .tb.on { background-image: var(--cx-pearl-on); box-shadow: var(--cx-pearl-edge), 0 1px 2px rgba(20,30,60,.16); }
-#cmpCtl .tb:active, .audio-wrap:active { box-shadow: inset 0 2px 5px rgba(60,70,110,.28); }
-.tools-dd button { box-shadow: inset 0 1px 0 rgba(255,255,255,.8); }
-.tools-dd button:hover { background-image: var(--cx-pearl-hover); background-position: 0 0, 100% 100%; }
-/* Audio slider: a silver ball like the compass pivot, on a channel that darkens from light grey (quiet) to black (loud) */
-.audio-wrap #auVol2::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; border: 1px solid #8e9097; box-sizing: border-box; background: linear-gradient(to right, #e4e6ea 0%, #a9abb2 35%, #4a4b51 70%, #0b0b0d 100%) !important; box-shadow: inset 0 1px 1px rgba(0,0,0,.25); }
-.audio-wrap #auVol2::-moz-range-track { height: 6px; border-radius: 3px; border: 1px solid #8e9097; box-sizing: border-box; background: linear-gradient(to right, #e4e6ea 0%, #a9abb2 35%, #4a4b51 70%, #0b0b0d 100%) !important; }
-.audio-wrap #auVol2::-moz-range-progress { background: transparent !important; }
-.audio-wrap #auVol2::-webkit-slider-thumb { box-sizing: border-box; border: 1px solid #555; margin-top: -5px; background: radial-gradient(circle at 35% 35%, #ffffff 0%, #f5f5f5 12%, #b0b0b0 58%, #707070 100%); box-shadow: 0 1px 2px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.35); }
-.audio-wrap #auVol2::-moz-range-thumb { box-sizing: border-box; border: 1px solid #555; background: radial-gradient(circle at 35% 35%, #ffffff 0%, #f5f5f5 12%, #b0b0b0 58%, #707070 100%); box-shadow: 0 1px 2px rgba(0,0,0,.45); }
-@media (pointer: coarse) { .audio-wrap #auVol2::-webkit-slider-thumb { margin-top: -7px; } }
-@media (max-height: 520px) and (orientation: landscape) { .audio-wrap #auVol2::-webkit-slider-thumb { margin-top: -4px; } }
-html[data-scheme="night"] .tools-dd button { box-shadow: inset 0 1px 0 rgba(255,255,255,.10); }
-    </style>
+/* QUIZ BOX: the answer box and the button sit exactly inside the frame; it opens centred at 75% across and 50% down */
+html .quiz-container input, html .quiz-container button { box-sizing: border-box; }
+html:not(.kit-phone) .quiz-container:not(.kit-moved) { top: 50%; left: 75%; transform: translate(-50%, -50%); }
+/* RESET ICON BUTTON (Days of the Week) */
+#cmpCtl #reset-btn.kit-icon { display: inline-flex; align-items: center; justify-content: center; padding: 6px 10px; min-width: 40px; }
+#cmpCtl #reset-btn.kit-icon svg { width: 20px; height: 20px; fill: currentColor; pointer-events: none; }
+html .quiz-container #quizFeedback:empty { display: none; }
+html.kit-phone .quiz-container input, html.kit-phone .quiz-container input:focus { outline: 2px solid #8fb4ff; outline-offset: -2px; }
+/* STEERING WHEEL PHONE QUIZ DOCK: under the wheel in portrait, under the buttons at the lower left in landscape */
+#swQuizDock { display: none; }
+html.kit-phone #swQuizDock.on { display: block; position: fixed; z-index: 9999; left: 50%; bottom: 40px; transform: translateX(-50%); width: min(92vw, 380px); box-sizing: border-box; padding: 10px 12px 8px; border-radius: 14px; background: rgba(255,255,255,.96); box-shadow: 0 4px 18px rgba(0,0,0,.45); touch-action: manipulation; }
+html.kit-phone #swQuizDock > div { height: auto !important; }
+html.kit-phone #swQuizDock input { width: 100% !important; height: 46px; font-size: 16px !important; }
+@media (max-height: 520px) and (orientation: landscape) { html.kit-phone #swQuizDock.on { left: 8px; transform: none; bottom: 26px; width: min(44vw, 330px); } }
+body:has(#swQuizDock.on) #kitProgress { opacity: 0; }
+</style>
 </head>
 <body>
     <div class="a4-page">
@@ -523,6 +460,7 @@ html[data-scheme="night"] .tools-dd button { box-shadow: inset 0 1px 0 rgba(255,
         // ["ā","a"], ["ī","i"], ["ū","u"], ["ē","e"], ["ō","o"]
     ],
     collapse_double_vowels: false,
+    digraph_map: [],   /* optional pairs treated as one when checking, e.g. [["ou","o"],["ei","e"]] */
 
         // --- Vocabulary data (16 compass points) ----------------------------
         // Format: [ SL direction, TL direction, TLR direction, Quiz question, Angle (0-360°) ]
@@ -556,6 +494,7 @@ const AnswerUtils = {
         LANG.diacritic_map.forEach(([accented, plain]) => {
             t = t.split(accented).join(plain);
         });
+        (LANG.digraph_map || []).forEach(([a, b]) => { t = t.split(a).join(b); });   /* a long vowel written two ways (ou / ei) */
         if (LANG.collapse_double_vowels) {
             t = t.replace(/aa/g,'a').replace(/ee/g,'e').replace(/ii/g,'i')
                  .replace(/oo/g,'o').replace(/uu/g,'u');
@@ -857,7 +796,6 @@ const AnswerUtils = {
         showAllTextBoxes = !showAllTextBoxes;
         const btn = document.getElementById('show-all-toggle');
         btn.textContent = showAllTextBoxes ? LANG.hide_all_directions_label : LANG.show_all_directions_label;
-        btn.classList.toggle('on', showAllTextBoxes);
         updateVisibleTextBoxes(currentDirection);
     }
 
@@ -882,7 +820,8 @@ const AnswerUtils = {
         const correct    = directionsData[currentQuizIndex][2] // TLR;
         const qf         = document.getElementById("quizFeedback");
 
-        if (userAnswer.toLowerCase() === correct.toLowerCase()) {
+        window.__kitLast = { input: userAnswer, correct: correct, ok: false };
+        if ((typeof AnswerUtils !== 'undefined' ? AnswerUtils.checkAnswer(userAnswer, correct) : userAnswer.toLowerCase() === correct.toLowerCase()) || window.__kitAlt(userAnswer, correct)) {
             qf.textContent = LANG.quiz_correct; qf.style.color = 'green';
             learnedItems[currentQuizIndex] = true;
             const tb = textBoxElements[currentQuizIndex];
@@ -898,8 +837,7 @@ const AnswerUtils = {
                     if (positionOverrides[currentQuizIndex].x !== undefined) x = positionOverrides[currentQuizIndex].x;
                     if (positionOverrides[currentQuizIndex].y !== undefined) y = positionOverrides[currentQuizIndex].y;
                 }
-                tb.setAttribute("x", x - 30);
-                tb.setAttribute("y", y - 12);
+                if (window.cmpPlaceOne) window.cmpPlaceOne(currentQuizIndex); else { if (window.cmpPlaceOne) window.cmpPlaceOne(currentQuizIndex); else { if (window.cmpPlaceOne) window.cmpPlaceOne(currentQuizIndex); else { if (window.cmpPlaceOne) window.cmpPlaceOne(currentQuizIndex); else { tb.setAttribute("x", x - 30); tb.setAttribute("y", y - 12); }   /* kit: keep the measured place */ }   /* kit: keep the measured place */ }   /* kit: keep the measured place */ }   /* kit: keep the measured place */
             }
             addToVocabularyArray(currentQuizIndex);
             closedIdx = currentQuizIndex;
@@ -1045,6 +983,10 @@ const AnswerUtils = {
     }
 
     document.addEventListener('DOMContentLoaded', initializeApp);
+    window.__kitReset = function () {   /* phone kit: the Reset button */
+        learnedItems.fill(false); var li = document.getElementById('learned-items'); if (li) li.innerHTML = '';
+        if (window.createTextBoxes) window.createTextBoxes(); positionArrowOnDirection(0);
+    };
 
     </script>
     <script>
@@ -1052,8 +994,6 @@ const AnswerUtils = {
        layer cycle (ROM: TL > SL; LOG: TLR > TL > SL), Tools menu, Print list. The Quiz is hidden (class no-quiz on the html tag) and its code is kept. */
     (function () {
         var SVGNS = 'http://www.w3.org/2000/svg';
-        var FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif';   // same stack as --cx-font in the style block
-        document.documentElement.style.setProperty('--cx-font', FONT);
         var BASE = 7, R0 = 36.5, GAP = 0.8;
         var svg = document.getElementById('svgCanvas');
         var cv = document.createElement('canvas').getContext('2d');
@@ -1065,7 +1005,7 @@ const AnswerUtils = {
             if (t === 2) return s.replace(/(^|\s)(\S)/g, function (m, a, b) { return a + b.toUpperCase(); });
             return s.toLowerCase();
         }
-        function wOf(i, txt) { var sz = sizeOf(i); cv.font = '700 ' + sz + 'px ' + FONT; return cv.measureText(cased(i, txt)).width + 3; }
+        function wOf(i, txt) { var sz = sizeOf(i); cv.font = 'bold ' + sz + 'px Arial, sans-serif'; return cv.measureText(cased(i, txt)).width + 3; }
         function hOf(i) { return sizeOf(i) * 1.35; }
         function ang(i) { return (directionsData[i][AI] - 90) * Math.PI / 180; }
 
@@ -1443,17 +1383,261 @@ const AnswerUtils = {
         }
     })();
     </script>
-    <script>
-    /* 2026-11-06 style trial: a soft colour disc behind the dial (cream face, so the ticks, numbers and the four tinted quadrants sit on it) */
-    (function () {
-        var svg = document.getElementById('svgCanvas'); if (!svg || document.getElementById('cxDisc')) return;
-        var NS = 'http://www.w3.org/2000/svg', defs = svg.querySelector('defs');
-        var g = document.createElementNS(NS, 'radialGradient'); g.setAttribute('id', 'cxDiscGrad'); g.setAttribute('cx', '50%'); g.setAttribute('cy', '45%'); g.setAttribute('r', '60%');
-        g.innerHTML = '<stop offset="0%" style="stop-color:var(--cx-disc-a)"/><stop offset="100%" style="stop-color:var(--cx-disc-b)"/>';
-        defs.appendChild(g);
-        var c = document.createElementNS(NS, 'circle'); c.setAttribute('id', 'cxDisc'); c.setAttribute('cx', 50); c.setAttribute('cy', 50); c.setAttribute('r', 36.2);
-        defs.parentNode.insertBefore(c, defs.nextSibling);
-    })();
-    </script>
+<script>window.__KIT = { adapt: true, slack: 3, hintTouch: "Drag the compass needle. Tap a word to see it in the other language. Pinch with two fingers to zoom.", hint: "Drag the compass needle. Click a word to see it in the other language." };</script>
+<script id="kit-script">
+/* ==== CONCEPTIONARY PHONE KIT (c) 2026 Alan William Preston ==== */
+(function () {
+  if (window.__kit) return; window.__kit = true;
+  var de = document.documentElement, CFG = window.__KIT || {};
+  function lab(k, d) { var v = window.LANG && LANG[k]; return (v && !/^[A-Z_]+$/.test(v)) ? v : d; }
+
+  /* 1. TOUCH: let the phone's pinch zoom work (touch-action decides what a finger may do) --------------------------------------- */
+  var lastT = 0;
+  function endDrags() { ['touchend', 'mouseup'].forEach(function (t) { try { document.dispatchEvent(new Event(t, { bubbles: true })); } catch (e) {} }); }
+  document.addEventListener('touchstart', function (e) { lastT = Date.now(); e.preventDefault = function () {}; if (e.touches && e.touches.length > 1) endDrags(); }, { capture: true, passive: true });
+  document.addEventListener('touchmove', function (e) { lastT = Date.now(); if (e.touches && e.touches.length > 1) e.preventDefault = function () {}; }, { capture: true, passive: true });
+  document.addEventListener('touchend', function () { lastT = Date.now(); }, { capture: true, passive: true });
+  document.addEventListener('touchcancel', function () { lastT = Date.now(); endDrags(); }, { capture: true, passive: true });
+  ['mousedown', 'mousemove', 'mouseup'].forEach(function (t) { document.addEventListener(t, function (e) { if (e.isTrusted && Date.now() - lastT < 700) e.stopImmediatePropagation(); }, true); });   /* the mouse events a phone makes after a touch */
+
+  /* 2. A BIGGER CIRCLE ON A PORTRAIT PHONE: the view box is fitted to the circle, and the words are slid inside the screen ------- */
+  var svg = document.getElementById(CFG.svgId || 'svgCanvas'), phone = window.matchMedia('(max-width: 700px) and (orientation: portrait)'), busy = false, last = '';
+  function faceR() {
+    if (CFG.faceR) return CFG.faceR;
+    var r = 0; svg.querySelectorAll('circle').forEach(function (c) {
+      if (c.closest('foreignObject') || c.id === 'draggableFrame' || c.id === 'dragDot') return;
+      var cx = +c.getAttribute('cx') || 0, cy = +c.getAttribute('cy') || 0, rr = +c.getAttribute('r') || 0;
+      if (Math.abs(cx - 50) < 3 && Math.abs(cy - 50) < 3) r = Math.max(r, rr);
+    });
+    return r || 36;
+  }
+  function tbe() { try { return textBoxElements; } catch (e) { return []; } }
+  function boxes() { return tbe().filter(function (fo) { return fo && fo.style.display !== 'none' && fo.getAttribute('width'); }); }
+  function fit() {
+    if (!svg || busy || !phone.matches || CFG.nofit) return;
+    var cw = svg.clientWidth, ch = svg.clientHeight; if (!cw || !ch) return;
+    busy = true;
+    try {
+      var R = faceR(), pad = 0.8, wrapped = boxes().some(function (fo) { return fo.dataset.wrap === '1'; }), shares = CFG.share ? [CFG.share] : ((wrapped || CFG.adapt) ? [0.84, 0.78, 0.72, 0.66, 0.60, 0.55] : [0.84]), g = null;
+      /* everything drawn on the dial that is not a word (labels, moon icons, ticks) must stay on screen: measure how far it reaches from the centre */
+      var halfW = R;
+      try {
+        var m = svg.getScreenCTM(); if (m) { var inv = m.inverse();
+          Array.prototype.forEach.call(svg.children, function (el) {
+            if (/^(foreignObject|defs|style|title|desc)$/i.test(el.tagName)) return;
+            if (el.querySelector && el.querySelector('foreignObject')) return;     /* the words are placed separately */
+            var r = el.getBoundingClientRect(); if (!r.width || !r.height) return;
+            var p1 = new DOMPoint(r.left, r.top).matrixTransform(inv), p2 = new DOMPoint(r.right, r.bottom).matrixTransform(inv);
+            if (p2.x - p1.x > 130) return;                  /* a background shape, not a mark on the dial */
+            halfW = Math.max(halfW, Math.abs(p1.x - 50), Math.abs(p2.x - 50));
+          });
+        }
+      } catch (err) {}
+      function build(share) {
+        var vw = Math.max(2 * R / share, 2 * halfW + 3), vh = vw * ch / cw, vx = 50 - vw / 2, vy = 50 - vh / 2;
+        var bs = boxes().map(function (fo) { return { fo: fo, x: +fo.getAttribute('x'), y: +fo.getAttribute('y'), w: +fo.getAttribute('width'), h: +fo.getAttribute('height') }; });
+        bs.forEach(function (b) { b.x = Math.min(Math.max(b.x, vx + pad), vx + vw - pad - b.w); b.y = Math.min(Math.max(b.y, vy + pad), vy + vh - pad - b.h); });
+        var hit = 0; bs.forEach(function (b) { var nx = Math.min(Math.max(50, b.x), b.x + b.w), ny = Math.min(Math.max(50, b.y), b.y + b.h); var depth = R - Math.hypot(nx - 50, ny - 50); if (depth > (CFG.slack || 9)) hit++; window.__kitDepth = Math.max(window.__kitDepth || 0, 0); });
+        return { vx: vx, vy: vy, vw: vw, vh: vh, bs: bs, hit: hit };
+      }
+      for (var si = 0; si < shares.length; si++) { g = build(shares[si]); if (!g.hit) break; }   /* a smaller circle only when the words would sit on it */
+      var vx = g.vx, vy = g.vy, vw = g.vw, vh = g.vh, bs = g.bs;
+      var vb = vx + ' ' + vy + ' ' + vw + ' ' + vh; svg.setAttribute('viewBox', vb); last = vb;
+      for (var it = 0; it < 120; it++) {
+        var moved = false;
+        for (var i = 0; i < bs.length; i++) for (var j = i + 1; j < bs.length; j++) {
+          var a = bs[i], b = bs[j], ox = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x) + 0.6, oy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y) + 0.6;
+          if (ox > 0 && oy > 0) {
+            var d = ((a.y + a.h / 2) <= (b.y + b.h / 2)) ? -1 : 1, s = oy / 2;
+            a.y += d * s; b.y -= d * s; moved = true;
+            [a, b].forEach(function (q) { q.y = Math.min(Math.max(q.y, vy + pad), vy + vh - pad - q.h); });
+          }
+        }
+        if (!moved) break;
+      }
+      bs.forEach(function (b) { b.fo.setAttribute('x', b.x); b.fo.setAttribute('y', b.y); });
+    } finally { busy = false; }
+  }
+  if (svg) {
+    var pend = 0; function soon() { cancelAnimationFrame(pend); pend = requestAnimationFrame(fit); }
+    new MutationObserver(function () { if (!busy) soon(); }).observe(svg, { attributes: true, attributeFilter: ['viewBox'], subtree: false });
+    new MutationObserver(function () { if (!busy) soon(); }).observe(svg, { attributes: true, attributeFilter: ['x', 'y', 'width', 'height', 'style'], subtree: true });
+    window.addEventListener('resize', soon); window.addEventListener('orientationchange', soon);
+    if (phone.addEventListener) phone.addEventListener('change', function () { if (!phone.matches && window.cmpPlaceAll) window.cmpPlaceAll(); soon(); });
+    window.addEventListener('load', function () { setTimeout(soon, 50); setTimeout(soon, 400); });
+    soon();
+  }
+
+  /* 3. PROGRESS, FIRST-USE HINT, CELEBRATION --------------------------------------------------------------------------------------- */
+  var page = document.querySelector('.a4-page'), prog = document.createElement('div'), partyEl = document.createElement('div'), hintEl = document.createElement('div');
+  prog.id = 'kitProgress'; partyEl.id = 'kitParty'; hintEl.id = 'kitHint';
+  if (page) page.appendChild(prog); document.body.appendChild(partyEl); document.body.appendChild(hintEl);
+  function total() { try { if (window.__kitCount) return window.__kitCount()[1]; return CFG.total ? CFG.total() : tbe().length; } catch (e) { return 0; } }
+  function learnedN() { if (window.__kitCount) { try { return window.__kitCount()[0]; } catch (e) { return 0; } } return tbe().filter(function (fo) { return fo && fo.classList.contains('learned'); }).length; }   /* counted on the words of the mode now showing */
+  var prev = 0, tot = 0;
+  function paint(first) {
+    tot = total(); var n = learnedN(); if (!tot) { prog.style.display = 'none'; return; } prog.style.display = '';
+    prog.textContent = lab('progress_label', 'Learned') + ' ' + Math.min(n, tot) + '/' + tot; prog.classList.toggle('done', n >= tot);
+    if (!first && n >= tot && prev < tot) {
+      partyEl.innerHTML = '🎉<br>' + lab('all_done', 'All learned!'); partyEl.classList.remove('on'); void partyEl.offsetWidth; partyEl.classList.add('on');
+      setTimeout(function () { partyEl.classList.remove('on'); }, 3600);
+    }
+    prev = n;
+  }
+  var lastTot = -1, ptimer = 0;
+  function repaint() { clearTimeout(ptimer); ptimer = setTimeout(function () { var t = total(); var silent = (t !== lastTot); lastTot = t; paint(silent); }, 30); }
+  if (svg) new MutationObserver(repaint).observe(svg, { attributes: true, attributeFilter: ['class'], childList: true, subtree: true });
+  var tdp = document.getElementById('transDisplay'); if (tdp) new MutationObserver(repaint).observe(tdp, { childList: true, characterData: true, subtree: true });   /* two-mode templates (Rice): transition words show here */
+  paint(true); window.addEventListener('load', function () { setTimeout(function () { lastTot = total(); paint(true); }, 300); setTimeout(function () { lastTot = total(); paint(true); }, 1200); });
+  var seen = false; try { seen = localStorage.getItem('conceptionary-hint-v1') === '1'; } catch (e) {}
+  if (!seen) {
+    var touch = window.matchMedia('(pointer: coarse)').matches;
+    hintEl.textContent = lab('first_hint', touch ? (CFG.hintTouch || 'Drag the sun. Tap a word to see it in the other language. Pinch with two fingers to zoom.' ): (CFG.hint || 'Drag the sun. Click a word to see it in the other language.'));
+    setTimeout(function () { hintEl.classList.add('on'); }, 1200);
+    var gone = false, hide = function () { if (gone) return; gone = true; hintEl.classList.remove('on'); try { localStorage.setItem('conceptionary-hint-v1', '1'); } catch (e) {} };
+    setTimeout(hide, 11000);
+    ['pointerdown', 'keydown'].forEach(function (t) { document.addEventListener(t, function () { setTimeout(hide, 1500); }, { once: true, capture: true }); });
+  }
+
+  /* 4. ANSWERS: alternatives (LANG.alt_answers = { "Autumn": ["Fall"] }) and "almost" feedback ------------------------------------- */
+  function norm(t) { return String(t == null ? '' : t).toLowerCase().replace(/<[^>]*>/g, '').replace(/[\s\-!?.,;:'"’‘“”()]/g, ''); }
+  window.__kitAlt = function (input, correct) {
+    var alts = (window.LANG && LANG.alt_answers && LANG.alt_answers[String(correct).replace(/<[^>]*>/g, '')]) || [];
+    var n = norm(input); return alts.some(function (a) { return norm(a) === n; });
+  };
+  window.__kitNear = function (input, correct) {
+    var a = norm(input), b = norm(correct); if (!a || !b || a === b) return '';
+    var n = Math.min(a.length, b.length), i = 0; while (i < n && a[i] === b[i]) i++;
+    if (Math.abs(a.length - b.length) <= 1 && (function () { var d = 0, k; if (a.length === b.length) { for (k = 0; k < a.length; k++) if (a[k] !== b[k]) d++; return d <= 1; } var s = a.length < b.length ? a : b, l = a.length < b.length ? b : a; for (k = 0; k < l.length; k++) { if (l.slice(0, k) + l.slice(k + 1) === s) return true; } return false; })())
+      return lab('quiz_close', 'Almost! Check letter') + ' ' + (i + 1);
+    return '';
+  };
+  if (typeof AnswerUtils !== 'undefined' && AnswerUtils.checkAnswer) {
+    var oc = AnswerUtils.checkAnswer;
+    AnswerUtils.checkAnswer = function (input, correct) { var ok = oc.call(AnswerUtils, input, correct) || window.__kitAlt(input, correct); window.__kitLast = { input: input, correct: correct, ok: ok }; return ok; };
+  }
+  var fb = document.getElementById('quizFeedback');
+  if (fb) new MutationObserver(function () {
+    var L = window.__kitLast; if (!L || L.ok || fb.dataset.kit === '1' || fb.style.color !== 'red') return;
+    var near = window.__kitNear(L.input, L.correct); if (!near) return;
+    fb.dataset.kit = '1'; fb.textContent = fb.textContent.replace(/\s*[—-]\s*.*$/, '') + ' — ' + near; setTimeout(function () { fb.dataset.kit = ''; }, 50);
+  }).observe(fb, { childList: true, characterData: true, subtree: true });
+
+  /* 5. THE QUIZ BOX: phone flag, drag anywhere (also by the answer box), stay above the on-screen keyboard ------------------------- */
+  var QMQ = window.matchMedia('(pointer: coarse) and (max-width: 700px), (pointer: coarse) and (max-height: 520px) and (orientation: landscape)');
+  function syncPhone() { de.classList.toggle('kit-phone', QMQ.matches); if (!CFG.keepNoQuiz) de.classList.remove('no-quiz'); }
+  syncPhone(); if (QMQ.addEventListener) QMQ.addEventListener('change', syncPhone);
+  var qc = document.querySelector('.quiz-container'), vv = window.visualViewport;
+  if (qc) {
+    /* on a phone the box opens at the TOP of the circle area, where the on-screen keyboard can never cover it */
+    function placeTop() {
+      if (!de.classList.contains('kit-phone') || qc.classList.contains('kit-moved')) return;
+      var t = 4;   /* the very top: it covers the buttons for a moment, never the circle or the word you tapped */
+      de.style.setProperty('--kit-qtop', Math.max(4, Math.round(t)) + 'px');
+    }
+    var wasOpen = false;
+    new MutationObserver(function () { var open = qc.style.display === 'block'; if (open === wasOpen) return; wasOpen = open; de.classList.toggle('kit-quiz-open', open); if (open) { placeTop(); keepSoon(); } }).observe(qc, { attributes: true, attributeFilter: ['style'] });
+    var st = null, swallow = false;
+    qc.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      e.stopImmediatePropagation();                                  /* this drag replaces the older one that skipped the answer box */
+      var r = qc.getBoundingClientRect(); st = { id: e.pointerId, dx: e.clientX - r.left, dy: e.clientY - r.top, x0: e.clientX, y0: e.clientY, drag: false, w: r.width };
+    }, true);
+    document.addEventListener('pointermove', function (e) {
+      if (!st || e.pointerId !== st.id) return;
+      if (!st.drag) {
+        if (Math.hypot(e.clientX - st.x0, e.clientY - st.y0) < 7) return;
+        st.drag = true; qc.classList.add('kit-moved'); qc.dataset.moved = '1'; qc.style.translate = '0px 0px';
+        var w = de.classList.contains('kit-phone') ? Math.min(st.w, 380, window.innerWidth * 0.94) : st.w; st.dx = Math.min(st.dx, w - 20);
+        if (de.classList.contains('kit-phone')) qc.style.setProperty('width', w + 'px', 'important');
+        if (document.activeElement && document.activeElement.blur && qc.contains(document.activeElement)) document.activeElement.blur();
+      }
+      var w2 = qc.offsetWidth, h2 = qc.offsetHeight;
+      qc.style.setProperty('left', Math.min(Math.max(e.clientX - st.dx, 0), Math.max(0, window.innerWidth - w2)) + 'px', 'important');
+      qc.style.setProperty('top', Math.min(Math.max(e.clientY - st.dy, 0), Math.max(0, window.innerHeight - h2)) + 'px', 'important');
+      e.preventDefault();
+    }, { passive: false });
+    function up(e) { if (!st || e.pointerId !== st.id) return; if (st.drag) { swallow = true; setTimeout(function () { swallow = false; }, 80); keep(); } st = null; }
+    document.addEventListener('pointerup', up); document.addEventListener('pointercancel', up);
+    qc.addEventListener('click', function (e) { if (swallow) { e.stopPropagation(); e.preventDefault(); swallow = false; } }, true);
+    window.addEventListener('resize', function () { if (qc.style.display !== 'block') placeTop(); if (qc.classList.contains('kit-moved')) { qc.style.setProperty('left', Math.min(parseFloat(qc.style.left) || 0, Math.max(0, window.innerWidth - qc.offsetWidth)) + 'px', 'important'); qc.style.setProperty('top', Math.min(parseFloat(qc.style.top) || 0, Math.max(0, window.innerHeight - qc.offsetHeight)) + 'px', 'important'); } keep(); });
+    /* keep the box above the on-screen keyboard, whether the browser shrinks the page or only the visible part of it */
+    var kt = [];
+    function keep() {
+      function put(v) { if (qc.style.translate !== v) qc.style.translate = v; }
+      if (!vv || qc.style.display !== 'block') { put('0px 0px'); return; }
+      put('0px 0px');
+      var r = qc.getBoundingClientRect(), bottom = vv.offsetTop + vv.height, dy = Math.max(0, r.bottom - bottom + 12);
+      if (dy > 0) { dy = Math.min(dy, Math.max(0, r.top - vv.offsetTop - 4)); put('0px ' + (-dy) + 'px'); }
+    }
+    function keepSoon() { kt.forEach(clearTimeout); kt = [30, 200, 450, 800].map(function (ms) { return setTimeout(keep, ms); }); }
+    if (vv) { vv.addEventListener('resize', keepSoon); vv.addEventListener('scroll', keepSoon); }
+    qc.addEventListener('focusin', keepSoon); qc.addEventListener('focusout', function () { setTimeout(keep, 250); });
+  }
+
+  /* 6. FULL SCREEN ZOOM: Chrome switches its own pinch zoom off in full screen, so two fingers zoom and pan the circle here --------- */
+  (function () {
+    if (!svg) return;
+    var zs = 1, tx = 0, ty = 0, g = null;
+    function fsOn() { return !!(document.fullscreenElement || document.webkitFullscreenElement || window.__kitForceFs); }
+    function apply() { svg.style.transformOrigin = '0 0'; svg.style.transform = (zs === 1 && !tx && !ty) ? '' : 'translate(' + tx + 'px,' + ty + 'px) scale(' + zs + ')'; window.__kitZoom = { s: zs, x: tx, y: ty }; }
+    function sync() { de.classList.toggle('kit-fs', fsOn()); if (!fsOn()) { zs = 1; tx = ty = 0; apply(); } }
+    ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (t) { document.addEventListener(t, sync); });
+    window.__kitSyncFs = sync; sync();
+    function mid(t) { return { x: (t[0].clientX + t[1].clientX) / 2, y: (t[0].clientY + t[1].clientY) / 2, d: Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY) || 1 }; }
+    document.addEventListener('touchstart', function (e) {
+      if (!fsOn() || e.touches.length !== 2) return;
+      var m = mid(e.touches), r = svg.getBoundingClientRect(); g = { d: m.d, s: zs, tx: tx, ty: ty, bx: r.left - tx, by: r.top - ty, mx: m.x, my: m.y };
+    }, { capture: true, passive: true });
+    document.addEventListener('touchmove', function (e) {
+      if (!g || e.touches.length !== 2) return;
+      var m = mid(e.touches), s = Math.min(4, Math.max(1, g.s * m.d / g.d));
+      var cx = ((g.mx - g.bx) - g.tx) / g.s, cy = ((g.my - g.by) - g.ty) / g.s;      /* the point of the circle that sat under the fingers */
+      var W = svg.clientWidth, H = svg.clientHeight, nx = (m.x - g.bx) - cx * s, ny = (m.y - g.by) - cy * s;
+      zs = s; tx = Math.min(0, Math.max(W * (1 - s), nx)); ty = Math.min(0, Math.max(H * (1 - s), ny));
+      if (s < 1.03) { zs = 1; tx = ty = 0; }
+      apply(); if (e.cancelable) e.preventDefault();
+    }, { capture: true, passive: false });
+    document.addEventListener('touchend', function (e) { if (!e.touches || e.touches.length < 2) g = null; }, { capture: true, passive: true });
+    document.addEventListener('touchcancel', function () { g = null; }, { capture: true, passive: true });
+  })();
+
+  /* 7. RESET BUTTON for Days of the Week (the Seasons files already have one): back to the opening view, all learned words cleared -- */
+  (function () {
+    var ctl = document.getElementById('cmpCtl');
+    if (!ctl || document.getElementById('reset-btn') || (typeof daysOfWeekData === 'undefined' && !window.__kitReset)) return;
+    var b = document.createElement('button'); b.id = 'reset-btn'; b.type = 'button'; b.className = 'tb kit-icon';
+    var t = lab('reset_label', 'Reset'); b.title = t; b.setAttribute('aria-label', t);
+    b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4V1L7.5 5.5 12 10V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-9z"/></svg>';
+    var fs = document.getElementById('fsBtn'); ctl.insertBefore(b, fs && fs.parentNode === ctl ? fs : null);
+    b.addEventListener('click', function () {
+      try {
+        if (window.__cmpReset) window.__cmpReset();
+        var q = document.getElementById('quizContainer'); if (q) q.style.display = 'none';
+        currentQuizIndex = -1; document.getElementById('quizInput').value = ''; document.getElementById('quizFeedback').textContent = '';
+        if (window.__kitReset) { window.__kitReset(); return; }   /* templates with their own reset steps (Compass) */
+        learnedItems.fill(false); addedLearnedItems.fill(false);
+        var li = document.getElementById('learned-items'); if (li) li.innerHTML = '';
+        if (window.createTextBoxes) window.createTextBoxes();
+        positionFrameOnDay(getCurrentDayIndex());
+      } catch (err) { if (window.console) console.error('Reset failed', err); }
+    });
+  })();
+
+  /* 8. TOOLS MENU LINKS: the User Manual and the Index of Exercises (change the two addresses here, in this one place) ------------- */
+  var USER_MANUAL_URL = 'https://sites.google.com/view/conceptionary/home/user-manual';
+  var EXERCISES_URL = 'https://sites.google.com/view/conceptionary/home/index-of-exercises';
+  (function () {
+    var menu = document.getElementById('toolsMenu'); if (!menu || document.getElementById('manualBtn')) return;
+    function add(id, label, title, url) {
+      var b = document.createElement('button'); b.id = id; b.type = 'button'; b.textContent = label; b.title = title;
+      b.addEventListener('click', function (e) { e.stopPropagation(); menu.classList.remove('active'); window.open(url, '_blank', 'noopener'); });
+      menu.appendChild(b);
+    }
+    add('manualBtn', lab('manual_label', 'User Manual'), lab('manual_title', 'How to use these templates (opens the Conceptionary website)'), USER_MANUAL_URL);
+    add('exercisesBtn', lab('exercises_label', 'Exercises & Tests'), lab('exercises_title', 'Practise this vocabulary (opens the Index of Exercises)'), EXERCISES_URL);
+  })();
+})();
+</script>
 </body>
 </html>

@@ -44,6 +44,27 @@ if (window.visualViewport) { window.visualViewport.addEventListener('resize', fu
         fo.classList.toggle('sw-off', !quiz || useDock);""")
         s=once(s,"(quiz ? (LOGV ? 62 : 50) : 28)","(quiz && !useDock ? (LOGV ? 62 : 50) : 28)")
     return s
+def cmp_(s):
+    """Compass: the click cycle already opens the Quiz unless <html class=no-quiz>; fix the learned word's place and add a Reset."""
+    pat=re.compile(r'tb\.setAttribute\("x", x - 30\);\s*tb\.setAttribute\("y", y - 12\);')
+    if pat.search(s): s=pat.sub('if (window.cmpPlaceOne) window.cmpPlaceOne(currentQuizIndex); else { tb.setAttribute("x", x - 30); tb.setAttribute("y", y - 12); }   /* kit: keep the measured place */',s,count=1)
+    if 'window.__KIT = {' not in s: s=once(s,'<script id="kit-script">','<script>window.__KIT = { adapt: true, slack: 3, hintTouch: "Drag the compass needle. Tap a word to see it in the other language. Pinch with two fingers to zoom.", hint: "Drag the compass needle. Click a word to see it in the other language." };</script>\n<script id="kit-script">')
+    # LOG: the TLR answer must go through AnswerUtils (macrons, plain vowels, ou/ei) like the other LOG templates; ROM keeps its plain comparison
+    if 'AnswerUtils.checkAnswer(userAnswer, correct) :' not in s and 'collapse_double_vowels' in s:
+        s=once(s,"if (userAnswer.toLowerCase() === correct.toLowerCase() ||","if ((typeof AnswerUtils !== 'undefined' ? AnswerUtils.checkAnswer(userAnswer, correct) : userAnswer.toLowerCase() === correct.toLowerCase()) ||")
+    if 'collapse_double_vowels: false,' in s and 'optional pairs treated as one' not in s:
+        s=once(s,"""        LANG.diacritic_map.forEach(([accented, plain]) => {
+            t = t.split(accented).join(plain);
+        });
+""","""        LANG.diacritic_map.forEach(([accented, plain]) => {
+            t = t.split(accented).join(plain);
+        });
+        (LANG.digraph_map || []).forEach(([a, b]) => { t = t.split(a).join(b); });   /* a long vowel written two ways (ou / ei) */
+""")
+        s=once(s,"collapse_double_vowels: false,","collapse_double_vowels: false,\n    digraph_map: [],   /* optional pairs treated as one when checking, e.g. [[\"ou\",\"o\"],[\"ei\",\"e\"]] */")
+    if 'window.__kitReset = function' not in s:
+        s=once(s,"document.addEventListener('DOMContentLoaded', initializeApp);","document.addEventListener('DOMContentLoaded', initializeApp);\n    window.__kitReset = function () {   /* phone kit: the Reset button */\n        learnedItems.fill(false); var li = document.getElementById('learned-items'); if (li) li.innerHTML = '';\n        if (window.createTextBoxes) window.createTextBoxes(); positionArrowOnDirection(0);\n    };")
+    return s
 def rice(s):
     """Rice: two modes (States/Transitions); wOf(i,k,txt) / hOf(i,k); the counter reads learnedS / learnedT."""
     if 'window.__KIT = {' not in s: s=once(s,'<script id="kit-script">','<script>window.__KIT = { faceR: 50, adapt: true };   /* Rice: the words sit OUTSIDE the water ring, so the circle shrinks until they fit */</script>\n<script id="kit-script">')
@@ -95,6 +116,7 @@ def run(path):
                 s,n2=re.subn(r"( +)if \((\w+)\.toLowerCase\(\) === (\w+)\.toLowerCase\(\)\) \{",lambda m:m.group(1)+"window.__kitLast = { input: "+m.group(2)+", correct: "+m.group(3)+", ok: false };\n"+m.group(1)+"if ("+m.group(2)+".toLowerCase() === "+m.group(3)+".toLowerCase() || window.__kitAlt("+m.group(2)+", "+m.group(3)+")) {",s,count=1)
                 if n2!=1 and 'AnswerUtils.checkAnswer(' not in s: print('  NOTE: answer condition not patched in',path)
     if 'sw/' in path: s=sw(s)
+    if 'cmp/' in path: s=cmp_(s)
     if 'rice/' in path: s=rice(s)
     else: s=wrapit(s,path)
     open(path,'w').write(s); print('patched',path)
