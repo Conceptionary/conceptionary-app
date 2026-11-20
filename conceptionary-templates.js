@@ -78,14 +78,16 @@ window.CONCEPTIONARY_TEMPLATE_FAMILIES = [
     { id: 'EX-ID-RICE', label: 'Rice Growing Cycle (CR-RICE)', rom: 'ROM-CR-RICE-ID-EN', log: null },
     { id: 'EX-ID-WET', label: 'Tropical Seasons, wet and dry (CR-SEA-WET)', rom: 'ROM-CR-SEA-WET-ID-EN', log: null },
     { id: 'EX-ID-SW', label: 'Driving Directions (CR-SW)', rom: 'ROM-CR-SW-ID-EN', log: null },
-    { id: 'EX-ID-CMP', label: 'Navigational Compass (CR-CMP)', rom: 'ROM-CR-CMP-ID-EN', log: null }
+    { id: 'EX-ID-CMP', label: 'Navigational Compass (CR-CMP)', rom: 'ROM-CR-CMP-ID-EN', log: null },
+    { id: 'EX-ID-DAY', label: 'Parts of the Day (CR-DAY)', rom: 'ROM-CR-DAY-ID-EN', log: null }
   ]},
   { name: 'Japanese for English speakers', items: [
     { id: 'EX-JA-TDL', label: 'Daily Tidal Cycle (CR-TDL)',  rom: null, log: 'LOG-CR-TDL-JA-EN' },
     { id: 'EX-JA-MOY', label: 'Months of the Year (CR-MOY)', rom: null, log: 'LOG-CR-MOY-JA-EN' },
     { id: 'EX-JA-RICE', label: 'Rice Growing Cycle (CR-RICE)', rom: null, log: 'LOG-CR-RICE-JA-EN' },
     { id: 'EX-JA-SW', label: 'Driving Directions (CR-SW)', rom: null, log: 'LOG-CR-SW-JA-EN' },
-    { id: 'EX-JA-CMP', label: 'Navigational Compass (CR-CMP)', rom: null, log: 'LOG-CR-CMP-JA-EN' }
+    { id: 'EX-JA-CMP', label: 'Navigational Compass (CR-CMP)', rom: null, log: 'LOG-CR-CMP-JA-EN' },
+    { id: 'EX-JA-DAY', label: 'Parts of the Day (CR-DAY)', rom: null, log: 'LOG-CR-DAY-JA-EN' }
   ]},
   { name: 'English for German speakers', items: [
     { id: 'EX-DE-SEA-N', label: 'Seasons, Northern Hemisphere (CR-SEA-TEMP-N)', rom: 'ROM-CR-SEA-TEMP-N-EN-DE', log: null }
