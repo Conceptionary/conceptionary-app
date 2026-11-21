@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- Last updated: 2026-11-22 @ 1:09 a.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-11-22 @ 1:33 a.m. (Mangawhai, NZ) -->
 <html lang="en" class="ttt-phone">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telling the Time — Logographic — Generic</title>
+    <title>Telling the Time — Phonographic — Generic</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -59,29 +59,16 @@
             padding: 8px 12px;
             box-shadow: 0 3px 10px rgba(0,0,0,0.18);
         }
-        /* TLR — Target Language Romanized (shown FIRST/primary by default,
-           per logographic convention — supports future TTS integration) */
-        .tip-tlr {
-            font-size: 15px; font-weight: bold; color: #1b5e20;
-            margin-bottom: 2px;
-        }
-        .tip-tlr-special {
-            font-size: 17px; font-weight: bold; margin-bottom: 4px;
-            display: none;
-        }
-        .tip-tlr-special.key  { color: #2e7d32; font-size: 18px; }
-        .tip-tlr-special.appr { color: #00695c; }
-        .tip-tlr-special.gone { color: #ad1457; }
-        /* TL — target language script (secondary, below TLR) */
+        /* TL — target language (shown prominently) */
         .tip-tl {
-            font-size: 13px; font-weight: bold; color: #0d47a1;
+            font-size: 14px; font-weight: bold; color: #0d47a1;
             margin-bottom: 2px;
         }
         .tip-tl-special {
-            font-size: 14px; font-weight: bold; margin-bottom: 4px;
+            font-size: 16px; font-weight: bold; margin-bottom: 4px;
             display: none;
         }
-        .tip-tl-special.key  { color: #e65100; font-size: 15px; }
+        .tip-tl-special.key  { color: #e65100; font-size: 17px; }
         .tip-tl-special.appr { color: #00838f; }
         .tip-tl-special.gone { color: #880e4f; }
         /* SL — source language (smaller, below) */
@@ -120,11 +107,6 @@
         #quizHint {
             font-size: 11px; color: #aaa; text-align: center;
             margin-top: 4px; font-style: italic;
-        }
-        #quizDiacriticNote {
-            font-size: 10px; color: #888; text-align: center;
-            margin-top: 6px; padding-top: 6px;
-            border-top: 1px solid #eee;
         }
 
         /* ── Legend ──────────────────────────────────────────────────── */
@@ -210,9 +192,40 @@
       #legend { position: absolute !important; bottom: 18px !important; left: 8px !important; text-align: left !important; }
       .watermark { position: absolute !important; bottom: 5px !important; }
       #svgCanvas { width: 100% !important; height: 100% !important; }
-      #ttCtl, #tip, #quizContainer, #auToast { display: none !important; }
+      #ttCtl, #tip, #quizContainer, #auToast, #textSizePanel { display: none !important; }
     }
     </style>
+<style id="ttt-tools">
+    /* 2026-11-22 TOOLS MENU on Telling the Time (as in Parts of the Day): Colours, Text size, Print */
+    .tools-wrap { position: relative; }
+    #toolsBtn { min-width: 74px; }
+    .tools-dd { display: none; position: absolute; top: 100%; left: 0; margin-top: 4px; min-width: 9.5em; background: #4CAF50; border-radius: 6px; overflow: hidden; z-index: 400; box-shadow: 0 4px 12px rgba(0,0,0,.3); }
+    .tools-dd.active { display: block; }
+    .tools-dd button { display: block; width: 100%; text-align: left; background: #4CAF50; color: #fff; border: 0; border-bottom: 1px solid rgba(255,255,255,.35); padding: 9px 14px; font: 14px Arial, sans-serif; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+    .tools-dd button:last-child { border-bottom: 0; }
+    .tools-dd button:hover { background: #45a049; }
+    #textSizePanel { position: fixed; z-index: 700; display: none; background: #fff; color: #222; border: 1px solid #555; border-radius: 8px; padding: 6px 10px 8px; box-shadow: 0 2px 10px rgba(0,0,0,.35); font: 13px Arial, sans-serif; width: min(300px, 88vw); touch-action: none; }
+    #textSizePanel .tsHead { cursor: grab; display: flex; justify-content: space-between; align-items: center; font-weight: bold; user-select: none; margin-bottom: 4px; }
+    #textSizePanel .tsHead button { border: 0; background: none; font-size: 20px; cursor: pointer; line-height: 1; }
+    #textSizePanel select { width: 100%; margin: 2px 0 4px; padding: 4px; font: 13px Arial, sans-serif; }
+    #textSizePanel input[type=range] { width: 100%; touch-action: pan-y; }
+    #textSizePanel .tsRow { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; }
+    #textSizePanel button.tsReset { padding: 3px 10px; cursor: pointer; }
+    html[data-scheme="nocolour"] body { background: #e6e6e6; }
+    html[data-scheme="nocolour"] #svgCanvas, html[data-scheme="nocolour"] #legend span { filter: grayscale(1); }
+    @media screen {
+      html[data-scheme="night"] body { background: #0b1330; }
+      html[data-scheme="night"] .a4-page { background: #14213d; border-color: #3a4a7a; }
+      html[data-scheme="night"] #svgCanvas circle[fill="white"] { fill: #1f2f55; }
+      html[data-scheme="night"] #svgCanvas circle[stroke="#333"] { stroke: #99a6d6; }
+      html[data-scheme="night"] #numeral-group text { fill: #e8eefc; }
+      html[data-scheme="night"] #hand-group polygon, html[data-scheme="night"] #svgCanvas circle[fill="#111"] { fill: #e8eefc; }
+      html[data-scheme="night"] .title-box { background: #14213d; color: #e8eefc; border-color: #99a6d6; }
+      html[data-scheme="night"] #legend { color: #cfd8ff; }
+      html[data-scheme="night"] .watermark { color: rgba(255,255,255,.45); }
+    }
+    @media print { #textSizePanel { display: none !important; } }
+</style>
 <style id="kit-style">
 /* ==== CONCEPTIONARY PHONE KIT (c) 2026 Alan William Preston ==== */
 /* PINCH ZOOM: one finger still drags (sun, words, panels); two fingers zoom the whole page with the phone's own zoom. */
@@ -312,21 +325,26 @@ html.kit-phone #kitProgress.kit-cal { bottom: 100px; left: 12px; }
 
 <div class="a4-page">
     <div id="ttCtl">
-        <button id="printBtn" class="tb" type="button" onclick="window.print()" title="Print this page on one A4 landscape sheet">Print</button>
+        <div class="tools-wrap" id="toolsWrap">
+            <button id="toolsBtn" class="tb" type="button" aria-haspopup="true" title="Colours, Text size and Print">Tools &#9660;</button>
+            <div class="tools-dd" id="toolsMenu">
+                <button id="colourBtn" type="button" title="Try different colour schemes">Colours: Default</button>
+                <button id="textSizeBtn" type="button" title="Enlarge or shrink the words">Text size&hellip;</button>
+                <button id="printBtn" type="button" title="Print this page on one A4 landscape sheet">Print</button>
+            </div>
+        </div>
         <button id="fsBtn" class="tb" type="button" onclick="toggleFullScreen()">Full Screen</button>
     </div>
-    <div id="title-box" class="title-box">TITLE_TLR</div>
+    <div id="title-box" class="title-box">TITLE_SL / TITLE_TL</div>
 
-    <!-- Hover tooltip — TLR shown first/primary (logographic convention) -->
+    <!-- Hover tooltip -->
     <div id="tip">
         <div class="tip-inner">
-            <div class="tip-tlr-special" id="tip-tlr-special"></div>
-            <div class="tip-tlr"         id="tip-tlr"></div>
-            <div class="tip-tl-special"  id="tip-tl-special"></div>
-            <div class="tip-tl"          id="tip-tl"></div>
-            <div class="tip-sl"          id="tip-sl"></div>
-            <div class="tip-sl-alt"      id="tip-sl-alt"></div>
-            <div class="tip-sl-special"  id="tip-sl-special"></div>
+            <div class="tip-tl-special" id="tip-tl-special"></div>
+            <div class="tip-tl"         id="tip-tl"></div>
+            <div class="tip-sl"         id="tip-sl"></div>
+            <div class="tip-sl-alt"     id="tip-sl-alt"></div>
+            <div class="tip-sl-special" id="tip-sl-special"></div>
         </div>
     </div>
 
@@ -349,14 +367,20 @@ html.kit-phone #kitProgress.kit-cal { bottom: 100px; left: 12px; }
     <div class="watermark">&copy; 2026 Alan William Preston</div>
 </div>
 
-<!-- Quiz: tests TLR (Target Language Romanized) -->
+<div id="textSizePanel">
+    <div class="tsHead"><span>Text size</span><button type="button" id="tsClose" aria-label="Close">&times;</button></div>
+    <select id="tsGroup" aria-label="Which words"><option value="title">Title</option><option value="numerals">Clock numbers</option><option value="legend">Colour key</option><option value="tip">Words in the tip</option></select>
+    <input type="range" id="tsRange" min="50" max="300" step="5" value="100">
+    <div class="tsRow"><label><input type="checkbox" id="tsAll"> All words</label><span id="tsVal">100%</span><button type="button" class="tsReset" id="tsReset">Reset</button></div>
+</div>
+
+<!-- Quiz -->
 <div id="quizContainer" class="quiz-container">
     <div id="quizQuestion"></div>
-    <input type="text" id="quizInput" placeholder="QUIZ_PLACEHOLDER_TLR">
+    <input type="text" id="quizInput" placeholder="QUIZ_PLACEHOLDER">
     <button id="quizCheck">QUIZ_BUTTON</button>
     <div id="quizFeedback"></div>
     <div id="quizHint"></div>
-    <div id="quizDiacriticNote">DIACRITIC_INSTRUCTIONS</div>
 </div>
 
 <script>
@@ -370,43 +394,26 @@ html.kit-phone #kitProgress.kit-cal { bottom: 100px; left: 12px; }
 const LANG = {
 
     // --- Title cycle (shown in top box; click to cycle) ---------------
-    // LOGOGRAPHIC CONVENTION: TLR is shown first (default), cycling
-    // TLR → TL → SL → TLR. Exactly 3 states — no combined bilingual state
-    // (a 4th "SL_TITLE / TLR_TITLE" element was removed here; see
-    // "Logographic UI Conventions" in Conceptionary_Template_Definitions.md
-    // for why the title deliberately has no combined state, unlike some
-    // earlier-built templates).
+    // --- Title cycle (shown in top box; click to cycle) ---------------
+    // ROM CONVENTION: TL is shown first (default), then SL on click —
+    // matching the vocabulary-item convention (TL first, SL on click).
+    // Exactly 2 states — no combined bilingual state (previously this
+    // array defaulted to SL and had an extra "SL_TITLE / TL_TITLE"
+    // combined 3rd state; both removed for consistency with the rest of
+    // the ROM family and with the equivalent fix applied to
+    // LOG-CR-TTT-Generic.html — see "Logographic UI Conventions" in
+    // Conceptionary_Template_Definitions.md for the equivalent LOG
+    // rationale).
     titles: [
-        "TLR_TITLE",         // e.g. "Nan-ji desu ka?"
-        "TL_TITLE",          // e.g. "何時ですか？"
+        "TL_TITLE",          // e.g. "Jam berapa?"
         "SL_TITLE"           // e.g. "Telling the Time"
     ],
 
     // --- Quiz UI strings ----------------------------------------------
-    // LOGOGRAPHIC CONVENTION: the quiz asks the learner to type the TLR
-    // (romanized) form of the phrase shown.
-    quiz_placeholder: "QUIZ_INPUT_PLACEHOLDER_TLR",  // e.g. "Type the romanized reading…"
-    quiz_button:      "QUIZ_BUTTON_LABEL",            // e.g. "Check"
-    quiz_correct:     "QUIZ_CORRECT_MESSAGE",         // e.g. "Correct! ✓"
-    quiz_wrong:       "QUIZ_WRONG_MESSAGE",           // e.g. "Try again"
-
-    // --- Diacritic / romanization normalization ------------------------
-    // Shown to the learner near the quiz input, and used to relax answer
-    // checking so learners don't need to type accents/macrons/tone marks
-    // they may not have on their keyboard.
-    diacritic_instructions: "DIACRITIC_INSTRUCTIONS",
-    // e.g. "Tip: macrons (ā,ī,ū,ē,ō) and accents can be typed as plain
-    //       vowels — 'tōkei' and 'tokei' are both accepted."
-
-    // diacritic_map: pairs of [accented character, plain equivalent].
-    // Leave empty [] if the TLR uses no diacritics.
-    diacritic_map: [
-        // ["ā","a"], ["ī","i"], ["ū","u"], ["ē","e"], ["ō","o"]
-    ],
-    // collapse_double_vowels: if true, "aa" -> "a" etc. (useful where
-    // doubled vowels are an alternative macron notation). Set false if
-    // not applicable to your TL's romanization system.
-    collapse_double_vowels: false,
+    quiz_placeholder: "QUIZ_INPUT_PLACEHOLDER",  // e.g. "Type your answer in [TL]…"
+    quiz_button:      "QUIZ_BUTTON_LABEL",        // e.g. "Check / Periksa"
+    quiz_correct:     "QUIZ_CORRECT_MESSAGE",     // e.g. "Correct! ✓"
+    quiz_wrong:       "QUIZ_WRONG_MESSAGE",       // e.g. "Try again"
 
     // --- Legend labels (parallel to COLORS keys) ----------------------
     // Each entry: { color: hex, label: "display text" }
@@ -439,16 +446,6 @@ const LANG = {
         'TL_N16','TL_N17','TL_N18','TL_N19','TL_N20',
         'TL_N21','TL_N22','TL_N23','TL_N24','TL_N25',
         'TL_N26','TL_N27','TL_N28','TL_N29'
-    ],
-    // TLR: romanized words for 1–29 (must match tl_numbers 1:1)
-    tlr_numbers: [
-        '',
-        'TLR_N1','TLR_N2','TLR_N3','TLR_N4','TLR_N5',
-        'TLR_N6','TLR_N7','TLR_N8','TLR_N9','TLR_N10',
-        'TLR_N11','TLR_N12','TLR_N13','TLR_N14','TLR_N15',
-        'TLR_N16','TLR_N17','TLR_N18','TLR_N19','TLR_N20',
-        'TLR_N21','TLR_N22','TLR_N23','TLR_N24','TLR_N25',
-        'TLR_N26','TLR_N27','TLR_N28','TLR_N29'
     ],
 
     // --- Minute phrase builders ---------------------------------------
@@ -484,66 +481,45 @@ const LANG = {
         return `TL_TO_PREFIX ${TL[n]} TL_TO_SUFFIX`;
     },
 
-    // TLR past/to — romanized equivalents of tl_past/tl_to. Must use the
-    // SAME word order/structure as tl_past/tl_to (just romanized), since
-    // these are the QUIZ ANSWERS the learner must reproduce.
-    tlr_past: function(n) {
-        const TLR = LANG.tlr_numbers;
-        return `TLR_PAST_PREFIX ${TLR[n]} TLR_PAST_SUFFIX`;
-    },
-    tlr_to: function(n) {
-        const TLR = LANG.tlr_numbers;
-        return `TLR_TO_PREFIX ${TLR[n]} TLR_TO_SUFFIX`;
-    },
-
     // --- Key point labels (at 0, 15, 30, 45 minutes) -----------------
-    // validAnswers are in TLR (the quiz tests romanized reproduction).
     keyPoints: {
         0:  {
             sl: "SL_OCLOCK",        // e.g. "o'clock"
             tl: "TL_OCLOCK",        // e.g. "tepat"
             tl_display: "TL_OCLOCK_DISPLAY",
-            tlr: "TLR_OCLOCK",
-            tlr_display: "TLR_OCLOCK_DISPLAY",
             sl_special: null,
             quizQ: "QUIZ_Q_OCLOCK",
-            validAnswers: ["TLR_OCLOCK"],
+            validAnswers: ["TL_OCLOCK"],
             hint: "HINT_OCLOCK"
         },
         15: {
             sl: "SL_QUARTER_PAST",  // e.g. "fifteen (minutes) past"
             tl: "TL_QUARTER_PAST",  // e.g. "lima belas (menit) lebih"
             tl_display: "TL_QUARTER_PAST_DISPLAY",
-            tlr: "TLR_QUARTER_PAST",
-            tlr_display: "TLR_QUARTER_PAST_DISPLAY",
             sl_special: "SL_QUARTER_PAST_SPECIAL",  // e.g. "quarter past"
             sl_alt: "SL_QUARTER_PAST_ALT",
             quizQ: "QUIZ_Q_QUARTER_PAST",
-            validAnswers: ["TLR_QUARTER_PAST_ANS1","TLR_QUARTER_PAST_ANS2"],
+            validAnswers: ["TL_QUARTER_PAST_ANS1","TL_QUARTER_PAST_ANS2"],
             hint: "HINT_QUARTER_PAST"
         },
         30: {
             sl: "SL_HALF_PAST",     // e.g. "thirty (minutes) past"
             tl: "TL_HALF_PAST",     // e.g. "setengah"
             tl_display: "TL_HALF_PAST_DISPLAY",
-            tlr: "TLR_HALF_PAST",
-            tlr_display: "TLR_HALF_PAST_DISPLAY",
             sl_special: "SL_HALF_PAST_SPECIAL",
             sl_alt: "SL_HALF_PAST_ALT",
             quizQ: "QUIZ_Q_HALF_PAST",
-            validAnswers: ["TLR_HALF_PAST_ANS1"],
+            validAnswers: ["TL_HALF_PAST_ANS1"],
             hint: "HINT_HALF_PAST"
         },
         45: {
             sl: "SL_QUARTER_TO",    // e.g. "fifteen (minutes) to"
             tl: "TL_QUARTER_TO",    // e.g. "kurang seperempat"
             tl_display: "TL_QUARTER_TO_DISPLAY",
-            tlr: "TLR_QUARTER_TO",
-            tlr_display: "TLR_QUARTER_TO_DISPLAY",
             sl_special: "SL_QUARTER_TO_SPECIAL",
             sl_alt: "SL_QUARTER_TO_ALT",
             quizQ: "QUIZ_Q_QUARTER_TO",
-            validAnswers: ["TLR_QUARTER_TO_ANS1"],
+            validAnswers: ["TL_QUARTER_TO_ANS1"],
             hint: "HINT_QUARTER_TO"
         }
     },
@@ -555,44 +531,41 @@ const LANG = {
 
     landmarks: {
         // approaching (2 min before)
-        13: { sl_landmark: "SL_LAND_QUARTER_PAST", tl_landmark: "TL_LAND_QUARTER_PAST", tlr_landmark: "TLR_LAND_QUARTER_PAST" },
-        28: { sl_landmark: "SL_LAND_HALF_PAST",    tl_landmark: "TL_LAND_HALF_PAST",    tlr_landmark: "TLR_LAND_HALF_PAST"    },
-        43: { sl_landmark: "SL_LAND_QUARTER_TO",   tl_landmark: "TL_LAND_QUARTER_TO",   tlr_landmark: "TLR_LAND_QUARTER_TO"   },
-        58: { sl_landmark: "SL_LAND_OCLOCK",        tl_landmark: "TL_LAND_OCLOCK",       tlr_landmark: "TLR_LAND_OCLOCK"       }
+        13: { sl_landmark: "SL_LAND_QUARTER_PAST", tl_landmark: "TL_LAND_QUARTER_PAST" },
+        28: { sl_landmark: "SL_LAND_HALF_PAST",    tl_landmark: "TL_LAND_HALF_PAST"    },
+        43: { sl_landmark: "SL_LAND_QUARTER_TO",   tl_landmark: "TL_LAND_QUARTER_TO"   },
+        58: { sl_landmark: "SL_LAND_OCLOCK",        tl_landmark: "TL_LAND_OCLOCK"       }
     },
     goneLandmarks: {
         // just gone (2 min after)
-         2: { sl_landmark: "SL_LAND_OCLOCK",        tl_landmark: "TL_LAND_OCLOCK",       tlr_landmark: "TLR_LAND_OCLOCK"       },
-        17: { sl_landmark: "SL_LAND_QUARTER_PAST", tl_landmark: "TL_LAND_QUARTER_PAST", tlr_landmark: "TLR_LAND_QUARTER_PAST" },
-        32: { sl_landmark: "SL_LAND_HALF_PAST",    tl_landmark: "TL_LAND_HALF_PAST",    tlr_landmark: "TLR_LAND_HALF_PAST"    },
-        47: { sl_landmark: "SL_LAND_QUARTER_TO",   tl_landmark: "TL_LAND_QUARTER_TO",   tlr_landmark: "TLR_LAND_QUARTER_TO"   }
+         2: { sl_landmark: "SL_LAND_OCLOCK",        tl_landmark: "TL_LAND_OCLOCK"       },
+        17: { sl_landmark: "SL_LAND_QUARTER_PAST", tl_landmark: "TL_LAND_QUARTER_PAST" },
+        32: { sl_landmark: "SL_LAND_HALF_PAST",    tl_landmark: "TL_LAND_HALF_PAST"    },
+        47: { sl_landmark: "SL_LAND_QUARTER_TO",   tl_landmark: "TL_LAND_QUARTER_TO"   }
     },
 
     // Phrase patterns for approaching / just gone
-    // {landmark} is replaced with the tl_landmark / tlr_landmark string at runtime
-    tl_approaching:   "TL_APPROACHING_PREFIX {landmark}",   // e.g. "hampir {landmark}"
-    tl_justgone:      "TL_JUSTGONE_PREFIX {landmark}",      // e.g. "baru lewat {landmark}"
-    tlr_approaching:  "TLR_APPROACHING_PREFIX {landmark}",  // romanized equivalent
-    tlr_justgone:     "TLR_JUSTGONE_PREFIX {landmark}",     // romanized equivalent
-    sl_approaching:   "SL_APPROACHING_PREFIX {landmark}",   // e.g. "approaching {landmark}"
-    sl_justgone:      "SL_JUSTGONE_PREFIX {landmark}",      // e.g. "just gone {landmark}"
+    // {landmark} is replaced with the tl_landmark string at runtime
+    tl_approaching:   "TL_APPROACHING_PREFIX {landmark}",  // e.g. "hampir {landmark}"
+    tl_justgone:      "TL_JUSTGONE_PREFIX {landmark}",     // e.g. "baru lewat {landmark}"
+    sl_approaching:   "SL_APPROACHING_PREFIX {landmark}",  // e.g. "approaching {landmark}"
+    sl_justgone:      "SL_JUSTGONE_PREFIX {landmark}",     // e.g. "just gone {landmark}"
 
-    // Quiz questions and answers for approaching / just gone (TLR-based)
-    approaching_quizQ:        "QUIZ_Q_APPROACHING",  // e.g. "How do you say 'almost / approaching …' in [TLR]?"
-    approaching_validAnswers: ["TLR_APPROX_ANS1","TLR_APPROX_ANS2"],
-    approaching_hint:         "HINT_APPROACHING",
-    justgone_quizQ:           "QUIZ_Q_JUSTGONE",
-    justgone_validAnswers:    ["TLR_GONE_ANS1","TLR_GONE_ANS2"],
-    justgone_hint:            "HINT_JUSTGONE",
+    // Quiz questions and answers for approaching / just gone
+    approaching_quizQ:      "QUIZ_Q_APPROACHING",  // e.g. "How do you say 'almost / approaching …' in [TL]?"
+    approaching_validAnswers: ["TL_APPROX_ANS1","TL_APPROX_ANS2"],
+    approaching_hint:        "HINT_APPROACHING",
+    justgone_quizQ:          "QUIZ_Q_JUSTGONE",
+    justgone_validAnswers:   ["TL_GONE_ANS1","TL_GONE_ANS2"],
+    justgone_hint:           "HINT_JUSTGONE",
 
     // Quiz question template for regular past/to minutes
-    // {sl} is replaced with the SL phrase at runtime.
-    // LOGOGRAPHIC CONVENTION: asks for the TLR (romanized) reproduction.
-    regular_quizQ: "QUIZ_Q_REGULAR_TEMPLATE",  // e.g. "How do you say '{sl}' in [TLR]?"
+    // {sl} is replaced with the SL phrase at runtime
+    regular_quizQ: "QUIZ_Q_REGULAR_TEMPLATE",  // e.g. "How do you say '{sl}' in [TL]?"
 
-    // Hint templates for regular past/to minutes
-    // {tlr_n} replaced with TLR number word at runtime
-    regular_past_hint: "HINT_REGULAR_PAST_TEMPLATE",  // e.g. 'Also: "TLR_PAST_PREFIX {tlr_n}" (informal)'
+    // Hint template for regular past minutes
+    // {tl_n} replaced with TL number word at runtime
+    regular_past_hint: "HINT_REGULAR_PAST_TEMPLATE",  // e.g. 'Also: "TL_PAST_PREFIX {tl_n}" (informal)'
     regular_to_hint:   "HINT_REGULAR_TO_TEMPLATE"
 };
 // =====================================================================
@@ -602,29 +575,9 @@ const LANG = {
 
 
 // --- Apply UI strings from config -----------------------------------
-document.getElementById('title-box').textContent       = LANG.titles[0]; // TLR by default
-document.getElementById('quizInput').placeholder        = LANG.quiz_placeholder;
-document.getElementById('quizCheck').textContent        = LANG.quiz_button;
-document.getElementById('quizDiacriticNote').textContent = LANG.diacritic_instructions;
-
-// --- Answer normalization (handles diacritics in TLR answers) --------
-const AnswerUtils = {
-    normalize: function(text) {
-        let t = text.toLowerCase();
-        LANG.diacritic_map.forEach(([accented, plain]) => {
-            t = t.split(accented).join(plain);
-        });
-        if (LANG.collapse_double_vowels) {
-            t = t.replace(/aa/g,'a').replace(/ee/g,'e').replace(/ii/g,'i')
-                 .replace(/oo/g,'o').replace(/uu/g,'u');
-        }
-        return t.replace(/[()]/g,'').replace(/\s+/g,' ').trim();
-    },
-    checkAnswer: function(userInput, validAnswers) {
-        const norm = this.normalize(userInput);
-        return validAnswers.some(a => norm === this.normalize(a));
-    }
-};
+document.getElementById('title-box').textContent = LANG.titles[0];
+document.getElementById('quizInput').placeholder  = LANG.quiz_placeholder;
+document.getElementById('quizCheck').textContent  = LANG.quiz_button;
 
 // Build legend
 (function buildLegend() {
@@ -665,7 +618,6 @@ function buildMinuteData() {
     const data = [];
     const SL = LANG.sl_numbers;
     const TL = LANG.tl_numbers;
-    const TLR = LANG.tlr_numbers;
 
     for (let m = 0; m < 60; m++) {
         const toMin = 60 - m;
@@ -677,7 +629,6 @@ function buildMinuteData() {
                 m, type: m === 0 ? 'oclock' : 'quarter',
                 color: m === 0 ? COLORS.oclock : COLORS.quarter,
                 tl: kp.tl, tlSpecial: kp.tl_display, tlSpecialClass: 'key',
-                tlr: kp.tlr, tlrSpecial: kp.tlr_display, tlrSpecialClass: 'key',
                 sl: kp.sl, slAlt: kp.sl_alt || null, slSpecial: kp.sl_special || null,
                 quizQ: kp.quizQ,
                 validAnswers: kp.validAnswers,
@@ -689,17 +640,13 @@ function buildMinuteData() {
         if (LANG.landmarks[m]) {
             const lm = LANG.landmarks[m];
             const isPast = m < 30;
-            const tlPrecise  = isPast ? LANG.tl_past(m)  : LANG.tl_to(toMin);
-            const tlrPrecise = isPast ? LANG.tlr_past(m) : LANG.tlr_to(toMin);
-            const slPrecise  = isPast ? LANG.sl_past(m)  : LANG.sl_to(toMin);
+            const tlPrecise = isPast ? LANG.tl_past(m) : LANG.tl_to(toMin);
+            const slPrecise = isPast ? LANG.sl_past(m) : LANG.sl_to(toMin);
             data.push({
                 m, type: 'approaching', color: COLORS.approaching,
                 tl: tlPrecise,
                 tlSpecial: LANG.tl_approaching.replace('{landmark}', lm.tl_landmark),
                 tlSpecialClass: 'appr',
-                tlr: tlrPrecise,
-                tlrSpecial: LANG.tlr_approaching.replace('{landmark}', lm.tlr_landmark),
-                tlrSpecialClass: 'appr',
                 sl: slPrecise,
                 slAlt: isPast ? LANG.sl_past_alt(slPrecise) : LANG.sl_to_alt(slPrecise),
                 slSpecial: LANG.sl_approaching.replace('{landmark}', lm.sl_landmark),
@@ -713,17 +660,13 @@ function buildMinuteData() {
         if (LANG.goneLandmarks[m]) {
             const lm = LANG.goneLandmarks[m];
             const isPast = m < 30;
-            const tlPrecise  = isPast ? LANG.tl_past(m)  : LANG.tl_to(toMin);
-            const tlrPrecise = isPast ? LANG.tlr_past(m) : LANG.tlr_to(toMin);
-            const slPrecise  = isPast ? LANG.sl_past(m)  : LANG.sl_to(toMin);
+            const tlPrecise = isPast ? LANG.tl_past(m) : LANG.tl_to(toMin);
+            const slPrecise = isPast ? LANG.sl_past(m) : LANG.sl_to(toMin);
             data.push({
                 m, type: 'justgone', color: COLORS.justgone,
                 tl: tlPrecise,
                 tlSpecial: LANG.tl_justgone.replace('{landmark}', lm.tl_landmark),
                 tlSpecialClass: 'gone',
-                tlr: tlrPrecise,
-                tlrSpecial: LANG.tlr_justgone.replace('{landmark}', lm.tlr_landmark),
-                tlrSpecialClass: 'gone',
                 sl: slPrecise,
                 slAlt: isPast ? LANG.sl_past_alt(slPrecise) : LANG.sl_to_alt(slPrecise),
                 slSpecial: LANG.sl_justgone.replace('{landmark}', lm.sl_landmark),
@@ -736,42 +679,38 @@ function buildMinuteData() {
         // Regular past (1–29, excluding specials)
         if (m > 0 && m < 30) {
             const is5 = m % 5 === 0;
-            const tlPr  = LANG.tl_past(m);
-            const tlrPr = LANG.tlr_past(m);
-            const slPr  = LANG.sl_past(m);
+            const tlPr = LANG.tl_past(m);
+            const slPr = LANG.sl_past(m);
             data.push({
                 m, type: 'past', color: is5 ? COLORS.past5 : COLORS.past,
                 tl: tlPr, tlSpecial: null, tlSpecialClass: null,
-                tlr: tlrPr, tlrSpecial: null, tlrSpecialClass: null,
                 sl: slPr, slAlt: LANG.sl_past_alt(slPr), slSpecial: null,
                 quizQ: LANG.regular_quizQ.replace('{sl}',
                     slPr.replace(/[()]/g,'').replace(/\s+/g,' ').trim()),
                 validAnswers: [
-                    LANG.tlr_past(m),
-                    LANG.tlr_past(m).replace(/\s*\([^)]*\)/g,'').trim()
+                    LANG.tl_past(m),
+                    LANG.tl_past(m).replace(/\s*\([^)]*\)/g,'').trim()
                 ],
-                hint: LANG.regular_past_hint.replace('{tlr_n}', TLR[m])
+                hint: LANG.regular_past_hint.replace('{tl_n}', TL[m])
             }); continue;
         }
 
         // Regular to (31–59, excluding specials)
         if (m > 30 && m < 60) {
             const is5 = m % 5 === 0;
-            const tlPr  = LANG.tl_to(toMin);
-            const tlrPr = LANG.tlr_to(toMin);
-            const slPr  = LANG.sl_to(toMin);
+            const tlPr = LANG.tl_to(toMin);
+            const slPr = LANG.sl_to(toMin);
             data.push({
                 m, type: 'to', color: is5 ? COLORS.to5 : COLORS.to,
                 tl: tlPr, tlSpecial: null, tlSpecialClass: null,
-                tlr: tlrPr, tlrSpecial: null, tlrSpecialClass: null,
                 sl: slPr, slAlt: LANG.sl_to_alt(slPr), slSpecial: null,
                 quizQ: LANG.regular_quizQ.replace('{sl}',
                     slPr.replace(/[()]/g,'').replace(/\s+/g,' ').trim()),
                 validAnswers: [
-                    LANG.tlr_to(toMin),
-                    LANG.tlr_to(toMin).replace(/\s*\([^)]*\)/g,'').trim()
+                    LANG.tl_to(toMin),
+                    LANG.tl_to(toMin).replace(/\s*\([^)]*\)/g,'').trim()
                 ],
-                hint: LANG.regular_to_hint.replace('{tlr_n}', TLR[toMin])
+                hint: LANG.regular_to_hint.replace('{tl_n}', TL[toMin])
             }); continue;
         }
     }
@@ -831,25 +770,12 @@ function buildClock() {
 
 // --- Tooltip builder ------------------------------------------------
 function buildTooltip(d) {
-    const elTlrSp = document.getElementById('tip-tlr-special');
-    const elTlr   = document.getElementById('tip-tlr');
-    const elTlSp  = document.getElementById('tip-tl-special');
-    const elTl    = document.getElementById('tip-tl');
-    const elSl    = document.getElementById('tip-sl');
-    const elSlAlt = document.getElementById('tip-sl-alt');
-    const elSlSp  = document.getElementById('tip-sl-special');
+    const elTlSp = document.getElementById('tip-tl-special');
+    const elTl   = document.getElementById('tip-tl');
+    const elSl   = document.getElementById('tip-sl');
+    const elSlAlt= document.getElementById('tip-sl-alt');
+    const elSlSp = document.getElementById('tip-sl-special');
 
-    // TLR — primary (logographic default display)
-    if (d.tlrSpecial) {
-        elTlrSp.textContent   = d.tlrSpecial;
-        elTlrSp.className     = `tip-tlr-special ${d.tlrSpecialClass || ''}`;
-        elTlrSp.style.display = 'block';
-    } else {
-        elTlrSp.style.display = 'none';
-    }
-    elTlr.textContent = d.tlr;
-
-    // TL — secondary (target language script)
     if (d.tlSpecial) {
         elTlSp.textContent   = d.tlSpecial;
         elTlSp.className     = `tip-tl-special ${d.tlSpecialClass || ''}`;
@@ -857,8 +783,7 @@ function buildTooltip(d) {
     } else {
         elTlSp.style.display = 'none';
     }
-    elTl.textContent = d.tl;
-
+    elTl.textContent    = d.tl;
     elSl.textContent    = d.sl;
     elSlAlt.textContent = d.slAlt    ? `also: ${d.slAlt}` : '';
     elSlSp.textContent  = d.slSpecial ? `(${d.slSpecial})` : '';
@@ -882,7 +807,8 @@ function checkAnswer() {
     const d     = MINUTES[currentQuizMin];
     const input = document.getElementById('quizInput').value;
     const fb    = document.getElementById('quizFeedback');
-    const match = AnswerUtils.checkAnswer(input, d.validAnswers);
+    const norm  = s => s.toLowerCase().replace(/[()]/g,'').replace(/\s+/g,' ').trim();
+    const match = d.validAnswers.some(a => norm(input) === norm(a));
 
     if (match) {
         fb.textContent = LANG.quiz_correct;
@@ -941,15 +867,15 @@ function init() {
         // preserveAspectRatio="xMidYMid meet", but the .a4-page container
         // is NOT square (90vw × 70vh) — so the square content is
         // letterboxed (centered, with blank padding added to the wider
-        // dimension) rather than stretched. The previous version divided
-        // directly by rect.width/rect.height, which includes that
-        // letterbox padding — so a mouse position in the blank space
-        // beside the actual clock face was still being mapped into the
-        // 0-100 coordinate range as if it were real content, letting the
-        // hand activate far outside the visible clock (e.g. at 20%/80%
-        // of the full frame width, well outside the clock face itself).
-        // Fix: compute the true rendered size/position of the square
-        // content within the (possibly non-square) bounding rect first.
+        // dimension) rather than stretched. Dividing directly by
+        // rect.width/rect.height (which includes that letterbox padding)
+        // let a mouse position in the blank space beside the actual clock
+        // face still map into the 0-100 coordinate range as if it were
+        // real content, letting the hand activate far outside the visible
+        // clock (e.g. at 20%/80% of the full frame width, well outside
+        // the clock face itself). Fix: compute the true rendered
+        // size/position of the square content within the (possibly
+        // non-square) bounding rect first.
         const q = (function () { const pt = svgEl.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; return pt.matrixTransform(svgEl.getScreenCTM().inverse()); })();   /* kit: the real map from screen to drawing, whatever the view box */
         const svgX = q.x, svgY = q.y;
 
@@ -1175,6 +1101,65 @@ document.addEventListener('DOMContentLoaded', init);
         window.addEventListener('resize', function () { if (wasOpen) place(); });
     })();
     </script>
+<script>
+// --- Tools menu: Colours, Text size, Print (2026-11-22, as in Parts of the Day) ---
+(function () {
+    const $ = id => document.getElementById(id);
+    const wrap = $('toolsWrap'), menu = $('toolsMenu'), tb = $('toolsBtn'); if (!wrap) return;
+    tb.addEventListener('click', e => { e.stopPropagation(); menu.classList.toggle('active'); });
+    document.addEventListener('click', e => { if (!wrap.contains(e.target)) menu.classList.remove('active'); });
+    $('printBtn').addEventListener('click', e => { e.stopPropagation(); menu.classList.remove('active'); setTimeout(() => window.print(), 50); });
+
+    // Colours: Default -> No colour -> Night
+    const SCHEMES = [['Default', ''], ['No colour', 'nocolour'], ['Night', 'night']];
+    let ci = 0; const cb = $('colourBtn');
+    cb.addEventListener('click', e => {
+        e.stopPropagation(); ci = (ci + 1) % SCHEMES.length;
+        if (SCHEMES[ci][1]) document.documentElement.setAttribute('data-scheme', SCHEMES[ci][1]); else document.documentElement.removeAttribute('data-scheme');
+        cb.textContent = 'Colours: ' + SCHEMES[ci][0];
+    });
+
+    // Text size: choose the words (title, clock numbers, colour key, words in the tip) then slide; or tick All words
+    const panel = $('textSizePanel'), range = $('tsRange'), val = $('tsVal'), grp = $('tsGroup'), all = $('tsAll');
+    const scales = {};
+    const sc = k => Math.min(3, Math.max(0.5, (scales[k] || 1) * (scales.all || 1)));
+    function size(el, k, cap) {
+        if (el.__base === undefined) { if (sc(k) === 1) return; el.__base = parseFloat(getComputedStyle(el).fontSize); }
+        el.style.fontSize = (el.__base * Math.min(cap || 3, sc(k))) + 'px';
+    }
+    window.tsApply = function () {
+        size($('title-box'), 'title'); size($('legend'), 'legend');
+        document.querySelectorAll('#tip .tip-inner > div').forEach(d => size(d, 'tip'));
+        document.querySelectorAll('#numeral-group text').forEach(t => {   // the numbers stay inside the ring: at most 180%
+            if (t.__base === undefined) { if (sc('numerals') === 1) return; t.__base = parseFloat(t.getAttribute('font-size')); }
+            t.setAttribute('font-size', t.__base * Math.min(1.8, sc('numerals')));
+        });
+    };
+    function show() {
+        const v = all.checked ? (scales.all || 1) : (scales[grp.value] || 1);
+        range.value = Math.round(v * 100); val.textContent = Math.round(v * 100) + '%'; grp.disabled = all.checked;
+    }
+    document.addEventListener('pointerdown', e => {   // a click on the title picks it
+        if (panel.contains(e.target)) return;
+        if (e.target.closest && e.target.closest('#title-box')) { grp.value = 'title'; if (panel.style.display === 'block') { all.checked = false; show(); } }
+    }, true);
+    range.addEventListener('input', () => { const v = range.value / 100; if (all.checked) scales.all = v; else scales[grp.value] = v; val.textContent = range.value + '%'; window.tsApply(); });
+    grp.addEventListener('change', show); all.addEventListener('change', show);
+    $('tsReset').addEventListener('click', () => { Object.keys(scales).forEach(k => delete scales[k]); window.tsApply(); show(); });
+    $('tsClose').addEventListener('click', () => { panel.style.display = 'none'; });
+    $('textSizeBtn').addEventListener('click', e => {
+        e.stopPropagation(); menu.classList.remove('active'); panel.style.display = 'block';
+        if (!panel.dataset.moved) { const r = panel.getBoundingClientRect(); panel.style.left = Math.max(4, (window.innerWidth - r.width) / 2) + 'px'; panel.style.top = '70px'; }
+        show();
+    });
+    (function () {   // the panel can be moved by its header
+        const head = panel.querySelector('.tsHead'); let d = null;
+        head.addEventListener('pointerdown', e => { if (e.target.id === 'tsClose') return; const r = panel.getBoundingClientRect(); d = { dx: e.clientX - r.left, dy: e.clientY - r.top }; panel.dataset.moved = '1'; head.setPointerCapture(e.pointerId); });
+        head.addEventListener('pointermove', e => { if (d) { panel.style.left = (e.clientX - d.dx) + 'px'; panel.style.top = (e.clientY - d.dy) + 'px'; } });
+        head.addEventListener('pointerup', () => { d = null; });
+    })();
+})();
+</script>
 <script>window.__KIT = { share: 0.93, hintTouch: "Touch the ring and slide a finger round it to hear each minute. Pinch with two fingers to zoom.", hint: "Move over the ring to hear each minute and see its words." };</script>
 <script id="kit-script">
 /* ==== CONCEPTIONARY PHONE KIT (c) 2026 Alan William Preston ==== */
