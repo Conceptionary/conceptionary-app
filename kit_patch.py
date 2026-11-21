@@ -193,6 +193,13 @@ def cal(s):
         s=once(s,"    return str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();","    let t = str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();\n    (LANG.digraph_map || []).forEach(([a, b]) => { t = t.split(a).join(b); });   /* a long vowel written two ways (ou / ei) */\n    return t;")
         s=once(s,"    diacritic_chars: [],","    diacritic_chars: [],\n    digraph_map: [],   /* optional pairs treated as one when checking, e.g. [[\"ou\",\"o\"],[\"ei\",\"e\"]] */")
     return s
+def ttt(s):
+    """Telling the Time (60-minute ring): the Quiz stays hidden (class ttt-phone in the file itself); pinch and Full Screen zoom, bigger ring on a phone, 44 px buttons; the mouse hand-tracking uses the real screen-to-drawing map so a changed view box cannot upset it."""
+    if 'window.__KIT = {' not in s: s=once(s,'<script id="kit-script">','<script>window.__KIT = { share: 0.93, hintTouch: "Touch the ring and slide a finger round it to hear each minute. Pinch with two fingers to zoom.", hint: "Move over the ring to hear each minute and see its words." };</script>\n<script id="kit-script">')
+    if 'kit: the real map' not in s:
+        s,n=re.subn(r"        const renderedSize = Math\.min\(rect\.width, rect\.height\);.*?const svgY = [^\n]*\n","        const q = (function () { const pt = svgEl.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; return pt.matrixTransform(svgEl.getScreenCTM().inverse()); })();   /* kit: the real map from screen to drawing, whatever the view box */\n        const svgX = q.x, svgY = q.y;\n",s,count=1,flags=re.S)
+        assert n==1,'TTT: mousemove block not found'
+    return s
 def run(path):
     s=open(path).read()
     s=re.sub(r'<style id="kit-style">.*?</style>\n','',s,flags=re.S); s=re.sub(r'<script id="kit-script">.*?</script>\n','',s,flags=re.S)
@@ -220,6 +227,7 @@ def run(path):
     if 'cmp/' in path: s=cmp_(s)
     if 'day/' in path: s=day(s)
     if 'cal/' in path: s=cal(s)
+    if 'ttt/' in path: s=ttt(s)
     if 'clk/' in path: s=clk(s)
     if 'rice/' in path: s=rice(s)
     else: s=wrapit(s,path)

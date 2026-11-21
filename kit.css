@@ -88,3 +88,5 @@ html.kit-phone .quiz-container button#quizTick { flex: 0 0 48px; height: 46px; b
 html.kit-fs #svgCanvas { transform-origin: 0 0; will-change: transform; }
 html.kit-phone #kitProgress.kit-cal { bottom: 100px; left: 12px; }
 @media (max-height: 520px) and (orientation: landscape) { html.kit-phone #kitProgress.kit-cal { left: auto; right: 14px; bottom: 14px; } }
+/* TELLING THE TIME: 44 px buttons on touch screens */
+@media (pointer: coarse) { html #ttCtl button, html #ttCtl .tb { min-height: 44px; min-width: 44px; } }
