@@ -82,8 +82,8 @@
   }
 
   /* 3. PROGRESS, FIRST-USE HINT, CELEBRATION --------------------------------------------------------------------------------------- */
-  var page = document.querySelector('.a4-page'), prog = document.createElement('div'), partyEl = document.createElement('div'), hintEl = document.createElement('div');
-  prog.id = 'kitProgress'; partyEl.id = 'kitParty'; hintEl.id = 'kitHint';
+  var page = document.querySelector('.a4-page') || (CFG.progHost && document.querySelector(CFG.progHost)), prog = document.createElement('div'), partyEl = document.createElement('div'), hintEl = document.createElement('div');
+  prog.id = 'kitProgress'; if (CFG.progHost) prog.className = 'kit-day'; if (CFG.progClass) prog.className = CFG.progClass; partyEl.id = 'kitParty'; hintEl.id = 'kitHint';
   if (page) page.appendChild(prog); document.body.appendChild(partyEl); document.body.appendChild(hintEl);
   function total() { try { if (window.__kitCount) return window.__kitCount()[1]; return CFG.total ? CFG.total() : tbe().length; } catch (e) { return 0; } }
   function learnedN() { if (window.__kitCount) { try { return window.__kitCount()[0]; } catch (e) { return 0; } } return tbe().filter(function (fo) { return fo && fo.classList.contains('learned'); }).length; }   /* counted on the words of the mode now showing */
@@ -103,6 +103,7 @@
   var tdp = document.getElementById('transDisplay'); if (tdp) new MutationObserver(repaint).observe(tdp, { childList: true, characterData: true, subtree: true });   /* two-mode templates (Rice): transition words show here */
   paint(true); window.addEventListener('load', function () { setTimeout(function () { lastTot = total(); paint(true); }, 300); setTimeout(function () { lastTot = total(); paint(true); }, 1200); });
   var seen = false; try { seen = localStorage.getItem('conceptionary-hint-v1') === '1'; } catch (e) {}
+  if (CFG.noHint) seen = true;   /* a template with its own instruction panel (Calendar) */
   if (!seen) {
     var touch = window.matchMedia('(pointer: coarse)').matches;
     hintEl.textContent = lab('first_hint', touch ? (CFG.hintTouch || 'Drag the sun. Tap a word to see it in the other language. Pinch with two fingers to zoom.' ): (CFG.hint || 'Drag the sun. Click a word to see it in the other language.'));
@@ -115,7 +116,7 @@
   /* 4. ANSWERS: alternatives (LANG.alt_answers = { "Autumn": ["Fall"] }) and "almost" feedback ------------------------------------- */
   function norm(t) { return String(t == null ? '' : t).toLowerCase().replace(/<[^>]*>/g, '').replace(/[\s\-!?.,;:'"’‘“”()]/g, ''); }
   window.__kitAlt = function (input, correct) {
-    var alts = (window.LANG && LANG.alt_answers && LANG.alt_answers[String(correct).replace(/<[^>]*>/g, '')]) || [];
+    var LG = (typeof LANG !== 'undefined') ? LANG : window.LANG, alts = (LG && LG.alt_answers && LG.alt_answers[String(correct).replace(/<[^>]*>/g, '')]) || [];   /* LANG is a const in the templates, so it is not on window */
     var n = norm(input); return alts.some(function (a) { return norm(a) === n; });
   };
   window.__kitNear = function (input, correct) {
@@ -217,7 +218,7 @@
 
   /* 7. RESET BUTTON for Days of the Week (the Seasons files already have one): back to the opening view, all learned words cleared -- */
   (function () {
-    var ctl = document.getElementById('cmpCtl');
+    var ctl = document.getElementById('cmpCtl') || document.getElementById('dayCtl');
     if (!ctl || document.getElementById('reset-btn') || (typeof daysOfWeekData === 'undefined' && !window.__kitReset)) return;
     var b = document.createElement('button'); b.id = 'reset-btn'; b.type = 'button'; b.className = 'tb kit-icon';
     var t = lab('reset_label', 'Reset'); b.title = t; b.setAttribute('aria-label', t);
@@ -227,7 +228,7 @@
       try {
         if (window.__cmpReset) window.__cmpReset();
         var q = document.getElementById('quizContainer'); if (q) q.style.display = 'none';
-        currentQuizIndex = -1; document.getElementById('quizInput').value = ''; document.getElementById('quizFeedback').textContent = '';
+        if (typeof currentQuizIndex !== 'undefined') currentQuizIndex = -1; document.getElementById('quizInput').value = ''; document.getElementById('quizFeedback').textContent = '';
         if (window.__kitReset) { window.__kitReset(); return; }   /* templates with their own reset steps (Compass) */
         learnedItems.fill(false); addedLearnedItems.fill(false);
         var li = document.getElementById('learned-items'); if (li) li.innerHTML = '';

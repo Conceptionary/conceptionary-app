@@ -130,6 +130,69 @@ window.__kitReset = function () {   /* phone kit: the Reset button - every learn
         s=once(s,'    <div id="quizFeedback" class="quizFeedback"></div>','    <div id="quizDiacriticNote" style="font-size:12px;color:#555;margin-top:8px;"></div>\n    <div id="quizFeedback" class="quizFeedback"></div>')
         s=once(s,"    document.getElementById('quizInput').focus();\n","    document.getElementById('quizInput').focus();\n    document.getElementById('quizDiacriticNote').textContent = LANG.diacritic_instructions || '';\n")
     return s
+def clk(s):
+    """Clock: a live analogue clock with greeting / time / part-of-day panels. No Quiz, no frame: the kit adds the Full Screen zoom (of #clock), touch targets and the first-use hint."""
+    if 'window.__KIT = {' not in s: s=once(s,'<script id="kit-script">','<script>window.__KIT = { svgId: "clock", nofit: true, hintTouch: "Set a time with the Hour and Min buttons. Touch a box to see what it asks. Pinch with two fingers to zoom.", hint: "Set a time with the Hour and Min buttons. Move over a box to see what it asks." };   /* Clock: nothing to fit or learn; Full Screen zoom moves the clock face */</script>\n<script id="kit-script">')
+    return s
+def cal(s):
+    """Calendar (365-day ring): ids already match the kit; the ring is svg #svgCanvas; Show All words are measured to fit the phone view; Learned counter counts the special days."""
+    if 'window.__KIT = {' not in s:
+        cfg = r"""<script>window.__KIT = { noHint: true, nofit: true, progClass: 'kit-cal' };   /* Calendar: its own instruction panel replaces the first-use hint; the view box is fitted by the code below */
+(function () {
+  var svg = document.getElementById('svgCanvas'), phone = window.matchMedia('(max-width: 700px) and (orientation: portrait)'), busy = false, pend = 0;
+  window.__kitCount = function () { return [SPECIAL.filter(function (x) { return learned[x.i]; }).length, SPECIAL.length]; };   /* phone kit: Learned n/total */
+  function wrapWords() {   /* portrait phone: a Show All phrase of two or more words breaks onto 2 lines, so the ring can stay big (kept as ONE text string in __full; the audio looks it up by textContent) */
+    var g = document.getElementById('showAllLayer'); if (!g) return;
+    Array.prototype.forEach.call(g.children, function (t) {
+      var plain = !t.firstChild || t.firstChild.nodeType === 3;
+      if (plain) t.__full = t.textContent;
+      var full = t.__full || t.textContent, want = phone.matches && full.indexOf(' ') > 0 && full.length > 12;
+      if (!plain && !want) { t.textContent = full; return; }
+      if (!(plain && want)) return;
+      var w = full.split(' '), best = 1, bd = 1e9, i, n;
+      for (i = 1; i < w.length; i++) { n = w.slice(0, i).join(' ').length; if (Math.abs(n - (full.length - n - 1)) < bd) { bd = Math.abs(n - (full.length - n - 1)); best = i; } }
+      var l1 = w.slice(0, best).join(' '), l2 = w.slice(best).join(' '), x = t.getAttribute('x'), y = +t.getAttribute('y'), up = t.getAttribute('text-anchor') === 'middle' ? (y < 50 ? -1.1 : 0) : -0.55;
+      t.textContent = ''; [l1 + ' ', l2].forEach(function (ln, k) { var ts = document.createElementNS('http://www.w3.org/2000/svg', 'tspan'); ts.setAttribute('x', x); ts.setAttribute('dy', (k ? 1.1 : up) + 'em'); ts.textContent = ln; t.appendChild(ts); });
+      t.__full = full;
+    });
+  }
+  function fit() {   /* portrait phone: the ring is made as big as the words around it allow */
+    if (busy || !svg) return; busy = true;
+    try {
+      wrapWords();
+      var cw = svg.clientWidth, ch = svg.clientHeight; if (!cw || !ch) return;
+      var m0 = phone.matches ? 8.5 : 0, m1 = 100 - m0, x0 = m0, x1 = m1, y0 = m0, y1 = m1, g = document.getElementById('showAllLayer');   /* phone: the ring only; otherwise the whole 100 x 100 drawing, as before */
+      if (g) Array.prototype.forEach.call(g.children, function (t) { try { var b = t.getBBox(); x0 = Math.min(x0, b.x); x1 = Math.max(x1, b.x + b.width); y0 = Math.min(y0, b.y); y1 = Math.max(y1, b.y + b.height); } catch (e) {} });
+      if (phone.matches || g) { x0 -= 1.5; x1 += 1.5; y0 -= 1.5; y1 += 1.5; }   /* the view box is centred on the ring AND its words, so a long word on one side does not shrink the ring on the other */
+      var vw = Math.max(x1 - x0, (y1 - y0) * cw / ch), vh = vw * ch / cw, vb = ((x0 + x1) / 2 - vw / 2) + ' ' + ((y0 + y1) / 2 - vh / 2) + ' ' + vw + ' ' + vh;
+      if (svg.getAttribute('viewBox') !== vb) svg.setAttribute('viewBox', vb);
+    } finally { busy = false; }
+  }
+  function soon() { cancelAnimationFrame(pend); pend = requestAnimationFrame(fit); }
+  if (svg) {
+    new MutationObserver(function () { if (!busy) soon(); }).observe(svg, { childList: true, subtree: true, attributes: true, attributeFilter: ['x', 'y', 'style', 'transform', 'font-size', 'class'] });
+    window.addEventListener('resize', soon); window.addEventListener('orientationchange', soon); window.addEventListener('load', function () { setTimeout(soon, 50); setTimeout(soon, 400); });
+    if (phone.addEventListener) phone.addEventListener('change', soon); soon();
+  }
+  (function () {   /* Tools menu: Exercises & Tests (the User Manual button is already there) */
+    var m = document.getElementById('userManualBtn'); if (!m || document.getElementById('exercisesBtn')) return;
+    var x = document.createElement('button'); x.id = 'exercisesBtn'; x.type = 'button'; x.textContent = 'Exercises & Tests'; x.title = 'Practise this vocabulary (opens the Index of Exercises)';
+    m.parentNode.insertBefore(x, m.nextSibling);
+    x.addEventListener('click', function (e) { e.stopPropagation(); var dd = document.querySelector('.tools-dropdown'); if (dd) dd.classList.remove('active'); window.open('https://sites.google.com/view/conceptionary/home/index-of-exercises', '_blank', 'noopener'); });
+  })();
+})();
+</script>
+<script id="kit-script">"""
+        s=once(s,'<script id="kit-script">',cfg)
+    if 'window.__kitLast = { input: answer, correct: sp.' not in s:
+        m=re.search(r"const exact +=\s*answer\.toLowerCase\(\) === sp\.(tlr|tl)\.toLowerCase\(\);",s)
+        assert m,'CAL: no exact line'
+        k=m.group(1)
+        s=once(s,"    if (exact || normalized) {","    window.__kitLast = { input: answer, correct: sp."+k+", ok: false };\n    if (exact || normalized || window.__kitAlt(answer, sp."+k+")) {")
+    if 'digraph_map' not in s:
+        s=once(s,"    return str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();","    let t = str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();\n    (LANG.digraph_map || []).forEach(([a, b]) => { t = t.split(a).join(b); });   /* a long vowel written two ways (ou / ei) */\n    return t;")
+        s=once(s,"    diacritic_chars: [],","    diacritic_chars: [],\n    digraph_map: [],   /* optional pairs treated as one when checking, e.g. [[\"ou\",\"o\"],[\"ei\",\"e\"]] */")
+    return s
 def run(path):
     s=open(path).read()
     s=re.sub(r'<style id="kit-style">.*?</style>\n','',s,flags=re.S); s=re.sub(r'<script id="kit-script">.*?</script>\n','',s,flags=re.S)
@@ -156,6 +219,8 @@ def run(path):
     if 'sw/' in path: s=sw(s)
     if 'cmp/' in path: s=cmp_(s)
     if 'day/' in path: s=day(s)
+    if 'cal/' in path: s=cal(s)
+    if 'clk/' in path: s=clk(s)
     if 'rice/' in path: s=rice(s)
     else: s=wrapit(s,path)
     open(path,'w').write(s); print('patched',path)

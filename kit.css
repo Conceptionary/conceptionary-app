@@ -70,3 +70,21 @@ html.kit-phone .quiz-container #quiz-question { flex: 1 1 100%; margin: 0 2px 5p
 html .text-box.active:not(.learned):not(.sa) { cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 html .text-box.active:not(.learned):not(.sa):hover, html .text-box.active:not(.learned).grab, html .text-box.active:not(.learned).held { background: #fff176; border-color: #b8860b; color: #000; }
 html .text-box.lifted { z-index: 1000; box-shadow: 0 8px 24px rgba(0,0,0,.45); cursor: grabbing; }
+/* CLOCK: the face zooms in Full Screen (the middle column clips it); bigger buttons on touch screens */
+html #clock { touch-action: pinch-zoom; }
+html.kit-fs #clock { touch-action: none; transform-origin: 0 0; will-change: transform; }
+html.kit-fs .center-area { overflow: hidden; }
+@media (pointer: coarse) { html .controls button { min-height: 44px; min-width: 44px; } }
+/* CALENDAR: tap targets, the phone Quiz (its own tick button and question row), word sizes */
+@media (pointer: coarse) {
+  html .tools-bar button, html .tools-dropdown button { min-height: 44px; }
+  html #audioWrap, html .tools-bar #audioBtn { min-height: 44px; }
+}
+html.kit-phone .quiz-container #quizQuestion { flex: 1 1 100%; margin: 0 2px 5px !important; font-size: 13px; line-height: 1.25; text-align: center; }
+html.kit-phone .quiz-container #quizGrab { display: none; }
+html.kit-phone .quiz-container .quizRow { flex: 1 1 100%; margin: 0; }
+html.kit-phone .quiz-container .quizRow input { height: 46px; border-radius: 10px !important; }
+html.kit-phone .quiz-container button#quizTick { flex: 0 0 48px; height: 46px; border-radius: 10px !important; }
+html.kit-fs #svgCanvas { transform-origin: 0 0; will-change: transform; }
+html.kit-phone #kitProgress.kit-cal { bottom: 100px; left: 12px; }
+@media (max-height: 520px) and (orientation: landscape) { html.kit-phone #kitProgress.kit-cal { left: auto; right: 14px; bottom: 14px; } }
