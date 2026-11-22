@@ -1,5 +1,5 @@
 # Conceptionary
-2026-08-21
+2026-11-22
 An interactive vocabulary-learning system built on a simple idea: a word's
 position on a visual template encodes its meaning. Instead of an
 alphabetical list, a concept like "quality" or "freshness" is laid out as
@@ -26,26 +26,53 @@ end-to-end as a working proof of the full pipeline: navigate the map,
 land on a real template, see real vocabulary. Most locations are not yet
 populated with content.
 
+**Circular ("CR") family.** The circular templates (months of the year,
+days of the week, lunar and tidal cycles, seasons, rice growing, steering
+wheel, compass, parts of the day, clock, calendar and telling the time)
+now share one phone kit: pinch-zoom, a Full Screen zoom, a Quiz that sits
+at the top of a phone screen, Reset, a Learned counter, and 44 px touch
+targets. Each exists as a phonographic (ROM) and a logographic (LOG)
+version.
+
+**Worked models.** Ready-made language-pair examples (target language →
+source language) are provided for several of these templates, in
+Indonesian → English and Japanese → English, plus German and Indonesian
+examples for the seasons templates. Their vocabulary was drafted with
+Claude's help and is still being reviewed.
+
 ## Running it
 
-`Conceptionary_App.html` loads local project data via a folder-picker
+`index.html` is the application. It loads local project data via a folder-picker
 (Chrome's File System Access API, with a fallback for Firefox/Safari) —
 click **Load** inside the app and select your local clone of this
 repository. It reads `registry/`, `concept_cards/`, and `templates/`
 directly from whatever folder is selected.
 
+**Template list (phone, tablet and desktop).** The published site also
+has a template list page (`templates.html`) that opens any template or
+worked example in a viewer, with Home / Prev / Next and Full Screen. It
+can be installed as an offline app: open the site once online, then press
+**Update** after each new push so the phone downloads the new files.
+
 ## Structure
 
 ```
-Conceptionary_App.html      the application
+index.html                  the application
+templates.html, view.html   template list page and viewer
 registry/                   the concept registry and location index data
 concept_cards/               vocabulary content, one JSON file per concept
 templates/
   phonographic/               templates for alphabetic/romanized target languages
   logographic/                templates for Japanese, Chinese, Korean, Arabic, Thai
+examples/
+  id-en/, ja-en/, en-de/      worked language-pair models
+conceptionary-templates.js  list of templates and examples shown on the list page
+conceptionary-update.js     the Update button
+kit.js, kit.css, kit_patch.py   shared phone kit and the tool that applies it
+sw.js, manifest.webmanifest, icons/   offline installation
+Conceptionary_diacritic_spelling_conventions.html   spelling conventions for diacritic input
 ```
 
 ## License
 
 © 2026 Alan William Preston
- 
