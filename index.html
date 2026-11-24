@@ -1931,7 +1931,13 @@ async function injectAndOpen(templatePath, langConfig, card) {
         const zones = []; let zm;
         while (tb && (zm = zr.exec(tb[0])) !== null) zones.push([Number(zm[1]), Number(zm[2])]);
         if (zones.length !== langConfig.transitionsData.length) {
-          throw new Error(templatePath.split('/').pop() + ' needs ' + zones.length + ' transitions, but this card has ' + langConfig.transitionsData.length);
+          // An older card with its own number of transitions: derive the zones from the
+          // card's positions (boundaries at the midpoints between neighbours; first starts
+          // at 0, last ends at 100) instead of refusing to open.
+          console.warn(templatePath.split('/').pop() + ' has ' + zones.length + ' zones but the card has ' + langConfig.transitionsData.length + ' transitions: zones derived from the card positions.');
+          const ps = langConfig.transitionsData.map(r => Number(r[3]));
+          zones.length = 0;
+          ps.forEach((pv, i) => zones.push([i === 0 ? 0 : (ps[i - 1] + pv) / 2, i === ps.length - 1 ? 100 : (pv + ps[i + 1]) / 2]));
         }
         data = langConfig.transitionsData.map((r, i) => [r[4], r[0], r[1], zones[i][0], zones[i][1]]);
       } else {
