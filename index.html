@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-11-18 @ 9:58 a.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-11-24 (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <!--
   CONCEPTIONARY — Standalone Web Application
@@ -896,7 +896,6 @@ body {
     <button class="hdr-nav-btn" data-tab="browse">📚 Browse</button>
     <button class="hdr-nav-btn" data-tab="search">🔍 Search</button>
     <a class="hdr-nav-btn" href="https://conceptionary.github.io/conceptionary-app/templates.html" target="_blank" rel="noopener" title="Open the list of all templates" style="text-decoration:none">🧩 Templates</a>
-    <button class="hdr-nav-btn" id="hdrUpdBtn" type="button" title="Update: fetch the newest templates and concepts onto this device">🔄 Update</button>
   </div>
 
   <div class="hdr-lang">
@@ -1250,9 +1249,6 @@ body {
     <a class="mob-btn" href="https://conceptionary.github.io/conceptionary-app/templates.html" target="_blank" rel="noopener" style="text-decoration:none">
       <span class="mbi">🧩</span><span class="mbl">Templates</span>
     </a>
-    <button class="mob-btn" id="mobUpdBtn" type="button" title="Update: fetch the newest templates and concepts onto this device">
-      <span class="mbi">🔄</span><span class="mbl">Update</span>
-    </button>
   </div>
 </nav>
 
@@ -1866,8 +1862,12 @@ async function injectAndOpen(templatePath, langConfig, card) {
     }
 
     function remapRow(r) {
-      if (isRomGTCV || isCRDOW || isCRMOY) return [r[1], r[0], r[2], r[3], ...(r.slice(4))];
-      if (isLogGTCV) return [r[1], r[0], r[4], r[2], r[3]];
+      // 2026-11-24: the GTCV-family chassis (ROM-GTCV, LOG-GTCV and the GTCVI / GPCV files built
+      // from them) has been TL-first since the October rebuild: ROM [TL, SL, Quiz, pos],
+      // LOG [TLR, TL, SL, Quiz, pos]. The old SL-first swap showed English as the target language.
+      if (isRomGTCV) return r;
+      if (isCRDOW || isCRMOY) return [r[1], r[0], r[2], r[3], ...(r.slice(4))];
+      if (isLogGTCV) return [r[4], r[0], r[1], r[2], r[3]];
       return r;
     }
 
@@ -1924,20 +1924,16 @@ async function injectAndOpen(templatePath, langConfig, card) {
         // HT: words from the card, zone start/end from the template
         data = langConfig.transitionsData.map((r, i) => remapHTRow(r, ht.trans[i]));
       } else if (isLogGTCV) {
-        // LOG-GTCV transitionsData is an array of OBJECTS, not flat arrays.
-        // Card format: [TL, SL, Quiz, Position, TLR]
-        // After remap:  [SL, TL, TLR, Quiz, Position]
-        //   [0]=SL, [1]=TL, [2]=TLR, [3]=Quiz, [4]=Position
-        // LOG-GTCV expects objects with these properties:
-        //   { process (SL), targetLanguage (TL), romanized (TLR),
-        //     sourceLanguage (SL), positionPercent (Position) }
-        data = langConfig.transitionsData.map(r => ({
-          process:          r[1],   // SL — used as the process label/concept indicator
-          targetLanguage:   r[0],   // TL (kanji/kana)
-          romanized:        r[4],   // TLR (romaji)
-          sourceLanguage:   r[1],   // SL (English)
-          positionPercent:  r[3]    // Position
-        }));
+        // LOG-GTCV-family transitions are [TLR, TL, SL, zoneStart, zoneEnd]: the words come
+        // from the card ([TL, SL, Quiz, pos, TLR]); the zone numbers belong to the template.
+        const zr = /\[\s*"[^"]*"\s*,\s*"[^"]*"\s*,\s*"[^"]*"\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*\]/g;
+        const tb = html.match(/const transitionsData\s*=\s*\[[\s\S]*?\n\s*\];/);
+        const zones = []; let zm;
+        while (tb && (zm = zr.exec(tb[0])) !== null) zones.push([Number(zm[1]), Number(zm[2])]);
+        if (zones.length !== langConfig.transitionsData.length) {
+          throw new Error(templatePath.split('/').pop() + ' needs ' + zones.length + ' transitions, but this card has ' + langConfig.transitionsData.length);
+        }
+        data = langConfig.transitionsData.map((r, i) => [r[4], r[0], r[1], zones[i][0], zones[i][1]]);
       } else {
         data = langConfig.transitionsData.map(remapRow);
       }
@@ -1969,12 +1965,38 @@ async function injectAndOpen(templatePath, langConfig, card) {
         () => `const modeToggleLabels = ${JSON.stringify(modeLabels, null, 12)};`
       );
     }
-    // Inject titleTexts
+    // Inject GT5L / IT5L continuation vocabulary (Line 1+ / Line 3+ words and their
+    // transition-mode verbs). Rows are already in the template's native column order.
+    for (const extName of ['extensionData', 'extension1TransitionData', 'extension2TransitionData']) {
+      if (Array.isArray(langConfig[extName])) {
+        const extRe = new RegExp('const ' + extName + '\\s*=\\s*\\[[\\s\\S]*?\\n\\s*\\];');
+        if (extRe.test(html)) {
+          html = html.replace(extRe, () => `const ${extName} = ${JSON.stringify(langConfig[extName], null, 12)};`);
+        } else {
+          console.warn('This template has no ' + extName + ' block; the card\'s ' + extName + ' was not used.');
+        }
+      }
+    }
+    // Inject titleTexts. The first title is the concept's archilexeme (target
+    // language first, as the audio does); the click cycle steps through the list.
     if (langConfig.titles) {
+      const titles = JSON.parse(JSON.stringify(langConfig.titles));
+      // The template's title click cycles through a fixed count (e.g. % 3). If the card
+      // supplies fewer titles, make the cycle follow the list's real length instead.
+      const cycRe = /currentTextIndex\s*=\s*\(currentTextIndex\s*\+\s*1\)\s*%\s*\d+/;
+      if (cycRe.test(html) && ['states', 'transitions'].every(k => Array.isArray(titles[k]) && titles[k].length > 0)) {
+        html = html.replace(cycRe, "currentTextIndex = (currentTextIndex + 1) % titleTexts[isStatesMode ? 'states' : 'transitions'].length");
+      }
       html = html.replace(
         /const titleTexts\s*=\s*\{[\s\S]*?\};/,
-        () => `const titleTexts = ${JSON.stringify(langConfig.titles, null, 10)};`
+        () => `const titleTexts = ${JSON.stringify(titles, null, 10)};`
       );
+      // The opening title is hard-coded in the template's HTML ("Generic Concept
+      // Spectrum" etc.) and is only replaced once the title is clicked: set it now.
+      if (Array.isArray(titles.states) && titles.states[0]) {
+        const first = String(titles.states[0]).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+        html = html.replace(/(<div id="title-box" class="title-box">)[^<]*(<\/div>)/, (m, a, b) => a + first + b);
+      }
     }
     // Inject UI strings
     if (langConfig.ui) {
@@ -2627,26 +2649,6 @@ document.addEventListener('DOMContentLoaded', () => {
 <script>
 /* 2026-11-17 Offline use: on the live site this saves the templates on the device (see sw.js). Opened as a plain local file it does nothing. */
 if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) { window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); }); }
-</script>
-<script src="conceptionary-update.js"></script>
-<script>
-/* 2026-11-18 The Update button (header and phone bar): fetches the newest template list, pages, templates and concept registry onto this device (see conceptionary-update.js), then reloads. */
-(function () {
-  var btns = [document.getElementById('hdrUpdBtn'), document.getElementById('mobUpdBtn')].filter(Boolean);
-  function label(b, t) { var l = b.querySelector('.mbl'); if (l) l.textContent = t; else b.textContent = '🔄 ' + t; }
-  btns.forEach(function (b) {
-    b.addEventListener('click', function () {
-      btns.forEach(function (x) { x.disabled = true; });
-      window.conceptionaryUpdate({
-        onStatus: function (t) {
-          var m = /^Updating (\d+) of (\d+)/.exec(t);
-          if (m) { btns.forEach(function (x) { label(x, m[1] + '/' + m[2]); }); } else { var u = /^Updated: (\d+) templates/.exec(t); showToast(u ? 'Updated: ' + u[1] + ' templates saved' : t.length > 42 ? t.slice(0, 40) + '…' : t, 6000); }
-        },
-        done: function () { btns.forEach(function (x) { x.disabled = false; label(x, 'Update'); }); }
-      });
-    });
-  });
-})();
 </script>
 </body>
 </html>

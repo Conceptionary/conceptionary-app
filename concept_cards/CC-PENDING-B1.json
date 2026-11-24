@@ -1,0 +1,586 @@
+{
+  "id": "CC-PENDING-B1",
+  "version": "0.1",
+  "created": "2026-11-23",
+  "last_updated": "2026-11-24",
+  "status": "draft",
+  "concept": {
+    "name": "Rise and Fall in a Figure",
+    "description": "A single measured figure that builds gradually to a peak and then subsides back towards where it began.",
+    "scope_note": "WHAT IS QUANTIFIED: the level of ONE measured figure over time (a price, rate, total, count, index), described by direction and size of change from its starting level. It is NOT 'how much / how many' (countable vs uncountable), NOT comparison between two things (-er / more than) and NOT sufficiency (enough / too). Those are separate cards.",
+    "taxonomy_path": "Quantitative → Change in a figure",
+    "shape": "Upward curve then return (gradual, temporary)",
+    "template_family": "GTCV",
+    "template_id": "ROM-GTCV",
+    "modes_used": [
+      "states",
+      "transitions"
+    ],
+    "notes": "Rising side 10 states, peak, falling side 9 states (chassis needs exactly 20 states and 10 transitions). Positions are the GTCV chassis values. Rename id from cc-index.json. Parallel sudden/process version: CC-PENDING-B2 (GT5L)."
+  },
+  "language_pairs": {
+    "EN-ID": {
+      "source_language": "English",
+      "target_language": "Bahasa Indonesia",
+      "track": "phonographic",
+      "generated_by": "claude-sonnet-5-5",
+      "generated_date": "2026-11-23",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "review_note": "Vocabulary written by Claude - awaiting Alan's review.",
+      "lang_config": {
+        "titles": {
+          "states": [
+            "Naik dan Turunnya Sebuah Angka",
+            "Rise and Fall in a Figure"
+          ],
+          "transitions": [
+            "Naik dan Turunnya Sebuah Angka",
+            "Rise and Fall in a Figure"
+          ]
+        },
+        "ui": {
+          "show_tl_label": "Tampilkan: Bahasa Indonesia",
+          "show_sl_label": "Tampilkan: Bahasa Inggris",
+          "show_states_label": "Tampilkan Keadaan",
+          "show_transitions_label": "Tampilkan Perubahan",
+          "hide_all_label": "Sembunyikan Semua",
+          "show_all_label": "Tampilkan Semua",
+          "reset_label": "Atur Ulang",
+          "quiz_placeholder": "Ketik kata dalam Bahasa Indonesia…",
+          "quiz_button": "Periksa",
+          "quiz_correct": "Benar! ✓",
+          "quiz_wrong": "Coba lagi"
+        },
+        "conceptData": [
+          [
+            "stabil",
+            "steady",
+            "Bagaimana mengatakan 'steady' dalam Bahasa Indonesia?",
+            5
+          ],
+          [
+            "naik tipis",
+            "barely higher",
+            "Bagaimana mengatakan 'barely higher' dalam Bahasa Indonesia?",
+            9.44
+          ],
+          [
+            "naik sedikit",
+            "slightly higher",
+            "Bagaimana mengatakan 'slightly higher' dalam Bahasa Indonesia?",
+            13.89
+          ],
+          [
+            "agak naik",
+            "a little higher",
+            "Bagaimana mengatakan 'a little higher' dalam Bahasa Indonesia?",
+            18.33
+          ],
+          [
+            "cukup naik",
+            "somewhat higher",
+            "Bagaimana mengatakan 'somewhat higher' dalam Bahasa Indonesia?",
+            22.78
+          ],
+          [
+            "naik jelas",
+            "noticeably higher",
+            "Bagaimana mengatakan 'noticeably higher' dalam Bahasa Indonesia?",
+            27.22
+          ],
+          [
+            "naik banyak",
+            "considerably higher",
+            "Bagaimana mengatakan 'considerably higher' dalam Bahasa Indonesia?",
+            31.67
+          ],
+          [
+            "naik jauh",
+            "much higher",
+            "Bagaimana mengatakan 'much higher' dalam Bahasa Indonesia?",
+            36.11
+          ],
+          [
+            "naik tajam",
+            "sharply higher",
+            "Bagaimana mengatakan 'sharply higher' dalam Bahasa Indonesia?",
+            40.56
+          ],
+          [
+            "dua kali lipat",
+            "double its starting level",
+            "Bagaimana mengatakan 'double its starting level' dalam Bahasa Indonesia?",
+            45
+          ],
+          [
+            "di puncaknya",
+            "at its peak",
+            "Bagaimana mengatakan 'at its peak' dalam Bahasa Indonesia?",
+            50
+          ],
+          [
+            "tepat di bawah puncak",
+            "just below its peak",
+            "Bagaimana mengatakan 'just below its peak' dalam Bahasa Indonesia?",
+            55
+          ],
+          [
+            "turun sedikit",
+            "slightly down from its peak",
+            "Bagaimana mengatakan 'slightly down from its peak' dalam Bahasa Indonesia?",
+            60
+          ],
+          [
+            "turun",
+            "down from its peak",
+            "Bagaimana mengatakan 'down from its peak' dalam Bahasa Indonesia?",
+            65
+          ],
+          [
+            "turun jauh",
+            "well down from its peak",
+            "Bagaimana mengatakan 'well down from its peak' dalam Bahasa Indonesia?",
+            70
+          ],
+          [
+            "turun tajam",
+            "sharply down from its peak",
+            "Bagaimana mengatakan 'sharply down from its peak' dalam Bahasa Indonesia?",
+            75
+          ],
+          [
+            "tinggal separuh",
+            "down to half its peak",
+            "Bagaimana mengatakan 'down to half its peak' dalam Bahasa Indonesia?",
+            80
+          ],
+          [
+            "tinggal sedikit",
+            "down to a fraction of its peak",
+            "Bagaimana mengatakan 'down to a fraction of its peak' dalam Bahasa Indonesia?",
+            85
+          ],
+          [
+            "hampir pulih",
+            "almost back to its starting level",
+            "Bagaimana mengatakan 'almost back to its starting level' dalam Bahasa Indonesia?",
+            90
+          ],
+          [
+            "pulih",
+            "back to its starting level",
+            "Bagaimana mengatakan 'back to its starting level' dalam Bahasa Indonesia?",
+            95
+          ]
+        ],
+        "transitionsData": [
+          [
+            "bertahan stabil",
+            "holding steady",
+            "Bagaimana mengatakan 'holding steady' dalam Bahasa Indonesia?",
+            1
+          ],
+          [
+            "merangkak naik",
+            "edging up",
+            "Bagaimana mengatakan 'edging up' dalam Bahasa Indonesia?",
+            15
+          ],
+          [
+            "naik",
+            "rising",
+            "Bagaimana mengatakan 'rising' dalam Bahasa Indonesia?",
+            25
+          ],
+          [
+            "terus menanjak",
+            "climbing",
+            "Bagaimana mengatakan 'climbing' dalam Bahasa Indonesia?",
+            35
+          ],
+          [
+            "melonjak",
+            "shooting up",
+            "Bagaimana mengatakan 'shooting up' dalam Bahasa Indonesia?",
+            45
+          ],
+          [
+            "mencapai puncak",
+            "peaking",
+            "Bagaimana mengatakan 'peaking' dalam Bahasa Indonesia?",
+            50
+          ],
+          [
+            "melandai",
+            "easing off",
+            "Bagaimana mengatakan 'easing off' dalam Bahasa Indonesia?",
+            55
+          ],
+          [
+            "turun",
+            "falling",
+            "Bagaimana mengatakan 'falling' dalam Bahasa Indonesia?",
+            65
+          ],
+          [
+            "anjlok",
+            "plunging",
+            "Bagaimana mengatakan 'plunging' dalam Bahasa Indonesia?",
+            75
+          ],
+          [
+            "kembali stabil",
+            "settling back",
+            "Bagaimana mengatakan 'settling back' dalam Bahasa Indonesia?",
+            78
+          ]
+        ],
+        "diacritic_map": [],
+        "collapse_double_vowels": false,
+        "figure_phrases": [
+          [
+            "up 3%",
+            "naik 3 persen"
+          ],
+          [
+            "down 12%",
+            "turun 12 persen"
+          ],
+          [
+            "doubled",
+            "naik dua kali lipat"
+          ],
+          [
+            "halved",
+            "turun separuh"
+          ],
+          [
+            "from 5% to 8%",
+            "dari 5 persen menjadi 8 persen"
+          ],
+          [
+            "a record high",
+            "rekor tertinggi"
+          ]
+        ]
+      }
+    },
+    "EN-JA": {
+      "source_language": "English",
+      "target_language": "Japanese",
+      "track": "logographic",
+      "generated_by": "claude-sonnet-5-5",
+      "generated_date": "2026-11-24",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "review_note": "Vocabulary written by Claude - awaiting Alan's review.",
+      "lang_config": {
+        "ui": {
+          "show_tlr_label": "ローマ字を表示",
+          "show_tl_label": "日本語を表示",
+          "show_sl_label": "英語を表示",
+          "show_states_label": "状態を表示",
+          "show_transitions_label": "変化を表示",
+          "hide_all_label": "すべて隠す",
+          "show_all_label": "すべて表示",
+          "reset_label": "リセット",
+          "quiz_placeholder": "ローマ字で入力してください…",
+          "quiz_button": "確認",
+          "quiz_correct": "正解！ ✓",
+          "quiz_wrong": "もう一度",
+          "diacritic_instructions": "ヒント：長音符（ā, ī, ū, ē, ō）は a, i, u, e, o のまま、または aa, ii, uu, ee, oo / ou でも入力できます。"
+        },
+        "diacritic_map": [
+          [
+            "ā",
+            "a"
+          ],
+          [
+            "ī",
+            "i"
+          ],
+          [
+            "ū",
+            "u"
+          ],
+          [
+            "ē",
+            "e"
+          ],
+          [
+            "ō",
+            "o"
+          ]
+        ],
+        "digraph_map": [
+          [
+            "ou",
+            "o"
+          ]
+        ],
+        "collapse_double_vowels": true,
+        "titles": {
+          "states": [
+            "Kazu no agari-sagari",
+            "数字の上がり下がり",
+            "Rise and Fall in a Figure"
+          ],
+          "transitions": [
+            "Kazu no agari-sagari",
+            "数字の上がり下がり",
+            "Rise and Fall in a Figure"
+          ]
+        },
+        "conceptData": [
+          [
+            "横ばい",
+            "steady",
+            "How do you say 'steady' in Japanese? (romaji)",
+            5,
+            "Yokobai"
+          ],
+          [
+            "微増",
+            "barely higher",
+            "How do you say 'barely higher' in Japanese? (romaji)",
+            9.44,
+            "Bizō"
+          ],
+          [
+            "小幅上昇",
+            "slightly higher",
+            "How do you say 'slightly higher' in Japanese? (romaji)",
+            13.89,
+            "Kohaba jōshō"
+          ],
+          [
+            "少し高い",
+            "a little higher",
+            "How do you say 'a little higher' in Japanese? (romaji)",
+            18.33,
+            "Sukoshi takai"
+          ],
+          [
+            "やや高め",
+            "somewhat higher",
+            "How do you say 'somewhat higher' in Japanese? (romaji)",
+            22.78,
+            "Yaya takame"
+          ],
+          [
+            "はっきり上昇",
+            "noticeably higher",
+            "How do you say 'noticeably higher' in Japanese? (romaji)",
+            27.22,
+            "Hakkiri jōshō"
+          ],
+          [
+            "大幅上昇",
+            "considerably higher",
+            "How do you say 'considerably higher' in Japanese? (romaji)",
+            31.67,
+            "Ōhaba jōshō"
+          ],
+          [
+            "はるかに高い",
+            "much higher",
+            "How do you say 'much higher' in Japanese? (romaji)",
+            36.11,
+            "Haruka ni takai"
+          ],
+          [
+            "急上昇",
+            "sharply higher",
+            "How do you say 'sharply higher' in Japanese? (romaji)",
+            40.56,
+            "Kyū jōshō"
+          ],
+          [
+            "倍増",
+            "double its starting level",
+            "How do you say 'double its starting level' in Japanese? (romaji)",
+            45,
+            "Baizō"
+          ],
+          [
+            "ピーク",
+            "at its peak",
+            "How do you say 'at its peak' in Japanese? (romaji)",
+            50,
+            "Pīku"
+          ],
+          [
+            "ピークの少し下",
+            "just below its peak",
+            "How do you say 'just below its peak' in Japanese? (romaji)",
+            55,
+            "Pīku no sukoshi shita"
+          ],
+          [
+            "小幅下落",
+            "slightly down from its peak",
+            "How do you say 'slightly down from its peak' in Japanese? (romaji)",
+            60,
+            "Kohaba geraku"
+          ],
+          [
+            "下落",
+            "down from its peak",
+            "How do you say 'down from its peak' in Japanese? (romaji)",
+            65,
+            "Geraku"
+          ],
+          [
+            "大幅下落",
+            "well down from its peak",
+            "How do you say 'well down from its peak' in Japanese? (romaji)",
+            70,
+            "Ōhaba geraku"
+          ],
+          [
+            "急落",
+            "sharply down from its peak",
+            "How do you say 'sharply down from its peak' in Japanese? (romaji)",
+            75,
+            "Kyūraku"
+          ],
+          [
+            "半減",
+            "down to half its peak",
+            "How do you say 'down to half its peak' in Japanese? (romaji)",
+            80,
+            "Hangen"
+          ],
+          [
+            "激減",
+            "down to a fraction of its peak",
+            "How do you say 'down to a fraction of its peak' in Japanese? (romaji)",
+            85,
+            "Gekigen"
+          ],
+          [
+            "ほぼ元の水準",
+            "almost back to its starting level",
+            "How do you say 'almost back to its starting level' in Japanese? (romaji)",
+            90,
+            "Hobo moto no suijun"
+          ],
+          [
+            "元の水準",
+            "back to its starting level",
+            "How do you say 'back to its starting level' in Japanese? (romaji)",
+            95,
+            "Moto no suijun"
+          ]
+        ],
+        "transitionsData": [
+          [
+            "横ばいが続く",
+            "holding steady",
+            "How do you say 'holding steady' in Japanese? (romaji)",
+            1,
+            "Yokobai ga tsuzuku"
+          ],
+          [
+            "じわじわ上がる",
+            "edging up",
+            "How do you say 'edging up' in Japanese? (romaji)",
+            15,
+            "Jiwajiwa agaru"
+          ],
+          [
+            "上がる",
+            "rising",
+            "How do you say 'rising' in Japanese? (romaji)",
+            25,
+            "Agaru"
+          ],
+          [
+            "上昇する",
+            "climbing",
+            "How do you say 'climbing' in Japanese? (romaji)",
+            35,
+            "Jōshō suru"
+          ],
+          [
+            "急騰する",
+            "shooting up",
+            "How do you say 'shooting up' in Japanese? (romaji)",
+            45,
+            "Kyūtō suru"
+          ],
+          [
+            "ピークに達する",
+            "peaking",
+            "How do you say 'peaking' in Japanese? (romaji)",
+            50,
+            "Pīku ni tassuru"
+          ],
+          [
+            "勢いが弱まる",
+            "easing off",
+            "How do you say 'easing off' in Japanese? (romaji)",
+            55,
+            "Ikioi ga yowamaru"
+          ],
+          [
+            "下がる",
+            "falling",
+            "How do you say 'falling' in Japanese? (romaji)",
+            65,
+            "Sagaru"
+          ],
+          [
+            "激しく下がる",
+            "plunging",
+            "How do you say 'plunging' in Japanese? (romaji)",
+            75,
+            "Hageshiku sagaru"
+          ],
+          [
+            "落ち着く",
+            "settling back",
+            "How do you say 'settling back' in Japanese? (romaji)",
+            78,
+            "Ochitsuku"
+          ]
+        ],
+        "figure_phrases": [
+          [
+            "up 3%",
+            "3％上昇",
+            "San pāsento jōshō"
+          ],
+          [
+            "down 12%",
+            "12％下落",
+            "Jūni pāsento geraku"
+          ],
+          [
+            "doubled",
+            "倍増",
+            "Baizō"
+          ],
+          [
+            "halved",
+            "半減",
+            "Hangen"
+          ],
+          [
+            "from 5% to 8%",
+            "5％から8％へ",
+            "Go pāsento kara hachi pāsento e"
+          ],
+          [
+            "a record high",
+            "過去最高",
+            "Kako saikō"
+          ]
+        ]
+      }
+    }
+  }
+}

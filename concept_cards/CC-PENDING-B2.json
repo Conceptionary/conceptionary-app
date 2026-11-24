@@ -1,0 +1,332 @@
+{
+  "id": "CC-PENDING-B2",
+  "version": "0.1",
+  "created": "2026-11-23",
+  "last_updated": "2026-11-24",
+  "status": "draft",
+  "concept": {
+    "name": "Step Change in a Figure",
+    "description": "A figure that moves from one settled level to another in a move with a definite start and finish, holds the new level, then moves back in a second definite move.",
+    "scope_note": "WHAT IS QUANTIFIED: the level of ONE measured figure over time (a price, rate, total, count, index), described by direction and size of change from its starting level. It is NOT 'how much / how many' (countable vs uncountable), NOT comparison between two things (-er / more than) and NOT sufficiency (enough / too). Those are separate cards.",
+    "taxonomy_path": "Quantitative → Change in a figure",
+    "shape": "Stepped change, reversible (distinct start and finish to each move)",
+    "template_family": "GT5L",
+    "template_id": "ROM-GT5L-7TB",
+    "modes_used": [
+      "states",
+      "transitions"
+    ],
+    "notes": "GT5L because each move has a distinct beginning and end (e.g. a rate raised on a set date); contrast B1 (GTCV). Lines 1/3/5 = settled levels, lines 2/4 = the two moves. Line 1+ / Line 3+ carry reference-level words."
+  },
+  "language_pairs": {
+    "EN-ID": {
+      "source_language": "English",
+      "target_language": "Bahasa Indonesia",
+      "track": "phonographic",
+      "generated_by": "claude-sonnet-5-5",
+      "generated_date": "2026-11-23",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "review_note": "Vocabulary written by Claude - awaiting Alan's review.",
+      "lang_config": {
+        "titles": {
+          "states": [
+            "Perubahan Level Sebuah Angka",
+            "Step Change in a Figure"
+          ],
+          "transitions": [
+            "Perubahan Level Sebuah Angka",
+            "Step Change in a Figure"
+          ]
+        },
+        "ui": {
+          "show_tl_label": "Tampilkan: Bahasa Indonesia",
+          "show_sl_label": "Tampilkan: Bahasa Inggris",
+          "show_states_label": "Tampilkan Keadaan",
+          "show_transitions_label": "Tampilkan Perubahan",
+          "hide_all_label": "Sembunyikan Semua",
+          "show_all_label": "Tampilkan Semua",
+          "reset_label": "Atur Ulang",
+          "quiz_placeholder": "Ketik kata dalam Bahasa Indonesia…",
+          "quiz_button": "Periksa",
+          "quiz_correct": "Benar! ✓",
+          "quiz_wrong": "Coba lagi"
+        },
+        "conceptData": [
+          [
+            "di level awal",
+            "at its starting level",
+            "Bagaimana mengatakan 'at its starting level' dalam Bahasa Indonesia?",
+            12.5
+          ],
+          [
+            "sedang naik",
+            "on its way up",
+            "Bagaimana mengatakan 'on its way up' dalam Bahasa Indonesia?",
+            31.25
+          ],
+          [
+            "di level yang lebih tinggi",
+            "at the higher level",
+            "Bagaimana mengatakan 'at the higher level' dalam Bahasa Indonesia?",
+            50
+          ],
+          [
+            "sedang turun",
+            "on its way down",
+            "Bagaimana mengatakan 'on its way down' dalam Bahasa Indonesia?",
+            68.75
+          ],
+          [
+            "kembali ke level awal",
+            "back at its starting level",
+            "Bagaimana mengatakan 'back at its starting level' dalam Bahasa Indonesia?",
+            87.5
+          ]
+        ],
+        "transitionsData": [
+          [
+            "bertahan di level awal",
+            "holding at the starting level",
+            "Bagaimana mengatakan 'holding at the starting level' dalam Bahasa Indonesia?",
+            0
+          ],
+          [
+            "naik",
+            "going up",
+            "Bagaimana mengatakan 'going up' dalam Bahasa Indonesia?",
+            20
+          ],
+          [
+            "bertahan di level tinggi",
+            "holding at the higher level",
+            "Bagaimana mengatakan 'holding at the higher level' dalam Bahasa Indonesia?",
+            40
+          ],
+          [
+            "turun",
+            "coming down",
+            "Bagaimana mengatakan 'coming down' dalam Bahasa Indonesia?",
+            60
+          ],
+          [
+            "kembali stabil",
+            "holding steady again",
+            "Bagaimana mengatakan 'holding steady again' dalam Bahasa Indonesia?",
+            80
+          ]
+        ],
+        "extensionData": [
+          [
+            "level awal (sebagai pembanding)",
+            "the original level (for comparison)",
+            "Bagaimana mengatakan 'the original level (for comparison)' dalam Bahasa Indonesia?"
+          ],
+          [
+            "level tinggi (sebagai pembanding)",
+            "the raised level (for comparison)",
+            "Bagaimana mengatakan 'the raised level (for comparison)' dalam Bahasa Indonesia?"
+          ]
+        ],
+        "extension1TransitionData": [
+          [
+            "tetap sama",
+            "staying unchanged",
+            "Bagaimana mengatakan 'staying unchanged' dalam Bahasa Indonesia?"
+          ]
+        ],
+        "extension2TransitionData": [
+          [
+            "tetap tinggi",
+            "staying up",
+            "Bagaimana mengatakan 'staying up' dalam Bahasa Indonesia?"
+          ]
+        ],
+        "alt_answers": {
+          "naik": [
+            "dinaikkan"
+          ],
+          "turun": [
+            "diturunkan"
+          ]
+        },
+        "diacritic_map": [],
+        "collapse_double_vowels": false,
+        "build_note": "Mapped to ROM-GT5L-7TB-Generic: 5 states (pos 12.5..87.5), 5 transitions (0,20,40,60,80), 2 continuation words (Line 1+, Line 3+) and 1+1 continuation verbs. index.html does not yet inject extensionData / extension1TransitionData / extension2TransitionData or accept alt_answers for GT5L - needs a small App patch."
+      }
+    },
+    "EN-JA": {
+      "source_language": "English",
+      "target_language": "Japanese",
+      "track": "logographic",
+      "generated_by": "claude-sonnet-5-5",
+      "generated_date": "2026-11-24",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "review_note": "Vocabulary written by Claude - awaiting Alan's review.",
+      "lang_config": {
+        "ui": {
+          "show_tlr_label": "ローマ字を表示",
+          "show_tl_label": "日本語を表示",
+          "show_sl_label": "英語を表示",
+          "show_states_label": "状態を表示",
+          "show_transitions_label": "変化を表示",
+          "hide_all_label": "すべて隠す",
+          "show_all_label": "すべて表示",
+          "reset_label": "リセット",
+          "quiz_placeholder": "ローマ字で入力してください…",
+          "quiz_button": "確認",
+          "quiz_correct": "正解！ ✓",
+          "quiz_wrong": "もう一度",
+          "diacritic_instructions": "ヒント：長音符（ā, ī, ū, ē, ō）は a, i, u, e, o のまま、または aa, ii, uu, ee, oo / ou でも入力できます。"
+        },
+        "diacritic_map": [
+          [
+            "ā",
+            "a"
+          ],
+          [
+            "ī",
+            "i"
+          ],
+          [
+            "ū",
+            "u"
+          ],
+          [
+            "ē",
+            "e"
+          ],
+          [
+            "ō",
+            "o"
+          ]
+        ],
+        "digraph_map": [
+          [
+            "ou",
+            "o"
+          ]
+        ],
+        "collapse_double_vowels": true,
+        "titles": {
+          "states": [
+            "Kazu no suijun no henka",
+            "数字の水準の変化",
+            "Step Change in a Figure"
+          ],
+          "transitions": [
+            "Kazu no suijun no henka",
+            "数字の水準の変化",
+            "Step Change in a Figure"
+          ]
+        },
+        "conceptData": [
+          [
+            "Moto no suijun",
+            "元の水準",
+            "at its starting level",
+            "How do you say 'at its starting level' in Japanese? (romaji)",
+            12.5
+          ],
+          [
+            "Jōshō-chū",
+            "上昇中",
+            "on its way up",
+            "How do you say 'on its way up' in Japanese? (romaji)",
+            31.25
+          ],
+          [
+            "Takai suijun",
+            "高い水準",
+            "at the higher level",
+            "How do you say 'at the higher level' in Japanese? (romaji)",
+            50
+          ],
+          [
+            "Kakō-chū",
+            "下降中",
+            "on its way down",
+            "How do you say 'on its way down' in Japanese? (romaji)",
+            68.75
+          ],
+          [
+            "Moto ni modotta",
+            "元に戻った",
+            "back at its starting level",
+            "How do you say 'back at its starting level' in Japanese? (romaji)",
+            87.5
+          ]
+        ],
+        "transitionsData": [
+          [
+            "Moto no suijun o tamotsu",
+            "元の水準を保つ",
+            "holding at the starting level",
+            0,
+            22.65
+          ],
+          [
+            "Agaru",
+            "上がる",
+            "going up",
+            22.65,
+            38.67
+          ],
+          [
+            "Takai suijun o tamotsu",
+            "高い水準を保つ",
+            "holding at the higher level",
+            38.67,
+            61.33
+          ],
+          [
+            "Sagaru",
+            "下がる",
+            "coming down",
+            61.33,
+            77.35
+          ],
+          [
+            "Antei o torimodosu",
+            "安定を取り戻す",
+            "holding steady again",
+            77.35,
+            100
+          ]
+        ],
+        "extensionData": [
+          [
+            "Moto no suijun (hikaku-yō)",
+            "元の水準（比較用）",
+            "the original level (for comparison)",
+            "How do you say 'the original level (for comparison)' in Japanese? (romaji)"
+          ],
+          [
+            "Takai suijun (hikaku-yō)",
+            "高い水準（比較用）",
+            "the raised level (for comparison)",
+            "How do you say 'the raised level (for comparison)' in Japanese? (romaji)"
+          ]
+        ],
+        "extension1TransitionData": [
+          [
+            "Kawaranai",
+            "変わらない",
+            "staying unchanged"
+          ]
+        ],
+        "extension2TransitionData": [
+          [
+            "Takai mama",
+            "高いまま",
+            "staying up"
+          ]
+        ],
+        "build_note": "Rows are in LOG-GT5L-7TB native column order ([TLR,TL,SL,Quiz,pos]); the App injects GT5L rows as-is."
+      }
+    }
+  }
+}
