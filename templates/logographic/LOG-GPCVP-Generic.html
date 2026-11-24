@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-10-30 @ 12:08 a.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-11-25 @ 12:45 a.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1090,9 +1090,70 @@
 </style>
 <style>
 /* 2026-10-30 light frame + SL once: lighter yellow fill so text under the frame stays readable (outline unchanged) */
-#draggableFrame, #statesFrame, #transitionsFrame, #transitionFrame, .frame, .transition-frame, .yellow-frame { fill: rgba(255, 255, 0, 0.16) !important; }
-#draggableFrame:hover, #statesFrame:hover, #transitionsFrame:hover, #transitionFrame:hover, .frame:hover, .transition-frame:hover, .yellow-frame:hover { fill: rgba(255, 255, 0, 0.26) !important; }
-#draggableFrame.dragging, #statesFrame.dragging, #transitionsFrame.dragging, #transitionFrame.dragging, .frame.dragging, .transition-frame.dragging, .yellow-frame.dragging { fill: rgba(255, 255, 0, 0.26) !important; }
+#draggableFrame, #statesFrame, #transitionsFrame, #transitionFrame, .frame, .transition-frame, .yellow-frame { fill: rgba(255, 255, 0, 0.24) !important; }
+#draggableFrame:hover, #statesFrame:hover, #transitionsFrame:hover, #transitionFrame:hover, .frame:hover, .transition-frame:hover, .yellow-frame:hover { fill: rgba(255, 255, 0, 0.39) !important; }
+#draggableFrame.dragging, #statesFrame.dragging, #transitionsFrame.dragging, #transitionFrame.dragging, .frame.dragging, .transition-frame.dragging, .yellow-frame.dragging { fill: rgba(255, 255, 0, 0.39) !important; }
+</style>
+
+<style id="gtcv-phone-css">
+/* GTCV-PHONE-KIT v1 (2026-11-24): pinch zoom, pull-out words, black scheme, no volume slider, touch targets */
+.a4-page, #svgCanvas, #svgCanvas text, #draggableFrame { touch-action: pinch-zoom !important; }
+.page-wrapper { touch-action: manipulation; }
+#svgCanvas text { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+#audioWrap { padding-bottom: 0 !important; }
+#audioWrap #auVol2, #audioPanel .auVol { display: none !important; }
+html[style*="--cx-scheme: black"] body, html[style*="--cx-scheme: black"] .page-wrapper { background: #000 !important; }
+html[style*="--cx-scheme: black"] .a4-page { background: #000 !important; border-color: #fff !important; }
+html[style*="--cx-scheme: black"] .title-box, html[style*="--cx-scheme: black"] .mode-indicator, html[style*="--cx-scheme: black"] .concept-indicator,
+html[style*="--cx-scheme: black"] .level-indicator, html[style*="--cx-scheme: black"] .path-indicator { background: #000 !important; color: #fff !important; border-color: #fff !important; text-shadow: none !important; }
+html[style*="--cx-scheme: black"] .watermark { color: rgba(255,255,255,.65) !important; }
+html[style*="--cx-scheme: black"] .tools-button, html[style*="--cx-scheme: black"] .show-all-btn, html[style*="--cx-scheme: black"] .mode-toggle, html[style*="--cx-scheme: black"] .reset-btn,
+html[style*="--cx-scheme: black"] .tools-dropdown button, html[style*="--cx-scheme: black"] #audioWrap { background: #000 !important; color: #fff !important; border: 1px solid #fff !important; box-shadow: none !important; text-shadow: none !important; }
+html[style*="--cx-scheme: black"] #audioWrap #auCycle { color: #fff !important; }
+html[style*="--cx-scheme: black"] #auSpk { background: #fff !important; }
+html[style*="--cx-scheme: black"] .tools-dropdown button:hover, html[style*="--cx-scheme: black"] .tools-dropdown button:focus, html[style*="--cx-scheme: black"] .tools-dropdown button:active { background: #333 !important; color: #fff !important; }
+html[style*="--cx-scheme: black"] .tools-dropdown { background: #000 !important; border: 1px solid #fff; }
+html[style*="--cx-scheme: black"] .quiz-container, html[style*="--cx-scheme: black"] .vocabulary-array, html[style*="--cx-scheme: black"] #textSizePanel, html[style*="--cx-scheme: black"] #audioPanel { background: #000 !important; color: #fff !important; border: 1px solid #fff !important; }
+html[style*="--cx-scheme: black"] .quiz-container input { background: #000 !important; color: #fff !important; border: 1px solid #fff !important; }
+html[style*="--cx-scheme: black"] .vocabulary-item, html[style*="--cx-scheme: black"] .array-title { background: #000 !important; color: #fff !important; border-color: #fff !important; }
+html[style*="--cx-scheme: black"] .vocabulary-item * { color: #fff !important; }
+html[style*="--cx-scheme: white"] body, html[style*="--cx-scheme: white"] .page-wrapper { background: #fff !important; }
+html[style*="--cx-scheme: white"] .a4-page { background: #fff !important; border-color: #000 !important; }
+html[style*="--cx-scheme: white"] .title-box, html[style*="--cx-scheme: white"] .mode-indicator, html[style*="--cx-scheme: white"] .concept-indicator,
+html[style*="--cx-scheme: white"] .level-indicator, html[style*="--cx-scheme: white"] .path-indicator { background: #fff !important; color: #000 !important; border-color: #000 !important; text-shadow: none !important; }
+html[style*="--cx-scheme: white"] .watermark { color: rgba(0,0,0,.6) !important; }
+html[style*="--cx-scheme: white"] .tools-button, html[style*="--cx-scheme: white"] .show-all-btn, html[style*="--cx-scheme: white"] .mode-toggle, html[style*="--cx-scheme: white"] .reset-btn,
+html[style*="--cx-scheme: white"] .tools-dropdown button, html[style*="--cx-scheme: white"] #audioWrap { background: #fff !important; color: #000 !important; border: 1px solid #000 !important; box-shadow: none !important; text-shadow: none !important; }
+html[style*="--cx-scheme: white"] #audioWrap #auCycle { color: #000 !important; }
+html[style*="--cx-scheme: white"] #auSpk { background: #000 !important; }
+html[style*="--cx-scheme: white"] .tools-dropdown button:hover, html[style*="--cx-scheme: white"] .tools-dropdown button:focus, html[style*="--cx-scheme: white"] .tools-dropdown button:active { background: #ddd !important; color: #000 !important; }
+html[style*="--cx-scheme: white"] .tools-dropdown { background: #fff !important; border: 1px solid #000; }
+html[style*="--cx-scheme: white"] .quiz-container, html[style*="--cx-scheme: white"] .vocabulary-array, html[style*="--cx-scheme: white"] #textSizePanel, html[style*="--cx-scheme: white"] #audioPanel { background: #fff !important; color: #000 !important; border: 1px solid #000 !important; }
+html[style*="--cx-scheme: white"] .quiz-container input { background: #fff !important; color: #000 !important; border: 1px solid #000 !important; }
+html[style*="--cx-scheme: white"] .vocabulary-item, html[style*="--cx-scheme: white"] .array-title { background: #fff !important; color: #000 !important; border-color: #000 !important; }
+html[style*="--cx-scheme: white"] #gtLearned { background: #fff; color: #000; border-color: #000; }
+/* the pulled-out word */
+.gt-ghost { position: fixed; z-index: 100000; left: 0; top: 0; background: #fff176; border: 1px solid #b8860b; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.45); font-family: Arial, sans-serif; font-weight: bold; color: #000; white-space: nowrap; padding: 2px 6px; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transform-origin: 50% 50%; }
+#gtLearned { position: absolute; right: 8px; top: 6px; z-index: 5; font: 700 13px Arial, sans-serif; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,.85); color: #123; border: 1px solid rgba(0,0,0,.25); pointer-events: none; display: none; }
+html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; border-color: #fff; }
+@media (pointer: coarse) {
+  .tools-button, .show-all-btn, .mode-toggle, .reset-btn, #audioWrap { min-height: 44px; }
+  .tools-dropdown button { min-height: 44px; }
+  #gtLearned { display: block; }
+  .quiz-container:not([data-moved]) { top: 6px !important; bottom: auto !important; left: 50% !important; transform: translateX(-50%) !important; width: min(380px, 94vw) !important; max-width: none !important; }
+  .quiz-container input { font-size: 16px; }
+  .quiz-container button#quizTick { min-height: 44px; min-width: 44px; }
+}
+/* Portrait phone: use the whole width, buttons wrap onto two rows instead of being cut off */
+@media (pointer: coarse) and (max-width: 700px) and (orientation: portrait) {
+  .a4-page { width: 100vw !important; border-width: 2px !important; border-radius: 0 !important; }
+  .page-wrapper { width: 100vw; }
+  .tools-bar { flex-wrap: wrap !important; overflow-x: visible !important; justify-content: center !important; max-width: 100vw; }
+  .tools-row { display: contents; }
+  .tools-button, .show-all-btn, .mode-toggle, .reset-btn, #audioWrap { flex: 1 1 28%; min-width: 0; padding-left: 4px !important; padding-right: 4px !important; font-size: 14px !important; }
+  .drag-instruction { font-size: .8em !important; }
+}
+@media print { .gt-ghost, #gtLearned { display: none !important; } }
 </style>
 </head>
 <body>
@@ -1171,7 +1232,6 @@
     <div id="audioPanel">
         <div class="auHead"><span>Audio</span><button type="button" id="auClose" aria-label="Close">&times;</button></div>
         <div class="auRow"><label><input type="radio" name="auOnOff" id="auOn"> On</label><label><input type="radio" name="auOnOff" id="auOff" checked> Off</label></div>
-        <div class="auVol"><span>Volume</span><input type="range" id="auVol" min="0" max="100" step="5" value="80"><span id="auVolVal">80%</span></div>
         <div class="auStatus" id="auStatus">Audio is off.</div>
     </div>
 
@@ -1179,6 +1239,7 @@
         <div class="tools-dropdown">
             <button id="toggleFullscreen">Full Screen</button>
             <button id="userManualBtn" type="button" title="How to use these templates">User Manual</button>
+            <button id="exercisesBtn" type="button" title="Practise this vocabulary (opens the Index of Exercises)">Exercises &amp; Tests</button>
             <button id="loadConcept">Load Concept</button>
             <button id="startQuiz">Start Random Quiz</button>
             <button id="colourToggle" type="button" title="Try different colour schemes">Colours: Positive</button>
@@ -3284,15 +3345,12 @@
             
             // ── Tools > Colours: cycle through colour schemes (experimental) ──
             const COLOUR_SCHEMES = [
-                { name: 'Classic', v: {} },
-                { name: 'Positive', v: { '--mb-text': '#0e3b20', '--mb-shadow': 'rgba(255,255,255,.65)', '--page-bg': '#f4fcf4', '--grad-edge': '#2e8b57', '--grad-mid': '#c8e6c9', '--fill-op': '0.45', '--line': '#145a32', '--line-w': '0.4', '--ext-line': '#16a085', '--word': '#0b3d20', '--ext-word': '#0e6655', '--slide': '#1a5276', '--learned': '#b9770e' } },
+                { name: 'Black', v: { '--cx-scheme': 'black', '--mb-text': '#ffffff', '--mb-shadow': 'rgba(0,0,0,.85)', '--page-bg': '#000000', '--grad-edge': '#000000', '--grad-mid': '#000000', '--fill-op': '0', '--line': '#ffffff', '--line-w': '0.5', '--ext-line': '#ffffff', '--word': '#ffffff', '--ext-word': '#ffffff', '--slide': '#ffffff', '--learned': '#66e08a', '--ui': 'rgba(255,255,255,0.7)', '--wm': 'rgba(255,255,255,0.65)', '--wm-glow': '#000000', '--sa-tl': '#ffffff', '--sa-tlr': '#ffffff', '--sa-sl': '#ffffff' } },
+                { name: 'White', v: { '--cx-scheme': 'white', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#ffffff', '--grad-edge': '#ffffff', '--grad-mid': '#ffffff', '--fill-op': '0', '--line': '#000000', '--line-w': '0.5', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.6)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' } },
                 { name: 'Ocean',   v: { '--mb-text': '#0b2e4f', '--mb-shadow': 'rgba(255,255,255,.65)', '--page-bg': '#f4fbff', '--grad-edge': '#1b4f72', '--grad-mid': '#aed6f1', '--fill-op': '0.4', '--line': '#0b3c5d', '--line-w': '0.4', '--ext-line': '#16a085', '--word': '#0b2e4f', '--ext-word': '#0e6655', '--slide': '#c0392b', '--learned': '#117a65' } },
-                { name: 'Sunrise', v: { '--mb-text': '#4a2400', '--mb-shadow': 'rgba(255,255,255,.65)', '--page-bg': '#fffaf0', '--grad-edge': '#e67e22', '--grad-mid': '#f9e79f', '--fill-op': '0.45', '--line': '#7b241c', '--line-w': '0.4', '--ext-line': '#c0392b', '--word': '#4a235a', '--ext-word': '#a04000', '--slide': '#1a5276', '--learned': '#1e8449' } },
-                { name: 'Forest',  v: { '--mb-text': '#0e3b20', '--mb-shadow': 'rgba(255,255,255,.65)', '--page-bg': '#f7fff7', '--grad-edge': '#1e8449', '--grad-mid': '#d5f5e3', '--fill-op': '0.4', '--line': '#145a32', '--line-w': '0.4', '--ext-line': '#b9770e', '--word': '#0b3d20', '--ext-word': '#7d6608', '--slide': '#6c3483', '--learned': '#0b5345' } },
-                { name: 'High contrast', v: { '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.65)', '--page-bg': '#ffffff', '--grad-edge': '#000000', '--grad-mid': '#ffffff', '--fill-op': '0.12', '--line': '#000000', '--line-w': '0.6', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#6a0dad', '--slide': '#0000ff', '--learned': '#006400', '--ui': 'rgba(0,0,0,0.55)', '--wm': 'rgba(0,0,0,0.6)' } },
                 { name: 'Night',   v: { '--mb-text': '#ffffff', '--mb-shadow': 'rgba(0,0,0,.7)', '--page-bg': '#14213d', '--grad-edge': '#000814', '--grad-mid': '#3a86ff', '--fill-op': '0.5', '--line': '#ffd60a', '--line-w': '0.4', '--ext-line': '#00f5d4', '--word': '#ffffff', '--ext-word': '#00f5d4', '--slide': '#ffd60a', '--learned': '#2ecc71', '--ui': 'rgba(255,255,255,0.55)', '--wm': 'rgba(255,255,255,0.6)', '--wm-glow': '#14213d', '--sa-tl': '#8ecae6', '--sa-tlr': '#e0c3fc', '--sa-sl': '#ffb3b3' } }
             ];
-            let colourIndex = 1;   // the Positive scheme is the default (index 1); Ocean etc. follow
+            let colourIndex = 0;   // 2026-11-24: Black is the default scheme (index 0); White is the printable one
             const colourBtn = document.getElementById('colourToggle');
             Object.keys(COLOUR_SCHEMES[colourIndex].v).forEach(function (k) { document.documentElement.style.setProperty(k, COLOUR_SCHEMES[colourIndex].v[k]); });
             if (colourBtn) {
@@ -3801,6 +3859,56 @@
                      a.bottom <= b.top + tol || a.top >= b.bottom - tol);
         }
 
+
+        function saNudge() {
+            const ws = showAllWords.filter(function (w) { return w.kind === 'state'; });
+            const vb = svg.viewBox && svg.viewBox.baseVal, vx = vb ? vb.x : -30, vy = vb ? vb.y : 0, vw = vb ? vb.width : 160, vh = vb ? vb.height : 50;
+            const pad = 0.6;
+            function ymove(w, d) { w.el.setAttribute('y', parseFloat(w.el.getAttribute('y')) + d); }
+            for (let it = 0; it < 60; it++) {
+                let moved = false;
+                const bx = ws.map(function (w) { return saBBox(w.el); });
+                for (let i = 0; i < ws.length; i++) for (let j = i + 1; j < ws.length; j++) {
+                    const a = bx[i], b = bx[j]; if (!a || !b) continue;
+                    const ox = Math.min(a.right, b.right) - Math.max(a.left, b.left), oy = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+                    if (ox > 0.2 && oy > 0.05) {
+                        const up = ((a.top + a.bottom) <= (b.top + b.bottom)) ? i : j, dn = up === i ? j : i, s = oy / 2 + 0.1;
+                        ymove(ws[up], -s); ymove(ws[dn], s); moved = true;
+                        bx[up] = saBBox(ws[up].el); bx[dn] = saBBox(ws[dn].el);
+                    }
+                }
+                ws.forEach(function (w) {
+                    const b = saBBox(w.el); if (!b) return;
+                    if (b.top < vy + pad) { ymove(w, vy + pad - b.top); moved = true; }
+                    else if (b.bottom > vy + vh - pad) { ymove(w, vy + vh - pad - b.bottom); moved = true; }
+                    const x = parseFloat(w.el.getAttribute('x')); let dx = 0;
+                    if (b.left < vx + pad) dx = vx + pad - b.left; else if (b.right > vx + vw - pad) dx = vx + vw - pad - b.right;
+                    if (dx) { w.el.setAttribute('x', x + dx); moved = true; }
+                });
+                if (!moved) break;
+            }
+            for (let sh = 0; sh < 6; sh++) {   // still touching (no room left to slide): shrink just those words a little and slide again
+                const bx = ws.map(function (w) { return saBBox(w.el); }); let any = false;
+                for (let i = 0; i < ws.length; i++) for (let j = i + 1; j < ws.length; j++) {
+                    const a = bx[i], b = bx[j]; if (!a || !b) continue;
+                    if (Math.min(a.right, b.right) - Math.max(a.left, b.left) > 0.2 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 0.05) {
+                        [ws[i], ws[j]].forEach(function (w) { w.el.style.fontSize = (parseFloat(w.el.style.fontSize) * 0.9) + 'px'; }); any = true;
+                    }
+                }
+                if (!any) break;
+                for (let it = 0; it < 30; it++) {
+                    let moved = false; const bb = ws.map(function (w) { return saBBox(w.el); });
+                    for (let i = 0; i < ws.length; i++) for (let j = i + 1; j < ws.length; j++) {
+                        const a = bb[i], b = bb[j]; if (!a || !b) continue;
+                        const oy = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+                        if (Math.min(a.right, b.right) - Math.max(a.left, b.left) > 0.2 && oy > 0.05) { const up = ((a.top + a.bottom) <= (b.top + b.bottom)) ? i : j, dn = up === i ? j : i; ymove(ws[up], -(oy / 2 + 0.1)); ymove(ws[dn], oy / 2 + 0.1); moved = true; bb[up] = saBBox(ws[up].el); bb[dn] = saBBox(ws[dn].el); }
+                    }
+                    ws.forEach(function (w) { const b = saBBox(w.el); if (!b) return; if (b.top < vy + pad) ymove(w, vy + pad - b.top); else if (b.bottom > vy + vh - pad) ymove(w, vy + vh - pad - b.bottom); });
+                    if (!moved) break;
+                }
+            }
+        }
+
         function saResolveCollisions() {
             const tol = 0.3 * saFontSize('x');
             showAllWords.forEach(function (w) {
@@ -3840,6 +3948,7 @@
                 }
                 if (!escalated) break;
             }
+            saNudge();
         }
 
         function saFlipWord(word) {
@@ -4302,7 +4411,7 @@
         }
         onR.addEventListener('change', function () { if (onR.checked) setOn(true); });
         offR.addEventListener('change', function () { if (offR.checked) setOn(false); });
-        vol.addEventListener('input', function () { st.vol = vol.value / 100; volVal.textContent = vol.value + '%'; if (st.cur) st.cur.volume = st.vol; });
+        if (vol) vol.addEventListener('input', function () { st.vol = vol.value / 100; volVal.textContent = vol.value + '%'; if (st.cur) st.cur.volume = st.vol; });
         let moved = false;
         function place() {
             if (moved) return;
@@ -4392,7 +4501,7 @@
     const vol = document.createElement('input'); vol.type = 'range'; vol.id = 'auVol2'; vol.min = 0; vol.max = 100; vol.step = 5; vol.value = 80; vol.setAttribute('aria-label', 'Volume');
     const ico = document.createElement('span'); ico.id = 'auSpk'; ico.title = 'Audio'; const SPK = {"0": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"black\" d=\"M2 9v6h4l5 4V5L6 9H2z\"/><g fill=\"none\" stroke=\"black\" stroke-width=\"2.2\" stroke-linecap=\"round\"><path d=\"M16 8.5a5 5 0 0 1 0 7M19 5.5a9 9 0 0 1 0 13\"/></g></svg>", "1": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"black\" d=\"M2 9v6h4l5 4V5L6 9H2z\"/><g fill=\"none\" stroke=\"black\" stroke-width=\"2.2\" stroke-linecap=\"round\"><path d=\"M16 8.5a5 5 0 0 1 0 7\"/></g></svg>", "2": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"black\" d=\"M2 9v6h4l5 4V5L6 9H2z\"/><g fill=\"none\" stroke=\"black\" stroke-width=\"2.2\" stroke-linecap=\"round\"><path d=\"M16 9l6 6M22 9l-6 6\"/></g></svg>"};
     ico.addEventListener('click', function (e) { e.stopPropagation(); cyc.click(); });
-    wrap.appendChild(cyc); wrap.appendChild(ico); wrap.appendChild(vol); oldBtn.parentNode.insertBefore(wrap, oldBtn); oldBtn.style.display = 'none';
+    wrap.appendChild(cyc); wrap.appendChild(ico); oldBtn.parentNode.insertBefore(wrap, oldBtn); oldBtn.style.display = 'none';
     const toast = document.createElement('div'); toast.id = 'auToast'; document.body.appendChild(toast);
     let toastT = null;
     function note(text) {
@@ -4525,6 +4634,151 @@
         const fr = document.getElementById(id); if (!fr) return;
         fr.addEventListener('click', function (e) { if (e.isTrusted && Date.now() - lastSyn < 500) { e.stopPropagation(); e.preventDefault(); } }, true);
     });
+})();
+</script>
+
+<script>
+/* GTCV-PHONE-KIT v1 (2026-11-24) (c) 2026 Alan William Preston */
+(function () {
+  if (window.__gtKit) return; window.__gtKit = true;
+  var de = document.documentElement, svg = document.getElementById('svgCanvas');
+  var USER_MANUAL_URL = 'https://sites.google.com/view/conceptionary/home/user-manual';
+  var EXERCISES_URL = 'https://sites.google.com/view/conceptionary/home/index-of-exercises';
+
+  /* 1. TOUCH: let the phone's pinch zoom work; the mouse events a phone makes after a touch are ignored */
+  var lastT = 0;
+  function endDrags() { ['touchend', 'mouseup'].forEach(function (t) { try { document.dispatchEvent(new Event(t, { bubbles: true })); } catch (e) {} }); }
+  document.addEventListener('touchstart', function (e) { lastT = Date.now(); e.preventDefault = function () {}; if (e.touches && e.touches.length > 1) endDrags(); }, { capture: true, passive: true });
+  document.addEventListener('touchmove', function (e) { lastT = Date.now(); if (e.touches && e.touches.length > 1) e.preventDefault = function () {}; }, { capture: true, passive: true });
+  document.addEventListener('touchend', function () { lastT = Date.now(); }, { capture: true, passive: true });
+  document.addEventListener('touchcancel', function () { lastT = Date.now(); endDrags(); }, { capture: true, passive: true });
+  ['mousedown', 'mousemove', 'mouseup'].forEach(function (t) { document.addEventListener(t, function (e) { if (e.isTrusted && Date.now() - lastT < 700) e.stopImmediatePropagation(); }, true); });
+
+  /* 2. FULL SCREEN ZOOM: Chrome switches its own pinch zoom off in full screen, so two fingers zoom and pan the diagram here */
+  (function () {
+    if (!svg) return;
+    var zs = 1, tx = 0, ty = 0, g = null;
+    function fsOn() { return !!(document.fullscreenElement || document.webkitFullscreenElement || window.__kitForceFs); }
+    function apply() { svg.style.transformOrigin = '0 0'; svg.style.transform = (zs === 1 && !tx && !ty) ? '' : 'translate(' + tx + 'px,' + ty + 'px) scale(' + zs + ')'; window.__kitZoom = { s: zs, x: tx, y: ty }; }
+    function sync() { if (!fsOn()) { zs = 1; tx = ty = 0; apply(); } }
+    ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (t) { document.addEventListener(t, sync); });
+    function mid(t) { return { x: (t[0].clientX + t[1].clientX) / 2, y: (t[0].clientY + t[1].clientY) / 2, d: Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY) || 1 }; }
+    document.addEventListener('touchstart', function (e) {
+      if (!fsOn() || e.touches.length !== 2) return;
+      var m = mid(e.touches), r = svg.getBoundingClientRect(); g = { d: m.d, s: zs, tx: tx, ty: ty, bx: r.left - tx, by: r.top - ty, mx: m.x, my: m.y };
+    }, { capture: true, passive: true });
+    document.addEventListener('touchmove', function (e) {
+      if (!g || e.touches.length !== 2) return;
+      var m = mid(e.touches), s = Math.min(4, Math.max(1, g.s * m.d / g.d));
+      var cx = ((g.mx - g.bx) - g.tx) / g.s, cy = ((g.my - g.by) - g.ty) / g.s;
+      var W = svg.clientWidth, H = svg.clientHeight, nx = (m.x - g.bx) - cx * s, ny = (m.y - g.by) - cy * s;
+      zs = s; tx = Math.min(0, Math.max(W * (1 - s), nx)); ty = Math.min(0, Math.max(H * (1 - s), ny));
+      if (s < 1.03) { zs = 1; tx = ty = 0; }
+      apply(); if (e.cancelable) e.preventDefault();
+    }, { capture: true, passive: false });
+    document.addEventListener('touchend', function (e) { if (!e.touches || e.touches.length < 2) g = null; }, { capture: true, passive: true });
+    document.addEventListener('touchcancel', function () { g = null; }, { capture: true, passive: true });
+  })();
+
+  /* 3. TOOLS: Exercises & Tests (the User Manual button is already there) */
+  (function () {
+    var b = document.getElementById('exercisesBtn'); if (!b) return;
+    b.addEventListener('click', function (e) {
+      e.stopPropagation(); var dd = document.querySelector('.tools-dropdown'); if (dd) dd.classList.remove('active');
+      window.open(EXERCISES_URL, '_blank', 'noopener');
+    });
+  })();
+
+  /* 4. COLOUR: the White scheme is the printable one; whatever scheme is on screen, the printout is White (black lines and text on white) */
+  (function () {
+    var pb = document.getElementById('printBtn'), WHITE = { '--cx-scheme': 'white', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#ffffff', '--grad-edge': '#ffffff', '--grad-mid': '#ffffff', '--fill-op': '0', '--line': '#000000', '--line-w': '0.5', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.6)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' };
+    var keep = null;
+    function toWhite() { if (keep !== null) return; keep = de.style.cssText; Object.keys(WHITE).forEach(function (k) { de.style.setProperty(k, WHITE[k]); }); }
+    function back() { if (keep === null) return; de.style.cssText = keep; keep = null; }
+    if (pb) { pb.addEventListener('click', function () { toWhite(); setTimeout(back, 200); }, true); }
+    window.addEventListener('beforeprint', toWhite); window.addEventListener('afterprint', back);
+  })();
+
+  /* 5. PULL A WORD OUT: grab a word and drag; it follows the finger or mouse, grows (up to 300%) with a yellow highlight, STAYS 5 seconds after you let go, then snaps back */
+  (function () {
+    if (!svg) return;
+    var MAXS = 3, HOLD_MS = 5000, held = new Map(), g = null, swallow = false;
+    function tf(o) { return 'translate(calc(-50% + ' + o.x + 'px), calc(-50% + ' + o.y + 'px)) scale(' + o.s + ')'; }
+    function plain(el) { return (el.textContent || '').replace(/\s+/g, ' ').trim(); }
+    function makeGhost(box) {
+      var r = box.getBoundingClientRect(), k = svg.getScreenCTM().a, fs = parseFloat(getComputedStyle(box).fontSize) || 4;
+      var gh = document.createElement('div'); gh.className = 'gt-ghost'; gh.textContent = plain(box); gh.style.fontSize = Math.max(11, fs * k) + 'px';
+      document.body.appendChild(gh);
+      var w = gh.offsetWidth, h = gh.offsetHeight, hx = r.left + r.width / 2, hy = r.top + r.height / 2;
+      gh.style.left = hx + 'px'; gh.style.top = hy + 'px'; gh.style.display = 'none';
+      return { ghost: gh, box: box, hx: hx, hy: hy, w: w, h: h, x: 0, y: 0, s: 1, timer: null };
+    }
+    function snapBack(i) {
+      var o = held.get(i); if (!o) return; clearTimeout(o.timer); held.delete(i);
+      var gh = o.ghost; gh.style.transition = 'transform .3s cubic-bezier(.34,1.56,.64,1)'; gh.style.transform = 'translate(-50%, -50%) scale(1)';
+      setTimeout(function () { if (gh.parentNode) gh.parentNode.removeChild(gh); o.box.style.visibility = ''; }, 330);
+    }
+    function startHold(i) { var o = held.get(i); if (!o) return; clearTimeout(o.timer); o.timer = setTimeout(function () { snapBack(i); }, HOLD_MS); }
+    window.__gtReset = function () { held.forEach(function (o) { clearTimeout(o.timer); if (o.ghost.parentNode) o.ghost.parentNode.removeChild(o.ghost); o.box.style.visibility = ''; }); held.clear(); g = null; };
+    ['showAllBtn', 'modeToggle', 'resetBtn'].forEach(function (id) { var b = document.getElementById(id); if (b) b.addEventListener('click', window.__gtReset); });
+    window.addEventListener('resize', window.__gtReset);
+    function keyOf(box) { return (box.classList.contains('showall-word') ? 'sa' : 'tb') + '|' + box.getAttribute('data-index') + '|' + (box.getAttribute('data-extension-index') || ''); }
+    function usable(box) { var cs = getComputedStyle(box); return cs.display !== 'none' && cs.visibility !== 'hidden' && parseFloat(cs.opacity) > 0.05 && cs.pointerEvents !== 'none'; }
+
+    document.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      var gh = e.target.closest && e.target.closest('.gt-ghost'), box = null, key = null;
+      if (gh) { held.forEach(function (o, k) { if (o.ghost === gh) { key = k; box = o.box; } }); }
+      else { box = e.target.closest && e.target.closest('.textBox, .showall-word'); if (!box || !usable(box)) return; key = keyOf(box); }
+      if (key == null) return;
+      var o = held.get(key), hadHold = !!o;
+      if (!o) { o = makeGhost(box); held.set(key, o); o.pending = true; } else clearTimeout(o.timer);
+      g = { key: key, box: box, o: o, id: e.pointerId, x0: e.clientX, y0: e.clientY, ox: o.x, oy: o.y, s0: o.s, hadHold: hadHold, drag: false };
+      if (gh) { try { gh.setPointerCapture(e.pointerId); } catch (_) {} e.preventDefault(); }
+    }, true);
+    document.addEventListener('pointermove', function (e) {
+      if (!g || e.pointerId !== g.id) return;
+      var dx = e.clientX - g.x0, dy = e.clientY - g.y0, d = Math.hypot(dx, dy), o = g.o;
+      if (!g.drag) {
+        if (d < 8) return;
+        g.drag = true; o.ghost.style.display = ''; o.ghost.style.transition = 'none'; g.box.style.visibility = 'hidden'; o.pending = false;
+        if (/^\d+$/.test(g.box.getAttribute('data-index') || '') && window.__cmpSpeak) { try { window.__cmpSpeak(parseInt(g.box.getAttribute('data-index')), true); } catch (_) {} }
+      }
+      var dmax = Math.max(120, Math.min(230, 0.30 * Math.min(window.innerWidth, window.innerHeight)));
+      var s = g.hadHold ? g.s0 : 1 + (MAXS - 1) * Math.min(1, d / dmax);
+      s = Math.min(s, (window.innerWidth - 8) / o.w, (window.innerHeight - 8) / o.h);
+      var hw = o.w * s / 2, hh = o.h * s / 2, tx = o.hx + g.ox + dx, ty = o.hy + g.oy + dy;
+      var cx = Math.min(Math.max(tx, hw + 2), window.innerWidth - hw - 2), cy = Math.min(Math.max(ty, hh + 2), window.innerHeight - hh - 2);
+      o.x = cx - o.hx; o.y = cy - o.hy; o.s = s; o.ghost.style.transform = tf(o);
+      e.preventDefault();
+    }, { passive: false });
+    function release(e) {
+      if (!g || e.pointerId !== g.id) return;
+      var cur = g; g = null;
+      if (cur.drag) { swallow = true; setTimeout(function () { swallow = false; }, 80); startHold(cur.key); return; }
+      if (cur.hadHold) {   /* a tap on a held word: it moves on to its next language and the 5 seconds start again */
+        cur.box.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        cur.o.ghost.textContent = plain(cur.box); startHold(cur.key);
+      } else { var o = held.get(cur.key); if (o && o.pending) { if (o.ghost.parentNode) o.ghost.parentNode.removeChild(o.ghost); held.delete(cur.key); } }
+    }
+    document.addEventListener('pointerup', release, true);
+    document.addEventListener('pointercancel', release, true);
+    document.addEventListener('click', function (e) { if (swallow && e.target.closest && e.target.closest('.textBox, .showall-word')) { e.stopPropagation(); e.preventDefault(); swallow = false; } }, true);
+    document.addEventListener('contextmenu', function (e) { if (e.target.closest && (e.target.closest('.textBox, .showall-word') || e.target.closest('.gt-ghost'))) e.preventDefault(); });
+  })();
+
+  /* 6. LEARNED COUNTER (phones): words learned in the Quiz, out of the words on the line */
+  (function () {
+    var page = document.querySelector('.a4-page'); if (!page || !svg) return;
+    var el = document.createElement('div'); el.id = 'gtLearned'; page.appendChild(el); var t = 0;
+    function paint() {
+      var all = svg.querySelectorAll('.textBox:not(.extension)'), n = svg.querySelectorAll('.textBox.learned:not(.extension)').length;
+      var tot = 0, seen = {}; all.forEach(function (b) { var k = b.getAttribute('data-index'); if (!seen[k]) { seen[k] = 1; tot++; } });
+      el.textContent = 'Learned ' + n + '/' + tot;
+    }
+    new MutationObserver(function () { clearTimeout(t); t = setTimeout(paint, 40); }).observe(svg, { attributes: true, attributeFilter: ['class'], childList: true, subtree: true });
+    paint();
+  })();
 })();
 </script>
 </body>
