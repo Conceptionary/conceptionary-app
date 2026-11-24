@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-11-25 @ 12:45 a.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-11-25 @ 1:18 a.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1132,6 +1132,12 @@ html[style*="--cx-scheme: white"] .quiz-container, html[style*="--cx-scheme: whi
 html[style*="--cx-scheme: white"] .quiz-container input { background: #fff !important; color: #000 !important; border: 1px solid #000 !important; }
 html[style*="--cx-scheme: white"] .vocabulary-item, html[style*="--cx-scheme: white"] .array-title { background: #fff !important; color: #000 !important; border-color: #000 !important; }
 html[style*="--cx-scheme: white"] #gtLearned { background: #fff; color: #000; border-color: #000; }
+/* audio button: same height as its neighbours, label centred, bigger speaker icon (gtcv-audio-fix) */
+#audioWrap { align-self: stretch; box-sizing: border-box; min-height: 0; padding-top: 0 !important; padding-bottom: 0 !important; align-items: center !important; }
+#audioWrap #auCycle { font-weight: bold; align-self: stretch; display: flex; align-items: center; justify-content: center; padding-left: 20px; }
+#audioWrap #auSpk { top: 50% !important; bottom: auto !important; transform: translateY(-50%); left: 7px !important; width: 20px !important; height: 18px !important; }
+@media (pointer: fine) { #audioWrap { padding-left: 4px; padding-right: 4px; } #audioWrap #auSpk { width: 18px !important; height: 16px !important; } #audioWrap #auCycle { padding-left: 22px; } }
+@media (pointer: coarse) { #audioWrap #auSpk { width: 26px !important; height: 24px !important; left: 8px !important; } #audioWrap #auCycle { padding-left: 28px; } }
 /* the pulled-out word */
 .gt-ghost { position: fixed; z-index: 100000; left: 0; top: 0; background: #fff176; border: 1px solid #b8860b; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.45); font-family: Arial, sans-serif; font-weight: bold; color: #000; white-space: nowrap; padding: 2px 6px; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transform-origin: 50% 50%; }
 #gtLearned { position: absolute; right: 8px; top: 6px; z-index: 5; font: 700 13px Arial, sans-serif; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,.85); color: #123; border: 1px solid rgba(0,0,0,.25); pointer-events: none; display: none; }
