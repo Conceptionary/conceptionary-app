@@ -2020,6 +2020,16 @@ async function injectAndOpen(templatePath, langConfig, card) {
       if (ui.reset_label)      html = html.replace(/>Reset</, `>${ui.reset_label}<`);
     }
 
+    // Spoken language (optional): lang_config.audio_lang = target language code ('id-ID', 'ja-JP'), audio_sl_lang = source ('en-GB').
+    // Without a code the browser reads every word with its default (English) voice. Letters only, e.g. en-GB: nothing else is passed on.
+    {
+      const okCode = c => (typeof c === 'string' && /^[a-z]{2,3}(-[A-Za-z]{2,4})?$/.test(c)) ? c : '';
+      const tl = okCode(langConfig.audio_lang), sl = okCode(langConfig.audio_sl_lang);
+      if (tl || sl) {
+        html = html.replace('<script>', `<script>${tl ? `window.CONCEPTIONARY_AUDIO_LANG = '${tl}';` : ''}${sl ? `window.CONCEPTIONARY_AUDIO_SL_LANG = '${sl}';` : ''}<\/script>\n<script>`);
+      }
+    }
+
     // Thematic background (optional): a card may name its setting, e.g. "environment": "sea".
     // The template reads window.CONCEPTIONARY_ENVIRONMENT on load; learners can still change
     // the background afterwards from Tools > Colours. Unknown or missing values do nothing.

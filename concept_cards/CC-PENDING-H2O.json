@@ -1,0 +1,543 @@
+{
+  "id": "CC-PENDING-H2O",
+  "version": "0.1",
+  "created": "2026-11-25",
+  "last_updated": "2026-11-25",
+  "status": "draft",
+  "concept": {
+    "name": "The States and Transitions of H2O",
+    "description": "Water from ice, through liquid water of rising temperature, to steam, and back down again.",
+    "taxonomy_path": "Natural-Environmental → Water → States of water",
+    "shape": "Upward curve then return (gradual, temporary)",
+    "template_family": "GTCV",
+    "template_id": "ROM-GTCV",
+    "modes_used": [
+      "states",
+      "transitions"
+    ],
+    "notes": "20 states: rising 10 (ice to boiling water), steam at the peak, falling 9 (condensation to ice; 'boiled water' omitted, Alan 2026-11-25). 10 transitions at the GTCV chassis positions. No environment field (no single physical setting). Working models: ROM-GTCV-H2O-ID-EN.html (EN-ID) and LOG-GTCV-H2O-JA-EN.html (EN-JA)."
+  },
+  "template": {
+    "phonographic": {
+      "id": "ROM-GTCV",
+      "file": "templates/phonographic/ROM-GTCV-Generic.html",
+      "track": "phonographic"
+    },
+    "logographic": {
+      "id": "LOG-GTCV",
+      "file": "templates/logographic/LOG-GTCV-Generic.html",
+      "track": "logographic"
+    }
+  },
+  "language_pairs": {
+    "EN-ID": {
+      "source_language": "English",
+      "target_language": "Bahasa Indonesia",
+      "track": "phonographic",
+      "generated_by": "claude-sonnet-5-5",
+      "generated_date": "2026-11-25",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "review_note": "Vocabulary dictated by Alan (English); Indonesian and Japanese written by Claude - awaiting Alan's review.",
+      "lang_config": {
+        "titles": {
+          "states": [
+            "Keadaan dan Perubahan Air (H₂O)",
+            "The States and Transitions of H₂O"
+          ],
+          "transitions": [
+            "Keadaan dan Perubahan Air (H₂O)",
+            "The States and Transitions of H₂O"
+          ]
+        },
+        "audio_lang": "id-ID",
+        "audio_sl_lang": "en-GB",
+        "ui": {
+          "show_tl_label": "Tampilkan: Bahasa Indonesia",
+          "show_sl_label": "Tampilkan: Bahasa Inggris",
+          "show_states_label": "Tampilkan Keadaan",
+          "show_transitions_label": "Tampilkan Perubahan",
+          "hide_all_label": "Sembunyikan Semua",
+          "show_all_label": "Tampilkan Semua",
+          "reset_label": "Atur Ulang",
+          "quiz_placeholder": "Ketik kata dalam Bahasa Indonesia…",
+          "quiz_button": "Periksa",
+          "quiz_correct": "Benar! ✓",
+          "quiz_wrong": "Coba lagi"
+        },
+        "conceptData": [
+          [
+            "es",
+            "ice",
+            "Bagaimana mengatakan 'ice' dalam Bahasa Indonesia?",
+            5
+          ],
+          [
+            "es setengah cair",
+            "slush",
+            "Bagaimana mengatakan 'slush' dalam Bahasa Indonesia?",
+            9.44
+          ],
+          [
+            "air sedingin es",
+            "freezing cold water",
+            "Bagaimana mengatakan 'freezing cold water' dalam Bahasa Indonesia?",
+            13.89
+          ],
+          [
+            "air dingin",
+            "cold water",
+            "Bagaimana mengatakan 'cold water' dalam Bahasa Indonesia?",
+            18.33
+          ],
+          [
+            "air suam",
+            "tepid water",
+            "Bagaimana mengatakan 'tepid water' dalam Bahasa Indonesia?",
+            22.78
+          ],
+          [
+            "air hangat kuku",
+            "lukewarm water",
+            "Bagaimana mengatakan 'lukewarm water' dalam Bahasa Indonesia?",
+            27.22
+          ],
+          [
+            "air panas",
+            "hot water",
+            "Bagaimana mengatakan 'hot water' dalam Bahasa Indonesia?",
+            31.67
+          ],
+          [
+            "air panas sekali",
+            "scalding hot water",
+            "Bagaimana mengatakan 'scalding hot water' dalam Bahasa Indonesia?",
+            36.11
+          ],
+          [
+            "air mendidih pelan",
+            "simmering water",
+            "Bagaimana mengatakan 'simmering water' dalam Bahasa Indonesia?",
+            40.56
+          ],
+          [
+            "air mendidih",
+            "boiling water",
+            "Bagaimana mengatakan 'boiling water' dalam Bahasa Indonesia?",
+            45
+          ],
+          [
+            "uap",
+            "steam",
+            "Bagaimana mengatakan 'steam' dalam Bahasa Indonesia?",
+            50
+          ],
+          [
+            "kondensasi",
+            "condensation",
+            "Bagaimana mengatakan 'condensation' dalam Bahasa Indonesia?",
+            55
+          ],
+          [
+            "air panas sekali",
+            "scalding hot water",
+            "Bagaimana mengatakan 'scalding hot water' dalam Bahasa Indonesia?",
+            60
+          ],
+          [
+            "air panas",
+            "hot water",
+            "Bagaimana mengatakan 'hot water' dalam Bahasa Indonesia?",
+            65
+          ],
+          [
+            "air hangat kuku",
+            "lukewarm water",
+            "Bagaimana mengatakan 'lukewarm water' dalam Bahasa Indonesia?",
+            70
+          ],
+          [
+            "air suam",
+            "tepid water",
+            "Bagaimana mengatakan 'tepid water' dalam Bahasa Indonesia?",
+            75
+          ],
+          [
+            "air dingin",
+            "cold water",
+            "Bagaimana mengatakan 'cold water' dalam Bahasa Indonesia?",
+            80
+          ],
+          [
+            "air sedingin es",
+            "freezing cold water",
+            "Bagaimana mengatakan 'freezing cold water' dalam Bahasa Indonesia?",
+            85
+          ],
+          [
+            "es setengah cair",
+            "slush",
+            "Bagaimana mengatakan 'slush' dalam Bahasa Indonesia?",
+            90
+          ],
+          [
+            "es",
+            "ice",
+            "Bagaimana mengatakan 'ice' dalam Bahasa Indonesia?",
+            95
+          ]
+        ],
+        "transitionsData": [
+          [
+            "mencair",
+            "thawing out",
+            "Bagaimana mengatakan 'thawing out' dalam Bahasa Indonesia?",
+            1
+          ],
+          [
+            "meleleh",
+            "melting",
+            "Bagaimana mengatakan 'melting' dalam Bahasa Indonesia?",
+            15
+          ],
+          [
+            "memanas",
+            "heating up",
+            "Bagaimana mengatakan 'heating up' dalam Bahasa Indonesia?",
+            25
+          ],
+          [
+            "mendidih pelan",
+            "simmering",
+            "Bagaimana mengatakan 'simmering' dalam Bahasa Indonesia?",
+            35
+          ],
+          [
+            "mendidih",
+            "boiling",
+            "Bagaimana mengatakan 'boiling' dalam Bahasa Indonesia?",
+            45
+          ],
+          [
+            "menguap",
+            "evaporating",
+            "Bagaimana mengatakan 'evaporating' dalam Bahasa Indonesia?",
+            50
+          ],
+          [
+            "mengembun",
+            "condensing",
+            "Bagaimana mengatakan 'condensing' dalam Bahasa Indonesia?",
+            55
+          ],
+          [
+            "mendingin",
+            "cooling down",
+            "Bagaimana mengatakan 'cooling down' dalam Bahasa Indonesia?",
+            65
+          ],
+          [
+            "semakin dingin",
+            "getting colder",
+            "Bagaimana mengatakan 'getting colder' dalam Bahasa Indonesia?",
+            75
+          ],
+          [
+            "membeku",
+            "freezing up",
+            "Bagaimana mengatakan 'freezing up' dalam Bahasa Indonesia?",
+            78
+          ]
+        ],
+        "diacritic_map": [],
+        "collapse_double_vowels": false
+      }
+    },
+    "EN-JA": {
+      "source_language": "English",
+      "target_language": "Japanese",
+      "track": "logographic",
+      "generated_by": "claude-sonnet-5-5",
+      "generated_date": "2026-11-25",
+      "validated": false,
+      "validated_by": null,
+      "validated_date": null,
+      "review_note": "Vocabulary dictated by Alan (English); Indonesian and Japanese written by Claude - awaiting Alan's review.",
+      "lang_config": {
+        "titles": {
+          "states": [
+            "Mizu no jōtai to henka",
+            "水の状態と変化",
+            "The States and Transitions of H₂O"
+          ],
+          "transitions": [
+            "Mizu no jōtai to henka",
+            "水の状態と変化",
+            "The States and Transitions of H₂O"
+          ]
+        },
+        "audio_lang": "ja-JP",
+        "audio_sl_lang": "en-GB",
+        "ui": {
+          "show_tlr_label": "ローマ字を表示",
+          "show_tl_label": "日本語を表示",
+          "show_sl_label": "英語を表示",
+          "show_states_label": "状態を表示",
+          "show_transitions_label": "変化を表示",
+          "hide_all_label": "すべて隠す",
+          "show_all_label": "すべて表示",
+          "reset_label": "リセット",
+          "quiz_placeholder": "ローマ字で入力してください…",
+          "quiz_button": "確認",
+          "quiz_correct": "正解！ ✓",
+          "quiz_wrong": "もう一度",
+          "diacritic_instructions": "ヒント：長音符（ā, ī, ū, ē, ō）は a, i, u, e, o のまま、または aa, ii, uu, ee, oo / ou でも入力できます。"
+        },
+        "diacritic_map": [
+          [
+            "ā",
+            "a"
+          ],
+          [
+            "ī",
+            "i"
+          ],
+          [
+            "ū",
+            "u"
+          ],
+          [
+            "ē",
+            "e"
+          ],
+          [
+            "ō",
+            "o"
+          ]
+        ],
+        "digraph_map": [
+          [
+            "ou",
+            "o"
+          ]
+        ],
+        "collapse_double_vowels": true,
+        "conceptData": [
+          [
+            "氷",
+            "ice",
+            "How do you say 'ice' in Japanese? (romaji)",
+            5,
+            "Kōri"
+          ],
+          [
+            "溶けかけの氷",
+            "slush",
+            "How do you say 'slush' in Japanese? (romaji)",
+            9.44,
+            "Tokekake no kōri"
+          ],
+          [
+            "氷水",
+            "freezing cold water",
+            "How do you say 'freezing cold water' in Japanese? (romaji)",
+            13.89,
+            "Kōrimizu"
+          ],
+          [
+            "冷たい水",
+            "cold water",
+            "How do you say 'cold water' in Japanese? (romaji)",
+            18.33,
+            "Tsumetai mizu"
+          ],
+          [
+            "生ぬるい水",
+            "tepid water",
+            "How do you say 'tepid water' in Japanese? (romaji)",
+            22.78,
+            "Namanurui mizu"
+          ],
+          [
+            "ぬるま湯",
+            "lukewarm water",
+            "How do you say 'lukewarm water' in Japanese? (romaji)",
+            27.22,
+            "Nurumayu"
+          ],
+          [
+            "お湯",
+            "hot water",
+            "How do you say 'hot water' in Japanese? (romaji)",
+            31.67,
+            "Oyu"
+          ],
+          [
+            "やけどするほど熱いお湯",
+            "scalding hot water",
+            "How do you say 'scalding hot water' in Japanese? (romaji)",
+            36.11,
+            "Yakedo suru hodo atsui oyu"
+          ],
+          [
+            "ことこと煮えるお湯",
+            "simmering water",
+            "How do you say 'simmering water' in Japanese? (romaji)",
+            40.56,
+            "Kotokoto nieru oyu"
+          ],
+          [
+            "沸騰したお湯",
+            "boiling water",
+            "How do you say 'boiling water' in Japanese? (romaji)",
+            45,
+            "Futtō shita oyu"
+          ],
+          [
+            "水蒸気",
+            "steam",
+            "How do you say 'steam' in Japanese? (romaji)",
+            50,
+            "Suijōki"
+          ],
+          [
+            "結露",
+            "condensation",
+            "How do you say 'condensation' in Japanese? (romaji)",
+            55,
+            "Ketsuro"
+          ],
+          [
+            "やけどするほど熱いお湯",
+            "scalding hot water",
+            "How do you say 'scalding hot water' in Japanese? (romaji)",
+            60,
+            "Yakedo suru hodo atsui oyu"
+          ],
+          [
+            "お湯",
+            "hot water",
+            "How do you say 'hot water' in Japanese? (romaji)",
+            65,
+            "Oyu"
+          ],
+          [
+            "ぬるま湯",
+            "lukewarm water",
+            "How do you say 'lukewarm water' in Japanese? (romaji)",
+            70,
+            "Nurumayu"
+          ],
+          [
+            "生ぬるい水",
+            "tepid water",
+            "How do you say 'tepid water' in Japanese? (romaji)",
+            75,
+            "Namanurui mizu"
+          ],
+          [
+            "冷たい水",
+            "cold water",
+            "How do you say 'cold water' in Japanese? (romaji)",
+            80,
+            "Tsumetai mizu"
+          ],
+          [
+            "氷水",
+            "freezing cold water",
+            "How do you say 'freezing cold water' in Japanese? (romaji)",
+            85,
+            "Kōrimizu"
+          ],
+          [
+            "溶けかけの氷",
+            "slush",
+            "How do you say 'slush' in Japanese? (romaji)",
+            90,
+            "Tokekake no kōri"
+          ],
+          [
+            "氷",
+            "ice",
+            "How do you say 'ice' in Japanese? (romaji)",
+            95,
+            "Kōri"
+          ]
+        ],
+        "transitionsData": [
+          [
+            "解け始める",
+            "thawing out",
+            "How do you say 'thawing out' in Japanese? (romaji)",
+            1,
+            "Tokehajimeru"
+          ],
+          [
+            "溶ける",
+            "melting",
+            "How do you say 'melting' in Japanese? (romaji)",
+            15,
+            "Tokeru"
+          ],
+          [
+            "温まる",
+            "heating up",
+            "How do you say 'heating up' in Japanese? (romaji)",
+            25,
+            "Atatamaru"
+          ],
+          [
+            "コトコト煮える",
+            "simmering",
+            "How do you say 'simmering' in Japanese? (romaji)",
+            35,
+            "Kotokoto nieru"
+          ],
+          [
+            "沸騰する",
+            "boiling",
+            "How do you say 'boiling' in Japanese? (romaji)",
+            45,
+            "Futtō suru"
+          ],
+          [
+            "蒸発する",
+            "evaporating",
+            "How do you say 'evaporating' in Japanese? (romaji)",
+            50,
+            "Jōhatsu suru"
+          ],
+          [
+            "凝縮する",
+            "condensing",
+            "How do you say 'condensing' in Japanese? (romaji)",
+            55,
+            "Gyōshuku suru"
+          ],
+          [
+            "冷める",
+            "cooling down",
+            "How do you say 'cooling down' in Japanese? (romaji)",
+            65,
+            "Sameru"
+          ],
+          [
+            "冷たくなる",
+            "getting colder",
+            "How do you say 'getting colder' in Japanese? (romaji)",
+            75,
+            "Tsumetaku naru"
+          ],
+          [
+            "凍る",
+            "freezing up",
+            "How do you say 'freezing up' in Japanese? (romaji)",
+            78,
+            "Kōru"
+          ]
+        ]
+      }
+    }
+  }
+}
