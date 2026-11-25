@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-11-25 @ 2:28 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-11-25 @ 5:34 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1204,6 +1204,9 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
 .tools-dropdown #textSizeBtn { display: none !important; }
 .tools-dropdown button { text-align: left; }
 .tools-dropdown #printBtn { border-top: 1px solid currentColor; }
+
+/* printing: black and white, A4 landscape (the browser's own Print dialog keeps Copies and the Colour menu) */
+@media print { html { filter: grayscale(1); } }
 
 /* 4. thematic backgrounds: sky above the line / curve, the ground below it */
 #gtEnvGround { display: none; }
@@ -4673,6 +4676,14 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
   }
   var fs = $('toggleFullscreen');
   if (fs && !(de.requestFullscreen || de.webkitRequestFullscreen)) fs.style.display = 'none';   /* e.g. iPhone Safari cannot do it */
+
+  /* ---- Concept Index opens the Conceptionary App (Home / Search / Browse / Map). Change the one address below to point it elsewhere. ---- */
+  var CONCEPT_INDEX_URL = 'https://conceptionary.github.io/conceptionary-app/';
+  var lc = $('loadConcept');
+  if (lc) lc.addEventListener('click', function (e) {
+    e.stopImmediatePropagation(); e.stopPropagation(); if (dd) dd.classList.remove('active');
+    window.open(CONCEPT_INDEX_URL, '_blank', 'noopener');
+  }, true);
 
   /* ---- 2. wording: replace English with the SL wording wherever the template (re)writes a button's text ---- */
   var busy = false;
