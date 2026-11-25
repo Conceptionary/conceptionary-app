@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-11-25 @ 1:18 a.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-11-25 @ 8:32 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1161,6 +1161,65 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
 }
 @media print { .gt-ghost, #gtLearned { display: none !important; } }
 </style>
+
+<style id="gtcv-ui2-css">
+/* gtcv-ui2 (2026-11-25): pulsing frame, button bar order / spacing / size, Tools menu order, thematic backgrounds */
+/* 1. the yellow circle pulses until the learner touches it (or until Reset) */
+#draggableFrame.gt-pulse { fill: rgba(255, 240, 0, 0.92) !important; stroke: rgba(255, 215, 0, .9); stroke-width: .5; transform-box: fill-box; transform-origin: center; animation: gtPulse 1s ease-in-out infinite alternate; }
+@keyframes gtPulse { from { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 1.6px rgba(255, 230, 0, 1)); } to { opacity: .35; transform: scale(1.22); filter: drop-shadow(0 0 0 rgba(255, 230, 0, 0)); } }
+@media (prefers-reduced-motion: reduce) { #draggableFrame.gt-pulse { animation-duration: 2s; } }
+
+/* 2. the button bar: Full Screen | Reset (icon) | Show Transitions | Show All | Tools, spread evenly across the frame */
+#audioWrap { display: none !important; }
+.tools-row { display: contents; }
+#toggleFullscreen { order: 1 !important; } #resetBtn { order: 2 !important; } .mode-toggle { order: 3 !important; } .show-all-btn { order: 4 !important; } .tools-button { order: 5 !important; }
+.tools-bar { display: flex !important; flex-direction: row !important; flex-wrap: wrap; justify-content: space-evenly; align-items: stretch; width: 100%; box-sizing: border-box; gap: 6px 0; }
+.tools-bar > *, .tools-row > * { width: auto !important; min-width: 0; flex: 0 0 auto; white-space: nowrap; box-sizing: border-box; text-align: center; }
+#resetBtn { font-size: 0 !important; min-width: 2.6em; position: relative; }
+#resetBtn::after { content: ""; position: absolute; inset: 0; margin: auto; width: 19px; height: 19px; background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4V1L7.5 5.5 12 10V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-9z'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4V1L7.5 5.5 12 10V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-9z'/%3E%3C/svg%3E") center / contain no-repeat; }
+@media (pointer: fine) {
+  .tools-menu { left: 0 !important; right: 0 !important; transform: none !important; width: auto !important; padding: 0 3%; box-sizing: border-box; }
+  .tools-bar { font-size: clamp(8px, calc((min(97vw, 134vh) * 0.92 - 40px) / 52), 16.5px); }
+  .tools-button, .show-all-btn, .mode-toggle, .reset-btn { font-size: 1.04em !important; padding: 4px 12px !important; }
+  #resetBtn { font-size: 0 !important; }
+  #resetBtn::after { width: 20px; height: 20px; }
+  #resetBtn { min-width: 36px; }
+  .tools-dropdown { left: auto; right: 3%; width: 17em; font-size: 14px; }
+}
+@media (pointer: coarse) {
+  .tools-menu { width: 100% !important; left: 0 !important; right: 0 !important; margin-left: 0; box-sizing: border-box; }
+  .tools-bar { padding: 0 2px; }
+  .tools-button, .show-all-btn, .mode-toggle, .reset-btn { font-size: 16px !important; padding: 8px 10px !important; min-height: 44px; }
+  #resetBtn { font-size: 0 !important; min-width: 48px; }
+  #resetBtn::after { width: 22px; height: 22px; }
+}
+@media (pointer: coarse) and (max-width: 700px) and (orientation: portrait) {
+  .tools-button, .show-all-btn, .mode-toggle, .reset-btn { font-size: 15px !important; padding: 8px 8px !important; flex: 0 0 auto !important; }
+  .tools-bar { flex-wrap: wrap !important; }
+}
+
+/* 3. the Tools menu */
+.tools-dropdown #audibleBtn { display: flex; align-items: center; gap: 8px; text-align: left; }
+.tools-dropdown #audibleBtn .spk { flex: none; width: 20px; height: 18px; background: currentColor; -webkit-mask: no-repeat center / contain; mask: no-repeat center / contain; }
+.tools-dropdown #audibleBtn .lbl { flex: 1 1 auto; white-space: nowrap; }
+.tools-dropdown #audibleBtn .state { flex: none; opacity: .75; font-size: .85em; }
+.tools-dropdown #textSizeBtn { display: none !important; }
+.tools-dropdown button { text-align: left; }
+.tools-dropdown #printBtn { border-top: 1px solid currentColor; }
+
+/* printing: black and white, A4 landscape (the browser's own Print dialog keeps Copies and the Colour menu) */
+@media print { html { filter: grayscale(1); } }
+
+/* 4. thematic backgrounds: sky above the line / curve, the ground below it */
+#gtEnvGround { display: none; }
+html[style*="--cx-env"] #gtEnvGround { display: block; fill: var(--cx-ground); }
+html[style*="--cx-env"] #conceptBackground { display: none; }
+html[style*="--cx-env"] .a4-page, html[style*="--cx-env"] .page-wrapper { background: var(--cx-sky) !important; }
+html[style*="--cx-env"] .textBox, html[style*="--cx-env"] .showall-word, html[style*="--cx-env"] #interactiveText { paint-order: stroke; stroke: #fff; stroke-width: .7px; stroke-linejoin: round; }
+html[style*="--cx-env"] #gradualChangePath { stroke-width: .7; }
+html[style*="--cx-env: forest"] .watermark, html[style*="--cx-env: sea"] .watermark { color: rgba(255,255,255,.9) !important; }
+html[style*="--cx-env"] .watermark { text-shadow: none; }
+</style>
 </head>
 <body>
     <div class="page-wrapper">
@@ -1171,7 +1230,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
         <div id="concept-indicator" class="concept-indicator">SL1</div>
         <div id="level-indicator" class="level-indicator">Target Language</div>
         <div id="path-indicator" class="path-indicator">Main Path</div>
-        <div id="drag-instruction" class="drag-instruction">Mobile Phone users: click 'Tools', then 'Full Screen'<br>and hold your phone horizontally.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again.</div>
+        <div id="drag-instruction" class="drag-instruction">Mobile Phone users: tap 'Full Screen'<br>and hold your phone horizontally.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again.</div>
         
         <!-- Vocabulary Array: ONE combined list of learned items, kept in path order.
              Instant-change concepts have no "increasing" or "decreasing" progression. -->
@@ -1243,11 +1302,10 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
 
     <div class="tools-menu">
         <div class="tools-dropdown">
-            <button id="toggleFullscreen">Full Screen</button>
             <button id="userManualBtn" type="button" title="How to use these templates">User Manual</button>
             <button id="exercisesBtn" type="button" title="Practise this vocabulary (opens the Index of Exercises)">Exercises &amp; Tests</button>
-            <button id="loadConcept">Load Concept</button>
-            <button id="startQuiz">Start Random Quiz</button>
+            <button id="loadConcept">Concept Index</button>
+            <button id="startQuiz">Random Quiz</button>
             <button id="colourToggle" type="button" title="Try different colour schemes">Colours: Positive</button>
             <button id="textSizeBtn" type="button" title="Enlarge or shrink any word">Text size…</button>
             <button id="quizToggle" type="button" title="Quiz is on: the Quiz box opens after the last language, and correct answers go into Learned Vocabulary. Turn it off and clicking a word just cycles its languages.">Turn Quiz OFF</button>
@@ -1256,6 +1314,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
         <div class="tools-bar">
             <button class="tools-button">Tools ▼</button>
             <div class="tools-row">
+                <button id="toggleFullscreen" class="reset-btn fs-btn" type="button" title="Full screen on / off">Full Screen</button>
                 <button id="showAllBtn" class="show-all-btn" type="button" title="Quick reference: show every word at once. Click any word to flip just that word to its next language layer. Keep clicking to reach Hide All, which clears every word off the screen.">Show All</button>
                 <button id="modeToggle" class="mode-toggle" type="button">Show Transitions</button>
                 <button id="resetBtn" class="reset-btn" type="button" title="Start this concept over from the beginning: clears Quiz progress and returns to the start of the line.">Reset</button>
@@ -3354,7 +3413,12 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                 { name: 'Black', v: { '--cx-scheme': 'black', '--mb-text': '#ffffff', '--mb-shadow': 'rgba(0,0,0,.85)', '--page-bg': '#000000', '--grad-edge': '#000000', '--grad-mid': '#000000', '--fill-op': '0', '--line': '#ffffff', '--line-w': '0.5', '--ext-line': '#ffffff', '--word': '#ffffff', '--ext-word': '#ffffff', '--slide': '#ffffff', '--learned': '#66e08a', '--ui': 'rgba(255,255,255,0.7)', '--wm': 'rgba(255,255,255,0.65)', '--wm-glow': '#000000', '--sa-tl': '#ffffff', '--sa-tlr': '#ffffff', '--sa-sl': '#ffffff' } },
                 { name: 'White', v: { '--cx-scheme': 'white', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#ffffff', '--grad-edge': '#ffffff', '--grad-mid': '#ffffff', '--fill-op': '0', '--line': '#000000', '--line-w': '0.5', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.6)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' } },
                 { name: 'Ocean',   v: { '--mb-text': '#0b2e4f', '--mb-shadow': 'rgba(255,255,255,.65)', '--page-bg': '#f4fbff', '--grad-edge': '#1b4f72', '--grad-mid': '#aed6f1', '--fill-op': '0.4', '--line': '#0b3c5d', '--line-w': '0.4', '--ext-line': '#16a085', '--word': '#0b2e4f', '--ext-word': '#0e6655', '--slide': '#c0392b', '--learned': '#117a65' } },
-                { name: 'Night',   v: { '--mb-text': '#ffffff', '--mb-shadow': 'rgba(0,0,0,.7)', '--page-bg': '#14213d', '--grad-edge': '#000814', '--grad-mid': '#3a86ff', '--fill-op': '0.5', '--line': '#ffd60a', '--line-w': '0.4', '--ext-line': '#00f5d4', '--word': '#ffffff', '--ext-word': '#00f5d4', '--slide': '#ffd60a', '--learned': '#2ecc71', '--ui': 'rgba(255,255,255,0.55)', '--wm': 'rgba(255,255,255,0.6)', '--wm-glow': '#14213d', '--sa-tl': '#8ecae6', '--sa-tlr': '#e0c3fc', '--sa-sl': '#ffb3b3' } }
+                { name: 'Night',   v: { '--mb-text': '#ffffff', '--mb-shadow': 'rgba(0,0,0,.7)', '--page-bg': '#14213d', '--grad-edge': '#000814', '--grad-mid': '#3a86ff', '--fill-op': '0.5', '--line': '#ffd60a', '--line-w': '0.4', '--ext-line': '#00f5d4', '--word': '#ffffff', '--ext-word': '#00f5d4', '--slide': '#ffd60a', '--learned': '#2ecc71', '--ui': 'rgba(255,255,255,0.55)', '--wm': 'rgba(255,255,255,0.6)', '--wm-glow': '#14213d', '--sa-tl': '#8ecae6', '--sa-tlr': '#e0c3fc', '--sa-sl': '#ffb3b3' } },
+                { name: 'Outdoors', v: { '--cx-scheme': 'white', '--cx-env': 'outdoors', '--cx-sky': '#87CEEB', '--cx-ground': '#90d98f', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#87CEEB', '--grad-edge': '#87CEEB', '--grad-mid': '#87CEEB', '--fill-op': '0', '--line': '#000000', '--line-w': '0.6', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.65)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' } },
+                { name: 'Forest', v: { '--cx-scheme': 'white', '--cx-env': 'forest', '--cx-sky': '#87CEEB', '--cx-ground': '#1f5a28', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#87CEEB', '--grad-edge': '#87CEEB', '--grad-mid': '#87CEEB', '--fill-op': '0', '--line': '#000000', '--line-w': '0.6', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.65)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' } },
+                { name: 'Sea', v: { '--cx-scheme': 'white', '--cx-env': 'sea', '--cx-sky': '#87CEEB', '--cx-ground': '#1e6fc0', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#87CEEB', '--grad-edge': '#87CEEB', '--grad-mid': '#87CEEB', '--fill-op': '0', '--line': '#000000', '--line-w': '0.6', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.65)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' } },
+                { name: 'Beach', v: { '--cx-scheme': 'white', '--cx-env': 'beach', '--cx-sky': '#87CEEB', '--cx-ground': '#ecd48a', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#87CEEB', '--grad-edge': '#87CEEB', '--grad-mid': '#87CEEB', '--fill-op': '0', '--line': '#000000', '--line-w': '0.6', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.65)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' } },
+                { name: 'Road', v: { '--cx-scheme': 'white', '--cx-env': 'road', '--cx-sky': '#87CEEB', '--cx-ground': '#c4c4c4', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#87CEEB', '--grad-edge': '#87CEEB', '--grad-mid': '#87CEEB', '--fill-op': '0', '--line': '#000000', '--line-w': '0.6', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.65)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' } }
             ];
             let colourIndex = 0;   // 2026-11-24: Black is the default scheme (index 0); White is the printable one
             const colourBtn = document.getElementById('colourToggle');
@@ -4512,7 +4576,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
     let toastT = null;
     function note(text) {
         toast.textContent = text; toast.style.opacity = '1';
-        const r = wrap.getBoundingClientRect();
+        const r = (document.getElementById('audibleBtn') || wrap).getBoundingClientRect();
         toast.style.left = '0px'; toast.style.top = '0px';
         const w = toast.offsetWidth, h = toast.offsetHeight;
         toast.style.left = Math.max(6, Math.min(window.innerWidth - w - 6, r.left + r.width / 2 - w / 2)) + 'px';
@@ -4699,7 +4763,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
   (function () {
     var pb = document.getElementById('printBtn'), WHITE = { '--cx-scheme': 'white', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#ffffff', '--grad-edge': '#ffffff', '--grad-mid': '#ffffff', '--fill-op': '0', '--line': '#000000', '--line-w': '0.5', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.6)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' };
     var keep = null;
-    function toWhite() { if (keep !== null) return; keep = de.style.cssText; Object.keys(WHITE).forEach(function (k) { de.style.setProperty(k, WHITE[k]); }); }
+    function toWhite() { if (keep !== null) return; keep = de.style.cssText; Object.keys(WHITE).forEach(function (k) { de.style.setProperty(k, WHITE[k]); }); ['--cx-env', '--cx-sky', '--cx-ground'].forEach(function (k) { de.style.removeProperty(k); }); }
     function back() { if (keep === null) return; de.style.cssText = keep; keep = null; }
     if (pb) { pb.addEventListener('click', function () { toWhite(); setTimeout(back, 200); }, true); }
     window.addEventListener('beforeprint', toWhite); window.addEventListener('afterprint', back);
@@ -4784,6 +4848,102 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
     }
     new MutationObserver(function () { clearTimeout(t); t = setTimeout(paint, 40); }).observe(svg, { attributes: true, attributeFilter: ['class'], childList: true, subtree: true });
     paint();
+  })();
+})();
+</script>
+
+<script>
+/* gtcv-ui2 (2026-11-25) (c) 2026 Alan William Preston */
+(function () {
+  if (window.__gtUi2) return; window.__gtUi2 = true;
+  var $ = function (id) { return document.getElementById(id); }, de = document.documentElement, svg = $('svgCanvas');
+
+  /* ---- button wording: English here; the App (or a concept card) overrides any of these with the Source Language (SL) wording, via window.CONCEPTIONARY_UI_LABELS or the line below ---- */
+  var UI_LABELS = { fullScreen: 'Full Screen', exitFullScreen: 'Exit Full Screen', reset: 'Reset', showTransitions: 'Show Transitions', showStates: 'Show States', showAll: 'Show All', hideAll: 'Hide All', tools: 'Tools', userManual: 'User Manual', conceptIndex: 'Concept Index', exercises: 'Exercises & Tests', audible: 'Audible Languages', colours: 'Colours', quizOn: 'Turn Quiz ON', quizOff: 'Turn Quiz OFF', randomQuiz: 'Random Quiz', print: 'Print', audibleSilent: 'Silent' };
+  var UI = {}; Object.keys(UI_LABELS).forEach(function (k) { UI[k] = UI_LABELS[k]; });
+  if (window.CONCEPTIONARY_UI_LABELS) Object.keys(window.CONCEPTIONARY_UI_LABELS).forEach(function (k) { if (window.CONCEPTIONARY_UI_LABELS[k]) UI[k] = window.CONCEPTIONARY_UI_LABELS[k]; });
+  function sch(n) { return UI['scheme' + n] || n; }
+
+  /* ---- 1. Tools menu: order, Audible Languages item ---- */
+  var dd = document.querySelector('.tools-dropdown'), wrap = $('audioWrap'), cyc = $('auCycle'), ico = $('auSpk');
+  if (dd) {
+    var ab = document.createElement('button'); ab.id = 'audibleBtn'; ab.type = 'button';
+    ab.innerHTML = '<span class="spk"></span><span class="lbl"></span><span class="state"></span>';
+    var spk = ab.querySelector('.spk'), st = ab.querySelector('.state');
+    function mirror() {
+      if (cyc) st.textContent = /^Silent$/i.test(cyc.textContent) ? UI.audibleSilent : cyc.textContent;
+      if (ico) { var m = ico.style.webkitMaskImage || ico.style.maskImage; if (m) { spk.style.webkitMaskImage = m; spk.style.maskImage = m; } }
+    }
+    ab.addEventListener('click', function (e) { e.stopPropagation(); if (cyc) cyc.click(); setTimeout(mirror, 0); });
+    if (cyc) { new MutationObserver(mirror).observe(cyc, { childList: true, characterData: true, subtree: true }); }
+    if (ico) { new MutationObserver(mirror).observe(ico, { attributes: true, attributeFilter: ['style'] }); }
+    var order = ['userManualBtn', 'loadConcept', 'exercisesBtn', 'audibleBtn', 'colourToggle', 'quizToggle', 'startQuiz', 'printBtn'];
+    dd.appendChild(ab);
+    order.forEach(function (id) { var el = $(id); if (el) dd.appendChild(el); });
+    mirror(); setTimeout(mirror, 400);
+  }
+  var fs = $('toggleFullscreen');
+  if (fs && !(de.requestFullscreen || de.webkitRequestFullscreen)) fs.style.display = 'none';   /* e.g. iPhone Safari cannot do it */
+
+  /* ---- Concept Index opens the Conceptionary App (Home / Search / Browse / Map). Change the one address below to point it elsewhere. ---- */
+  var CONCEPT_INDEX_URL = 'https://conceptionary.github.io/conceptionary-app/';
+  var lc = $('loadConcept');
+  if (lc) lc.addEventListener('click', function (e) {
+    e.stopImmediatePropagation(); e.stopPropagation(); if (dd) dd.classList.remove('active');
+    window.open(CONCEPT_INDEX_URL, '_blank', 'noopener');
+  }, true);
+
+  /* ---- 2. wording: replace English with the SL wording wherever the template (re)writes a button's text ---- */
+  var busy = false;
+  function put(el, t) { if (el && el.textContent !== t) { busy = true; el.textContent = t; busy = false; } }
+  function relabel() {
+    if (busy) return;
+    var t;
+    if ((t = $('toggleFullscreen'))) put(t, (document.fullscreenElement || document.webkitFullscreenElement) ? UI.exitFullScreen : UI.fullScreen);
+    var rb = $('resetBtn'); if (rb) { put(rb, UI.reset); rb.setAttribute('aria-label', UI.reset); rb.title = UI.reset; }
+    var mt = $('modeToggle'); if (mt) { if (mt.textContent === 'Show Transitions') put(mt, UI.showTransitions); else if (mt.textContent === 'Show States') put(mt, UI.showStates); }
+    var sa = $('showAllBtn'); if (sa) { var m = /^(Show All|Hide All)(.*)$/.exec(sa.textContent); if (m) put(sa, (m[1] === 'Show All' ? UI.showAll : UI.hideAll) + m[2]); }
+    var tb = document.querySelector('.tools-button'); if (tb && /^Tools/.test(tb.textContent)) put(tb, UI.tools + ' ▼');
+    var map = { userManualBtn: 'userManual', loadConcept: 'conceptIndex', exercisesBtn: 'exercises', startQuiz: 'randomQuiz', printBtn: 'print' };
+    Object.keys(map).forEach(function (id) { put($(id), UI[map[id]]); });
+    var lbl = document.querySelector('#audibleBtn .lbl'); if (lbl) put(lbl, UI.audible);
+    var cb = $('colourToggle'); if (cb) { var c = /^Colours: (.*)$/.exec(cb.textContent); if (c) put(cb, UI.colours + ': ' + sch(c[1])); else { c = /^[^:]+: (.*)$/.exec(cb.textContent); if (c && UI.colours !== 'Colours') put(cb, UI.colours + ': ' + c[1]); } }
+    var qt = $('quizToggle'); if (qt) { if (/OFF$/.test(qt.textContent)) put(qt, UI.quizOff); else if (/ON$/.test(qt.textContent)) put(qt, UI.quizOn); }
+  }
+  var cbn = $('colourToggle'); if (cbn) cbn.addEventListener('click', function () { setTimeout(relabel, 0); });
+  ['toggleFullscreen', 'resetBtn', 'modeToggle', 'showAllBtn', 'quizToggle'].forEach(function (id) { var el = $(id); if (el) new MutationObserver(relabel).observe(el, { childList: true, characterData: true, subtree: true }); });
+  document.addEventListener('fullscreenchange', relabel); document.addEventListener('webkitfullscreenchange', relabel);
+  relabel(); setTimeout(relabel, 300); window.addEventListener('load', relabel);
+
+  /* ---- 3. the yellow circle pulses until it is used, and again after Reset ---- */
+  var frame = $('draggableFrame');
+  if (frame) {
+    function start() { if (!de.classList.contains('gt-no-pulse') && !frame.classList.contains('gt-pulse')) frame.classList.add('gt-pulse'); }
+    function stop() { if (frame.classList.contains('gt-pulse')) frame.classList.remove('gt-pulse'); }
+    ['pointerdown', 'mousedown', 'touchstart'].forEach(function (t) { frame.addEventListener(t, stop, true); });
+    new MutationObserver(function () { if (frame.classList.contains('dragging')) stop(); }).observe(frame, { attributes: true, attributeFilter: ['class'] });
+    var rst = $('resetBtn'); if (rst) rst.addEventListener('click', function () { setTimeout(start, 80); });
+    var show = $('showAllBtn'); if (show) show.addEventListener('click', function () { });
+    start();
+  }
+
+  /* ---- 4. thematic background: ground drawn below the line / curve, sky above ---- */
+  (function () {
+    var bg = $('conceptBackground'); if (!bg || !svg) return;
+    var g = document.createElementNS('http://www.w3.org/2000/svg', 'path'); g.id = 'gtEnvGround'; bg.parentNode.insertBefore(g, bg);
+    function build() {
+      var d = bg.getAttribute('d') || ''; var m = /^M (.*?) L 130,300 L -30,300 Z$/.exec(d); if (!m) return;
+      var pts = m[1].split(' L '), first = pts[0].split(','), last = pts[pts.length - 1].split(',');
+      g.setAttribute('d', 'M -600,' + first[1] + ' L ' + pts.join(' L ') + ' L 800,' + last[1] + ' L 800,700 L -600,700 Z');
+    }
+    new MutationObserver(build).observe(bg, { attributes: true, attributeFilter: ['d'] }); build();
+    /* a concept card (via the App) can name its setting: window.CONCEPTIONARY_ENVIRONMENT = 'outdoors' | 'forest' | 'sea' | 'beach' | 'road' */
+    function applyEnv() {
+      var want = window.CONCEPTIONARY_ENVIRONMENT, cb = $('colourToggle'); if (!want || !cb) return;
+      var nm = want.charAt(0).toUpperCase() + want.slice(1).toLowerCase();
+      for (var i = 0; i < 12; i++) { if (de.style.getPropertyValue('--cx-env') === want.toLowerCase()) break; cb.click(); }
+    }
+    if (document.readyState === 'complete') applyEnv(); else window.addEventListener('load', function () { setTimeout(applyEnv, 0); });
   })();
 })();
 </script>

@@ -1,10 +1,10 @@
-<!-- Last updated: 2026-11-25 @ 1:18 a.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-11-25 @ 8:32 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPCVN Logographic Generic Template</title>
+    <title>GPCVN Phonographic Generic Template</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -88,6 +88,7 @@
         /* States Template Elements */
         .textBox {
             cursor: pointer;
+            font-size: 4.8px;   /* 75% of the earlier 6.4px (px, not em: browsers clamp em sizes below 6px) */
             fill: black;
             opacity: 0;
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
@@ -135,6 +136,7 @@
 
         /* Transitions Template Elements */
         .sliding-text {
+            font-size: 0.4em;
             font-weight: bold;
             fill: blue;
             cursor: grab;
@@ -264,11 +266,9 @@
             z-index: 9999;
             display: none;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            min-width: 280px;
-            max-width: 600px;
-            width: auto;
+            max-width: 360px;
+            width: 360px;
             cursor: grab;
-            user-select: none;
         }
 
         .quiz-container.dragging {
@@ -492,11 +492,12 @@
             border-bottom: none;
         }
 
-        /* Vocabulary arrays */
+        /* Vocabulary array: ONE combined "Learned Vocabulary" list, kept in path order.
+           Instant-change concepts have no "increasing" or "decreasing" progression. */
         .vocabulary-array {
             position: fixed;
             top: 2%;
-            width: 18vw;
+            width: 22.5vw;
             max-height: calc(100vh - 40px);   /* grows with its content; only the screen height caps it (40px allows for padding + border) */
             overflow-y: auto;
             background-color: rgba(255, 255, 255, 0.95);
@@ -511,7 +512,7 @@
             left: 5%;   /* fallback only: setupArrayDrag() places it at 5% across / 2% down the template box */
         }
 
-        /* Learned Vocabulary array is draggable anywhere on screen (see setupArrayDrag).
+        /* The array is draggable anywhere on screen (see setupArrayDrag).
            touch-action:none lets a finger drag it; when the list overflows, JS adds
            .scrollable so vertical swipes scroll the list instead (title stays a drag handle). */
         .vocabulary-array {
@@ -536,8 +537,7 @@
         }
 
         /* Redundant in this family (removed from view 2026-09-20). The elements and the JS that
-           updates them are left in place so nothing throws; !important beats the inline
-           display:block the JS sets. */
+           updates them are left in place so nothing throws; !important beats any inline display. */
         .level-indicator,
         .concept-indicator {
             display: none !important;
@@ -583,16 +583,8 @@
             background-color: white;
         }
 
-        /* Each learned entry shows all three layers, in click-cycle order:
-           TLR (bold, what the learner is quizzed on) -> TL -> SL. */
-        .vocabulary-item .target-language-roman {
-            font-weight: bold;
-            color: #2c5aa0;
-            margin-bottom: 2px;
-            cursor: pointer;
-        }
-
         .vocabulary-item .target-language {
+            font-weight: bold;
             color: #2c5aa0;
             margin-bottom: 2px;
             cursor: pointer;
@@ -603,7 +595,6 @@
             cursor: pointer;
         }
 
-        .vocabulary-item .target-language-roman.hidden,
         .vocabulary-item .target-language.hidden,
         .vocabulary-item .source-language.hidden {
             color: transparent;
@@ -640,14 +631,12 @@
             opacity: 0;
         }
 
-        /* ── Mobile sizing: frame and touch targets ───────────────────
-           Text sizing is handled in calculateFontSize() (JS), not here,
-           since those sizes are set inline per text box and would
-           override any CSS rule. Frame radius roughly doubled, and
-           touch targets enlarged to meet the ~48px guideline, matching
-           the fix applied across the GT5L/GP3L/IT5L family. Not yet
-           visually confirmed on a real device. Treat as a starting
-           point. */
+        /* ── Mobile sizing: frame, text, and touch targets ────────────
+           Starting values — roughly doubled from desktop for the frame
+           and SVG text, and enlarged to meet the ~48px touch-target
+           guideline for buttons, matching the fix applied across the
+           GT5L/GP3L family. Not yet visually confirmed on a real
+           device. Treat as a starting point. */
         @media (pointer: coarse) {
             body {
                 /* The button bar is now an in-flow block BELOW the frame, so
@@ -668,6 +657,12 @@
             .title-box, .mode-indicator { z-index: 0; }
             #svgCanvas { position: relative; z-index: 1; pointer-events: none; }
             #svgCanvas text, #svgCanvas circle, #svgCanvas rect, #svgCanvas .path-line, #svgCanvas .extension-path { pointer-events: auto; }
+            .textBox {
+                font-size: 0.8em;
+            }
+            .sliding-text {
+                font-size: 0.8em;
+            }
             .tools-button,
             .mode-toggle {
                 min-height: 48px;
@@ -802,6 +797,9 @@
                 .page-wrapper { width: 96vw; }
                 .a4-page { width: 96vw; height: calc(100vh - 66px); }
             }
+
+            /* States-mode text boxes: same size as the Sliding Text on a phone */
+            .textBox, .textBox.extension { font-size: 4.4px; }   /* 75% of the earlier 5.9px */
         }
 
         /* ===== 2026-10-05 refinements ===== */
@@ -847,8 +845,7 @@
 
         /* Desktop / laptop: a bigger frame, and the four buttons as one uniform block, top-left */
         @media (pointer: fine) {
-            /* 2026-10-09: the frame keeps the A4 landscape shape (297:210 = 1.4142) at any window size or embed size:
-               as wide as 97% of the window allows, but never taller than 95% of its height */
+            /* 2026-10-09: the frame keeps the A4 landscape shape (297:210 = 1.4142) at any window size or embed size */
             .page-wrapper { width: min(97vw, calc(95vh * 1.41421)); }
             .a4-page { width: min(97vw, calc(95vh * 1.41421)); height: auto; aspect-ratio: 297 / 210; }
             .page-wrapper { margin-top: 2vh; }   /* leaves room above the frame for the template name marker, which is moved down with it */
@@ -880,6 +877,46 @@
         }
 
         /* ===== 2026-10-05 (late) refinements ===== */
+/* 2026-10-06 */
+/* 2026-10-06 (evening): desktop button block moves to the bottom-left corner (its menu opens upward);
+   the Text size panel opens in the bottom-right corner */
+@media (pointer: fine) {
+  .tools-menu { top: auto; bottom: 15px; left: 15px; right: auto; }
+  .tools-dropdown { top: auto; bottom: 100%; margin-bottom: 4px; left: 0; right: auto; }
+}
+#textSizePanel { top: auto; left: auto; bottom: 15px; right: 15px; transform: none; }
+@media (pointer: coarse) { #textSizePanel { bottom: 70px; right: 8px; } }
+
+
+.sliding-text, .sliding-text.dragging, .sliding-text.learned { font-weight: normal !important; }
+#textSizePanel{position:fixed;top:auto;left:auto;bottom:15px;right:15px;z-index:60;display:none;
+  background:rgba(255,255,255,.96);border:1px solid #888;border-radius:8px;padding:6px 10px 8px;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);font:13px sans-serif;color:#222;width:min(320px,88vw);touch-action:none}
+#textSizePanel .tsHead{cursor:grab;display:flex;justify-content:space-between;align-items:center;font-weight:bold;user-select:none;margin-bottom:4px}
+#textSizePanel .tsHead button{border:0;background:none;font-size:18px;cursor:pointer;line-height:1}
+#textSizePanel .tsTarget{margin:2px 0 4px;min-height:1.2em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#textSizePanel input[type=range]{width:100%;touch-action:pan-y}
+#textSizePanel .tsRow{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:4px}
+#textSizePanel button.tsReset{padding:3px 10px}
+@media (pointer: fine) { #textSizePanel { bottom: calc(15px + 2vh); right: calc(15px + 2vw); } }
+
+        /* Hidden state boxes must not catch clicks: a box scaled to 0.5 sits halfway to the SVG origin
+           (e.g. TL3 near the Line 1 / Line 2 corner) and was covering the yellow circle there */
+        .textBox[style*="opacity: 0"], .textBox:not([style*="opacity"]):not(.active):not(.learned) { pointer-events: none !important; }
+
+        /* Instruction panel: centred on screen, centred at 75% of the frame's height; drag it anywhere */
+        .drag-instruction {
+            position: fixed;
+            top: 75%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90vw;
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .drag-instruction.dragging { cursor: grabbing; }
 /* 2026-10-08: Quiz box - no blank strip under the Check button while there is no feedback text, so the
    padding below equals the padding above; Check button in light blue */
 #quizFeedback:empty { min-height: 0; margin-top: 0; }
@@ -945,46 +982,7 @@
 #testYourselfToast.show { opacity: 1; pointer-events: auto; }
 #testYourselfToast button { font: bold 21px Arial, sans-serif; padding: 12px 24px; color: #0b2e4f; background: #a9d6f5; border: 1px solid #7fb9e0; border-radius: 27px;   /* +50% (was 14px / 8px 16px / 18px) */ box-shadow: 0 2px 8px rgba(0,0,0,.3); cursor: pointer; white-space: nowrap; }
 #testYourselfToast button:hover { background: #8cc6ee; }
-/* 2026-10-06 */
-/* 2026-10-06 (evening): desktop button block moves to the bottom-left corner (its menu opens upward);
-   the Text size panel opens in the bottom-right corner */
-@media (pointer: fine) {
-  .tools-menu { top: auto; bottom: 15px; left: 15px; right: auto; }
-  .tools-dropdown { top: auto; bottom: 100%; margin-bottom: 4px; left: 0; right: auto; }
-}
-#textSizePanel { top: auto; left: auto; bottom: 15px; right: 15px; transform: none; }
-@media (pointer: coarse) { #textSizePanel { bottom: 70px; right: 8px; } }
 
-
-.sliding-text, .sliding-text.dragging, .sliding-text.learned { font-weight: normal !important; }
-#textSizePanel{position:fixed;top:auto;left:auto;bottom:15px;right:15px;z-index:60;display:none;
-  background:rgba(255,255,255,.96);border:1px solid #888;border-radius:8px;padding:6px 10px 8px;
-  box-shadow:0 2px 8px rgba(0,0,0,.3);font:13px sans-serif;color:#222;width:min(320px,88vw);touch-action:none}
-#textSizePanel .tsHead{cursor:grab;display:flex;justify-content:space-between;align-items:center;font-weight:bold;user-select:none;margin-bottom:4px}
-#textSizePanel .tsHead button{border:0;background:none;font-size:18px;cursor:pointer;line-height:1}
-#textSizePanel .tsTarget{margin:2px 0 4px;min-height:1.2em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-#textSizePanel input[type=range]{width:100%;touch-action:pan-y}
-#textSizePanel .tsRow{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:4px}
-#textSizePanel button.tsReset{padding:3px 10px}
-@media (pointer: fine) { #textSizePanel { bottom: calc(15px + 2vh); right: calc(15px + 2vw); } }
-
-        /* Hidden state boxes must not catch clicks: a box scaled to 0.5 sits halfway to the SVG origin
-           (e.g. TL3 near the Line 1 / Line 2 corner) and was covering the yellow circle there */
-        .textBox[style*="opacity: 0"], .textBox:not([style*="opacity"]):not(.active):not(.learned) { pointer-events: none !important; }
-
-        /* Instruction panel: centred on screen, centred at 75% of the frame's height; drag it anywhere */
-        .drag-instruction {
-            position: fixed;
-            top: 75%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            max-width: 90vw;
-            cursor: grab;
-            touch-action: none;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        .drag-instruction.dragging { cursor: grabbing; }
         /* Instruction panel: rounded corners, as narrow as its text (the 2nd line now carries "and hold your phone horizontally") */
         .drag-instruction { width: max-content; border-radius: 14px; }
         /* Desktop: text +50% (0.85em -> 1.275em), filled with the same yellow as the circle (draggableFrame) to point the learner at it; phones keep their size and colour */
@@ -1161,20 +1159,80 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
 }
 @media print { .gt-ghost, #gtLearned { display: none !important; } }
 </style>
+
+<style id="gtcv-ui2-css">
+/* gtcv-ui2 (2026-11-25): pulsing frame, button bar order / spacing / size, Tools menu order, thematic backgrounds */
+/* 1. the yellow circle pulses until the learner touches it (or until Reset) */
+#draggableFrame.gt-pulse { fill: rgba(255, 240, 0, 0.92) !important; stroke: rgba(255, 215, 0, .9); stroke-width: .5; transform-box: fill-box; transform-origin: center; animation: gtPulse 1s ease-in-out infinite alternate; }
+@keyframes gtPulse { from { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 1.6px rgba(255, 230, 0, 1)); } to { opacity: .35; transform: scale(1.22); filter: drop-shadow(0 0 0 rgba(255, 230, 0, 0)); } }
+@media (prefers-reduced-motion: reduce) { #draggableFrame.gt-pulse { animation-duration: 2s; } }
+
+/* 2. the button bar: Full Screen | Reset (icon) | Show Transitions | Show All | Tools, spread evenly across the frame */
+#audioWrap { display: none !important; }
+.tools-row { display: contents; }
+#toggleFullscreen { order: 1 !important; } #resetBtn { order: 2 !important; } .mode-toggle { order: 3 !important; } .show-all-btn { order: 4 !important; } .tools-button { order: 5 !important; }
+.tools-bar { display: flex !important; flex-direction: row !important; flex-wrap: wrap; justify-content: space-evenly; align-items: stretch; width: 100%; box-sizing: border-box; gap: 6px 0; }
+.tools-bar > *, .tools-row > * { width: auto !important; min-width: 0; flex: 0 0 auto; white-space: nowrap; box-sizing: border-box; text-align: center; }
+#resetBtn { font-size: 0 !important; min-width: 2.6em; position: relative; }
+#resetBtn::after { content: ""; position: absolute; inset: 0; margin: auto; width: 19px; height: 19px; background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4V1L7.5 5.5 12 10V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-9z'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4V1L7.5 5.5 12 10V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-9z'/%3E%3C/svg%3E") center / contain no-repeat; }
+@media (pointer: fine) {
+  .tools-menu { left: 0 !important; right: 0 !important; transform: none !important; width: auto !important; padding: 0 3%; box-sizing: border-box; }
+  .tools-bar { font-size: clamp(8px, calc((min(97vw, 134vh) * 0.92 - 40px) / 52), 16.5px); }
+  .tools-button, .show-all-btn, .mode-toggle, .reset-btn { font-size: 1.04em !important; padding: 4px 12px !important; }
+  #resetBtn { font-size: 0 !important; }
+  #resetBtn::after { width: 20px; height: 20px; }
+  #resetBtn { min-width: 36px; }
+  .tools-dropdown { left: auto; right: 3%; width: 17em; font-size: 14px; }
+}
+@media (pointer: coarse) {
+  .tools-menu { width: 100% !important; left: 0 !important; right: 0 !important; margin-left: 0; box-sizing: border-box; }
+  .tools-bar { padding: 0 2px; }
+  .tools-button, .show-all-btn, .mode-toggle, .reset-btn { font-size: 16px !important; padding: 8px 10px !important; min-height: 44px; }
+  #resetBtn { font-size: 0 !important; min-width: 48px; }
+  #resetBtn::after { width: 22px; height: 22px; }
+}
+@media (pointer: coarse) and (max-width: 700px) and (orientation: portrait) {
+  .tools-button, .show-all-btn, .mode-toggle, .reset-btn { font-size: 15px !important; padding: 8px 8px !important; flex: 0 0 auto !important; }
+  .tools-bar { flex-wrap: wrap !important; }
+}
+
+/* 3. the Tools menu */
+.tools-dropdown #audibleBtn { display: flex; align-items: center; gap: 8px; text-align: left; }
+.tools-dropdown #audibleBtn .spk { flex: none; width: 20px; height: 18px; background: currentColor; -webkit-mask: no-repeat center / contain; mask: no-repeat center / contain; }
+.tools-dropdown #audibleBtn .lbl { flex: 1 1 auto; white-space: nowrap; }
+.tools-dropdown #audibleBtn .state { flex: none; opacity: .75; font-size: .85em; }
+.tools-dropdown #textSizeBtn { display: none !important; }
+.tools-dropdown button { text-align: left; }
+.tools-dropdown #printBtn { border-top: 1px solid currentColor; }
+
+/* printing: black and white, A4 landscape (the browser's own Print dialog keeps Copies and the Colour menu) */
+@media print { html { filter: grayscale(1); } }
+
+/* 4. thematic backgrounds: sky above the line / curve, the ground below it */
+#gtEnvGround { display: none; }
+html[style*="--cx-env"] #gtEnvGround { display: block; fill: var(--cx-ground); }
+html[style*="--cx-env"] #conceptBackground { display: none; }
+html[style*="--cx-env"] .a4-page, html[style*="--cx-env"] .page-wrapper { background: var(--cx-sky) !important; }
+html[style*="--cx-env"] .textBox, html[style*="--cx-env"] .showall-word, html[style*="--cx-env"] #interactiveText { paint-order: stroke; stroke: #fff; stroke-width: .7px; stroke-linejoin: round; }
+html[style*="--cx-env"] #gradualChangePath { stroke-width: .7; }
+html[style*="--cx-env: forest"] .watermark, html[style*="--cx-env: sea"] .watermark { color: rgba(255,255,255,.9) !important; }
+html[style*="--cx-env"] .watermark { text-shadow: none; }
+</style>
 </head>
 <body>
     <div class="page-wrapper">
-    <div class="template-id-badge">LOG-GPCVN</div>
+    <div class="template-id-badge">ROM-GPCVN</div>
     <div class="a4-page">
-        <div id="title-box" class="title-box"></div>
+        <div id="title-box" class="title-box">Gradual Permanent Negative Progress</div>
         <div id="mode-indicator" class="mode-indicator">SL States Mode</div>
         <div id="concept-indicator" class="concept-indicator">SL1</div>
         <div id="level-indicator" class="level-indicator">Target Language</div>
         <div id="path-indicator" class="path-indicator">Main Path</div>
-        <div id="drag-instruction" class="drag-instruction">Mobile Phone users: click 'Tools', then 'Full Screen'<br>and hold your phone horizontally.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again.</div>
+        <div id="drag-instruction" class="drag-instruction">Mobile Phone users: tap 'Full Screen'<br>and hold your phone horizontally.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again.</div>
         
-        <!-- Vocabulary Array: ONE combined list of learned items, kept in path order.
-             Instant-change concepts have no "increasing" or "decreasing" progression. -->
+        <!-- Vocabulary Array: ONE combined list of learned items, kept in path order (main path,
+             then extension 1, then extension 2). Instant-change concepts have no "increasing"
+             or "decreasing" progression. -->
         <div id="vocabulary-array" class="vocabulary-array">
             <div class="array-header">
                 <div class="array-title">Learned Vocabulary</div>
@@ -1202,9 +1260,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
             <path id="extensionPath2" class="extension-path" d="M 0,0 L 0.01,0" style="display:none" />
             
             <!-- States Mode Elements -->
-            <!-- Circular draggable frame -->
-            <circle id="draggableFrame" cx="-24" cy="37.5" r="3" 
-                  style="z-index: 10000; pointer-events: all; cursor: grab;"/>
+            <circle id="draggableFrame" cx="-24" cy="37.5" r="3"/>
             
             <!-- Transitions Mode Elements - Single Draggable Text -->
             <text id="interactiveText" class="sliding-text">
@@ -1214,7 +1270,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
             </text>
         </svg>
         <div class="watermark">
-            &copy; 2026 Alan William Preston
+            &copy; 2026 Alan William Preston - GPCVN Phonographic Generic
         </div>
     </div>
 
@@ -1224,9 +1280,6 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
          clip it. -->
 
     <div id="arrayMoveTip" role="status">You can move this</div>
-    <!-- 2026-10-09: "Test yourself" pop-over commented out (to be reused in the User Manual)
-    <div id="testYourselfToast" role="status"><button type="button" id="testYourselfBtn">Test yourself</button></div>
-    -->
 
     <div id="textSizePanel">
         <div class="tsHead"><span>Text size</span><button type="button" id="tsClose" aria-label="Close">&times;</button></div>
@@ -1243,11 +1296,10 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
 
     <div class="tools-menu">
         <div class="tools-dropdown">
-            <button id="toggleFullscreen">Full Screen</button>
             <button id="userManualBtn" type="button" title="How to use these templates">User Manual</button>
             <button id="exercisesBtn" type="button" title="Practise this vocabulary (opens the Index of Exercises)">Exercises &amp; Tests</button>
-            <button id="loadConcept">Load Concept</button>
-            <button id="startQuiz">Start Random Quiz</button>
+            <button id="loadConcept">Concept Index</button>
+            <button id="startQuiz">Random Quiz</button>
             <button id="colourToggle" type="button" title="Try different colour schemes">Colours: Negative</button>
             <button id="textSizeBtn" type="button" title="Enlarge or shrink any word">Text size…</button>
             <button id="quizToggle" type="button" title="Quiz is on: the Quiz box opens after the last language, and correct answers go into Learned Vocabulary. Turn it off and clicking a word just cycles its languages.">Turn Quiz OFF</button>
@@ -1256,6 +1308,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
         <div class="tools-bar">
             <button class="tools-button">Tools ▼</button>
             <div class="tools-row">
+                <button id="toggleFullscreen" class="reset-btn fs-btn" type="button" title="Full screen on / off">Full Screen</button>
                 <button id="showAllBtn" class="show-all-btn" type="button" title="Quick reference: show every word at once. Click any word to flip just that word to its next language layer. Keep clicking to reach Hide All, which clears every word off the screen.">Show All</button>
                 <button id="modeToggle" class="mode-toggle" type="button">Show Transitions</button>
                 <button id="resetBtn" class="reset-btn" type="button" title="Start this concept over from the beginning: clears Quiz progress and returns to the start of the line.">Reset</button>
@@ -1267,30 +1320,29 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
 
     <div id="quizContainer" class="quiz-container">
         <div id="quizMoveHint">You can move this</div>
-        <input type="text" id="quizInput" placeholder="Enter the TLR word">
+        <input type="text" id="quizInput" placeholder="Enter the TL word">
         <button id="quizCheck">Check</button>
         <div id="quizFeedback"></div>
     </div>
 
     <script>
         // Sample vocabulary data - replace with actual concepts
-        // Format: [TLR, TL, SL, Quiz, Position]
         const conceptData = [
-            ["TLR1", "TL1", "SL1", "What is the TLR word for 'SL1'?", 10],
-            ["TLR2", "TL2", "SL2", "What is the TLR word for 'SL2'?", 40],
-            ["TLR3", "TL3", "SL3", "What is the TLR word for 'SL3'?", 60],
-            ["TLR4", "TL4", "SL4", "What is the TLR word for 'SL4'?", 70],
-            ["TLR5", "TL5", "SL5", "What is the TLR word for 'SL5'?", 80]
+            ["TL1", "SL1", "What is the TL word for 'SL1'?", 10],
+            ["TL2", "SL2", "What is the TL word for 'SL2'?", 40],
+            ["TL3", "SL3", "What is the TL word for 'SL3'?", 60],
+            ["TL4", "SL4", "What is the TL word for 'SL4'?", 70],
+            ["TL5", "SL5", "What is the TL word for 'SL5'?", 80]
         ];
+
         const transitionsData = [
-            ["TLR-T1", "TL-T1", "SL-T1", 0, 25],   // 0% to 25%
-            ["TLR-T2", "TL-T2", "SL-T2", 25, 45],   // 25% to 45%
-            ["TLR-T3", "TL-T3", "SL-T3", 45, 65],   // 45% to 65%
-            ["TLR-T4", "TL-T4", "SL-T4", 65, 100]   // 65% to 100%
+            ["TL-T1", "SL-T1", "What is the TL word for 'SL-T1'?", 10],
+            ["TL-T2", "SL-T2", "What is the TL word for 'SL-T2'?", 40],
+            ["TL-T3", "SL-T3", "What is the TL word for 'SL-T3'?", 50],
+            ["TL-T4", "SL-T4", "What is the TL word for 'SL-T4'?", 80]
         ];
 
         // Extension vocabulary for continuation paths
-        // Format: [TLR, TL, SL, Quiz]
         const extensionData = [];   // GPCVN has no continuation lines
 
         // Extension vocabulary expanded for transitions mode
@@ -1308,18 +1360,13 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
         };
         let pathLength = 0;
         let currentQuizIndex = -1;
-        let quizEnabled = true;   // 2026-10-09: the Quiz is ON by default. Tools > Turn Quiz ON/OFF. Off: a word click just cycles its layers; no quiz box, nothing added to the array
-        let currentQuizIsExtension = false; // Track if current quiz is for extension textbox
-        let currentQuizExtIndex = -1; // Extension index for extension textboxes
-        
-        // Quiz container drag state (the drag itself is wired in setupQuizDrag())
-        let quizPosition = { x: null, y: null }; // null = use default centered position
-        let quizJustDragged = false; // swallows the synthetic click a drag-release generates
-        let slidingTextMode = 0; // 0: TLR, 1: TL, 2: SL, 3: Quiz
+        let quizEnabled = true;   // 2026-10-09: the Quiz is ON by default.   (was false)
+        //   // Tools > Quiz On/Off. Off: a word click just cycles its layers; no quiz box, nothing added to the array
+        let slidingTextMode = 0; // 0: TL, 1: SL, 2: Quiz
         let learnedItemsStates = []; // Separate tracking for States Mode
         let learnedItemsTransitions = []; // Separate tracking for Transitions Mode
         let textBoxElements = [];
-        let addedVocabularyItems = [];
+        let addedVocabularyItems = [];   // by global transition index (main, then ext 1, then ext 2)
         let currentTextLayer = new Array(5).fill(0);
         let extensionTextBoxes = [];
         let extensionTextLayers = [0, 0, 0];
@@ -1330,16 +1377,17 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
         let isDraggingText = false;
         let lastDragPoint = null;
         let hasMovedDuringDrag = false;
-        let dragStartClientX = 0, dragStartClientY = 0, dragGrabOffset = 0;
-        const DRAG_THRESHOLD_PX = 8;   // movement below this is a tap, not a drag
-        const MAX_TEXT_OFFSET = 95;    // fallback cap if the word cannot be measured
+        let dragStartClientX = 0;   // pointer position at the start of a text drag (px)
+        let dragStartClientY = 0;
+        let dragGrabOffset = 0;     // path-length between the grab point and the text start
+        const DRAG_THRESHOLD_PX = 8; // movement below this is a tap, not a drag
+        const MAX_TEXT_OFFSET = 95;  // fallback cap if the word cannot be measured
+        let quizJustDragged = false; // swallows the synthetic click a quiz-box drag-release generates
         
         // Title text options
-        // Title cycle: TLR (default) → TL → SL → TLR, per mode. See
-        // "Logographic UI Conventions" in Conceptionary_Template_Definitions.md.
         const titleTexts = {
-            states: ["TLR_TITLE_STATES", "TL_TITLE_STATES", "SL_TITLE_STATES"],
-            transitions: ["TLR_TITLE_TRANSITIONS", "TL_TITLE_TRANSITIONS", "SL_TITLE_TRANSITIONS"]
+            states: ["Gradual Permanent Negative Progress", "Target Language View", "Source Language View"],
+            transitions: ["Concept Transitions", "Dynamic Changes", "Temporal Progression"]
         };
         let currentTextIndex = 0;
         
@@ -1347,8 +1395,6 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
         const activationDistance = 13;   // GPCVN: the largest anti-overlap offset is 11 units
 
         // CENTERED: Rebuilt 5-line system with perfect center alignment
-        // UPRIGHT, in the 160x50 fitted frame: Lines 1 and 5 low (y=40), Line 3 high (y=20);
-        // the two vertical lines are 20 units long.
         const pathPoints = [
             `-30,10.000`,
             `-29,10.000`,
@@ -1787,8 +1833,8 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
             } else {
                 item = getTransitionItem(currentPath, currentOffset);
             }
-            // TLR first, then TL, then SL (SL also stays on show while the quiz is open)
-            const displayText = item.data[Math.min(slidingTextMode, 2)];
+            // TL first; then SL (which also stays on show while the quiz is open)
+            const displayText = (slidingTextMode === 0) ? item.data[0] : item.data[1];
             slidingText.textContent = displayText;
             interactiveText.style.fontSize = (calculateFontSize(displayText) * (window.__tsScale ? window.__tsScale("slide") : 1)) + "px";
             interactiveText.classList.toggle('learned', !!learnedItemsTransitions[item.index]);
@@ -1812,6 +1858,19 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                 currentOffset = clampTextOffset(currentOffset);
             }
             slidingText.setAttribute('startOffset', `${currentOffset}%`);
+        }
+
+        // 2026-10-09: when Transitions Mode opens, the sliding word sits centred on the MID-POINT of Line 1, its bottom edge on the line
+        function centreSlidingOnLineMid(zone) {
+            if (transitionRanges.length === 0) computeTransitionRanges();
+            const r = transitionRanges[zone];
+            if (!r) return;
+            updateTextContent(zone);   // sets the word and its size, and keeps it on its line
+            let lenPct = 0;
+            try { lenPct = (interactiveText.getComputedTextLength() / pathLength) * 100; } catch (e) { return; }
+            currentOffset = (r[0] + r[1]) / 2 - lenPct / 2;
+            currentOffset = fitMainWord(zone, currentOffset);
+            slidingText.setAttribute('startOffset', currentOffset + '%');
         }
 
         // 2026-10-09: when the sliding word moves on to another line / path it glides there (about 0.3 s, eased)
@@ -1845,19 +1904,6 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
             };
         })();
 
-        // 2026-10-10: when Transitions Mode opens, the sliding word sits centred on the MID-POINT of Line 1, its bottom edge on the line
-        function centreSlidingOnLineMid(zone) {
-            if (transitionRanges.length === 0) computeTransitionRanges();
-            const r = transitionRanges[zone];
-            if (!r) return;
-            updateTextContent(zone);
-            let lenPct = 0;
-            try { lenPct = (interactiveText.getComputedTextLength() / pathLength) * 100; } catch (e) { return; }
-            currentOffset = (r[0] + r[1]) / 2 - lenPct / 2;
-            currentOffset = fitMainWord(zone, currentOffset);
-            slidingText.setAttribute('startOffset', currentOffset + '%');
-        }
-
         function updateLevelIndicator() {
             if (isStatesMode) {
                 levelIndicator.style.display = 'none';
@@ -1868,15 +1914,12 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
             
             switch (slidingTextMode) {
                 case 0:
-                    levelIndicator.textContent = 'Target Language Romanized (TLR)';
+                    levelIndicator.textContent = 'Target Language';
                     break;
                 case 1:
-                    levelIndicator.textContent = 'Target Language (TL)';
+                    levelIndicator.textContent = 'Source Language';
                     break;
                 case 2:
-                    levelIndicator.textContent = 'Source Language (SL)';
-                    break;
-                case 3:
                     levelIndicator.textContent = 'Quiz Mode';
                     break;
             }
@@ -1996,23 +2039,18 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
             const item = getTransitionItem(currentPath, currentOffset);
 
             if (learnedItemsTransitions[item.index] || !quizEnabled) {
-                // Cycle TLR -> TL -> SL -> TLR for learned items
-                slidingTextMode = (slidingTextMode + 1) % 3;
+                // Cycle TL <-> SL for learned items
+                slidingTextMode = (slidingTextMode === 0) ? 1 : 0;
                 updateTextContent();
                 updateLevelIndicator();
-                // 2026-10-09 (pop-over off): if (slidingTextMode === 0 && !quizEnabled && currentPath === 'main' && item.index === 0 && window.showTestYourself) window.showTestYourself(interactiveText);   // round the first word: offer the Quiz
             } else {
-                // TLR -> TL -> SL -> Quiz for unlearned items
+                // TL -> SL -> Quiz for unlearned items
                 if (slidingTextMode === 0) {
                     slidingTextMode = 1;
                     updateTextContent();
                     updateLevelIndicator();
                 } else if (slidingTextMode === 1) {
                     slidingTextMode = 2;
-                    updateTextContent();
-                    updateLevelIndicator();
-                } else if (slidingTextMode === 2) {
-                    slidingTextMode = 3;
                     updateLevelIndicator();
                     showQuiz(item.index, interactiveText);
                 } else {
@@ -2038,19 +2076,13 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
         let isDragging = false;
         let currentPathPosition = 0;
 
-        // The frame circle's real radius in path units: CSS doubles it to 3 on
-        // touch devices (pointer: coarse), so the left/right clamp must too, or
-        // the circle is half cut off at either end of the path.
-        function getFrameRadius() {
-            return (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ? 6 : 3;
-        }
-
         function startDrag(e) {
             if (!isStatesMode) return;
             
             isDragging = true;
             frame.classList.add('dragging');
             
+            console.log("Started dragging frame");
             e.preventDefault();
             e.stopPropagation();
         }
@@ -2062,9 +2094,12 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
             const clientY = e.clientY || (e.touches && e.touches[0].clientY);
             
             try {
-                const sp = getSvgPoint(clientX, clientY);
-                const svgX = sp.x;
-                const svgY = sp.y;
+                const svgPoint = svg.createSVGPoint();
+                svgPoint.x = clientX;
+                svgPoint.y = clientY;
+                const transformed = svgPoint.matrixTransform(svg.getScreenCTM().inverse());
+                const svgX = transformed.x;
+                const svgY = transformed.y;
                 
                 // Find closest point on ALL paths (main + extensions)
                 let closestPoint = null;
@@ -2109,21 +2144,9 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                 }
                 
                 if (closestPoint) {
-                    // Circle radius is 1.5 units
-                    const radius = getFrameRadius();
+                    placeFrameAt(closestPoint);
                     
-                    // Constrain circle to stay within viewBox (-30 to 130 on x-axis)
-                    const minX = -30 + radius;   // left edge of the viewBox
-                    const maxX = 130 - radius;   // right edge of the viewBox
-                    
-                    const constrainedX = Math.max(minX, Math.min(maxX, closestPoint.x));
-                    
-                    // Position circle centered on the path
-                    frame.setAttribute('cx', constrainedX);
-                    frame.setAttribute('cy', closestPoint.y);
-                    
-                    // Use constrained position for textbox updates
-                    updateVisibleTextBoxes({ x: constrainedX, y: closestPoint.y });
+                    updateVisibleTextBoxes(closestPoint);
                     
                     // Update concept indicator based on which path we're on
                     if (closestPathName === 'main') {
@@ -2133,7 +2156,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                         for (let i = 0; i <= 100; i++) {
                             const testLength = (i / 100) * pathLength;
                             const testPoint = pathLine.getPointAtLength(testLength);
-                            const dist = Math.sqrt(Math.pow(testPoint.x - constrainedX, 2) + Math.pow(testPoint.y - closestPoint.y, 2));
+                            const dist = Math.sqrt(Math.pow(testPoint.x - closestPoint.x, 2) + Math.pow(testPoint.y - closestPoint.y, 2));
                             if (dist < minDist) {
                                 minDist = dist;
                                 bestPos = i;
@@ -2146,6 +2169,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                         conceptIndicator.textContent = extensionData[1][1] + " (Line 3+)";
                     }
                     
+                    console.log("Dragging on path:", closestPathName);
                 }
                 
             } catch (error) {
@@ -2160,6 +2184,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
             if (isDragging) {
                 isDragging = false;
                 frame.classList.remove('dragging');
+                console.log("Ended dragging frame");
                 
                 if (e) {
                     e.preventDefault();
@@ -2170,36 +2195,43 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
 
         function updateConceptIndicator(position) {
             const closestIndex = conceptData.reduce((closest, data, index) => {
-                const distance = Math.abs(data[4] - position);
+                const distance = Math.abs(data[3] - position);
                 return distance < closest.distance ? { index, distance } : closest;
             }, { index: 0, distance: Infinity }).index;
             
             conceptIndicator.textContent = conceptData[closestIndex][1];
         }
 
+        const VIEWBOX_MIN_X = -30;
+        const VIEWBOX_MAX_X = 130;
+
+        // The frame is a circle centred on a path point. At the two ends of
+        // the path the centre is nudged in by one radius, so the whole circle
+        // stays visible and grabbable. (The radius doubles on touch screens,
+        // matching the CSS rule.)
+        function getFrameRadius() {
+            const r = parseFloat(frame.getAttribute('r')) || 3;
+            return (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ? r * 2 : r;
+        }
+
+        function placeFrameAt(pt) {
+            const r = getFrameRadius();
+            frame.setAttribute('cx', Math.max(VIEWBOX_MIN_X + r, Math.min(VIEWBOX_MAX_X - r, pt.x)));
+            frame.setAttribute('cy', pt.y);
+        }
+
         function initializeFramePosition() {
             currentPathPosition = 0;
             const startPoint = pathLine.getPointAtLength(0);
-            
-            // Circle radius is 1.5 units
-            const radius = getFrameRadius();
-            
-            // Constrain x position: left edge should not go below -30 (viewBox start)
-            const minX = -30 + radius;   // left edge of the viewBox
-            const maxX = 130 - radius;   // right edge of the viewBox
-            const constrainedX = Math.max(minX, Math.min(maxX, startPoint.x));
-            
-            // Position circle centered on the path
-            frame.setAttribute('cx', constrainedX);
-            frame.setAttribute('cy', startPoint.y);
-            
-            updateVisibleTextBoxes({ x: constrainedX, y: startPoint.y });
+            placeFrameAt(startPoint);
+            updateVisibleTextBoxes(startPoint);
             updateConceptIndicator(0);
             
             bringFrameToFront();
             frame.style.pointerEvents = 'all';
             frame.style.cursor = 'grab';
             
+            console.log("Frame initialized at start position");
         }
 
         // Quiz / learned boxes: a box that has been learned is DRAWN at the position plotted by hand (the same
@@ -2289,12 +2321,12 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
             extensionTextBoxes.forEach((textBox, extIndex) => {
                 if (!textBox) return;
                 
-                // Extension textboxes use indices 11-13 in learnedItemsStates array
-                const dataIndex = conceptData.length + extIndex; // 11 + extIndex
+                const dataIndex = extIndex + 5;
                 
                 if (closestIsExtension && extIndex === closestExtIndex && minDistance < activationDistance) {
                     textBox.style.opacity = '1';
                     textBox.style.transform = 'scale(1)';
+                    console.log("Extension textbox", extIndex, "activated at distance", minDistance);
                 } else if (learnedItemsStates[dataIndex]) {
                     textBox.style.opacity = '1';
                     textBox.style.transform = 'scale(1)';
@@ -2308,84 +2340,66 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
             return closestIsExtension ? -1 : closestIndex;
         }
 
-
         function createTextBoxes() {
             if (!isStatesMode) return;
             
-            // Clear existing text boxes
             document.querySelectorAll('.textBox:not(.extension)').forEach(box => {
                 if (box && box.parentNode) box.parentNode.removeChild(box);
             });
             textBoxElements = [];
-            
-            // UPRIGHT layout: Lines 1 and 5 at y=40, Line 3 at y=20. Each label sits beside its own line.
+            // The boxes are rebuilt showing TL, so the click cycle restarts at TL too
+            currentTextLayer = new Array(conceptData.length).fill(0);
+
+            // UPRIGHT layout: Lines 1 and 5 at y=40, Line 3 at y=20 (the vertical lines are 20 units).
+            // Each label sits beside its own line, so it never lies on top of the path.
             const textBoxConfig = [
                 // GPCVN: each word sits 2 units above its place on the path (the positions Alan plotted for the old GPCV files).
-                { x: -12.9, y: 8, anchor: "middle", index: 0 },   // TLR1
-                { x: 38.4, y: 8, anchor: "middle", index: 1 },   // TLR2
-                { x: 66.88, y: 22.07, anchor: "middle", index: 2 },   // TLR3
-                { x: 79.39, y: 33.59, anchor: "middle", index: 3 },   // TLR4
-                { x: 95.81, y: 37.72, anchor: "middle", index: 4 }   // TLR5
+                { x: -12.9, y: 8, anchor: "middle" },   // TL1
+                { x: 38.4, y: 8, anchor: "middle" },   // TL2
+                { x: 66.88, y: 22.07, anchor: "middle" },   // TL3
+                { x: 79.39, y: 33.59, anchor: "middle" },   // TL4
+                { x: 95.81, y: 37.72, anchor: "middle" }   // TL5
             ];
-            
-            // Create text boxes with Phonographic 3-level cycling
-            for (let i = 0; i < textBoxConfig.length; i++) {
+
+            for (let i = 0; i < conceptData.length; i++) {
                 const config = textBoxConfig[i];
-                
+
                 const textBox = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                textBox.setAttribute("class", "textBox");
                 textBox.setAttribute("x", config.x);
                 textBox.setAttribute("y", config.y);
                 textBox.style.textAnchor = config.anchor;   // inline style, not the attribute (CSS specificity)
-                textBox.setAttribute("data-index", config.index);
+                textBox.setAttribute("class", "textBox");
+                textBox.setAttribute("data-index", i);
                 textBox.setAttribute("data-anchor", config.anchor);   // its path-position anchor (restored if the box goes back to its path position)
+                textBox.textContent = conceptData[i][0]; // Start with TL
                 
-                // Set initial text based on current layer (starts with TL)
-                textBox.textContent = conceptData[config.index][currentTextLayer[config.index]];
-                textBox.style.fontSize = calculateFontSize(conceptData[config.index][currentTextLayer[config.index]]) + "px";
+                if (learnedItemsStates[i]) {
+                    textBox.classList.add('learned');
+                }
                 
-                if (learnedItemsStates[config.index]) textBox.classList.add('learned');
-                
-                // Add click event listener with Phonographic 3-level cycling
-                textBox.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
+                textBox.addEventListener('click', function() {
                     const index = parseInt(this.getAttribute('data-index'));
                     
                     if (learnedItemsStates[index] || !quizEnabled) {
-                        // Cycle between TLR, TL, and SL for learned items
+                        // Cycle between TL and SL for learned items
                         if (currentTextLayer[index] === 0) {
-                            currentTextLayer[index] = 1; // TLR -> TL
+                            currentTextLayer[index] = 1; // TL -> SL
                             this.textContent = conceptData[index][1];
-                            this.style.fontSize = calculateFontSize(conceptData[index][1]) + "px";
-                        } else if (currentTextLayer[index] === 1) {
-                            currentTextLayer[index] = 2; // TL -> SL
-                            this.textContent = conceptData[index][2];
-                            this.style.fontSize = calculateFontSize(conceptData[index][2]) + "px";
                         } else {
-                            currentTextLayer[index] = 0; // SL -> TLR
+                            currentTextLayer[index] = 0; // SL -> TL
                             this.textContent = conceptData[index][0];
-                            this.style.fontSize = calculateFontSize(conceptData[index][0]) + "px";
-                            // 2026-10-09 (pop-over off): if (index === 0 && !quizEnabled && window.showTestYourself) window.showTestYourself(this);   // round the first word: offer the Quiz
                         }
                     } else {
-                        // TLR -> TL -> SL -> Quiz cycle for unlearned items
+                        // TL -> SL -> Quiz cycle for unlearned items
                         if (currentTextLayer[index] === 0) {
-                            currentTextLayer[index] = 1; // TLR -> TL
+                            currentTextLayer[index] = 1; // TL -> SL
                             this.textContent = conceptData[index][1];
-                            this.style.fontSize = calculateFontSize(conceptData[index][1]) + "px";
                         } else if (currentTextLayer[index] === 1) {
-                            currentTextLayer[index] = 2; // TL -> SL
-                            this.textContent = conceptData[index][2];
-                            this.style.fontSize = calculateFontSize(conceptData[index][2]) + "px";
-                        } else if (currentTextLayer[index] === 2) {
-                            currentTextLayer[index] = 3; // SL -> Quiz
+                            currentTextLayer[index] = 2; // SL -> Quiz
                             showQuiz(index, this);
                         } else {
                             currentTextLayer[index] = 0; // Reset to TL
                             this.textContent = conceptData[index][0];
-                            this.style.fontSize = calculateFontSize(conceptData[index][0]) + "px";
                         }
                     }
                 });
@@ -2398,6 +2412,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
             // Ensure frame is on top after creating text boxes
             bringFrameToFront();
             
+            console.log("Created", textBoxElements.length, "text boxes at midpoints");
         }
 
         function bringFrameToFront() {
@@ -2408,6 +2423,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                 if (!frame.classList.contains('dragging') && frame !== frame.parentNode.lastElementChild) frame.parentNode.appendChild(frame);   // top level: always grabbable
                 // Re-apply cursor style to ensure it's visible
                 frame.style.cursor = 'grab';
+                console.log("Frame brought to front");
             }
         }
 
@@ -2423,56 +2439,41 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
             
             // Extension 1 text box (on Line 1+ path) - positioned at 50% of x-axis (middle of screen)
             // ViewBox x-axis goes from -30 to 130, so 50% is at x = 50
-            const ext1X = 50;   // UPRIGHT: mid-notch, just above the Line 1 continuation (y=40)
+            const ext1X = 50; // 2026-10-09: directly above TL3 (x 50), on Line 1+ (y 15)
             const ext1Box = document.createElementNS("http://www.w3.org/2000/svg", "text");
             ext1Box.setAttribute("x", ext1X);
-            ext1Box.setAttribute("y", 40);   // 2026-10-11: on the Line 1 continuation, directly below TLR6
+            ext1Box.setAttribute("y", 40);   // on the Line 1 continuation (y=40)
             ext1Box.setAttribute("text-anchor", "middle");
             ext1Box.setAttribute("data-anchor", "middle");
             ext1Box.setAttribute("class", "textBox extension");
             ext1Box.setAttribute("data-extension-index", 0);
             ext1Box.setAttribute("data-index", 5);
             ext1Box.textContent = extensionData[0][0];
-            ext1Box.style.fontSize = calculateFontSize(extensionData[0][0]) + "px";
             ext1Box.style.opacity = '0';
             ext1Box.style.transform = 'scale(0.5)';
             
             ext1Box.addEventListener('click', function() {
                 const extIndex = 0;
-                const dataIndex = conceptData.length + extIndex; // 11 + 0 = 11
+                const dataIndex = 5;
                 
                 if (learnedItemsStates[dataIndex] || !quizEnabled) {
-                    // Cycle between TLR, TL, and SL for learned items
                     if (extensionTextLayers[extIndex] === 0) {
-                        extensionTextLayers[extIndex] = 1; // TLR -> TL
+                        extensionTextLayers[extIndex] = 1;
                         this.textContent = extensionData[extIndex][1];
-                        this.style.fontSize = calculateFontSize(extensionData[extIndex][1]) + "px";
-                    } else if (extensionTextLayers[extIndex] === 1) {
-                        extensionTextLayers[extIndex] = 2; // TL -> SL
-                        this.textContent = extensionData[extIndex][2];
-                        this.style.fontSize = calculateFontSize(extensionData[extIndex][2]) + "px";
                     } else {
-                        extensionTextLayers[extIndex] = 0; // SL -> TLR
+                        extensionTextLayers[extIndex] = 0;
                         this.textContent = extensionData[extIndex][0];
-                        this.style.fontSize = calculateFontSize(extensionData[extIndex][0]) + "px";
                     }
                 } else {
-                    // TLR -> TL -> SL -> Quiz cycle for unlearned items
                     if (extensionTextLayers[extIndex] === 0) {
-                        extensionTextLayers[extIndex] = 1; // TLR -> TL
+                        extensionTextLayers[extIndex] = 1;
                         this.textContent = extensionData[extIndex][1];
-                        this.style.fontSize = calculateFontSize(extensionData[extIndex][1]) + "px";
                     } else if (extensionTextLayers[extIndex] === 1) {
-                        extensionTextLayers[extIndex] = 2; // TL -> SL
-                        this.textContent = extensionData[extIndex][2];
-                        this.style.fontSize = calculateFontSize(extensionData[extIndex][2]) + "px";
-                    } else if (extensionTextLayers[extIndex] === 2) {
-                        extensionTextLayers[extIndex] = 3; // SL -> Quiz
+                        extensionTextLayers[extIndex] = 2;
                         showQuiz(dataIndex, this);
                     } else {
-                        extensionTextLayers[extIndex] = 0; // Reset to TL
+                        extensionTextLayers[extIndex] = 0;
                         this.textContent = extensionData[extIndex][0];
-                        this.style.fontSize = calculateFontSize(extensionData[extIndex][0]) + "px";
                     }
                 }
             });
@@ -2481,57 +2482,42 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
             extensionTextBoxes.push(ext1Box);
             
             // Extension 2 text box (on Line 3+ path) - positioned at MIDPOINT of extension path 2
-            // Extension path 2 goes from x=66.67 to x=100 at y=24.77
-            const ext2MidX = (76.67 + 130) / 2;   // 103.335: midpoint of the Line 3 continuation (x=76.67 to 130, y=35)
+            // Extension path 2 goes from x=76.67 to x=130 at y=20
+            const ext2MidX = (76.67 + 130) / 2; // 103.335
             const ext2Box = document.createElementNS("http://www.w3.org/2000/svg", "text");
             ext2Box.setAttribute("x", ext2MidX);
-            ext2Box.setAttribute("y", 20);   // 2026-10-10: on the Line 3 continuation, centred at its mid-point
+            ext2Box.setAttribute("y", 20);   // on the Line 3 continuation (y=20)
             ext2Box.setAttribute("text-anchor", "middle");
             ext2Box.setAttribute("data-anchor", "middle");
             ext2Box.setAttribute("class", "textBox extension");
             ext2Box.setAttribute("data-extension-index", 1);
             ext2Box.setAttribute("data-index", 6);
             ext2Box.textContent = extensionData[1][0];
-            ext2Box.style.fontSize = calculateFontSize(extensionData[1][0]) + "px";
             ext2Box.style.opacity = '0';
             ext2Box.style.transform = 'scale(0.5)';
             
             ext2Box.addEventListener('click', function() {
                 const extIndex = 1;
-                const dataIndex = conceptData.length + extIndex; // 11 + 1 = 12
+                const dataIndex = 6;
                 
                 if (learnedItemsStates[dataIndex] || !quizEnabled) {
-                    // Cycle between TLR, TL, and SL for learned items
                     if (extensionTextLayers[extIndex] === 0) {
-                        extensionTextLayers[extIndex] = 1; // TLR -> TL
+                        extensionTextLayers[extIndex] = 1;
                         this.textContent = extensionData[extIndex][1];
-                        this.style.fontSize = calculateFontSize(extensionData[extIndex][1]) + "px";
-                    } else if (extensionTextLayers[extIndex] === 1) {
-                        extensionTextLayers[extIndex] = 2; // TL -> SL
-                        this.textContent = extensionData[extIndex][2];
-                        this.style.fontSize = calculateFontSize(extensionData[extIndex][2]) + "px";
                     } else {
-                        extensionTextLayers[extIndex] = 0; // SL -> TLR
+                        extensionTextLayers[extIndex] = 0;
                         this.textContent = extensionData[extIndex][0];
-                        this.style.fontSize = calculateFontSize(extensionData[extIndex][0]) + "px";
                     }
                 } else {
-                    // TLR -> TL -> SL -> Quiz cycle for unlearned items
                     if (extensionTextLayers[extIndex] === 0) {
-                        extensionTextLayers[extIndex] = 1; // TLR -> TL
+                        extensionTextLayers[extIndex] = 1;
                         this.textContent = extensionData[extIndex][1];
-                        this.style.fontSize = calculateFontSize(extensionData[extIndex][1]) + "px";
                     } else if (extensionTextLayers[extIndex] === 1) {
-                        extensionTextLayers[extIndex] = 2; // TL -> SL
-                        this.textContent = extensionData[extIndex][2];
-                        this.style.fontSize = calculateFontSize(extensionData[extIndex][2]) + "px";
-                    } else if (extensionTextLayers[extIndex] === 2) {
-                        extensionTextLayers[extIndex] = 3; // SL -> Quiz
+                        extensionTextLayers[extIndex] = 2;
                         showQuiz(dataIndex, this);
                     } else {
-                        extensionTextLayers[extIndex] = 0; // Reset to TL
+                        extensionTextLayers[extIndex] = 0;
                         this.textContent = extensionData[extIndex][0];
-                        this.style.fontSize = calculateFontSize(extensionData[extIndex][0]) + "px";
                     }
                 }
             });
@@ -2539,98 +2525,103 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
             svg.appendChild(ext2Box);
             extensionTextBoxes.push(ext2Box);
             
+            /* 2026-10-09: Extension 3 (TL+5) commented out - it is covered by TL+1
+            // Extension 3 text box (on Line 5) - positioned at 90% along x-axis
+            // ViewBox x-axis goes from -30 to 130 (total range = 160)
+            // 90% along x-axis: -30 + (0.90 * 160) = 114
+            const ext3X = 114; // 90% on x-axis
+            const ext3Box = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            ext3Box.setAttribute("x", ext3X);
+            ext3Box.setAttribute("y", 33.5);   // below Line 5 (y=40); TL5 sits above it
+            ext3Box.setAttribute("text-anchor", "middle");
+            ext3Box.setAttribute("class", "textBox extension");
+            ext3Box.setAttribute("data-extension-index", 2);
+            ext3Box.setAttribute("data-index", 7);
+            ext3Box.textContent = extensionData[2][0];
+            ext3Box.style.opacity = '0';
+            ext3Box.style.transform = 'scale(0.5)';
+            
+            ext3Box.addEventListener('click', function() {
+                const extIndex = 2;
+                const dataIndex = 7;
+                
+                if (learnedItemsStates[dataIndex] || !quizEnabled) {
+                    if (extensionTextLayers[extIndex] === 0) {
+                        extensionTextLayers[extIndex] = 1;
+                        this.textContent = extensionData[extIndex][1];
+                    } else {
+                        extensionTextLayers[extIndex] = 0;
+                        this.textContent = extensionData[extIndex][0];
+                    }
+                } else {
+                    if (extensionTextLayers[extIndex] === 0) {
+                        extensionTextLayers[extIndex] = 1;
+                        this.textContent = extensionData[extIndex][1];
+                    } else if (extensionTextLayers[extIndex] === 1) {
+                        extensionTextLayers[extIndex] = 2;
+                        showQuiz(dataIndex, this);
+                    } else {
+                        extensionTextLayers[extIndex] = 0;
+                        this.textContent = extensionData[extIndex][0];
+                    }
+                }
+            });
+            
+            svg.appendChild(ext3Box);
+            extensionTextBoxes.push(ext3Box);
+            */
+            
             // Ensure frame is on top after creating extension text boxes
             bringFrameToFront();
             
+            console.log("Created", extensionTextBoxes.length, "extension text boxes");
+            console.log("Extension 1 (Line 1+) position: x=" + ext1X + ", y=40 (50% x-axis)");
+            console.log("Extension 2 (Line 3+) position: x=" + ext2MidX + ", y=20 (midpoint)");
+            // console.log("Extension 3 (Line 5+) position: x=" + ext3X + ", y=40 (90% x-axis)");   // commented out with Extension 3
         }
 
         function showQuiz(index, element) {
-            let currentData;
-            let dataIndex; // Index within the specific data array
-            
+            let slWord;
+
             if (isStatesMode) {
-                // Check if this is an extension textbox by looking at the element's class
-                const isExtension = element && element.classList && element.classList.contains('extension');
-                
-                if (isExtension) {
-                    // Extension textboxes use extensionData
-                    const extIndex = parseInt(element.getAttribute('data-extension-index'));
-                    currentData = extensionData;
-                    currentQuizIndex = index;
-                    currentQuizIsExtension = true;
-                    currentQuizExtIndex = extIndex;
-                    const slWord = extensionData[extIndex][2]; // SL is at index 2
-                    quizInput.placeholder = `What is the TLR word for '${slWord}'?`;
-                } else {
-                    // All 11 main textboxes (indices 0-10) use conceptData
-                    currentData = conceptData;
-                    currentQuizIndex = index;
-                    currentQuizIsExtension = false;
-                    currentQuizExtIndex = -1;
-                    const slWord = conceptData[index][2]; // SL is at index 2
-                    quizInput.placeholder = `What is the TLR word for '${slWord}'?`;
+                const isExt = index >= conceptData.length;
+                const entry = isExt ? extensionData[index - conceptData.length] : conceptData[index];
+                if (!entry) {
+                    console.error("Invalid quiz index:", index);
+                    return;
                 }
+                slWord = entry[1];
             } else {
-                // Transitions mode - index is the learnedItemsIndex
-                currentQuizIndex = index;
-                
-                // Determine which data array and calculate dataIndex
-                if (currentPath === 'main') {
-                    currentData = transitionsData;
-                    dataIndex = index; // Direct mapping for main path (0-4)
-                } else if (currentPath === 'ext1') {
-                    currentData = extension1TransitionData;
-                    dataIndex = index - transitionsData.length; // Subtract offset (index 5 -> dataIndex 0)
-                } else if (currentPath === 'ext2') {
-                    currentData = extension2TransitionData;
-                    dataIndex = index - transitionsData.length - extension1TransitionData.length; // Subtract offset
+                // Transitions mode - index is the global transition index
+                const item = getTransitionItemByIndex(index);
+                if (!item) {
+                    console.error("Invalid quiz index:", index);
+                    return;
                 }
-                
-                const slWord = currentData[dataIndex][2]; // SL is at index 2
-                quizInput.placeholder = `What is the TLR word for '${slWord}'?`;
-                
+                slWord = item.data[1];
+                console.log(`ShowQuiz - Path: ${item.path}, QuizIndex: ${index}, DataIndex: ${item.dataIndex}, SL: ${slWord}`);
             }
-            
+
+            currentQuizIndex = index;
+            quizInput.placeholder = `What is the TL word for '${slWord}'?`;
+
             quizInput.value = '';
             quizFeedback.textContent = '';
-            
-            // Dynamic width based on question length
-            const questionLength = quizInput.placeholder.length;
-            let calculatedWidth;
-            if (questionLength < 30) {
-                calculatedWidth = 280;
-            } else if (questionLength < 50) {
-                calculatedWidth = 360;
-            } else if (questionLength < 70) {
-                calculatedWidth = 450;
-            } else {
-                calculatedWidth = 600;
+
+            quizContainer.style.display = 'block';
+            quizContainer.style.visibility = 'visible';
+            quizContainer.style.opacity = '1';
+            quizContainer.style.zIndex = '9999';
+            if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
+                quizContainer.style.left = ''; quizContainer.style.top = ''; quizContainer.style.transform = '';   // back to the top-left default
+            } else if (!window.__quizUserMoved) {
+                // Desktop default: top-left corner of the box at 5% across / 5% down the template frame
+                const pg = document.querySelector('.a4-page');
+                const pr = pg ? pg.getBoundingClientRect() : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+                quizContainer.style.left = (pr.left + 0.05 * pr.width) + 'px';
+                quizContainer.style.top = (pr.top + 0.05 * pr.height) + 'px';
+                quizContainer.style.transform = 'none';
             }
-            quizContainer.style.width = calculatedWidth + 'px';
-            
-            // Position quiz container (custom position or default centered)
-            if (quizPosition.x !== null && quizPosition.y !== null) {
-                // Use saved custom position
-                quizContainer.style.left = quizPosition.x + 'px';
-                quizContainer.style.top = quizPosition.y + 'px';
-                quizContainer.style.transform = 'none'; // Disable centering transform
-            } else {
-                if (window.matchMedia && window.matchMedia('(pointer: fine)').matches) {
-                    // Desktop default: top-left corner of the box at 5% across / 5% down the template frame,
-                    // close to the first word and its "Test yourself" pop-over
-                    const pg = document.querySelector('.a4-page');
-                    const pr = pg ? pg.getBoundingClientRect() : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
-                    quizContainer.style.left = (pr.left + 0.05 * pr.width) + 'px';
-                    quizContainer.style.top = (pr.top + 0.05 * pr.height) + 'px';
-                    quizContainer.style.transform = 'none';
-                } else {
-                    // Use default centered position
-                    quizContainer.style.left = '50%';
-                    quizContainer.style.top = '40%';
-                    quizContainer.style.transform = 'translate(-50%, -50%)';
-                }
-            }
-            
             const moveHint = document.getElementById('quizMoveHint');
             if (moveHint) {   // "You can move this": shown along the top of the Quiz box for 5 seconds each time it opens
                 clearTimeout(window.__quizHintT1); clearTimeout(window.__quizHintT2);
@@ -2640,14 +2631,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                     window.__quizHintT2 = setTimeout(function () { moveHint.style.display = 'none'; }, 420);
                 }, 5000);
             }
-            quizContainer.style.display = 'block';
-            quizContainer.style.visibility = 'visible';
-            quizContainer.style.opacity = '1';
-            quizContainer.style.zIndex = '9999';
-            if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
-                quizContainer.style.left = ''; quizContainer.style.top = ''; quizContainer.style.transform = '';   // back to the top-left default
-            }
-            
+
             setTimeout(() => {
                 try {
                     quizInput.focus();
@@ -2657,78 +2641,56 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
             }, 100);
         }
 
-        function addToVocabularyArray(index, trackingIndex) {
+        function addToVocabularyArray(index) {
             try {
-                // Use trackingIndex if provided, otherwise use index (for backwards compatibility)
-                const indexToTrack = trackingIndex !== undefined ? trackingIndex : index;
-                
-                // Determine which data to use based on current path in transitions mode
-                let currentData;
-                if (currentPath === 'ext1') {
-                    currentData = extension1TransitionData;
-                } else if (currentPath === 'ext2') {
-                    currentData = extension2TransitionData;
-                } else {
-                    currentData = transitionsData;
-                }
-                
-                const tlr = currentData[index][0];            // TLR — what the quiz tests
-                const targetLanguage = currentData[index][1]; // TL
-                const sourceLanguage = currentData[index][2]; // SL
-                
+                const item = getTransitionItemByIndex(index);
+                if (!item) return;
+
+                const targetLanguage = item.data[0];
+                const sourceLanguage = item.data[1];
+
                 const itemElement = document.createElement('div');
                 itemElement.className = 'vocabulary-item';
-                
-                const tlrSpan = document.createElement('span');
-                tlrSpan.className = 'target-language-roman';
-                tlrSpan.textContent = tlr;
-                
+
                 const targetSpan = document.createElement('span');
                 targetSpan.className = 'target-language';
                 targetSpan.textContent = targetLanguage;
-                
+
                 const sourceSpan = document.createElement('span');
                 sourceSpan.className = 'source-language';
                 sourceSpan.textContent = sourceLanguage;
-                
-                tlrSpan.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    this.classList.toggle('hidden');
-                });
-                
+
                 targetSpan.addEventListener('click', function(e) {
                     e.stopPropagation();
                     this.classList.toggle('hidden');
                 });
-                
+
                 sourceSpan.addEventListener('click', function(e) {
                     e.stopPropagation();
                     this.classList.toggle('hidden');
                 });
-                
-                
-                itemElement.appendChild(tlrSpan);
+
                 itemElement.appendChild(targetSpan);
                 itemElement.appendChild(sourceSpan);
-                
-                // One combined list, kept in path order whatever order the items
-                // were learned in (main path first, then extension 1, then
-                // extension 2, by global index): insert before the first entry
-                // with a higher index (null = append at the end).
-                itemElement.setAttribute('data-index', indexToTrack);
+
+                // One combined list, kept in path order (main path, then
+                // extension 1, then extension 2) whatever order the items were
+                // learned in: insert before the first entry with a higher
+                // global index (null = append at the end).
+                itemElement.setAttribute('data-index', index);
                 let insertBeforeEl = null;
                 for (const child of vocabularyItems.children) {
-                    if (parseInt(child.getAttribute('data-index'), 10) > indexToTrack) {
+                    if (parseInt(child.getAttribute('data-index'), 10) > index) {
                         insertBeforeEl = child;
                         break;
                     }
                 }
                 vocabularyItems.insertBefore(itemElement, insertBeforeEl);
-                addedVocabularyItems[indexToTrack] = true;
+                addedVocabularyItems[index] = true;
                 vocabularyArray.style.display = 'block';
                 if (arrayCollapsed) setVocabularyCollapsed(false);   // a newly learned word must never be hidden
-                
 
+                console.log("Added vocabulary item:", targetLanguage, "->", sourceLanguage, "from path:", item.path);
             } catch (error) {
                 console.error("Error adding vocabulary item:", error);
             }
@@ -2736,84 +2698,63 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
 
         function checkQuizAnswer() {
             if (currentQuizIndex < 0) return;
-            
-            let currentData;
-            let dataIndex;
-            
+
+            // The item is fixed when the quiz opens (currentQuizIndex is the
+            // global index), so moving the sliding text meanwhile cannot make
+            // the answer be checked against a different item.
+            let entry;
             if (isStatesMode) {
-                // Use the tracking variables set by showQuiz
-                if (currentQuizIsExtension) {
-                    // Extension textbox
-                    currentData = extensionData;
-                    dataIndex = currentQuizExtIndex;
-                } else {
-                    // Main textbox (all 11 main textboxes use conceptData)
-                    currentData = conceptData;
-                    dataIndex = currentQuizIndex;
-                }
+                const isExt = currentQuizIndex >= conceptData.length;
+                entry = isExt ? extensionData[currentQuizIndex - conceptData.length] : conceptData[currentQuizIndex];
             } else {
-                if (currentPath === 'main') {
-                    currentData = transitionsData;
-                    dataIndex = currentQuizIndex;
-                } else if (currentPath === 'ext1') {
-                    currentData = extension1TransitionData;
-                    dataIndex = currentQuizIndex - transitionsData.length;
-                } else if (currentPath === 'ext2') {
-                    currentData = extension2TransitionData;
-                    dataIndex = currentQuizIndex - transitionsData.length - extension1TransitionData.length;
-                }
+                const item = getTransitionItemByIndex(currentQuizIndex);
+                entry = item ? item.data : null;
             }
-            
+            if (!entry) return;
+
             const userAnswer = quizInput.value.trim();
-            const correctAnswer = currentData[dataIndex][0]; // TLR is at index 0
-            
+            const correctAnswer = entry[0];
+
             if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
                 quizFeedback.textContent = 'Correct!';
                 quizFeedback.style.color = 'green';
                 const answeredIndex = currentQuizIndex;
-                
+
                 if (isStatesMode) {
                     // Mark as learned in States Mode only
-                    if (currentQuizIsExtension) {
-                        // Extension textbox - use correct index (11-13)
-                        const correctIndex = conceptData.length + currentQuizExtIndex;
-                        learnedItemsStates[correctIndex] = true;
-                        
-                        const extBox = extensionTextBoxes[currentQuizExtIndex];
+                    learnedItemsStates[answeredIndex] = true;
+
+                    if (answeredIndex >= conceptData.length) {
+                        const extIndex = answeredIndex - conceptData.length;
+                        const extBox = extensionTextBoxes[extIndex];
                         if (extBox) {
                             extBox.classList.add('learned');
-                            extBox.textContent = extensionData[currentQuizExtIndex][0];
+                            extBox.textContent = extensionData[extIndex][0];
                         }
-                        extensionTextLayers[currentQuizExtIndex] = 0;
-                        placeLearnedBoxes();   // the learned extension word moves to its plotted position
+                        extensionTextLayers[extIndex] = 0;
                     } else {
-                        // Main textbox - use currentQuizIndex directly (0-4)
-                        learnedItemsStates[currentQuizIndex] = true;
-                        
-                        const textBox = textBoxElements[currentQuizIndex];
+                        const textBox = textBoxElements[answeredIndex];
                         if (textBox) {
                             textBox.classList.add('learned');
-                            textBox.textContent = conceptData[currentQuizIndex][0];
+                            textBox.textContent = conceptData[answeredIndex][0];
                         }
-                        currentTextLayer[currentQuizIndex] = 0;
-                        placeLearnedBoxes();   // the learned word moves to its plotted position
+                        currentTextLayer[answeredIndex] = 0;
                     }
+                    placeLearnedBoxes();   // the learned word moves to its plotted (staggered) position
                 } else {
                     // Mark as learned in Transitions Mode only
-                    learnedItemsTransitions[currentQuizIndex] = true;
-                    
+                    learnedItemsTransitions[answeredIndex] = true;
+
                     slidingTextMode = 0;
                     updateTextContent();
                     updateLevelIndicator();
-                    
-                    // Add to the one combined vocabulary list. currentQuizIndex is the
-                    // global index (main path, then ext1, then ext2), so each item is
-                    // filed once and sorted into path order.
-                    if (!addedVocabularyItems[currentQuizIndex]) {
-                        addToVocabularyArray(dataIndex, currentQuizIndex);
+
+                    // Add to the vocabulary array (once)
+                    if (!addedVocabularyItems[answeredIndex]) {
+                        addToVocabularyArray(answeredIndex);
                     }
                 }
-                
+
                 setTimeout(() => {
                     // Only close our own quiz - the learner may already have opened another
                     if (currentQuizIndex === answeredIndex) {
@@ -2850,12 +2791,8 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
         }
 
         function toggleMode() {
+            console.log("Toggling mode from", isStatesMode ? "States" : "Transitions");
             isStatesMode = !isStatesMode;
-
-            // Reset to TLR default on mode switch — otherwise a learner who
-            // had cycled to SL/TL in the old mode lands on the same index
-            // in the new mode instead of starting fresh at TLR.
-            currentTextIndex = 0;
             
             if (isStatesMode) {
                 // Switch to States mode
@@ -2878,6 +2815,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                     bringFrameToFront();
                     frame.style.pointerEvents = 'all';
                     frame.style.cursor = 'grab';
+                    console.log("Frame ready in States mode");
                 }, 100);
                 
                 vocabularyArray.style.display = 'none';
@@ -2935,7 +2873,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                     return;
                 }
                 
-                const spans = container.querySelectorAll('.vocabulary-item .target-language-roman, .vocabulary-item .target-language, .vocabulary-item .source-language');
+                const spans = container.querySelectorAll('.vocabulary-item .target-language, .vocabulary-item .source-language');
                 
                 let visibleCount = 0;
                 spans.forEach(span => {
@@ -2973,11 +2911,13 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
             frame.addEventListener('mouseenter', function() {
                 if (!isDragging && isStatesMode) {
                     this.style.cursor = 'grab';
+                    console.log("Mouse entered frame - cursor set to grab");
                 }
             });
             
             frame.addEventListener('mouseleave', function() {
                 if (!isDragging) {
+                    console.log("Mouse left frame");
                 }
             });
             
@@ -3303,10 +3243,8 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                     newTop = Math.max(0, Math.min(newTop, maxTop));
                     qc.style.left = newLeft + 'px';
                     qc.style.top = newTop + 'px';
-                    // Remember where the learner put it, so the next quiz opens there
-                    quizPosition.x = newLeft;
-                    quizPosition.y = newTop;
                     dragMoved = true;
+                    window.__quizUserMoved = true;   // the learner has placed the Quiz box: stop re-applying the default spot
                     if (e.touches) e.preventDefault();
                 }
 
@@ -3333,6 +3271,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                 document.addEventListener('touchend', quizDragEnd);
             })();
             
+            
             if (toolsButton) {
                 toolsButton.addEventListener('click', function(e) {
                     e.stopPropagation();
@@ -3354,7 +3293,12 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                 { name: 'Black', v: { '--cx-scheme': 'black', '--mb-text': '#ffffff', '--mb-shadow': 'rgba(0,0,0,.85)', '--page-bg': '#000000', '--grad-edge': '#000000', '--grad-mid': '#000000', '--fill-op': '0', '--line': '#ffffff', '--line-w': '0.5', '--ext-line': '#ffffff', '--word': '#ffffff', '--ext-word': '#ffffff', '--slide': '#ffffff', '--learned': '#66e08a', '--ui': 'rgba(255,255,255,0.7)', '--wm': 'rgba(255,255,255,0.65)', '--wm-glow': '#000000', '--sa-tl': '#ffffff', '--sa-tlr': '#ffffff', '--sa-sl': '#ffffff' } },
                 { name: 'White', v: { '--cx-scheme': 'white', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#ffffff', '--grad-edge': '#ffffff', '--grad-mid': '#ffffff', '--fill-op': '0', '--line': '#000000', '--line-w': '0.5', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.6)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' } },
                 { name: 'Ocean',   v: { '--mb-text': '#0b2e4f', '--mb-shadow': 'rgba(255,255,255,.65)', '--page-bg': '#f4fbff', '--grad-edge': '#1b4f72', '--grad-mid': '#aed6f1', '--fill-op': '0.4', '--line': '#0b3c5d', '--line-w': '0.4', '--ext-line': '#16a085', '--word': '#0b2e4f', '--ext-word': '#0e6655', '--slide': '#c0392b', '--learned': '#117a65' } },
-                { name: 'Night',   v: { '--mb-text': '#ffffff', '--mb-shadow': 'rgba(0,0,0,.7)', '--page-bg': '#14213d', '--grad-edge': '#000814', '--grad-mid': '#3a86ff', '--fill-op': '0.5', '--line': '#ffd60a', '--line-w': '0.4', '--ext-line': '#00f5d4', '--word': '#ffffff', '--ext-word': '#00f5d4', '--slide': '#ffd60a', '--learned': '#2ecc71', '--ui': 'rgba(255,255,255,0.55)', '--wm': 'rgba(255,255,255,0.6)', '--wm-glow': '#14213d', '--sa-tl': '#8ecae6', '--sa-tlr': '#e0c3fc', '--sa-sl': '#ffb3b3' } }
+                { name: 'Night',   v: { '--mb-text': '#ffffff', '--mb-shadow': 'rgba(0,0,0,.7)', '--page-bg': '#14213d', '--grad-edge': '#000814', '--grad-mid': '#3a86ff', '--fill-op': '0.5', '--line': '#ffd60a', '--line-w': '0.4', '--ext-line': '#00f5d4', '--word': '#ffffff', '--ext-word': '#00f5d4', '--slide': '#ffd60a', '--learned': '#2ecc71', '--ui': 'rgba(255,255,255,0.55)', '--wm': 'rgba(255,255,255,0.6)', '--wm-glow': '#14213d', '--sa-tl': '#8ecae6', '--sa-tlr': '#e0c3fc', '--sa-sl': '#ffb3b3' } },
+                { name: 'Outdoors', v: { '--cx-scheme': 'white', '--cx-env': 'outdoors', '--cx-sky': '#87CEEB', '--cx-ground': '#90d98f', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#87CEEB', '--grad-edge': '#87CEEB', '--grad-mid': '#87CEEB', '--fill-op': '0', '--line': '#000000', '--line-w': '0.6', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.65)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' } },
+                { name: 'Forest', v: { '--cx-scheme': 'white', '--cx-env': 'forest', '--cx-sky': '#87CEEB', '--cx-ground': '#1f5a28', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#87CEEB', '--grad-edge': '#87CEEB', '--grad-mid': '#87CEEB', '--fill-op': '0', '--line': '#000000', '--line-w': '0.6', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.65)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' } },
+                { name: 'Sea', v: { '--cx-scheme': 'white', '--cx-env': 'sea', '--cx-sky': '#87CEEB', '--cx-ground': '#1e6fc0', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#87CEEB', '--grad-edge': '#87CEEB', '--grad-mid': '#87CEEB', '--fill-op': '0', '--line': '#000000', '--line-w': '0.6', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.65)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' } },
+                { name: 'Beach', v: { '--cx-scheme': 'white', '--cx-env': 'beach', '--cx-sky': '#87CEEB', '--cx-ground': '#ecd48a', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#87CEEB', '--grad-edge': '#87CEEB', '--grad-mid': '#87CEEB', '--fill-op': '0', '--line': '#000000', '--line-w': '0.6', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.65)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' } },
+                { name: 'Road', v: { '--cx-scheme': 'white', '--cx-env': 'road', '--cx-sky': '#87CEEB', '--cx-ground': '#c4c4c4', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#87CEEB', '--grad-edge': '#87CEEB', '--grad-mid': '#87CEEB', '--fill-op': '0', '--line': '#000000', '--line-w': '0.6', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.65)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' } }
             ];
             let colourIndex = 0;   // 2026-11-24: Black is the default scheme (index 0); White is the printable one
             const colourBtn = document.getElementById('colourToggle');
@@ -3508,102 +3452,6 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                 arr.addEventListener('pointerdown', hide);   // grabbing the array: the message has done its job
             })();
 
-            // ----- "Test yourself" pop-over: after the learner has clicked right round the FIRST word (TLR1 / TLR-T1)
-            // with the Quiz off, offer a one-click way to turn the Quiz on. Shown for 5 seconds, 5% of the frame's
-            // height above that word. Only the first word ever triggers it.
-            (function () {
-                const toast = document.getElementById('testYourselfToast');
-                const tbtn = document.getElementById('testYourselfBtn');
-                if (!toast || !tbtn) return;
-                let hideT = null, fadeT = null;
-                function hide() {
-                    clearTimeout(hideT); clearTimeout(fadeT);
-                    toast.classList.remove('show');
-                    fadeT = setTimeout(function () { toast.style.display = 'none'; }, 320);
-                }
-                window.showTestYourself = function (anchorEl) {
-                    if (quizEnabled || !anchorEl) return;
-                    const page = document.querySelector('.a4-page');
-                    const ar = anchorEl.getBoundingClientRect();
-                    const fh = page ? page.getBoundingClientRect().height : window.innerHeight;
-                    clearTimeout(hideT); clearTimeout(fadeT);
-                    toast.style.display = 'block';
-                    const tr = toast.getBoundingClientRect();
-                    let left = ar.left + ar.width / 2 - tr.width / 2;
-                    let top = ar.top - 0.05 * fh - tr.height;
-                    if (top < 4) top = ar.bottom + 0.05 * fh;   // no room above: just below the word
-                    left = Math.max(6, Math.min(left, window.innerWidth - tr.width - 6));
-                    toast.style.left = left + 'px'; toast.style.top = top + 'px';
-                    void toast.offsetWidth;
-                    toast.classList.add('show');
-                    hideT = setTimeout(hide, 5000);
-                };
-                tbtn.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    hide();
-                    const q = document.getElementById('quizToggle');
-                    if (q && !quizEnabled) q.click();   // the same function as Tools > Turn Quiz ON
-                });
-                document.addEventListener('pointerdown', function (e) { if (!toast.contains(e.target)) hide(); }, true);
-            })();
-
-            // ----- Coordinate Grid (Tools > Coordinate Grid): for reading off x / y positions by hand -----
-            // Red lines every 10% across and down the diagram. Each label gives the % and, after the dot,
-            // the SVG coordinate used in the template's own code (viewBox -30 0 160 50:
-            // x = -30 + 1.6 * x%,  y = 0.5 * y%). 0% and 100% are the box edges; the frame shows more, so
-            // lines beyond them carry negative / over-100% labels (a box can be placed there too).
-            (function () {
-                const gridBtn = document.getElementById('toggleGrid');
-                const svgEl = document.getElementById('svgCanvas');
-                if (!gridBtn || !svgEl) return;
-                const NS = 'http://www.w3.org/2000/svg';
-                const VB = { x: -30, y: 0, w: 160, h: 50 };
-                const fmt = n => String(Math.round(n * 100) / 100);
-                function mk(tag, attrs) {
-                    const el = document.createElementNS(NS, tag);
-                    Object.keys(attrs).forEach(k => el.setAttribute(k, attrs[k]));
-                    el.style.pointerEvents = 'none';   // inline: beats the touch rule that re-enables clicks on SVG text
-                    return el;
-                }
-                function buildGrid() {
-                    // The diagram is "meet"-fitted into the frame, so the frame shows MORE than the 0-100% box
-                    // (extra rows above and below on a wide window). Cover everything visible, labelling
-                    // lines outside the box with negative or over-100% values.
-                    const r = svgEl.getBoundingClientRect();
-                    const sc = Math.min(r.width / VB.w, r.height / VB.h) || 1;
-                    const x0 = VB.x + VB.w / 2 - r.width / sc / 2, x1 = VB.x + VB.w / 2 + r.width / sc / 2;
-                    const y0 = VB.y + VB.h / 2 - r.height / sc / 2, y1 = VB.y + VB.h / 2 + r.height / sc / 2;
-                    const g = mk('g', { id: 'coordinateGrid' });
-                    const line = (ax, ay, bx, by, strong) => g.appendChild(mk('line', { x1: ax, y1: ay, x2: bx, y2: by, stroke: 'red', 'stroke-width': strong ? 0.25 : 0.12, opacity: strong ? 0.8 : 0.5 }));
-                    for (let p = Math.ceil((x0 - VB.x) / VB.w * 10) * 10; ; p += 10) {
-                        const x = VB.x + VB.w * p / 100; if (x > x1 + 0.001) break;
-                        line(x, y0, x, y1, p === 0 || p === 100);
-                        const lx = mk('text', { x: x + 0.4, y: y0 + 1.9, 'font-size': 1.7, fill: 'red' });
-                        lx.textContent = p + '% \u00b7 ' + fmt(x); g.appendChild(lx);
-                    }
-                    for (let p = Math.ceil((y0 - VB.y) / VB.h * 10) * 10; ; p += 10) {
-                        const y = VB.y + VB.h * p / 100; if (y > y1 + 0.001) break;
-                        line(x0, y, x1, y, p === 0 || p === 100);
-                        if (y - y0 < 3.2) continue;   // keep clear of the x labels along the top edge
-                        const ly = mk('text', { x: x0 + 0.4, y: y + 1.9, 'font-size': 1.7, fill: 'red' });
-                        ly.textContent = p + '% \u00b7 ' + fmt(y); g.appendChild(ly);
-                    }
-                    return g;
-                }
-                function redrawGrid() {
-                    const old = document.getElementById('coordinateGrid');
-                    if (old) { old.remove(); svgEl.appendChild(buildGrid()); }
-                }
-                window.addEventListener('resize', redrawGrid);
-                gridBtn.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    const old = document.getElementById('coordinateGrid');
-                    if (old) { old.remove(); gridBtn.textContent = 'Coordinate Grid'; }
-                    else { svgEl.appendChild(buildGrid()); gridBtn.textContent = 'Coordinate Grid: On'; }
-                    dropdownOpen = false; toolsDropdown.classList.remove('active');
-                });
-            })();
-
             const quizToggleBtn = document.getElementById('quizToggle');
             if (quizToggleBtn) {
                 quizToggleBtn.addEventListener('click', function(e) {
@@ -3634,24 +3482,10 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                     dropdownOpen = false;
                     toolsDropdown.classList.remove('active');
                     
-                    if (isStatesMode) {
-                        showQuiz(Math.floor(Math.random() * conceptData.length), null);
-                    } else {
-                        // Transitions quiz indices are global across paths (main,
-                        // then ext1, then ext2) and showQuiz()/checkQuizAnswer()
-                        // resolve them via currentPath — so pick within the path
-                        // the sliding text is currently on.
-                        let base = 0;
-                        let count = transitionsData.length;
-                        if (currentPath === 'ext1') {
-                            base = transitionsData.length;
-                            count = extension1TransitionData.length;
-                        } else if (currentPath === 'ext2') {
-                            base = transitionsData.length + extension1TransitionData.length;
-                            count = extension2TransitionData.length;
-                        }
-                        showQuiz(base + Math.floor(Math.random() * count), null);
-                    }
+                    const itemCount = isStatesMode
+                        ? conceptData.length + extensionData.length
+                        : transitionsData.length + extension1TransitionData.length + extension2TransitionData.length;
+                    showQuiz(Math.floor(Math.random() * itemCount), null);
                 });
             }
                         
@@ -3661,8 +3495,6 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                 });
             }
             
-
-            
             // Document click handler for closing quizzes
             document.addEventListener('click', function(e) {
                 // Swallow the one synthetic click that follows a quiz-box drag-release
@@ -3670,7 +3502,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                     quizJustDragged = false;
                     return;
                 }
-                if (quizContainer.style.display !== 'none' && 
+                if (quizContainer.style.display !== 'none' &&  
                     !quizContainer.contains(e.target) &&
                     !e.target.classList.contains('textBox') &&
                     !e.target.classList.contains('sliding-text')) {
@@ -3749,13 +3581,9 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
         // changes what has been learned. Click a single word to flip just that
         // word to its next layer (no Quiz). Every word carries data-kind /
         // data-index / data-layer so audio can later be attached.
-        // Logographic: three layers, in the order TL -> TLR -> SL (the script, then how to
-        // read it, then what it means). To make it TLR-first, like the title and the
-        // click cycle, put the TLR entry first.
         const SHOW_ALL_LAYERS = [
-            { label: 'TLR', column: 0, cls: 'layer-tlr' },
-            { label: 'TL',  column: 1, cls: 'layer-tl'  },
-            { label: 'SL',  column: 2, cls: 'layer-sl'  }
+            { label: 'TL', column: 0, cls: 'layer-tl' },
+            { label: 'SL', column: 1, cls: 'layer-sl' }
         ];
         // -1 = off (the normal interactive view); 0 ... SHOW_ALL_LAYERS.length-1 =
         // a language layer; SHOW_ALL_LAYERS.length = the Hide All level
@@ -3765,7 +3593,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
         let showAllGroup = null;
         let showAllWords = [];
         const SA_MAIN_SIDES = ['at', 'at', 'at', 'at', 'at'];   // 'at' = exactly where the live state label sits, with its own anchor
-        const SA_EXT_SIDES = ['at', 'at', 'at'];                // the extension states, likewise
+        const SA_EXT_SIDES = ['at', 'at', 'at'];                // the three extension states, likewise
 
         // Show All: positions fixed by hand with the Coordinate Grid (Alan, 2026-10-07). Values are grid
         // percentages [x%, y%]; converted to SVG units (viewBox -30 0 160 50): x = -30 + 1.6 * x%, y = 0.5 * y%.
@@ -3774,17 +3602,17 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
         const SA_FIXED_STATE = {};   // GPCVN: learned and Show All words stay at their display places
         const SA_FIXED_MIDDLE = {};
         const SA_FIXED_END = {};
-        const SA_FIXED_TRANS = { m0: [10.69, 13], m1: [42.75, 13], m2: [53.21, 16.43], m3: [78.63, 72.43] };   // each transition just above its old position on the path
-        function saGridToSvg(p) { return { x: -30 + 1.6 * p[0], y: 0.5 * p[1] }; }
+                function saGridToSvg(p) { return { x: -30 + 1.6 * p[0], y: 0.5 * p[1] }; }
 
         // Font size of a Show All word. A literal SVG-unit size, never em: em
         // on dynamically created SVG text is unreliable (see HT fix #1).
         function saFontSize(text) {
-            return calculateFontSize(text);
+            return (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ? 7 : 3.5;   // doubled on touch screens, like the live labels
         }
 
         function saMainZone(i) {
-            return [transitionsData[i][3], transitionsData[i][4]];
+            if (transitionRanges.length === 0) computeTransitionRanges();
+            return transitionRanges[i];
         }
 
         function saCloseQuiz() {
@@ -3804,7 +3632,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
         // Where a state word goes relative to its label point on the path
         function saPlaceState(word, f) {
             const side = word.cand[0];
-            let x = word.x, y = word.y, anchor = word.anchor || 'middle';   // an edge label keeps its own start/end anchor, so it is not cut off by the frame
+            let x = word.x, y = word.y, anchor = word.anchor || 'middle';
             if (side === 'at') { /* x, y and anchor stay exactly as the live label has them */ }
             else if (side === 'above') y = word.y - 0.55 * f;
             else if (side === 'below') y = word.y + 1.3 * f;
@@ -3823,19 +3651,24 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
             word.el.setAttribute('data-layer', layer.label);
             const f = saFontSize(text) * word.cand[1];
             word.el.style.fontSize = f + 'px';
-            if (word.kind === 'state' || word.fixed) {
+            if (word.kind === 'state') {
                 word.el.textContent = text;
                 saPlaceState(word, f);
             } else {
                 // dy goes on a <tspan> inside the textPath: Chromium ignores dy on
                 // <textPath> itself, but honours it (and getBBox() reflects it) on a tspan
                 word.ts.textContent = text;
-                word.ts.setAttribute('dy', word.cand[0] === 'below' ? 1.3 * f : -0.6 * f);
-                let lenPct = 0;
-                try { lenPct = (word.el.getComputedTextLength() / word.pathEl.getTotalLength()) * 100; } catch (e) { /* keep 0 */ }
-                const centre = (word.zone[0] + word.zone[1]) / 2;
-                const start = Math.max(0, Math.min(100 - lenPct, centre - lenPct / 2));
-                word.tp.setAttribute('startOffset', start + '%');
+                word.ts.setAttribute('dy', word.cand[0] === 'below' ? 1.3 * f : 0);   // 2026-10-09: bottom edge ON the line
+                if (word.sideLine) {   // a vertical line: the word lies horizontally, centred on the line's mid-point
+                    word.el.style.textAnchor = 'middle';
+                    word.tp.setAttribute('startOffset', '50%');
+                } else {
+                    let lenPct = 0;
+                    try { lenPct = (word.el.getComputedTextLength() / word.pathEl.getTotalLength()) * 100; } catch (e) { /* keep 0 */ }
+                    const centre = (word.zone[0] + word.zone[1]) / 2;
+                    const start = Math.max(0, Math.min(100 - lenPct, centre - lenPct / 2));
+                    word.tp.setAttribute('startOffset', start + '%');
+                }
             }
         }
 
@@ -3924,7 +3757,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                 saApplyWord(w);
                 // A word on a short segment (the two vertical Lines) must fit its own
                 // zone, or it bends round the corner into its neighbour
-                if (w.kind === 'transition' && !w.fixed) {
+                if (w.kind === 'transition') {
                     const zoneLen = (w.zone[1] - w.zone[0]) / 100 * w.pathEl.getTotalLength();
                     while (w.ci < 2) {
                         let len = 0;
@@ -4010,14 +3843,16 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                     words.push({ kind: 'state', key: s.key, row: s.row, x: s.x, y: s.y, side: s.side, anchor: s.anchor, el: t });
                 });
             } else {
-                
+                if (transitionRanges.length === 0) computeTransitionRanges();
                 const src = [];
                 transitionsData.forEach(function (row, i) {
-                    src.push({ key: 'm' + i, row: row, pathId: 'gradualChangePath', zone: saMainZone(i), side: 'above' });
+                    // Lines 2 and 4 are vertical: their words lie on a short invisible horizontal path through the line's mid-point
+                    const sideMid = null;
+                    src.push({ key: 'm' + i, row: row, pathId: 'gradualChangePath', zone: saMainZone(i), side: 'above', sideMid: sideMid });
                 });
-                [[extension1TransitionData, 'extensionPath1', 'e1_', 'below'], [extension2TransitionData, 'extensionPath2', 'e2_', 'below']].forEach(function (g) {
+                [[extension1TransitionData, 'extensionPath1', 'e1_', 'above'], [extension2TransitionData, 'extensionPath2', 'e2_', 'above']].forEach(function (g) {
                     g[0].forEach(function (row, j) {
-                        src.push({ key: g[2] + j, row: row, pathId: g[1], zone: [j * 100 / g[0].length, (j + 1) * 100 / g[0].length], side: g[3] });
+                                                src.push({ key: g[2] + j, row: row, pathId: g[1], zone: (g[2] === 'e1_') ? [0, 50] : [j * 100 / g[0].length, (j + 1) * 100 / g[0].length], side: g[3] });   // Ext1-A: centred 25% along Line 1+ (x 50), directly above T3
                     });
                 });
                 src.forEach(function (s) {
@@ -4025,20 +3860,24 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                     t.setAttribute('class', 'showall-word');
                     t.setAttribute('data-kind', 'transition');
                     t.setAttribute('data-index', s.key);
-                    if (SA_FIXED_TRANS[s.key]) {   // placed by hand: ordinary horizontal text, not along the path
-                        const g = saGridToSvg(SA_FIXED_TRANS[s.key]);
-                        showAllGroup.appendChild(t);
-                        words.push({ kind: 'transition', key: s.key, row: s.row, x: g.x, y: g.y, anchor: 'middle', side: 'at', fixed: true, el: t });
-                        return;
-                    }
                     const tp = document.createElementNS(SVG_NS_SA, 'textPath');
-                    tp.setAttribute('href', '#' + s.pathId);
+                    let pathId = s.pathId, spEl = null;
+                    if (s.sideMid) {
+                        const sp = document.createElementNS(SVG_NS_SA, 'path');
+                        pathId = 'saSide_' + s.key;
+                        sp.setAttribute('id', pathId);
+                        sp.setAttribute('d', 'M ' + (s.sideMid[0] - 70) + ',' + s.sideMid[1] + ' L ' + (s.sideMid[0] + 70) + ',' + s.sideMid[1]);
+                        sp.setAttribute('fill', 'none'); sp.setAttribute('stroke', 'none');
+                        showAllGroup.appendChild(sp);
+                        spEl = sp;
+                    }
+                    tp.setAttribute('href', '#' + pathId);
                     tp.setAttribute('startOffset', '0%');
                     const ts = document.createElementNS(SVG_NS_SA, 'tspan');
                     tp.appendChild(ts);
                     t.appendChild(tp);
                     showAllGroup.appendChild(t);
-                    words.push({ kind: 'transition', key: s.key, row: s.row, zone: s.zone, side: s.side, el: t, tp: tp, ts: ts, pathEl: document.getElementById(s.pathId) });
+                    words.push({ kind: 'transition', key: s.key, row: s.row, zone: s.zone, side: s.side, el: t, tp: tp, ts: ts, pathEl: spEl || document.getElementById(pathId), sideLine: !!s.sideMid });
                 });
             }
 
@@ -4132,22 +3971,6 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                 function placeDefault() {
                     if (moved) return;
                     const r = page.getBoundingClientRect();
-                    const sv = document.getElementById('svgCanvas');
-                    if (sv && window.matchMedia && window.matchMedia('(pointer: fine)').matches) {
-                        // Desktop: horizontally centred in the frame (x 50%), bottom edge 10% of the frame height above Line 1+ (y 15),
-                        // (the vertical position is unchanged)
-                        const sr = sv.getBoundingClientRect();
-                        const sc = Math.min(sr.width / 160, sr.height / 50);
-                        const cx = r.left + r.width / 2;
-                        const ly = sr.top + sr.height / 2 + (15 - 25) * sc;
-                        el.style.left = cx + 'px';
-                        el.style.top = (ly - 0.10 * r.height) + 'px';
-                        el.style.transform = 'translate(-50%, -100%)';
-                        const er = el.getBoundingClientRect();
-                        if (er.top < r.top + 4) el.style.top = (parseFloat(el.style.top) + (r.top + 4 - er.top)) + 'px';   // never above the frame
-                        if (er.right > r.right - 8) el.style.left = (parseFloat(el.style.left) - (er.right - (r.right - 8))) + 'px';   // nor past its right edge
-                        return;
-                    }
                     el.style.left = (r.left + r.width / 2) + 'px';
                     el.style.top = (r.top + r.height * 0.75) + 'px';
                     el.style.transform = 'translate(-50%, -50%)';
@@ -4190,6 +4013,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
         // INITIALIZATION
         document.addEventListener('DOMContentLoaded', function() {
             try {
+                console.log("Initializing GPCVN Phonographic Template...");
                 
                 // Get all DOM references
                 svg = document.getElementById("svgCanvas");
@@ -4218,14 +4042,6 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                     console.error("Critical SVG elements missing");
                     return;
                 }
-
-                // Title box: TLR by default (matches the vocabulary-item
-                // convention — see Conceptionary_Template_Definitions.md).
-                // Was previously left showing a static HTML placeholder
-                // until the title was clicked; now genuinely defaults to
-                // real content from the moment the page loads.
-                titleBox.textContent = titleTexts.states[0];
-                currentTextIndex = 0;
                 
                 // Initialize learned items arrays - separate for States and Transitions modes
                 const statesItemsCount = conceptData.length + extensionData.length; // 5 + 3 = 8
@@ -4245,8 +4061,10 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                 const backgroundPath = `${pathD} L 130,300 L -30,300 Z`;
                 conceptBackground.setAttribute('d', backgroundPath);
                 
-                // Get path length
+                // Get path length, and the Line 1-5 zones that go with it
                 pathLength = pathLine.getTotalLength();
+                computeTransitionRanges();
+                console.log("Path length:", pathLength);
                 
                 // Setup event listeners
                 setupEventListeners();
@@ -4263,7 +4081,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                 pathIndicator.style.display = 'none';
                 quizContainer.style.display = 'none';
                 vocabularyArray.style.display = 'none';
-                
+
                 // Hide drag instruction after 12 seconds
                 setTimeout(() => {
                     const dragInstruction = document.getElementById('drag-instruction');
@@ -4280,8 +4098,10 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
                     bringFrameToFront();
                     frame.style.pointerEvents = 'all';
                     frame.style.cursor = 'grab';
+                    console.log("Final frame setup complete - frame should be fully interactive");
                 }, 500);
                 
+                console.log("Application initialized successfully");
             } catch (error) {
                 console.error("Error initializing application:", error);
             }
@@ -4295,7 +4115,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
     // recordings (window.CONCEPTIONARY_AUDIO_FILES = { "word": "https://.../word.mp3" }, which always take precedence).
     // The target-language code ('id-ID', 'ja-JP' ...) is set by the App: window.CONCEPTIONARY_AUDIO_LANG.
     (function () {
-        const TL_COL = 1, TLR_COL = 0;      // which column of a data row holds the target language, and (LOG) its romanisation
+        const TL_COL = 0, TLR_COL = -1;      // which column of a data row holds the target language, and (LOG) its romanisation
         const AUDIO_PROVIDER = 'browser';             // 'browser' | 'cloud'
         const AUDIO_LANG = '';                        // fallback language code when the App has not set one
         const AUDIO_API_URL = '';                     // 'cloud' only: address of YOUR relay, called as ?text=...&lang=...; it returns an audio file
@@ -4512,7 +4332,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
     let toastT = null;
     function note(text) {
         toast.textContent = text; toast.style.opacity = '1';
-        const r = wrap.getBoundingClientRect();
+        const r = (document.getElementById('audibleBtn') || wrap).getBoundingClientRect();
         toast.style.left = '0px'; toast.style.top = '0px';
         const w = toast.offsetWidth, h = toast.offsetHeight;
         toast.style.left = Math.max(6, Math.min(window.innerWidth - w - 6, r.left + r.width / 2 - w / 2)) + 'px';
@@ -4699,7 +4519,7 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
   (function () {
     var pb = document.getElementById('printBtn'), WHITE = { '--cx-scheme': 'white', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#ffffff', '--grad-edge': '#ffffff', '--grad-mid': '#ffffff', '--fill-op': '0', '--line': '#000000', '--line-w': '0.5', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.6)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' };
     var keep = null;
-    function toWhite() { if (keep !== null) return; keep = de.style.cssText; Object.keys(WHITE).forEach(function (k) { de.style.setProperty(k, WHITE[k]); }); }
+    function toWhite() { if (keep !== null) return; keep = de.style.cssText; Object.keys(WHITE).forEach(function (k) { de.style.setProperty(k, WHITE[k]); }); ['--cx-env', '--cx-sky', '--cx-ground'].forEach(function (k) { de.style.removeProperty(k); }); }
     function back() { if (keep === null) return; de.style.cssText = keep; keep = null; }
     if (pb) { pb.addEventListener('click', function () { toWhite(); setTimeout(back, 200); }, true); }
     window.addEventListener('beforeprint', toWhite); window.addEventListener('afterprint', back);
@@ -4784,6 +4604,102 @@ html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; bo
     }
     new MutationObserver(function () { clearTimeout(t); t = setTimeout(paint, 40); }).observe(svg, { attributes: true, attributeFilter: ['class'], childList: true, subtree: true });
     paint();
+  })();
+})();
+</script>
+
+<script>
+/* gtcv-ui2 (2026-11-25) (c) 2026 Alan William Preston */
+(function () {
+  if (window.__gtUi2) return; window.__gtUi2 = true;
+  var $ = function (id) { return document.getElementById(id); }, de = document.documentElement, svg = $('svgCanvas');
+
+  /* ---- button wording: English here; the App (or a concept card) overrides any of these with the Source Language (SL) wording, via window.CONCEPTIONARY_UI_LABELS or the line below ---- */
+  var UI_LABELS = { fullScreen: 'Full Screen', exitFullScreen: 'Exit Full Screen', reset: 'Reset', showTransitions: 'Show Transitions', showStates: 'Show States', showAll: 'Show All', hideAll: 'Hide All', tools: 'Tools', userManual: 'User Manual', conceptIndex: 'Concept Index', exercises: 'Exercises & Tests', audible: 'Audible Languages', colours: 'Colours', quizOn: 'Turn Quiz ON', quizOff: 'Turn Quiz OFF', randomQuiz: 'Random Quiz', print: 'Print', audibleSilent: 'Silent' };
+  var UI = {}; Object.keys(UI_LABELS).forEach(function (k) { UI[k] = UI_LABELS[k]; });
+  if (window.CONCEPTIONARY_UI_LABELS) Object.keys(window.CONCEPTIONARY_UI_LABELS).forEach(function (k) { if (window.CONCEPTIONARY_UI_LABELS[k]) UI[k] = window.CONCEPTIONARY_UI_LABELS[k]; });
+  function sch(n) { return UI['scheme' + n] || n; }
+
+  /* ---- 1. Tools menu: order, Audible Languages item ---- */
+  var dd = document.querySelector('.tools-dropdown'), wrap = $('audioWrap'), cyc = $('auCycle'), ico = $('auSpk');
+  if (dd) {
+    var ab = document.createElement('button'); ab.id = 'audibleBtn'; ab.type = 'button';
+    ab.innerHTML = '<span class="spk"></span><span class="lbl"></span><span class="state"></span>';
+    var spk = ab.querySelector('.spk'), st = ab.querySelector('.state');
+    function mirror() {
+      if (cyc) st.textContent = /^Silent$/i.test(cyc.textContent) ? UI.audibleSilent : cyc.textContent;
+      if (ico) { var m = ico.style.webkitMaskImage || ico.style.maskImage; if (m) { spk.style.webkitMaskImage = m; spk.style.maskImage = m; } }
+    }
+    ab.addEventListener('click', function (e) { e.stopPropagation(); if (cyc) cyc.click(); setTimeout(mirror, 0); });
+    if (cyc) { new MutationObserver(mirror).observe(cyc, { childList: true, characterData: true, subtree: true }); }
+    if (ico) { new MutationObserver(mirror).observe(ico, { attributes: true, attributeFilter: ['style'] }); }
+    var order = ['userManualBtn', 'loadConcept', 'exercisesBtn', 'audibleBtn', 'colourToggle', 'quizToggle', 'startQuiz', 'printBtn'];
+    dd.appendChild(ab);
+    order.forEach(function (id) { var el = $(id); if (el) dd.appendChild(el); });
+    mirror(); setTimeout(mirror, 400);
+  }
+  var fs = $('toggleFullscreen');
+  if (fs && !(de.requestFullscreen || de.webkitRequestFullscreen)) fs.style.display = 'none';   /* e.g. iPhone Safari cannot do it */
+
+  /* ---- Concept Index opens the Conceptionary App (Home / Search / Browse / Map). Change the one address below to point it elsewhere. ---- */
+  var CONCEPT_INDEX_URL = 'https://conceptionary.github.io/conceptionary-app/';
+  var lc = $('loadConcept');
+  if (lc) lc.addEventListener('click', function (e) {
+    e.stopImmediatePropagation(); e.stopPropagation(); if (dd) dd.classList.remove('active');
+    window.open(CONCEPT_INDEX_URL, '_blank', 'noopener');
+  }, true);
+
+  /* ---- 2. wording: replace English with the SL wording wherever the template (re)writes a button's text ---- */
+  var busy = false;
+  function put(el, t) { if (el && el.textContent !== t) { busy = true; el.textContent = t; busy = false; } }
+  function relabel() {
+    if (busy) return;
+    var t;
+    if ((t = $('toggleFullscreen'))) put(t, (document.fullscreenElement || document.webkitFullscreenElement) ? UI.exitFullScreen : UI.fullScreen);
+    var rb = $('resetBtn'); if (rb) { put(rb, UI.reset); rb.setAttribute('aria-label', UI.reset); rb.title = UI.reset; }
+    var mt = $('modeToggle'); if (mt) { if (mt.textContent === 'Show Transitions') put(mt, UI.showTransitions); else if (mt.textContent === 'Show States') put(mt, UI.showStates); }
+    var sa = $('showAllBtn'); if (sa) { var m = /^(Show All|Hide All)(.*)$/.exec(sa.textContent); if (m) put(sa, (m[1] === 'Show All' ? UI.showAll : UI.hideAll) + m[2]); }
+    var tb = document.querySelector('.tools-button'); if (tb && /^Tools/.test(tb.textContent)) put(tb, UI.tools + ' ▼');
+    var map = { userManualBtn: 'userManual', loadConcept: 'conceptIndex', exercisesBtn: 'exercises', startQuiz: 'randomQuiz', printBtn: 'print' };
+    Object.keys(map).forEach(function (id) { put($(id), UI[map[id]]); });
+    var lbl = document.querySelector('#audibleBtn .lbl'); if (lbl) put(lbl, UI.audible);
+    var cb = $('colourToggle'); if (cb) { var c = /^Colours: (.*)$/.exec(cb.textContent); if (c) put(cb, UI.colours + ': ' + sch(c[1])); else { c = /^[^:]+: (.*)$/.exec(cb.textContent); if (c && UI.colours !== 'Colours') put(cb, UI.colours + ': ' + c[1]); } }
+    var qt = $('quizToggle'); if (qt) { if (/OFF$/.test(qt.textContent)) put(qt, UI.quizOff); else if (/ON$/.test(qt.textContent)) put(qt, UI.quizOn); }
+  }
+  var cbn = $('colourToggle'); if (cbn) cbn.addEventListener('click', function () { setTimeout(relabel, 0); });
+  ['toggleFullscreen', 'resetBtn', 'modeToggle', 'showAllBtn', 'quizToggle'].forEach(function (id) { var el = $(id); if (el) new MutationObserver(relabel).observe(el, { childList: true, characterData: true, subtree: true }); });
+  document.addEventListener('fullscreenchange', relabel); document.addEventListener('webkitfullscreenchange', relabel);
+  relabel(); setTimeout(relabel, 300); window.addEventListener('load', relabel);
+
+  /* ---- 3. the yellow circle pulses until it is used, and again after Reset ---- */
+  var frame = $('draggableFrame');
+  if (frame) {
+    function start() { if (!de.classList.contains('gt-no-pulse') && !frame.classList.contains('gt-pulse')) frame.classList.add('gt-pulse'); }
+    function stop() { if (frame.classList.contains('gt-pulse')) frame.classList.remove('gt-pulse'); }
+    ['pointerdown', 'mousedown', 'touchstart'].forEach(function (t) { frame.addEventListener(t, stop, true); });
+    new MutationObserver(function () { if (frame.classList.contains('dragging')) stop(); }).observe(frame, { attributes: true, attributeFilter: ['class'] });
+    var rst = $('resetBtn'); if (rst) rst.addEventListener('click', function () { setTimeout(start, 80); });
+    var show = $('showAllBtn'); if (show) show.addEventListener('click', function () { });
+    start();
+  }
+
+  /* ---- 4. thematic background: ground drawn below the line / curve, sky above ---- */
+  (function () {
+    var bg = $('conceptBackground'); if (!bg || !svg) return;
+    var g = document.createElementNS('http://www.w3.org/2000/svg', 'path'); g.id = 'gtEnvGround'; bg.parentNode.insertBefore(g, bg);
+    function build() {
+      var d = bg.getAttribute('d') || ''; var m = /^M (.*?) L 130,300 L -30,300 Z$/.exec(d); if (!m) return;
+      var pts = m[1].split(' L '), first = pts[0].split(','), last = pts[pts.length - 1].split(',');
+      g.setAttribute('d', 'M -600,' + first[1] + ' L ' + pts.join(' L ') + ' L 800,' + last[1] + ' L 800,700 L -600,700 Z');
+    }
+    new MutationObserver(build).observe(bg, { attributes: true, attributeFilter: ['d'] }); build();
+    /* a concept card (via the App) can name its setting: window.CONCEPTIONARY_ENVIRONMENT = 'outdoors' | 'forest' | 'sea' | 'beach' | 'road' */
+    function applyEnv() {
+      var want = window.CONCEPTIONARY_ENVIRONMENT, cb = $('colourToggle'); if (!want || !cb) return;
+      var nm = want.charAt(0).toUpperCase() + want.slice(1).toLowerCase();
+      for (var i = 0; i < 12; i++) { if (de.style.getPropertyValue('--cx-env') === want.toLowerCase()) break; cb.click(); }
+    }
+    if (document.readyState === 'complete') applyEnv(); else window.addEventListener('load', function () { setTimeout(applyEnv, 0); });
   })();
 })();
 </script>
