@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conceptionary - Voice check</title>
+<!-- Last updated: 2026-11-26 (Mangawhai, NZ) -->
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; padding: 16px; background: #000; color: #fff; line-height: 1.4; }
+  h1 { font-size: 1.2em; margin: 0 0 8px; }
+  p, li { font-size: 0.95em; }
+  .box { border: 1px solid #888; border-radius: 6px; padding: 10px; margin: 12px 0; }
+  button { font-size: 1em; min-height: 44px; padding: 8px 14px; margin: 4px 4px 4px 0; border-radius: 6px; border: 1px solid #fff; background: #222; color: #fff; }
+  .ok { color: #7CFC00; } .bad { color: #ff7777; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.85em; }
+  td, th { border-bottom: 1px solid #444; padding: 4px 6px; text-align: left; vertical-align: top; }
+  pre { white-space: pre-wrap; word-break: break-word; font-size: 0.8em; }
+  .foot { font-size: 0.75em; color: #aaa; margin-top: 16px; }
+</style>
+</head>
+<body>
+<h1>Voice check</h1>
+<p>This page lists the speech voices your browser can use. It changes nothing. Open it, wait 3 seconds, then read the results.</p>
+
+<div class="box" id="summary">Checking...</div>
+
+<div class="box">
+  <strong>Try a voice</strong><br>
+  <button id="tJa">Japanese</button>
+  <button id="tId">Indonesian</button>
+  <button id="tEn">English</button>
+  <div id="tryMsg"></div>
+</div>
+
+<div class="box">
+  <strong>Report to send to Claude</strong><br>
+  <button id="copyBtn">Copy report</button>
+  <pre id="report"></pre>
+</div>
+
+<div class="box">
+  <strong>All voices reported</strong>
+  <table id="vt"><tr><th>Name</th><th>Language</th><th>Local?</th></tr></table>
+</div>
+
+<div class="foot">&copy; 2026 Alan William Preston</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var SAMPLES = { ja: ['ja-JP', 'こんにちは。水です。'], id: ['id-ID', 'Selamat pagi. Ini air.'], en: ['en-GB', 'Good morning. This is water.'] };
+  function norm(l) { l = (l || '').toLowerCase().replace('_', '-'); var b = l.split('-')[0]; if (b === 'in') b = 'id'; if (b === 'iw') b = 'he'; return b; }   /* Android sometimes reports Indonesian as "in" */
+  function voices() { try { return (window.speechSynthesis && speechSynthesis.getVoices()) || []; } catch (e) { return []; } }
+  function find(base) { return voices().filter(function (v) { return norm(v.lang) === base; }); }
+  var lines = [];
+  function build() {
+    var vs = voices();
+    var t = $('vt'); while (t.rows.length > 1) t.deleteRow(1);
+    vs.forEach(function (v) { var r = t.insertRow(); r.insertCell().textContent = v.name; r.insertCell().textContent = v.lang; r.insertCell().textContent = v.localService ? 'yes' : 'no (online)'; });
+    var out = '';
+    if (!window.speechSynthesis) out = '<span class="bad">This browser has no speech support at all.</span>';
+    else {
+      out += 'Voices reported: <strong>' + vs.length + '</strong><br>';
+      [['ja', 'Japanese'], ['id', 'Indonesian'], ['en', 'English']].forEach(function (p) {
+        var m = find(p[0]);
+        out += p[1] + ': ' + (m.length ? '<span class="ok">' + m.length + ' voice(s), e.g. ' + m[0].name + ' (' + m[0].lang + ')</span>' : '<span class="bad">none found</span>') + '<br>';
+      });
+    }
+    $('summary').innerHTML = out;
+    lines = ['Browser: ' + navigator.userAgent, 'Voices: ' + vs.length].concat(vs.map(function (v) { return v.name + ' | ' + v.lang + ' | ' + (v.localService ? 'local' : 'online'); }));
+    $('report').textContent = lines.join('\n');
+  }
+  function tryVoice(key) {
+    var s = SAMPLES[key]; if (!window.speechSynthesis) { $('tryMsg').textContent = 'No speech support.'; return; }
+    var m = find(key); var u = new SpeechSynthesisUtterance(s[1]); u.lang = s[0]; if (m.length) u.voice = m[0];
+    u.onerror = function (e) { $('tryMsg').textContent = 'Error: ' + (e.error || 'unknown'); };
+    u.onstart = function () { $('tryMsg').textContent = 'Speaking with: ' + (u.voice ? u.voice.name + ' (' + u.voice.lang + ')' : 'the default voice'); };
+    $('tryMsg').textContent = m.length ? 'Starting...' : 'No matching voice found - the browser will use its default voice.';
+    try { speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) { $('tryMsg').textContent = 'Error: ' + e.message; }
+  }
+  $('tJa').onclick = function () { tryVoice('ja'); };
+  $('tId').onclick = function () { tryVoice('id'); };
+  $('tEn').onclick = function () { tryVoice('en'); };
+  $('copyBtn').onclick = function () {
+    var txt = lines.join('\n');
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(function () { $('copyBtn').textContent = 'Copied'; }, function () { $('copyBtn').textContent = 'Press and hold the text to copy'; });
+    else $('copyBtn').textContent = 'Press and hold the text to copy';
+  };
+  if (window.speechSynthesis) { speechSynthesis.onvoiceschanged = build; speechSynthesis.getVoices(); }
+  build(); setTimeout(build, 800); setTimeout(build, 2500);
+})();
+</script>
+</body>
+</html>
