@@ -1,4 +1,4 @@
-<!-- Last updated: 2026-11-25 @ 8:32 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-11-26 @ 5:45 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -4377,7 +4377,7 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
             let best = null, bestScore = -1;
             vs.forEach(function (v) {
                 const l = (v.lang || '').toLowerCase().replace('_', '-');
-                if (l !== c && l.split('-')[0] !== base) return;
+                if (l !== c && ({ 'in': 'id', 'iw': 'he', 'ji': 'yi' }[l.split('-')[0]] || l.split('-')[0]) !== base) return;   /* Android's old language codes */
                 const score = (l === c ? 4 : 0) + (/natural|neural|online/i.test(v.name) ? 3 : 0) + (/google/i.test(v.name) ? 2 : 0) + (v.localService ? 0 : 1);
                 if (score > bestScore) { best = v; bestScore = score; }
             });
@@ -4596,7 +4596,7 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
         const c = code.toLowerCase(), base = c.split('-')[0]; let best = null, bs = -1;
         vs.forEach(function (v) {
             const l = (v.lang || '').toLowerCase().replace('_', '-');
-            if (l !== c && l.split('-')[0] !== base) return;
+            if (l !== c && ({ 'in': 'id', 'iw': 'he', 'ji': 'yi' }[l.split('-')[0]] || l.split('-')[0]) !== base) return;   /* Android's old language codes */
             const s = (l === c ? 4 : 0) + (/natural|neural|online/i.test(v.name) ? 3 : 0) + (/google/i.test(v.name) ? 2 : 0) + (v.localService ? 0 : 1);
             if (s > bs) { best = v; bs = s; }
         });
