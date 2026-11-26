@@ -1,10 +1,11 @@
-<!-- Last updated: 2026-10-30 @ 12:08 a.m. (Mangawhai, NZ) -->
+<!-- gtcv-ui3 -->
+<!-- Last updated: 2026-11-27 @ 2:48 a.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GT5L+11TB Phonographic Generic Template</title>
+    <title>GTCV Phonographic Generic Template</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -1088,21 +1089,166 @@
 </style>
 <style>
 /* 2026-10-30 light frame + SL once: lighter yellow fill so text under the frame stays readable (outline unchanged) */
-#draggableFrame, #statesFrame, #transitionsFrame, #transitionFrame, .frame, .transition-frame, .yellow-frame { fill: rgba(255, 255, 0, 0.16) !important; }
-#draggableFrame:hover, #statesFrame:hover, #transitionsFrame:hover, #transitionFrame:hover, .frame:hover, .transition-frame:hover, .yellow-frame:hover { fill: rgba(255, 255, 0, 0.26) !important; }
-#draggableFrame.dragging, #statesFrame.dragging, #transitionsFrame.dragging, #transitionFrame.dragging, .frame.dragging, .transition-frame.dragging, .yellow-frame.dragging { fill: rgba(255, 255, 0, 0.26) !important; }
+#draggableFrame, #statesFrame, #transitionsFrame, #transitionFrame, .frame, .transition-frame, .yellow-frame { fill: rgba(255, 255, 0, 0.24) !important; }
+#draggableFrame:hover, #statesFrame:hover, #transitionsFrame:hover, #transitionFrame:hover, .frame:hover, .transition-frame:hover, .yellow-frame:hover { fill: rgba(255, 255, 0, 0.39) !important; }
+#draggableFrame.dragging, #statesFrame.dragging, #transitionsFrame.dragging, #transitionFrame.dragging, .frame.dragging, .transition-frame.dragging, .yellow-frame.dragging { fill: rgba(255, 255, 0, 0.39) !important; }
+</style>
+
+<style id="gtcv-phone-css">
+/* GTCV-PHONE-KIT v1 (2026-11-24): pinch zoom, pull-out words, black scheme, no volume slider, touch targets */
+.a4-page, #svgCanvas, #svgCanvas text, #draggableFrame { touch-action: pinch-zoom !important; }
+.page-wrapper { touch-action: manipulation; }
+#svgCanvas text { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+#audioWrap { padding-bottom: 0 !important; }
+#audioWrap #auVol2, #audioPanel .auVol { display: none !important; }
+html[style*="--cx-scheme: black"] body, html[style*="--cx-scheme: black"] .page-wrapper { background: #000 !important; }
+html[style*="--cx-scheme: black"] .a4-page { background: #000 !important; border-color: #fff !important; }
+html[style*="--cx-scheme: black"] .title-box, html[style*="--cx-scheme: black"] .mode-indicator, html[style*="--cx-scheme: black"] .concept-indicator,
+html[style*="--cx-scheme: black"] .level-indicator, html[style*="--cx-scheme: black"] .path-indicator { background: #000 !important; color: #fff !important; border-color: #fff !important; text-shadow: none !important; }
+html[style*="--cx-scheme: black"] .watermark { color: rgba(255,255,255,.65) !important; }
+html[style*="--cx-scheme: black"] .tools-button, html[style*="--cx-scheme: black"] .show-all-btn, html[style*="--cx-scheme: black"] .mode-toggle, html[style*="--cx-scheme: black"] .reset-btn,
+html[style*="--cx-scheme: black"] .tools-dropdown button, html[style*="--cx-scheme: black"] #audioWrap { background: #000 !important; color: #fff !important; border: 1px solid #fff !important; box-shadow: none !important; text-shadow: none !important; }
+html[style*="--cx-scheme: black"] #audioWrap #auCycle { color: #fff !important; }
+html[style*="--cx-scheme: black"] #auSpk { background: #fff !important; }
+html[style*="--cx-scheme: black"] .tools-dropdown button:hover, html[style*="--cx-scheme: black"] .tools-dropdown button:focus, html[style*="--cx-scheme: black"] .tools-dropdown button:active { background: #333 !important; color: #fff !important; }
+html[style*="--cx-scheme: black"] .tools-dropdown { background: #000 !important; border: 1px solid #fff; }
+html[style*="--cx-scheme: black"] .quiz-container, html[style*="--cx-scheme: black"] .vocabulary-array, html[style*="--cx-scheme: black"] #textSizePanel, html[style*="--cx-scheme: black"] #audioPanel { background: #000 !important; color: #fff !important; border: 1px solid #fff !important; }
+html[style*="--cx-scheme: black"] .quiz-container input { background: #000 !important; color: #fff !important; border: 1px solid #fff !important; }
+html[style*="--cx-scheme: black"] .vocabulary-item, html[style*="--cx-scheme: black"] .array-title { background: #000 !important; color: #fff !important; border-color: #fff !important; }
+html[style*="--cx-scheme: black"] .vocabulary-item * { color: #fff !important; }
+html[style*="--cx-scheme: white"] body, html[style*="--cx-scheme: white"] .page-wrapper { background: #fff !important; }
+html[style*="--cx-scheme: white"] .a4-page { background: #fff !important; border-color: #000 !important; }
+html[style*="--cx-scheme: white"] .title-box, html[style*="--cx-scheme: white"] .mode-indicator, html[style*="--cx-scheme: white"] .concept-indicator,
+html[style*="--cx-scheme: white"] .level-indicator, html[style*="--cx-scheme: white"] .path-indicator { background: #fff !important; color: #000 !important; border-color: #000 !important; text-shadow: none !important; }
+html[style*="--cx-scheme: white"] .watermark { color: rgba(0,0,0,.6) !important; }
+html[style*="--cx-scheme: white"] .tools-button, html[style*="--cx-scheme: white"] .show-all-btn, html[style*="--cx-scheme: white"] .mode-toggle, html[style*="--cx-scheme: white"] .reset-btn,
+html[style*="--cx-scheme: white"] .tools-dropdown button, html[style*="--cx-scheme: white"] #audioWrap { background: #fff !important; color: #000 !important; border: 1px solid #000 !important; box-shadow: none !important; text-shadow: none !important; }
+html[style*="--cx-scheme: white"] #audioWrap #auCycle { color: #000 !important; }
+html[style*="--cx-scheme: white"] #auSpk { background: #000 !important; }
+html[style*="--cx-scheme: white"] .tools-dropdown button:hover, html[style*="--cx-scheme: white"] .tools-dropdown button:focus, html[style*="--cx-scheme: white"] .tools-dropdown button:active { background: #ddd !important; color: #000 !important; }
+html[style*="--cx-scheme: white"] .tools-dropdown { background: #fff !important; border: 1px solid #000; }
+html[style*="--cx-scheme: white"] .quiz-container, html[style*="--cx-scheme: white"] .vocabulary-array, html[style*="--cx-scheme: white"] #textSizePanel, html[style*="--cx-scheme: white"] #audioPanel { background: #fff !important; color: #000 !important; border: 1px solid #000 !important; }
+html[style*="--cx-scheme: white"] .quiz-container input { background: #fff !important; color: #000 !important; border: 1px solid #000 !important; }
+html[style*="--cx-scheme: white"] .vocabulary-item, html[style*="--cx-scheme: white"] .array-title { background: #fff !important; color: #000 !important; border-color: #000 !important; }
+html[style*="--cx-scheme: white"] #gtLearned { background: #fff; color: #000; border-color: #000; }
+/* audio button: same height as its neighbours, label centred, bigger speaker icon (gtcv-audio-fix) */
+#audioWrap { align-self: stretch; box-sizing: border-box; min-height: 0; padding-top: 0 !important; padding-bottom: 0 !important; align-items: center !important; }
+#audioWrap #auCycle { font-weight: bold; align-self: stretch; display: flex; align-items: center; justify-content: center; padding-left: 20px; }
+#audioWrap #auSpk { top: 50% !important; bottom: auto !important; transform: translateY(-50%); left: 7px !important; width: 20px !important; height: 18px !important; }
+@media (pointer: fine) { #audioWrap { padding-left: 4px; padding-right: 4px; } #audioWrap #auSpk { width: 18px !important; height: 16px !important; } #audioWrap #auCycle { padding-left: 22px; } }
+@media (pointer: coarse) { #audioWrap #auSpk { width: 26px !important; height: 24px !important; left: 8px !important; } #audioWrap #auCycle { padding-left: 28px; } }
+/* the pulled-out word */
+.gt-ghost { position: fixed; z-index: 100000; left: 0; top: 0; background: #fff176; border: 1px solid #b8860b; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.45); font-family: Arial, sans-serif; font-weight: bold; color: #000; white-space: nowrap; padding: 2px 6px; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transform-origin: 50% 50%; }
+#gtLearned { position: absolute; right: 8px; top: 6px; z-index: 5; font: 700 13px Arial, sans-serif; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,.85); color: #123; border: 1px solid rgba(0,0,0,.25); pointer-events: none; display: none; }
+html[style*="--cx-scheme: black"] #gtLearned { background: #000; color: #fff; border-color: #fff; }
+@media (pointer: coarse) {
+  .tools-button, .show-all-btn, .mode-toggle, .reset-btn, #audioWrap { min-height: 44px; }
+  .tools-dropdown button { min-height: 44px; }
+  #gtLearned { display: block; }
+  .quiz-container:not([data-moved]) { top: 6px !important; bottom: auto !important; left: 50% !important; transform: translateX(-50%) !important; width: min(380px, 94vw) !important; max-width: none !important; }
+  .quiz-container input { font-size: 16px; }
+  .quiz-container button#quizTick { min-height: 44px; min-width: 44px; }
+}
+/* Portrait phone: use the whole width, buttons wrap onto two rows instead of being cut off */
+@media (pointer: coarse) and (max-width: 700px) and (orientation: portrait) {
+  .a4-page { width: 100vw !important; border-width: 2px !important; border-radius: 0 !important; }
+  .page-wrapper { width: 100vw; }
+  .tools-bar { flex-wrap: wrap !important; overflow-x: visible !important; justify-content: center !important; max-width: 100vw; }
+  .tools-row { display: contents; }
+  .tools-button, .show-all-btn, .mode-toggle, .reset-btn, #audioWrap { flex: 1 1 28%; min-width: 0; padding-left: 4px !important; padding-right: 4px !important; font-size: 14px !important; }
+  .drag-instruction { font-size: .8em !important; }
+}
+@media print { .gt-ghost, #gtLearned { display: none !important; } }
+</style>
+
+<style id="gtcv-ui2-css">
+/* gtcv-ui2 (2026-11-25): pulsing frame, button bar order / spacing / size, Tools menu order, thematic backgrounds */
+/* 1. the yellow circle pulses until the learner touches it (or until Reset) */
+#draggableFrame.gt-pulse { fill: rgba(255, 240, 0, 0.92) !important; stroke: rgba(255, 215, 0, .9); stroke-width: .5; transform-box: fill-box; transform-origin: center; animation: gtPulse 1s ease-in-out infinite alternate; }
+@keyframes gtPulse { from { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 1.6px rgba(255, 230, 0, 1)); } to { opacity: .35; transform: scale(1.22); filter: drop-shadow(0 0 0 rgba(255, 230, 0, 0)); } }
+@media (prefers-reduced-motion: reduce) { #draggableFrame.gt-pulse { animation-duration: 2s; } }
+
+/* 2. the button bar: Full Screen | Reset (icon) | Show Transitions | Show All | Tools, spread evenly across the frame */
+#audioWrap { display: none !important; }
+.tools-row { display: contents; }
+#toggleFullscreen { order: 1 !important; } #resetBtn { order: 2 !important; } .mode-toggle { order: 3 !important; } .show-all-btn { order: 4 !important; } .tools-button { order: 5 !important; }
+.tools-bar { display: flex !important; flex-direction: row !important; flex-wrap: wrap; justify-content: space-evenly; align-items: stretch; width: 100%; box-sizing: border-box; gap: 6px 0; }
+.tools-bar > *, .tools-row > * { width: auto !important; min-width: 0; flex: 0 0 auto; white-space: nowrap; box-sizing: border-box; text-align: center; }
+#resetBtn { font-size: 0 !important; min-width: 2.6em; position: relative; }
+#resetBtn::after { content: ""; position: absolute; inset: 0; margin: auto; width: 19px; height: 19px; background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4V1L7.5 5.5 12 10V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-9z'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4V1L7.5 5.5 12 10V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-9z'/%3E%3C/svg%3E") center / contain no-repeat; }
+@media (pointer: fine) {
+  .tools-menu { left: 0 !important; right: 0 !important; transform: none !important; width: auto !important; padding: 0 3%; box-sizing: border-box; }
+  .tools-bar { font-size: clamp(8px, calc((min(97vw, 134vh) * 0.92 - 40px) / 52), 16.5px); }
+  .tools-button, .show-all-btn, .mode-toggle, .reset-btn { font-size: 1.04em !important; padding: 4px 12px !important; }
+  #resetBtn { font-size: 0 !important; }
+  #resetBtn::after { width: 20px; height: 20px; }
+  #resetBtn { min-width: 36px; }
+  .tools-dropdown { left: auto; right: 3%; width: 17em; font-size: 14px; }
+}
+@media (pointer: coarse) {
+  .tools-menu { width: 100% !important; left: 0 !important; right: 0 !important; margin-left: 0; box-sizing: border-box; }
+  .tools-bar { padding: 0 2px; }
+  .tools-button, .show-all-btn, .mode-toggle, .reset-btn { font-size: 16px !important; padding: 8px 10px !important; min-height: 44px; }
+  #resetBtn { font-size: 0 !important; min-width: 48px; }
+  #resetBtn::after { width: 22px; height: 22px; }
+}
+@media (pointer: coarse) and (max-width: 700px) and (orientation: portrait) {
+  .tools-button, .show-all-btn, .mode-toggle, .reset-btn { font-size: 15px !important; padding: 8px 8px !important; flex: 0 0 auto !important; }
+  .tools-bar { flex-wrap: wrap !important; }
+}
+
+/* 3. the Tools menu */
+.tools-dropdown #audibleBtn { display: flex; align-items: center; gap: 8px; text-align: left; }
+.tools-dropdown #audibleBtn .spk { flex: none; width: 20px; height: 18px; background: currentColor; -webkit-mask: no-repeat center / contain; mask: no-repeat center / contain; }
+.tools-dropdown #audibleBtn .lbl { flex: 1 1 auto; white-space: nowrap; }
+.tools-dropdown #audibleBtn .state { flex: none; opacity: .75; font-size: .85em; }
+.tools-dropdown #textSizeBtn { display: none !important; }
+.tools-dropdown button { text-align: left; }
+.tools-dropdown #printBtn { border-top: 1px solid currentColor; }
+
+/* printing: black and white, A4 landscape (the browser's own Print dialog keeps Copies and the Colour menu) */
+@media print { html { filter: grayscale(1); } }
+
+/* 4. thematic backgrounds: sky above the line / curve, the ground below it */
+#gtEnvGround { display: none; }
+html[style*="--cx-env"] #gtEnvGround { display: block; fill: var(--cx-ground); }
+html[style*="--cx-env"] #conceptBackground { display: none; }
+html[style*="--cx-env"] .a4-page, html[style*="--cx-env"] .page-wrapper { background: var(--cx-sky) !important; }
+html[style*="--cx-env"] .textBox, html[style*="--cx-env"] .showall-word, html[style*="--cx-env"] #interactiveText { paint-order: stroke; stroke: #fff; stroke-width: .7px; stroke-linejoin: round; }
+html[style*="--cx-env"] #gradualChangePath { stroke-width: .7; }
+html[style*="--cx-env: forest"] .watermark, html[style*="--cx-env: sea"] .watermark { color: rgba(255,255,255,.9) !important; }
+html[style*="--cx-env"] .watermark { text-shadow: none; }
+</style>
+
+<style id="gtcv-ui3-css">
+/* gtcv-ui3 (2026-11-26): Quiz typing colours, end-of-drag Tools tip */
+#quizInput.qi-on { color: transparent !important; }
+#qiMirror { position: absolute; z-index: 3; pointer-events: none; overflow: hidden; white-space: pre; display: flex; align-items: center; box-sizing: border-box; }
+#gtTip { position: fixed; z-index: 100000; box-sizing: border-box; padding: 2px 6px; background: none; border: 0; color: var(--word, #fff); font: normal 19px/1.2 Arial, sans-serif; text-transform: uppercase; letter-spacing: .03em; text-shadow: 0 0 4px var(--page-bg, #000), 0 0 2px var(--page-bg, #000); display: none; cursor: pointer; text-align: center; white-space: nowrap; transition: opacity .8s ease; opacity: 1; }
+#gtTip.on { display: block; }
+#gtTip.fade { opacity: 0; }
+#gtTip b { display: block; font-weight: normal; }
+#gtTip i { display: block; font-style: normal; font-size: 22px; line-height: 1; margin-top: 3px; }
+#gtTip.shake { animation: gtShake .6s ease-in-out; }
+@keyframes gtShake { 0%,100% { transform: translateX(0); } 12% { transform: translateX(-9px) rotate(-1.5deg); } 28% { transform: translateX(9px) rotate(1.5deg); } 44% { transform: translateX(-7px) rotate(-1deg); } 60% { transform: translateX(7px) rotate(1deg); } 76% { transform: translateX(-3px); } 90% { transform: translateX(3px); } }
+@media (prefers-reduced-motion: reduce) { #gtTip.shake { animation: none; } }
+.tools-dropdown #audibleBtn .state { display: none !important; }
+.tools-button.gt-tipring { outline: 3px solid #ffe600; outline-offset: 2px; animation: gtRing 1s ease-in-out infinite alternate; }
+@keyframes gtRing { from { outline-color: #ffe600; } to { outline-color: rgba(255,230,0,.2); } }
+@media (pointer: coarse) { #gtTip { font-size: 16px; } }
+.gt-slideghost { transform-origin: 50% 50%; }
 </style>
 </head>
 <body>
     <div class="page-wrapper">
-    <div class="template-id-badge">ROM-GT5L-11TB</div>
+    <div class="template-id-badge">ROM-GTCV</div>
     <div class="a4-page">
-        <div id="title-box" class="title-box">(Target Language Title)</div>
+        <div id="title-box" class="title-box">Generic Concept Spectrum</div>
         <div id="mode-indicator" class="mode-indicator">SL States Mode</div>
         <div id="concept-indicator" class="concept-indicator">SL1</div>
         <div id="level-indicator" class="level-indicator">Target Language</div>
         <div id="path-indicator" class="path-indicator">Main Path</div>
-        <div id="drag-instruction" class="drag-instruction">Mobile Phone users: click 'Tools', then 'Full Screen'<br>and hold your phone horizontally.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again.</div>
+        <div id="drag-instruction" class="drag-instruction">Mobile Phone users: tap 'Full Screen'<br>and hold your phone horizontally.<br><br>Click on it, grab it and move it around.<br>Click on the words - and click again.</div>
         
         <!-- Vocabulary Array: ONE combined list of learned items, kept in path order (main path,
              then extension 1, then extension 2). Instant-change concepts have no "increasing"
@@ -1129,9 +1275,9 @@
             <path id="conceptBackground"></path>
             
             <!-- Extension paths (horizontal continuations) -->
-            <path id="extensionPath1" class="extension-path" d="M 10,40 L 90,40" />
+            <path id="extensionPath1" class="extension-path" d="M 6,40 L 94,40" /><!-- gtcv-ext: Line 1+ (baseline continued under the hill) -->
             <path id="sideLinePath" d="M 0,0 L 1,0" style="fill:none;stroke:none;pointer-events:none"></path>
-            <path id="extensionPath2" class="extension-path" d="M 70,20 L 130,20" />
+            <path id="extensionPath2" class="extension-path" d="M 50,10 L 128,10" /><!-- gtcv-ext: Peak+ -->
             
             <!-- States Mode Elements -->
             <circle id="draggableFrame" cx="-24" cy="37.5" r="3"/>
@@ -1144,7 +1290,7 @@
             </text>
         </svg>
         <div class="watermark">
-            &copy; 2026 Alan William Preston - GT5L+11TB Phonographic Generic
+            &copy; 2026 Alan William Preston - GTCV Phonographic Generic
         </div>
     </div>
 
@@ -1165,24 +1311,24 @@
     <div id="audioPanel">
         <div class="auHead"><span>Audio</span><button type="button" id="auClose" aria-label="Close">&times;</button></div>
         <div class="auRow"><label><input type="radio" name="auOnOff" id="auOn"> On</label><label><input type="radio" name="auOnOff" id="auOff" checked> Off</label></div>
-        <div class="auVol"><span>Volume</span><input type="range" id="auVol" min="0" max="100" step="5" value="80"><span id="auVolVal">80%</span></div>
         <div class="auStatus" id="auStatus">Audio is off.</div>
     </div>
 
     <div class="tools-menu">
         <div class="tools-dropdown">
-            <button id="toggleFullscreen">Full Screen</button>
             <button id="userManualBtn" type="button" title="How to use these templates">User Manual</button>
-            <button id="loadConcept">Load Concept</button>
-            <button id="startQuiz">Start Random Quiz</button>
-            <button id="colourToggle" type="button" title="Try different colour schemes">Colours: Ocean</button>
+            <button id="exercisesBtn" type="button" title="Practise this vocabulary (opens the Index of Exercises)">Exercises &amp; Tests</button>
+            <button id="loadConcept">Concept Index</button>
+            <button id="startQuiz">Random Quiz</button>
+            <button id="colourToggle" type="button" title="Try different colour schemes">Colours: Black</button>
             <button id="textSizeBtn" type="button" title="Enlarge or shrink any word">Text size…</button>
-            <button id="quizToggle" type="button" title="Quiz is on: the Quiz box opens after the last language, and correct answers go into Learned Vocabulary. Turn it off and clicking a word just cycles its languages.">Turn Quiz OFF</button>
+            <button id="quizToggle" type="button" title="Quiz on / off. When it is on, the Quiz box opens after the last language, and correct answers go into Learned Vocabulary. When it is off, clicking a word just cycles its languages.">Turn Quiz ON</button>
             <button id="printBtn" type="button" title="Print this template on one A4 landscape page">Print</button>
         </div>
         <div class="tools-bar">
             <button class="tools-button">Tools ▼</button>
             <div class="tools-row">
+                <button id="toggleFullscreen" class="reset-btn fs-btn" type="button" title="Full screen on / off">Full Screen</button>
                 <button id="showAllBtn" class="show-all-btn" type="button" title="Quick reference: show every word at once. Click any word to flip just that word to its next language layer. Keep clicking to reach Hide All, which clears every word off the screen.">Show All</button>
                 <button id="modeToggle" class="mode-toggle" type="button">Show Transitions</button>
                 <button id="resetBtn" class="reset-btn" type="button" title="Start this concept over from the beginning: clears Quiz progress and returns to the start of the line.">Reset</button>
@@ -1202,31 +1348,45 @@
     <script>
         // Sample vocabulary data - replace with actual concepts
         const conceptData = [
-            ["TL1", "SL1", "What is the TL word for 'SL1'?", 0],
-            ["TL2", "SL2", "What is the TL word for 'SL2'?", 10],
-            ["TL3", "SL3", "What is the TL word for 'SL3'?", 20],
-            ["TL4", "SL4", "What is the TL word for 'SL4'?", 30],
-            ["TL5", "SL5", "What is the TL word for 'SL5'?", 40],
-            ["TL6", "SL6", "What is the TL word for 'SL6'?", 50],
-            ["TL7", "SL7", "What is the TL word for 'SL7'?", 60],
-            ["TL8", "SL8", "What is the TL word for 'SL8'?", 70],
-            ["TL9", "SL9", "What is the TL word for 'SL9'?", 80],
-            ["TL10", "SL10", "What is the TL word for 'SL10'?", 90],
-            ["TL11", "SL11", "What is the TL word for 'SL11'?", 100]
+            ["TL1", "SL1", "What is the TL word for 'SL1'?", 5],
+            ["TL2", "SL2", "What is the TL word for 'SL2'?", 9.44],
+            ["TL3", "SL3", "What is the TL word for 'SL3'?", 13.89],
+            ["TL4", "SL4", "What is the TL word for 'SL4'?", 18.33],
+            ["TL5", "SL5", "What is the TL word for 'SL5'?", 22.78],
+            ["TL6", "SL6", "What is the TL word for 'SL6'?", 27.22],
+            ["TL7", "SL7", "What is the TL word for 'SL7'?", 31.67],
+            ["TL8", "SL8", "What is the TL word for 'SL8'?", 36.11],
+            ["TL9", "SL9", "What is the TL word for 'SL9'?", 40.56],
+            ["TL10", "SL10", "What is the TL word for 'SL10'?", 45],
+            ["TL-Peak", "SL-Peak", "What is the TL word for 'SL-Peak'?", 50],
+            ["TL-9", "SL-9", "What is the TL word for 'SL-9'?", 55],
+            ["TL-8", "SL-8", "What is the TL word for 'SL-8'?", 60],
+            ["TL-7", "SL-7", "What is the TL word for 'SL-7'?", 65],
+            ["TL-6", "SL-6", "What is the TL word for 'SL-6'?", 70],
+            ["TL-5", "SL-5", "What is the TL word for 'SL-5'?", 75],
+            ["TL-4", "SL-4", "What is the TL word for 'SL-4'?", 80],
+            ["TL-3", "SL-3", "What is the TL word for 'SL-3'?", 85],
+            ["TL-2", "SL-2", "What is the TL word for 'SL-2'?", 90],
+            ["TL-1", "SL-1", "What is the TL word for 'SL-1'?", 95]
         ];
 
         const transitionsData = [
-            ["TL-T1", "SL-T1", "What is the TL word for 'SL-T1'?", 0],
-            ["TL-T2", "SL-T2", "What is the TL word for 'SL-T2'?", 20],
-            ["TL-T3", "SL-T3", "What is the TL word for 'SL-T3'?", 40],
-            ["TL-T4", "SL-T4", "What is the TL word for 'SL-T4'?", 60],
-            ["TL-T5", "SL-T5", "What is the TL word for 'SL-T5'?", 80]
+            ["TL-T1", "SL-T1", "What is the TL word for 'SL-T1'?", 1],
+            ["TL-T2", "SL-T2", "What is the TL word for 'SL-T2'?", 15],
+            ["TL-T3", "SL-T3", "What is the TL word for 'SL-T3'?", 25],
+            ["TL-T4", "SL-T4", "What is the TL word for 'SL-T4'?", 35],
+            ["TL-T5", "SL-T5", "What is the TL word for 'SL-T5'?", 45],
+            ["TL-T6", "SL-T6", "What is the TL word for 'SL-T6'?", 50],
+            ["TL-T7", "SL-T7", "What is the TL word for 'SL-T7'?", 55],
+            ["TL-T8", "SL-T8", "What is the TL word for 'SL-T8'?", 65],
+            ["TL-T9", "SL-T9", "What is the TL word for 'SL-T9'?", 75],
+            ["TL-T10", "SL-T10", "What is the TL word for 'SL-T10'?", 78]
         ];
 
         // Extension vocabulary for continuation paths
         const extensionData = [
-            ["TL1+", "SL1+", "What is the TL word for 'SL1+'?"],   // Line 1+ (continuation of Line 1)
-            ["TL3+", "SL3+", "What is the TL word for 'SL3+'?"]    // Line 3+ (continuation of Line 3)
+            ["TL1+", "SL1+", "What is the TL word for 'SL1+'?"],               // Line 1+ (the baseline continued)
+            ["TL-Peak+", "SL-Peak+", "What is the TL word for 'SL-Peak+'?"]    // Peak+ (continuation at the level of the peak)
         ];
 
         // Extension vocabulary expanded for transitions mode
@@ -1235,7 +1395,7 @@
         ];
 
         const extension2TransitionData = [
-            ["TL-T3+", "SL-T3+", "What is the TL phrase for 'SL-T3+'?"]
+            ["TL-T-Peak+", "SL-T-Peak+", "What is the TL phrase for 'SL-T-Peak+'?"]
         ];
 
         // Global variables
@@ -1248,14 +1408,14 @@
         };
         let pathLength = 0;
         let currentQuizIndex = -1;
-        let quizEnabled = true;   // 2026-10-09: the Quiz is ON by default.   (was false)
+        let quizEnabled = false; /* 2026-11-26 gtcv-ui3: Quiz OFF on opening */   // 2026-10-09: the Quiz is ON by default.   (was false)
         //   // Tools > Quiz On/Off. Off: a word click just cycles its layers; no quiz box, nothing added to the array
         let slidingTextMode = 0; // 0: TL, 1: SL, 2: Quiz
         let learnedItemsStates = []; // Separate tracking for States Mode
         let learnedItemsTransitions = []; // Separate tracking for Transitions Mode
         let textBoxElements = [];
         let addedVocabularyItems = [];   // by global transition index (main, then ext 1, then ext 2)
-        let currentTextLayer = new Array(11).fill(0);
+        let currentTextLayer = new Array(20).fill(0);
         let extensionTextBoxes = [];
         let extensionTextLayers = [0, 0, 0];
         
@@ -1274,28 +1434,177 @@
         
         // Title text options
         const titleTexts = {
-            states: [
-                "(Target Language Title)",
-                "(Source Language Title)"
-            ],
-            transitions: [
-                "(Target Language Title)",
-                "(Source Language Title)"
-            ]
+            states: ["Generic Concept Spectrum", "Target Language View", "Source Language View"],
+            transitions: ["Concept Transitions", "Dynamic Changes", "Temporal Progression"]
         };
         let currentTextIndex = 0;
         
         // Activation distance for text boxes
-        const activationDistance = 11.4;
+        const activationDistance = 13;   // GTCV: the largest anti-overlap offset is 11 units
 
         // CENTERED: Rebuilt 5-line system with perfect center alignment
         const pathPoints = [
-            `-30,40`,
-            `10,40`,
-            `30,20`,
-            `70,20`,
-            `90,40`,
-            `130,40`
+            `-30,40.000`,
+            `-29,40.000`,
+            `-28,40.000`,
+            `-27,40.000`,
+            `-26,40.000`,
+            `-25,40.000`,
+            `-24,40.000`,
+            `-23,40.000`,
+            `-22,40.000`,
+            `-21,40.000`,
+            `-20,39.999`,
+            `-19,39.999`,
+            `-18,39.999`,
+            `-17,39.999`,
+            `-16,39.998`,
+            `-15,39.997`,
+            `-14,39.997`,
+            `-13,39.996`,
+            `-12,39.994`,
+            `-11,39.992`,
+            `-10,39.990`,
+            `-9,39.987`,
+            `-8,39.983`,
+            `-7,39.978`,
+            `-6,39.972`,
+            `-5,39.964`,
+            `-4,39.954`,
+            `-3,39.942`,
+            `-2,39.926`,
+            `-1,39.907`,
+            `0,39.884`,
+            `1,39.855`,
+            `2,39.821`,
+            `3,39.779`,
+            `4,39.728`,
+            `5,39.667`,
+            `6,39.594`,
+            `7,39.507`,
+            `8,39.405`,
+            `9,39.284`,
+            `10,39.143`,
+            `11,38.979`,
+            `12,38.788`,
+            `13,38.568`,
+            `14,38.316`,
+            `15,38.028`,
+            `16,37.701`,
+            `17,37.332`,
+            `18,36.918`,
+            `19,36.455`,
+            `20,35.940`,
+            `21,35.371`,
+            `22,34.746`,
+            `23,34.063`,
+            `24,33.321`,
+            `25,32.519`,
+            `26,31.659`,
+            `27,30.741`,
+            `28,29.767`,
+            `29,28.741`,
+            `30,27.667`,
+            `31,26.550`,
+            `32,25.397`,
+            `33,24.216`,
+            `34,23.015`,
+            `35,21.804`,
+            `36,20.593`,
+            `37,19.393`,
+            `38,18.216`,
+            `39,17.073`,
+            `40,15.978`,
+            `41,14.942`,
+            `42,13.977`,
+            `43,13.095`,
+            `44,12.307`,
+            `45,11.621`,
+            `46,11.048`,
+            `47,10.594`,
+            `48,10.265`,
+            `49,10.067`,
+            `50,10.000`,
+            `51,10.067`,
+            `52,10.265`,
+            `53,10.594`,
+            `54,11.048`,
+            `55,11.621`,
+            `56,12.307`,
+            `57,13.095`,
+            `58,13.977`,
+            `59,14.942`,
+            `60,15.978`,
+            `61,17.073`,
+            `62,18.216`,
+            `63,19.393`,
+            `64,20.593`,
+            `65,21.804`,
+            `66,23.015`,
+            `67,24.216`,
+            `68,25.397`,
+            `69,26.550`,
+            `70,27.667`,
+            `71,28.741`,
+            `72,29.767`,
+            `73,30.741`,
+            `74,31.659`,
+            `75,32.519`,
+            `76,33.321`,
+            `77,34.063`,
+            `78,34.746`,
+            `79,35.371`,
+            `80,35.940`,
+            `81,36.455`,
+            `82,36.918`,
+            `83,37.332`,
+            `84,37.701`,
+            `85,38.028`,
+            `86,38.316`,
+            `87,38.568`,
+            `88,38.788`,
+            `89,38.979`,
+            `90,39.143`,
+            `91,39.284`,
+            `92,39.405`,
+            `93,39.507`,
+            `94,39.594`,
+            `95,39.667`,
+            `96,39.728`,
+            `97,39.779`,
+            `98,39.821`,
+            `99,39.855`,
+            `100,39.884`,
+            `101,39.907`,
+            `102,39.926`,
+            `103,39.942`,
+            `104,39.954`,
+            `105,39.964`,
+            `106,39.972`,
+            `107,39.978`,
+            `108,39.983`,
+            `109,39.987`,
+            `110,39.990`,
+            `111,39.992`,
+            `112,39.994`,
+            `113,39.996`,
+            `114,39.997`,
+            `115,39.997`,
+            `116,39.998`,
+            `117,39.999`,
+            `118,39.999`,
+            `119,39.999`,
+            `120,39.999`,
+            `121,40.000`,
+            `122,40.000`,
+            `123,40.000`,
+            `124,40.000`,
+            `125,40.000`,
+            `126,40.000`,
+            `127,40.000`,
+            `128,40.000`,
+            `129,40.000`,
+            `130,40.000`
         ];
 
         // DOM elements
@@ -1350,10 +1659,9 @@
             }
             transitionRanges = [];
             let acc = 0;
-            lens.forEach(len => {
-                transitionRanges.push([(acc / total) * 100, ((acc + len) / total) * 100]);
-                acc += len;
-            });
+            // GTCV: ten transitions along the bell curve, five rising, one at the peak, four falling. A transition
+            // belongs to the zone its word STARTS in (the old nearest-position rule); the word itself may run on along the curve.
+            transitionRanges = [[0, 8], [8, 20], [20, 30], [30, 40], [40, 47.5], [47.5, 52.5], [52.5, 60], [60, 70], [70, 76.5], [76.5, 100]];
         }
 
         function getTransitionList(pathName) {
@@ -1450,7 +1758,7 @@
                     pathIndicator.style.borderColor = '#33cc66';
                     break;
                 case 'ext2':
-                    pathIndicator.textContent = 'Extension: Line 3+ Continues';
+                    pathIndicator.textContent = 'Extension: Peak+ Continues';
                     pathIndicator.style.backgroundColor = '#fffce8';
                     pathIndicator.style.borderColor = '#cccc33';
                     break;
@@ -1528,7 +1836,7 @@
         // line's two ends, so it can never bend round a corner onto the neighbouring
         // line. Returns the (possibly adjusted) start position, in %.
         function fitMainWord(zone, offset) {
-            const r = transitionRanges[zone];
+            const r = [0, 100];   // GTCV: a phrase may run on past its own zone, along the curve
             if (!r) return offset;
             const len = shrinkToFit(((r[1] - r[0]) / 100) * pathLength);
             const lenPct = (len / pathLength) * 100;
@@ -1574,13 +1882,14 @@
                 item = getTransitionItem(currentPath, currentOffset);
             }
             // TL first; then SL (which also stays on show while the quiz is open)
+            if (!item || !item.data) return;   /* gtcv-ui3 */
             const displayText = (slidingTextMode === 0) ? item.data[0] : item.data[1];
             slidingText.textContent = displayText;
             interactiveText.style.fontSize = (calculateFontSize(displayText) * (window.__tsScale ? window.__tsScale("slide") : 1)) + "px";
             interactiveText.classList.toggle('learned', !!learnedItemsTransitions[item.index]);
 
             // Lines 2 and 4 (vertical): the word lies horizontally, centred on the line
-            if (SIDE_LINES_HORIZONTAL && currentPath === 'main' && (zone === 1 || zone === 3)) {
+            if (SIDE_LINES_HORIZONTAL && currentPath === 'main' && (false)) {
                 placeSideLineWord(zone);
                 return;
             }
@@ -1700,7 +2009,7 @@
             const el = getPathObject(currentPath);
             const startLen = (currentOffset / 100) * el.getTotalLength();
             dragGrabOffset = closestOnPathEl(el, pt.x, pt.y, null).len - startLen;
-            sideGrabActive = SIDE_LINES_HORIZONTAL && currentPath === 'main' && [1, 3].indexOf(zoneAtPercent(currentOffset)) >= 0;
+            sideGrabActive = SIDE_LINES_HORIZONTAL && currentPath === 'main' && [].indexOf(zoneAtPercent(currentOffset)) >= 0;
             sideInDrag = sideGrabActive;
 
             e.preventDefault();
@@ -1734,7 +2043,7 @@
             let bestLen = cur.len;
             let bestDist = cur.dist;
             ['main', 'ext1', 'ext2'].forEach(name => {
-                if (name === currentPath) return;
+                if (name === currentPath || !getTransitionList(name).length) return;   /* gtcv-ui3: never hop onto an empty extension line */
                 const c = closestOnPathEl(getPathObject(name), pt.x, pt.y, null);
                 if (c.dist < bestDist - 0.05) {
                     bestPath = name;
@@ -1749,7 +2058,7 @@
                 dragGrabOffset = 0;
             } else {
                 const ptZone = (currentPath === 'main') ? zoneAtPercent((bestLen / curTotal) * 100) : -1;
-                if (SIDE_LINES_HORIZONTAL && (ptZone === 1 || ptZone === 3)) {
+                if (SIDE_LINES_HORIZONTAL && (false)) {
                     // Pointer on a vertical line: the word lies horizontally, centred on the pointer's height
                     currentOffset = (Math.min(curTotal, Math.max(0, bestLen - (sideGrabActive ? dragGrabOffset : 0))) / curTotal) * 100;
                     sideInDrag = true;
@@ -1906,7 +2215,7 @@
                     } else if (closestPathName === 'ext1') {
                         conceptIndicator.textContent = extensionData[0][1] + " (Line 1+)";
                     } else if (closestPathName === 'ext2') {
-                        conceptIndicator.textContent = extensionData[1][1] + " (Line 3+)";
+                        conceptIndicator.textContent = extensionData[1][1] + " (Peak+)";
                     }
                     
                     console.log("Dragging on path:", closestPathName);
@@ -2093,18 +2402,27 @@
             // UPRIGHT layout: Lines 1 and 5 at y=40, Line 3 at y=20 (the vertical lines are 20 units).
             // Each label sits beside its own line, so it never lies on top of the path.
             const textBoxConfig = [
-                // DISPLAY LEVEL: one word at a time, every word sitting ON its line (baseline on the line).
-                { x: -30, y: 40, anchor: "start" },   // TL1 - Line 1 start
-                { x: -10, y: 40, anchor: "middle" },   // TL2 - Line 1 mid-point
-                { x: 10, y: 40, anchor: "end" },   // TL3 - Line 1 end / Line 2 start (word runs back along Line 1)
-                { x: 20, y: 30, anchor: "middle" },   // TL4 - Line 2 mid-point (slope)
-                { x: 30, y: 20, anchor: "start" },   // TL5 - Line 2 end / Line 3 start (word runs along Line 3)
-                { x: 50, y: 20, anchor: "middle" },   // TL6 - Line 3 mid-point
-                { x: 70, y: 20, anchor: "end" },   // TL7 - Line 3 end / Line 4 start (word runs back along Line 3)
-                { x: 80, y: 30, anchor: "middle" },   // TL8 - Line 4 mid-point (slope)
-                { x: 90, y: 40, anchor: "start" },   // TL9 - Line 4 end / Line 5 start (word runs along Line 5)
-                { x: 110, y: 40, anchor: "middle" },   // TL10 - Line 5 mid-point
-                { x: 129, y: 40, anchor: "end" }   // TL11 - near the end of Line 5, grows towards the left
+                // GTCV: each word sits at its place on the bell curve with the tuned anti-overlap offsets (below the flat parts, above the climb and the descent).
+                { x: -20.9, y: 49, anchor: "middle" },   // TL1
+                { x: -12.82, y: 46.25, anchor: "middle" },   // TL2
+                { x: -4.72, y: 43.46, anchor: "middle" },   // TL3
+                { x: 3.35, y: 40.51, anchor: "middle" },   // TL4
+                { x: 11.4, y: 36.9, anchor: "middle" },   // TL5
+                { x: 19.06, y: 32.42, anchor: "end" },   // TL6
+                { x: 25.74, y: 27.88, anchor: "end" },   // TL7
+                { x: 31.38, y: 22.11, anchor: "end" },   // TL8
+                { x: 36.58, y: 15.9, anchor: "end" },   // TL9
+                { x: 42.03, y: 9.95, anchor: "end" },   // TL10
+                { x: 50, y: 6, anchor: "middle" },   // TL-Peak
+                { x: 57.97, y: 9.95, anchor: "start" },   // TL-9
+                { x: 64.07, y: 16.68, anchor: "start" },   // TL-8
+                { x: 69.96, y: 23.62, anchor: "start" },   // TL-7
+                { x: 76.63, y: 29.79, anchor: "start" },   // TL-6
+                { x: 84.68, y: 35.92, anchor: "middle" },   // TL-5
+                { x: 93.61, y: 40.31, anchor: "middle" },   // TL-4
+                { x: 102.7, y: 43.44, anchor: "middle" },   // TL-3
+                { x: 111.8, y: 46.24, anchor: "middle" },   // TL-2
+                { x: 120.9, y: 49, anchor: "middle" }   // TL-1
             ];
 
             for (let i = 0; i < conceptData.length; i++) {
@@ -2174,6 +2492,7 @@
         }
 
         function createExtensionTextBoxes() {
+            if (!extensionData.length) { extensionTextBoxes = []; return; }   // GTCV: no extension words
             if (!isStatesMode) return;
             
             document.querySelectorAll('.textBox.extension').forEach(box => {
@@ -2187,19 +2506,19 @@
             const ext1X = 50; // 2026-10-09: directly above TL3 (x 50), on Line 1+ (y 15)
             const ext1Box = document.createElementNS("http://www.w3.org/2000/svg", "text");
             ext1Box.setAttribute("x", ext1X);
-            ext1Box.setAttribute("y", 40);   // on the Line 1 continuation (y=40)
+            ext1Box.setAttribute("y", 38);   // just above the Line 1+ dashes (y=40)
             ext1Box.setAttribute("text-anchor", "middle");
             ext1Box.setAttribute("data-anchor", "middle");
             ext1Box.setAttribute("class", "textBox extension");
             ext1Box.setAttribute("data-extension-index", 0);
-            ext1Box.setAttribute("data-index", 5);
+            ext1Box.setAttribute("data-index", conceptData.length);
             ext1Box.textContent = extensionData[0][0];
             ext1Box.style.opacity = '0';
             ext1Box.style.transform = 'scale(0.5)';
             
             ext1Box.addEventListener('click', function() {
                 const extIndex = 0;
-                const dataIndex = 5;
+                const dataIndex = conceptData.length;
                 
                 if (learnedItemsStates[dataIndex] || !quizEnabled) {
                     if (extensionTextLayers[extIndex] === 0) {
@@ -2228,22 +2547,22 @@
             
             // Extension 2 text box (on Line 3+ path) - positioned at MIDPOINT of extension path 2
             // Extension path 2 goes from x=76.67 to x=130 at y=20
-            const ext2MidX = (70 + 130) / 2;   // 100: mid-point of the Line 3 continuation (x 70 to 130, y 20)
+            const ext2MidX = (50 + 128) / 2 + 11;   // 100: well out along the Peak+ line
             const ext2Box = document.createElementNS("http://www.w3.org/2000/svg", "text");
             ext2Box.setAttribute("x", ext2MidX);
-            ext2Box.setAttribute("y", 20);   // on the Line 3 continuation (y=20)
+            ext2Box.setAttribute("y", 8);   // just above the Peak+ dashes (y=10, the level of the peak)
             ext2Box.setAttribute("text-anchor", "middle");
             ext2Box.setAttribute("data-anchor", "middle");
             ext2Box.setAttribute("class", "textBox extension");
             ext2Box.setAttribute("data-extension-index", 1);
-            ext2Box.setAttribute("data-index", 6);
+            ext2Box.setAttribute("data-index", conceptData.length + 1);
             ext2Box.textContent = extensionData[1][0];
             ext2Box.style.opacity = '0';
             ext2Box.style.transform = 'scale(0.5)';
             
             ext2Box.addEventListener('click', function() {
                 const extIndex = 1;
-                const dataIndex = 6;
+                const dataIndex = conceptData.length + 1;
                 
                 if (learnedItemsStates[dataIndex] || !quizEnabled) {
                     if (extensionTextLayers[extIndex] === 0) {
@@ -3035,14 +3354,17 @@
             
             // ── Tools > Colours: cycle through colour schemes (experimental) ──
             const COLOUR_SCHEMES = [
-                { name: 'Classic', v: {} },
+                { name: 'Black', v: { '--cx-scheme': 'black', '--mb-text': '#ffffff', '--mb-shadow': 'rgba(0,0,0,.85)', '--page-bg': '#000000', '--grad-edge': '#000000', '--grad-mid': '#000000', '--fill-op': '0', '--line': '#ffffff', '--line-w': '0.5', '--ext-line': '#ffffff', '--word': '#ffffff', '--ext-word': '#ffffff', '--slide': '#ffffff', '--learned': '#66e08a', '--ui': 'rgba(255,255,255,0.7)', '--wm': 'rgba(255,255,255,0.65)', '--wm-glow': '#000000', '--sa-tl': '#ffffff', '--sa-tlr': '#ffffff', '--sa-sl': '#ffffff' } },
+                { name: 'White', v: { '--cx-scheme': 'white', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#ffffff', '--grad-edge': '#ffffff', '--grad-mid': '#ffffff', '--fill-op': '0', '--line': '#000000', '--line-w': '0.5', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.6)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' } },
                 { name: 'Ocean',   v: { '--mb-text': '#0b2e4f', '--mb-shadow': 'rgba(255,255,255,.65)', '--page-bg': '#f4fbff', '--grad-edge': '#1b4f72', '--grad-mid': '#aed6f1', '--fill-op': '0.4', '--line': '#0b3c5d', '--line-w': '0.4', '--ext-line': '#16a085', '--word': '#0b2e4f', '--ext-word': '#0e6655', '--slide': '#c0392b', '--learned': '#117a65' } },
-                { name: 'Sunrise', v: { '--mb-text': '#4a2400', '--mb-shadow': 'rgba(255,255,255,.65)', '--page-bg': '#fffaf0', '--grad-edge': '#e67e22', '--grad-mid': '#f9e79f', '--fill-op': '0.45', '--line': '#7b241c', '--line-w': '0.4', '--ext-line': '#c0392b', '--word': '#4a235a', '--ext-word': '#a04000', '--slide': '#1a5276', '--learned': '#1e8449' } },
-                { name: 'Forest',  v: { '--mb-text': '#0e3b20', '--mb-shadow': 'rgba(255,255,255,.65)', '--page-bg': '#f7fff7', '--grad-edge': '#1e8449', '--grad-mid': '#d5f5e3', '--fill-op': '0.4', '--line': '#145a32', '--line-w': '0.4', '--ext-line': '#b9770e', '--word': '#0b3d20', '--ext-word': '#7d6608', '--slide': '#6c3483', '--learned': '#0b5345' } },
-                { name: 'High contrast', v: { '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.65)', '--page-bg': '#ffffff', '--grad-edge': '#000000', '--grad-mid': '#ffffff', '--fill-op': '0.12', '--line': '#000000', '--line-w': '0.6', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#6a0dad', '--slide': '#0000ff', '--learned': '#006400', '--ui': 'rgba(0,0,0,0.55)', '--wm': 'rgba(0,0,0,0.6)' } },
-                { name: 'Night',   v: { '--mb-text': '#ffffff', '--mb-shadow': 'rgba(0,0,0,.7)', '--page-bg': '#14213d', '--grad-edge': '#000814', '--grad-mid': '#3a86ff', '--fill-op': '0.5', '--line': '#ffd60a', '--line-w': '0.4', '--ext-line': '#00f5d4', '--word': '#ffffff', '--ext-word': '#00f5d4', '--slide': '#ffd60a', '--learned': '#2ecc71', '--ui': 'rgba(255,255,255,0.55)', '--wm': 'rgba(255,255,255,0.6)', '--wm-glow': '#14213d', '--sa-tl': '#8ecae6', '--sa-tlr': '#e0c3fc', '--sa-sl': '#ffb3b3' } }
+                { name: 'Night',   v: { '--mb-text': '#ffffff', '--mb-shadow': 'rgba(0,0,0,.7)', '--page-bg': '#14213d', '--grad-edge': '#000814', '--grad-mid': '#3a86ff', '--fill-op': '0.5', '--line': '#ffd60a', '--line-w': '0.4', '--ext-line': '#00f5d4', '--word': '#ffffff', '--ext-word': '#00f5d4', '--slide': '#ffd60a', '--learned': '#2ecc71', '--ui': 'rgba(255,255,255,0.55)', '--wm': 'rgba(255,255,255,0.6)', '--wm-glow': '#14213d', '--sa-tl': '#8ecae6', '--sa-tlr': '#e0c3fc', '--sa-sl': '#ffb3b3' } },
+                { name: 'Outdoors', v: { '--cx-scheme': 'white', '--cx-env': 'outdoors', '--cx-sky': '#87CEEB', '--cx-ground': '#90d98f', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#87CEEB', '--grad-edge': '#87CEEB', '--grad-mid': '#87CEEB', '--fill-op': '0', '--line': '#000000', '--line-w': '0.6', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.65)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' } },
+                { name: 'Forest', v: { '--cx-scheme': 'white', '--cx-env': 'forest', '--cx-sky': '#87CEEB', '--cx-ground': '#1f5a28', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#87CEEB', '--grad-edge': '#87CEEB', '--grad-mid': '#87CEEB', '--fill-op': '0', '--line': '#000000', '--line-w': '0.6', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.65)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' } },
+                { name: 'Sea', v: { '--cx-scheme': 'white', '--cx-env': 'sea', '--cx-sky': '#87CEEB', '--cx-ground': '#1e6fc0', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#87CEEB', '--grad-edge': '#87CEEB', '--grad-mid': '#87CEEB', '--fill-op': '0', '--line': '#000000', '--line-w': '0.6', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.65)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' } },
+                { name: 'Beach', v: { '--cx-scheme': 'white', '--cx-env': 'beach', '--cx-sky': '#87CEEB', '--cx-ground': '#ecd48a', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#87CEEB', '--grad-edge': '#87CEEB', '--grad-mid': '#87CEEB', '--fill-op': '0', '--line': '#000000', '--line-w': '0.6', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.65)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' } },
+                { name: 'Road', v: { '--cx-scheme': 'white', '--cx-env': 'road', '--cx-sky': '#87CEEB', '--cx-ground': '#c4c4c4', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#87CEEB', '--grad-edge': '#87CEEB', '--grad-mid': '#87CEEB', '--fill-op': '0', '--line': '#000000', '--line-w': '0.6', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.65)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' } }
             ];
-            let colourIndex = 1;   // 2026-10-09: Ocean is the default scheme (index 1)
+            let colourIndex = 0;   // 2026-11-24: Black is the default scheme (index 0); White is the printable one
             const colourBtn = document.getElementById('colourToggle');
             Object.keys(COLOUR_SCHEMES[colourIndex].v).forEach(function (k) { document.documentElement.style.setProperty(k, COLOUR_SCHEMES[colourIndex].v[k]); });
             if (colourBtn) {
@@ -3334,16 +3656,16 @@
         let showAllOverride = { state: {}, transition: {} };
         let showAllGroup = null;
         let showAllWords = [];
-        const SA_MAIN_SIDES = ['at', 'at', 'at', 'at', 'at', 'at', 'at', 'at', 'at', 'at', 'at'];   // 'at' = exactly where the live state label sits, with its own anchor
+        const SA_MAIN_SIDES = ['at', 'at', 'at', 'at', 'at', 'at', 'at', 'at', 'at', 'at', 'at', 'at', 'at', 'at', 'at', 'at', 'at', 'at', 'at', 'at'];   // 'at' = exactly where the live state label sits, with its own anchor
         const SA_EXT_SIDES = ['at', 'at', 'at'];                // the three extension states, likewise
 
         // Show All: positions fixed by hand with the Coordinate Grid (Alan, 2026-10-07). Values are grid
         // percentages [x%, y%]; converted to SVG units (viewBox -30 0 160 50): x = -30 + 1.6 * x%, y = 0.5 * y%.
         // Each word starts at its point (start anchor, baseline on y: i.e. bottom-left of the word).
         // A word with no entry (TLR+1, TLR5, TLR7, TLR+3 ...) keeps the position of its live label.
-        const SA_FIXED_STATE = { m0: [1.25, 60], m1: [12.5, 70], m2: [25, 80], m3: [31.25, 60], m4: [37.5, 50], m5: [50, 40], m6: [62.5, 50], m7: [68.75, 60], m8: [75, 80], m9: [87.5, 70], m10: [99.38, 60] };   // LEARNED / SHOW ALL: staggered like the IT5L-11TB set - a descending staircase TL1-TL3 (TL3 on Line 1), TL5 / TL7 just below Line 3, an ascending staircase TL9-TL11 (TL9 on Line 5); the other words ON their lines
-        const SA_FIXED_MIDDLE = { m1: 1, m3: 1, m5: 1, m7: 1, m9: 1 };
-        const SA_FIXED_END = { m2: 1, m6: 1, m10: 1 };   // right-anchored: the word ends at its point and grows towards the left
+        const SA_FIXED_STATE = {};   // GTCV: learned and Show All words stay at their display places
+        const SA_FIXED_MIDDLE = {};
+        const SA_FIXED_END = {};
                 function saGridToSvg(p) { return { x: -30 + 1.6 * p[0], y: 0.5 * p[1] }; }
 
         // Font size of a Show All word. A literal SVG-unit size, never em: em
@@ -3440,6 +3762,56 @@
                      a.bottom <= b.top + tol || a.top >= b.bottom - tol);
         }
 
+
+        function saNudge() {
+            const ws = showAllWords.filter(function (w) { return w.kind === 'state'; });
+            const vb = svg.viewBox && svg.viewBox.baseVal, vx = vb ? vb.x : -30, vy = vb ? vb.y : 0, vw = vb ? vb.width : 160, vh = vb ? vb.height : 50;
+            const pad = 0.6;
+            function ymove(w, d) { w.el.setAttribute('y', parseFloat(w.el.getAttribute('y')) + d); }
+            for (let it = 0; it < 60; it++) {
+                let moved = false;
+                const bx = ws.map(function (w) { return saBBox(w.el); });
+                for (let i = 0; i < ws.length; i++) for (let j = i + 1; j < ws.length; j++) {
+                    const a = bx[i], b = bx[j]; if (!a || !b) continue;
+                    const ox = Math.min(a.right, b.right) - Math.max(a.left, b.left), oy = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+                    if (ox > 0.2 && oy > 0.05) {
+                        const up = ((a.top + a.bottom) <= (b.top + b.bottom)) ? i : j, dn = up === i ? j : i, s = oy / 2 + 0.1;
+                        ymove(ws[up], -s); ymove(ws[dn], s); moved = true;
+                        bx[up] = saBBox(ws[up].el); bx[dn] = saBBox(ws[dn].el);
+                    }
+                }
+                ws.forEach(function (w) {
+                    const b = saBBox(w.el); if (!b) return;
+                    if (b.top < vy + pad) { ymove(w, vy + pad - b.top); moved = true; }
+                    else if (b.bottom > vy + vh - pad) { ymove(w, vy + vh - pad - b.bottom); moved = true; }
+                    const x = parseFloat(w.el.getAttribute('x')); let dx = 0;
+                    if (b.left < vx + pad) dx = vx + pad - b.left; else if (b.right > vx + vw - pad) dx = vx + vw - pad - b.right;
+                    if (dx) { w.el.setAttribute('x', x + dx); moved = true; }
+                });
+                if (!moved) break;
+            }
+            for (let sh = 0; sh < 6; sh++) {   // still touching (no room left to slide): shrink just those words a little and slide again
+                const bx = ws.map(function (w) { return saBBox(w.el); }); let any = false;
+                for (let i = 0; i < ws.length; i++) for (let j = i + 1; j < ws.length; j++) {
+                    const a = bx[i], b = bx[j]; if (!a || !b) continue;
+                    if (Math.min(a.right, b.right) - Math.max(a.left, b.left) > 0.2 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 0.05) {
+                        [ws[i], ws[j]].forEach(function (w) { w.el.style.fontSize = (parseFloat(w.el.style.fontSize) * 0.9) + 'px'; }); any = true;
+                    }
+                }
+                if (!any) break;
+                for (let it = 0; it < 30; it++) {
+                    let moved = false; const bb = ws.map(function (w) { return saBBox(w.el); });
+                    for (let i = 0; i < ws.length; i++) for (let j = i + 1; j < ws.length; j++) {
+                        const a = bb[i], b = bb[j]; if (!a || !b) continue;
+                        const oy = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+                        if (Math.min(a.right, b.right) - Math.max(a.left, b.left) > 0.2 && oy > 0.05) { const up = ((a.top + a.bottom) <= (b.top + b.bottom)) ? i : j, dn = up === i ? j : i; ymove(ws[up], -(oy / 2 + 0.1)); ymove(ws[dn], oy / 2 + 0.1); moved = true; bb[up] = saBBox(ws[up].el); bb[dn] = saBBox(ws[dn].el); }
+                    }
+                    ws.forEach(function (w) { const b = saBBox(w.el); if (!b) return; if (b.top < vy + pad) ymove(w, vy + pad - b.top); else if (b.bottom > vy + vh - pad) ymove(w, vy + vh - pad - b.bottom); });
+                    if (!moved) break;
+                }
+            }
+        }
+
         function saResolveCollisions() {
             const tol = 0.3 * saFontSize('x');
             showAllWords.forEach(function (w) {
@@ -3479,6 +3851,7 @@
                 }
                 if (!escalated) break;
             }
+            saNudge();
         }
 
         function saFlipWord(word) {
@@ -3538,7 +3911,7 @@
                 const src = [];
                 transitionsData.forEach(function (row, i) {
                     // Lines 2 and 4 are vertical: their words lie on a short invisible horizontal path through the line's mid-point
-                    const sideMid = (i === 1) ? [20, 30] : ((i === 3) ? [80, 30] : null);
+                    const sideMid = null;
                     src.push({ key: 'm' + i, row: row, pathId: 'gradualChangePath', zone: saMainZone(i), side: 'above', sideMid: sideMid });
                 });
                 [[extension1TransitionData, 'extensionPath1', 'e1_', 'above'], [extension2TransitionData, 'extensionPath2', 'e2_', 'above']].forEach(function (g) {
@@ -3704,7 +4077,7 @@
         // INITIALIZATION
         document.addEventListener('DOMContentLoaded', function() {
             try {
-                console.log("Initializing GT5L+11TB Phonographic Template...");
+                console.log("Initializing GTCV Phonographic Template...");
                 
                 // Get all DOM references
                 svg = document.getElementById("svgCanvas");
@@ -3824,7 +4197,7 @@
             let best = null, bestScore = -1;
             vs.forEach(function (v) {
                 const l = (v.lang || '').toLowerCase().replace('_', '-');
-                if (l !== c && l.split('-')[0] !== base) return;
+                if (l !== c && ({ 'in': 'id', 'iw': 'he', 'ji': 'yi' }[l.split('-')[0]] || l.split('-')[0]) !== base) return;   /* Android's old language codes */
                 const score = (l === c ? 4 : 0) + (/natural|neural|online/i.test(v.name) ? 3 : 0) + (/google/i.test(v.name) ? 2 : 0) + (v.localService ? 0 : 1);
                 if (score > bestScore) { best = v; bestScore = score; }
             });
@@ -3928,7 +4301,7 @@
         }
         onR.addEventListener('change', function () { if (onR.checked) setOn(true); });
         offR.addEventListener('change', function () { if (offR.checked) setOn(false); });
-        vol.addEventListener('input', function () { st.vol = vol.value / 100; volVal.textContent = vol.value + '%'; if (st.cur) st.cur.volume = st.vol; });
+        if (vol) vol.addEventListener('input', function () { st.vol = vol.value / 100; volVal.textContent = vol.value + '%'; if (st.cur) st.cur.volume = st.vol; });
         let moved = false;
         function place() {
             if (moved) return;
@@ -4005,7 +4378,7 @@
     if (!api || !oldBtn || document.getElementById('auCycle')) return;
     const AB = { en: 'ENG', id: 'IND', ms: 'MSA', ja: 'JPN', ko: 'KOR', zh: '中文', fr: 'FRA', de: 'DEU', es: 'SPA', it: 'ITA', pt: 'POR', ru: 'RUS', ar: 'ARA', hi: 'HIN', th: 'THA', vi: 'VIE', mi: 'MRI', fil: 'FIL', tl: 'FIL', nl: 'NLD', sv: 'SWE', tr: 'TUR', pl: 'POL', el: 'ELL', he: 'HEB', sm: 'SMO', to: 'TON', fj: 'FIJ' };
     const AUDIO_API_URL = window.CONCEPTIONARY_AUDIO_API_URL || '';
-    const st = { mode: 0, vol: 0.8, last: '', lastT: 0, timer: null, cur: null, pt: 'mouse' };      // mode 0 = TL+SL, 1 = TL only, 2 = silent
+    const st = { mode: 1, vol: 0.8, last: '', lastT: 0, timer: null, cur: null, pt: 'mouse' }; /* gtcv-ui3: TL only on opening */      // mode 0 = TL+SL, 1 = TL only, 2 = silent
     const tlCode = function () { return window.CONCEPTIONARY_AUDIO_LANG || ''; };
     const slCode = function () { return window.CONCEPTIONARY_AUDIO_SL_LANG || ''; };
     function abbr(code, fallback, override) { if (override) return override; if (!code) return fallback; const b = code.toLowerCase().split(/[-_]/)[0]; return AB[b] || b.toUpperCase(); }
@@ -4018,12 +4391,12 @@
     const vol = document.createElement('input'); vol.type = 'range'; vol.id = 'auVol2'; vol.min = 0; vol.max = 100; vol.step = 5; vol.value = 80; vol.setAttribute('aria-label', 'Volume');
     const ico = document.createElement('span'); ico.id = 'auSpk'; ico.title = 'Audio'; const SPK = {"0": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"black\" d=\"M2 9v6h4l5 4V5L6 9H2z\"/><g fill=\"none\" stroke=\"black\" stroke-width=\"2.2\" stroke-linecap=\"round\"><path d=\"M16 8.5a5 5 0 0 1 0 7M19 5.5a9 9 0 0 1 0 13\"/></g></svg>", "1": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"black\" d=\"M2 9v6h4l5 4V5L6 9H2z\"/><g fill=\"none\" stroke=\"black\" stroke-width=\"2.2\" stroke-linecap=\"round\"><path d=\"M16 8.5a5 5 0 0 1 0 7\"/></g></svg>", "2": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"black\" d=\"M2 9v6h4l5 4V5L6 9H2z\"/><g fill=\"none\" stroke=\"black\" stroke-width=\"2.2\" stroke-linecap=\"round\"><path d=\"M16 9l6 6M22 9l-6 6\"/></g></svg>"};
     ico.addEventListener('click', function (e) { e.stopPropagation(); cyc.click(); });
-    wrap.appendChild(cyc); wrap.appendChild(ico); wrap.appendChild(vol); oldBtn.parentNode.insertBefore(wrap, oldBtn); oldBtn.style.display = 'none';
+    wrap.appendChild(cyc); wrap.appendChild(ico); oldBtn.parentNode.insertBefore(wrap, oldBtn); oldBtn.style.display = 'none';
     const toast = document.createElement('div'); toast.id = 'auToast'; document.body.appendChild(toast);
     let toastT = null;
     function note(text) {
         toast.textContent = text; toast.style.opacity = '1';
-        const r = wrap.getBoundingClientRect();
+        const r = (document.getElementById('audibleBtn') || wrap).getBoundingClientRect();
         toast.style.left = '0px'; toast.style.top = '0px';
         const w = toast.offsetWidth, h = toast.offsetHeight;
         toast.style.left = Math.max(6, Math.min(window.innerWidth - w - 6, r.left + r.width / 2 - w / 2)) + 'px';
@@ -4043,7 +4416,7 @@
         const c = code.toLowerCase(), base = c.split('-')[0]; let best = null, bs = -1;
         vs.forEach(function (v) {
             const l = (v.lang || '').toLowerCase().replace('_', '-');
-            if (l !== c && l.split('-')[0] !== base) return;
+            if (l !== c && ({ 'in': 'id', 'iw': 'he', 'ji': 'yi' }[l.split('-')[0]] || l.split('-')[0]) !== base) return;   /* Android's old language codes */
             const s = (l === c ? 4 : 0) + (/natural|neural|online/i.test(v.name) ? 3 : 0) + (/google/i.test(v.name) ? 2 : 0) + (v.localService ? 0 : 1);
             if (s > bs) { best = v; bs = s; }
         });
@@ -4116,7 +4489,7 @@
 
     cyc.addEventListener('click', function (e) {
         e.stopPropagation();
-        st.mode = (st.mode + 1) % 3; label(); if (st.mode === 2) stop();
+        st.mode = (st.mode === 0) ? 1 : 0; label();   /* gtcv-ui3: Translations ON / OFF */
         if (window.speechSynthesis) speechSynthesis.getVoices();
         note(describe());
     });
@@ -4151,6 +4524,517 @@
         const fr = document.getElementById(id); if (!fr) return;
         fr.addEventListener('click', function (e) { if (e.isTrusted && Date.now() - lastSyn < 500) { e.stopPropagation(); e.preventDefault(); } }, true);
     });
+})();
+</script>
+
+<script>
+/* GTCV-PHONE-KIT v1 (2026-11-24) (c) 2026 Alan William Preston */
+(function () {
+  if (window.__gtKit) return; window.__gtKit = true;
+  var de = document.documentElement, svg = document.getElementById('svgCanvas');
+  var USER_MANUAL_URL = 'https://sites.google.com/view/conceptionary/home/user-manual';
+  var EXERCISES_URL = 'https://sites.google.com/view/conceptionary/home/index-of-exercises';
+
+  /* 1. TOUCH: let the phone's pinch zoom work; the mouse events a phone makes after a touch are ignored */
+  var lastT = 0;
+  function endDrags() { ['touchend', 'mouseup'].forEach(function (t) { try { document.dispatchEvent(new Event(t, { bubbles: true })); } catch (e) {} }); }
+  document.addEventListener('touchstart', function (e) { lastT = Date.now(); e.preventDefault = function () {}; if (e.touches && e.touches.length > 1) endDrags(); }, { capture: true, passive: true });
+  document.addEventListener('touchmove', function (e) { lastT = Date.now(); if (e.touches && e.touches.length > 1) e.preventDefault = function () {}; }, { capture: true, passive: true });
+  document.addEventListener('touchend', function () { lastT = Date.now(); }, { capture: true, passive: true });
+  document.addEventListener('touchcancel', function () { lastT = Date.now(); endDrags(); }, { capture: true, passive: true });
+  ['mousedown', 'mousemove', 'mouseup'].forEach(function (t) { document.addEventListener(t, function (e) { if (e.isTrusted && Date.now() - lastT < 700) e.stopImmediatePropagation(); }, true); });
+
+  /* 2. FULL SCREEN ZOOM: Chrome switches its own pinch zoom off in full screen, so two fingers zoom and pan the diagram here */
+  (function () {
+    if (!svg) return;
+    var zs = 1, tx = 0, ty = 0, g = null;
+    function fsOn() { return !!(document.fullscreenElement || document.webkitFullscreenElement || window.__kitForceFs); }
+    function apply() { svg.style.transformOrigin = '0 0'; svg.style.transform = (zs === 1 && !tx && !ty) ? '' : 'translate(' + tx + 'px,' + ty + 'px) scale(' + zs + ')'; window.__kitZoom = { s: zs, x: tx, y: ty }; }
+    function sync() { if (!fsOn()) { zs = 1; tx = ty = 0; apply(); } }
+    ['fullscreenchange', 'webkitfullscreenchange'].forEach(function (t) { document.addEventListener(t, sync); });
+    function mid(t) { return { x: (t[0].clientX + t[1].clientX) / 2, y: (t[0].clientY + t[1].clientY) / 2, d: Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY) || 1 }; }
+    document.addEventListener('touchstart', function (e) {
+      if (!fsOn() || e.touches.length !== 2) return;
+      var m = mid(e.touches), r = svg.getBoundingClientRect(); g = { d: m.d, s: zs, tx: tx, ty: ty, bx: r.left - tx, by: r.top - ty, mx: m.x, my: m.y };
+    }, { capture: true, passive: true });
+    document.addEventListener('touchmove', function (e) {
+      if (!g || e.touches.length !== 2) return;
+      var m = mid(e.touches), s = Math.min(4, Math.max(1, g.s * m.d / g.d));
+      var cx = ((g.mx - g.bx) - g.tx) / g.s, cy = ((g.my - g.by) - g.ty) / g.s;
+      var W = svg.clientWidth, H = svg.clientHeight, nx = (m.x - g.bx) - cx * s, ny = (m.y - g.by) - cy * s;
+      zs = s; tx = Math.min(0, Math.max(W * (1 - s), nx)); ty = Math.min(0, Math.max(H * (1 - s), ny));
+      if (s < 1.03) { zs = 1; tx = ty = 0; }
+      apply(); if (e.cancelable) e.preventDefault();
+    }, { capture: true, passive: false });
+    document.addEventListener('touchend', function (e) { if (!e.touches || e.touches.length < 2) g = null; }, { capture: true, passive: true });
+    document.addEventListener('touchcancel', function () { g = null; }, { capture: true, passive: true });
+  })();
+
+  /* 3. TOOLS: Exercises & Tests (the User Manual button is already there) */
+  (function () {
+    var b = document.getElementById('exercisesBtn'); if (!b) return;
+    b.addEventListener('click', function (e) {
+      e.stopPropagation(); var dd = document.querySelector('.tools-dropdown'); if (dd) dd.classList.remove('active');
+      window.open(EXERCISES_URL, '_blank', 'noopener');
+    });
+  })();
+
+  /* 4. COLOUR: the White scheme is the printable one; whatever scheme is on screen, the printout is White (black lines and text on white) */
+  (function () {
+    var pb = document.getElementById('printBtn'), WHITE = { '--cx-scheme': 'white', '--mb-text': '#000000', '--mb-shadow': 'rgba(255,255,255,.85)', '--page-bg': '#ffffff', '--grad-edge': '#ffffff', '--grad-mid': '#ffffff', '--fill-op': '0', '--line': '#000000', '--line-w': '0.5', '--ext-line': '#000000', '--word': '#000000', '--ext-word': '#000000', '--slide': '#000000', '--learned': '#0a6b2a', '--ui': 'rgba(0,0,0,0.7)', '--wm': 'rgba(0,0,0,0.6)', '--wm-glow': '#ffffff', '--sa-tl': '#000000', '--sa-tlr': '#000000', '--sa-sl': '#000000' };
+    var keep = null;
+    function toWhite() { if (keep !== null) return; keep = de.style.cssText; Object.keys(WHITE).forEach(function (k) { de.style.setProperty(k, WHITE[k]); }); ['--cx-env', '--cx-sky', '--cx-ground'].forEach(function (k) { de.style.removeProperty(k); }); }
+    function back() { if (keep === null) return; de.style.cssText = keep; keep = null; }
+    if (pb) { pb.addEventListener('click', function () { toWhite(); setTimeout(back, 200); }, true); }
+    window.addEventListener('beforeprint', toWhite); window.addEventListener('afterprint', back);
+  })();
+
+  /* 5. PULL A WORD OUT: grab a word and drag; it follows the finger or mouse, grows (up to 300%) with a yellow highlight, STAYS 5 seconds after you let go, then snaps back */
+  (function () {
+    if (!svg) return;
+    var MAXS = 3, HOLD_MS = 5000, held = new Map(), g = null, swallow = false;
+    function tf(o) { return 'translate(calc(-50% + ' + o.x + 'px), calc(-50% + ' + o.y + 'px)) scale(' + o.s + ')'; }
+    function plain(el) { return (el.textContent || '').replace(/\s+/g, ' ').trim(); }
+    function makeGhost(box) {
+      var r = box.getBoundingClientRect(), k = svg.getScreenCTM().a, fs = parseFloat(getComputedStyle(box).fontSize) || 4;
+      var gh = document.createElement('div'); gh.className = 'gt-ghost'; gh.textContent = plain(box); gh.style.fontSize = Math.max(11, fs * k) + 'px';
+      document.body.appendChild(gh);
+      var w = gh.offsetWidth, h = gh.offsetHeight, hx = r.left + r.width / 2, hy = r.top + r.height / 2;
+      gh.style.left = hx + 'px'; gh.style.top = hy + 'px'; gh.style.display = 'none';
+      return { ghost: gh, box: box, hx: hx, hy: hy, w: w, h: h, x: 0, y: 0, s: 1, timer: null };
+    }
+    function snapBack(i) {
+      var o = held.get(i); if (!o) return; clearTimeout(o.timer); held.delete(i);
+      var gh = o.ghost; gh.style.transition = 'transform .3s cubic-bezier(.34,1.56,.64,1)'; gh.style.transform = 'translate(-50%, -50%) scale(1)';
+      setTimeout(function () { if (gh.parentNode) gh.parentNode.removeChild(gh); o.box.style.visibility = ''; }, 330);
+    }
+    function startHold(i) { var o = held.get(i); if (!o) return; clearTimeout(o.timer); o.timer = setTimeout(function () { snapBack(i); }, HOLD_MS); }
+    window.__gtReset = function () { held.forEach(function (o) { clearTimeout(o.timer); if (o.ghost.parentNode) o.ghost.parentNode.removeChild(o.ghost); o.box.style.visibility = ''; }); held.clear(); g = null; };
+    ['showAllBtn', 'modeToggle', 'resetBtn'].forEach(function (id) { var b = document.getElementById(id); if (b) b.addEventListener('click', window.__gtReset); });
+    window.addEventListener('resize', window.__gtReset);
+    function keyOf(box) { return (box.classList.contains('showall-word') ? 'sa' : 'tb') + '|' + box.getAttribute('data-index') + '|' + (box.getAttribute('data-extension-index') || ''); }
+    function usable(box) { var cs = getComputedStyle(box); return cs.display !== 'none' && cs.visibility !== 'hidden' && parseFloat(cs.opacity) > 0.05 && cs.pointerEvents !== 'none'; }
+
+    document.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      var gh = e.target.closest && e.target.closest('.gt-ghost'), box = null, key = null;
+      if (gh) { held.forEach(function (o, k) { if (o.ghost === gh) { key = k; box = o.box; } }); }
+      else { box = e.target.closest && e.target.closest('.textBox, .showall-word'); if (!box || !usable(box)) return; key = keyOf(box); }
+      if (key == null) return;
+      var o = held.get(key), hadHold = !!o;
+      if (!o) { o = makeGhost(box); held.set(key, o); o.pending = true; } else clearTimeout(o.timer);
+      g = { key: key, box: box, o: o, id: e.pointerId, x0: e.clientX, y0: e.clientY, ox: o.x, oy: o.y, s0: o.s, hadHold: hadHold, drag: false };
+      if (gh) { try { gh.setPointerCapture(e.pointerId); } catch (_) {} e.preventDefault(); }
+    }, true);
+    document.addEventListener('pointermove', function (e) {
+      if (!g || e.pointerId !== g.id) return;
+      var dx = e.clientX - g.x0, dy = e.clientY - g.y0, d = Math.hypot(dx, dy), o = g.o;
+      if (!g.drag) {
+        if (d < 8) return;
+        g.drag = true; o.ghost.style.display = ''; o.ghost.style.transition = 'none'; g.box.style.visibility = 'hidden'; o.pending = false;
+        if (/^\d+$/.test(g.box.getAttribute('data-index') || '') && window.__cmpSpeak) { try { window.__cmpSpeak(parseInt(g.box.getAttribute('data-index')), true); } catch (_) {} }
+      }
+      var dmax = Math.max(120, Math.min(230, 0.30 * Math.min(window.innerWidth, window.innerHeight)));
+      var s = g.hadHold ? g.s0 : 1 + (MAXS - 1) * Math.min(1, d / dmax);
+      s = Math.min(s, (window.innerWidth - 8) / o.w, (window.innerHeight - 8) / o.h);
+      var hw = o.w * s / 2, hh = o.h * s / 2, tx = o.hx + g.ox + dx, ty = o.hy + g.oy + dy;
+      var cx = Math.min(Math.max(tx, hw + 2), window.innerWidth - hw - 2), cy = Math.min(Math.max(ty, hh + 2), window.innerHeight - hh - 2);
+      o.x = cx - o.hx; o.y = cy - o.hy; o.s = s; o.ghost.style.transform = tf(o);
+      e.preventDefault();
+    }, { passive: false });
+    function release(e) {
+      if (!g || e.pointerId !== g.id) return;
+      var cur = g; g = null;
+      if (cur.drag) { swallow = true; setTimeout(function () { swallow = false; }, 80); startHold(cur.key); return; }
+      if (cur.hadHold) {   /* a tap on a held word: it moves on to its next language and the 5 seconds start again */
+        cur.box.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        cur.o.ghost.textContent = plain(cur.box); startHold(cur.key);
+      } else { var o = held.get(cur.key); if (o && o.pending) { if (o.ghost.parentNode) o.ghost.parentNode.removeChild(o.ghost); held.delete(cur.key); } }
+    }
+    document.addEventListener('pointerup', release, true);
+    document.addEventListener('pointercancel', release, true);
+    document.addEventListener('click', function (e) { if (swallow && e.target.closest && e.target.closest('.textBox, .showall-word')) { e.stopPropagation(); e.preventDefault(); swallow = false; } }, true);
+    document.addEventListener('contextmenu', function (e) { if (e.target.closest && (e.target.closest('.textBox, .showall-word') || e.target.closest('.gt-ghost'))) e.preventDefault(); });
+  })();
+
+  /* 6. LEARNED COUNTER (phones): words learned in the Quiz, out of the words on the line */
+  (function () {
+    var page = document.querySelector('.a4-page'); if (!page || !svg) return;
+    var el = document.createElement('div'); el.id = 'gtLearned'; page.appendChild(el); var t = 0;
+    function paint() {
+      var all = svg.querySelectorAll('.textBox:not(.extension)'), n = svg.querySelectorAll('.textBox.learned:not(.extension)').length;
+      var tot = 0, seen = {}; all.forEach(function (b) { var k = b.getAttribute('data-index'); if (!seen[k]) { seen[k] = 1; tot++; } });
+      el.textContent = 'Learned ' + n + '/' + tot;
+    }
+    new MutationObserver(function () { clearTimeout(t); t = setTimeout(paint, 40); }).observe(svg, { attributes: true, attributeFilter: ['class'], childList: true, subtree: true });
+    paint();
+  })();
+})();
+</script>
+
+<script>
+/* gtcv-ui2 (2026-11-25) (c) 2026 Alan William Preston */
+(function () {
+  if (window.__gtUi2) return; window.__gtUi2 = true;
+  var $ = function (id) { return document.getElementById(id); }, de = document.documentElement, svg = $('svgCanvas');
+
+  /* ---- button wording: English here; the App (or a concept card) overrides any of these with the Source Language (SL) wording, via window.CONCEPTIONARY_UI_LABELS or the line below ---- */
+  var UI_LABELS = { fullScreen: 'Full Screen', exitFullScreen: 'Exit Full Screen', reset: 'Reset', showTransitions: 'Show Transitions', showStates: 'Show States', showAll: 'Show All', hideAll: 'Hide All', tools: 'Tools', userManual: 'User Manual', conceptIndex: 'Concept Index', exercises: 'Exercises & Tests', audible: 'Audible Languages', colours: 'Colours', quizOn: 'Turn Quiz ON', quizOff: 'Turn Quiz OFF', randomQuiz: 'Random Quiz', print: 'Print', audibleSilent: 'Silent' };
+  var UI = {}; Object.keys(UI_LABELS).forEach(function (k) { UI[k] = UI_LABELS[k]; });
+  if (window.CONCEPTIONARY_UI_LABELS) Object.keys(window.CONCEPTIONARY_UI_LABELS).forEach(function (k) { if (window.CONCEPTIONARY_UI_LABELS[k]) UI[k] = window.CONCEPTIONARY_UI_LABELS[k]; });
+  function sch(n) { return UI['scheme' + n] || n; }
+
+  /* ---- 1. Tools menu: order, Audible Languages item ---- */
+  var dd = document.querySelector('.tools-dropdown'), wrap = $('audioWrap'), cyc = $('auCycle'), ico = $('auSpk');
+  if (dd) {
+    var ab = document.createElement('button'); ab.id = 'audibleBtn'; ab.type = 'button';
+    ab.innerHTML = '<span class="spk"></span><span class="lbl"></span><span class="state"></span>';
+    var spk = ab.querySelector('.spk'), st = ab.querySelector('.state');
+    function mirror() {
+      if (cyc) st.textContent = /^Silent$/i.test(cyc.textContent) ? UI.audibleSilent : cyc.textContent;
+      if (ico) { var m = ico.style.webkitMaskImage || ico.style.maskImage; if (m) { spk.style.webkitMaskImage = m; spk.style.maskImage = m; } }
+    }
+    ab.addEventListener('click', function (e) { e.stopPropagation(); if (cyc) cyc.click(); setTimeout(mirror, 0); });
+    if (cyc) { new MutationObserver(mirror).observe(cyc, { childList: true, characterData: true, subtree: true }); }
+    if (ico) { new MutationObserver(mirror).observe(ico, { attributes: true, attributeFilter: ['style'] }); }
+    var order = ['userManualBtn', 'loadConcept', 'exercisesBtn', 'audibleBtn', 'colourToggle', 'quizToggle', 'startQuiz', 'printBtn'];
+    dd.appendChild(ab);
+    order.forEach(function (id) { var el = $(id); if (el) dd.appendChild(el); });
+    mirror(); setTimeout(mirror, 400);
+  }
+  var fs = $('toggleFullscreen');
+  if (fs && !(de.requestFullscreen || de.webkitRequestFullscreen)) fs.style.display = 'none';   /* e.g. iPhone Safari cannot do it */
+
+  /* ---- Concept Index opens the Conceptionary App (Home / Search / Browse / Map). Change the one address below to point it elsewhere. ---- */
+  var CONCEPT_INDEX_URL = 'https://conceptionary.github.io/conceptionary-app/';
+  var lc = $('loadConcept');
+  if (lc) lc.addEventListener('click', function (e) {
+    e.stopImmediatePropagation(); e.stopPropagation(); if (dd) dd.classList.remove('active');
+    window.open(CONCEPT_INDEX_URL, '_blank', 'noopener');
+  }, true);
+
+  /* ---- 2. wording: replace English with the SL wording wherever the template (re)writes a button's text ---- */
+  var busy = false;
+  function put(el, t) { if (el && el.textContent !== t) { busy = true; el.textContent = t; busy = false; } }
+  function relabel() {
+    if (busy) return;
+    var t;
+    if ((t = $('toggleFullscreen'))) put(t, (document.fullscreenElement || document.webkitFullscreenElement) ? UI.exitFullScreen : UI.fullScreen);
+    var rb = $('resetBtn'); if (rb) { put(rb, UI.reset); rb.setAttribute('aria-label', UI.reset); rb.title = UI.reset; }
+    var mt = $('modeToggle'); if (mt) { if (mt.textContent === 'Show Transitions') put(mt, UI.showTransitions); else if (mt.textContent === 'Show States') put(mt, UI.showStates); }
+    var sa = $('showAllBtn'); if (sa) { var m = /^(Show All|Hide All)(.*)$/.exec(sa.textContent); if (m) put(sa, (m[1] === 'Show All' ? UI.showAll : UI.hideAll) + m[2]); }
+    var tb = document.querySelector('.tools-button'); if (tb && /^Tools/.test(tb.textContent)) put(tb, UI.tools + ' ▼');
+    var map = { userManualBtn: 'userManual', loadConcept: 'conceptIndex', exercisesBtn: 'exercises', startQuiz: 'randomQuiz', printBtn: 'print' };
+    Object.keys(map).forEach(function (id) { put($(id), UI[map[id]]); });
+    var lbl = document.querySelector('#audibleBtn .lbl'); if (lbl) put(lbl, UI.audible);
+    var cb = $('colourToggle'); if (cb) { var c = /^Colours: (.*)$/.exec(cb.textContent); if (c) put(cb, UI.colours + ': ' + sch(c[1])); else { c = /^[^:]+: (.*)$/.exec(cb.textContent); if (c && UI.colours !== 'Colours') put(cb, UI.colours + ': ' + c[1]); } }
+    var qt = $('quizToggle'); if (qt) { if (/OFF$/.test(qt.textContent)) put(qt, UI.quizOff); else if (/ON$/.test(qt.textContent)) put(qt, UI.quizOn); }
+  }
+  var cbn = $('colourToggle'); if (cbn) cbn.addEventListener('click', function () { setTimeout(relabel, 0); });
+  ['toggleFullscreen', 'resetBtn', 'modeToggle', 'showAllBtn', 'quizToggle'].forEach(function (id) { var el = $(id); if (el) new MutationObserver(relabel).observe(el, { childList: true, characterData: true, subtree: true }); });
+  document.addEventListener('fullscreenchange', relabel); document.addEventListener('webkitfullscreenchange', relabel);
+  relabel(); setTimeout(relabel, 300); window.addEventListener('load', relabel);
+
+  /* ---- 3. the yellow circle pulses until it is used, and again after Reset ---- */
+  var frame = $('draggableFrame');
+  if (frame) {
+    function start() { if (!de.classList.contains('gt-no-pulse') && !frame.classList.contains('gt-pulse')) frame.classList.add('gt-pulse'); }
+    function stop() { if (frame.classList.contains('gt-pulse')) frame.classList.remove('gt-pulse'); }
+    ['pointerdown', 'mousedown', 'touchstart'].forEach(function (t) { frame.addEventListener(t, stop, true); });
+    new MutationObserver(function () { if (frame.classList.contains('dragging')) stop(); }).observe(frame, { attributes: true, attributeFilter: ['class'] });
+    var rst = $('resetBtn'); if (rst) rst.addEventListener('click', function () { setTimeout(start, 80); });
+    var show = $('showAllBtn'); if (show) show.addEventListener('click', function () { });
+    start();
+  }
+
+  /* ---- 4. thematic background: ground drawn below the line / curve, sky above ---- */
+  (function () {
+    var bg = $('conceptBackground'); if (!bg || !svg) return;
+    var g = document.createElementNS('http://www.w3.org/2000/svg', 'path'); g.id = 'gtEnvGround'; bg.parentNode.insertBefore(g, bg);
+    function build() {
+      var d = bg.getAttribute('d') || ''; var m = /^M (.*?) L 130,300 L -30,300 Z$/.exec(d); if (!m) return;
+      var pts = m[1].split(' L '), first = pts[0].split(','), last = pts[pts.length - 1].split(',');
+      g.setAttribute('d', 'M -600,' + first[1] + ' L ' + pts.join(' L ') + ' L 800,' + last[1] + ' L 800,700 L -600,700 Z');
+    }
+    new MutationObserver(build).observe(bg, { attributes: true, attributeFilter: ['d'] }); build();
+    /* a concept card (via the App) can name its setting: window.CONCEPTIONARY_ENVIRONMENT = 'outdoors' | 'forest' | 'sea' | 'beach' | 'road' */
+    function applyEnv() {
+      var want = window.CONCEPTIONARY_ENVIRONMENT, cb = $('colourToggle'); if (!want || !cb) return;
+      var nm = want.charAt(0).toUpperCase() + want.slice(1).toLowerCase();
+      for (var i = 0; i < 12; i++) { if (de.style.getPropertyValue('--cx-env') === want.toLowerCase()) break; cb.click(); }
+    }
+    if (document.readyState === 'complete') applyEnv(); else window.addEventListener('load', function () { setTimeout(applyEnv, 0); });
+  })();
+})();
+</script>
+
+<script>
+/* gtcv-ext (2026-11-27) (c) 2026 Alan William Preston: the continuation lines are hidden until the yellow circle is dragged onto them; they then draw in as it moves along them */
+(function () {
+  if (window.__gtExt) return; window.__gtExt = true;
+  var svg = document.getElementById('svgCanvas'); if (!svg) return;
+  var NS = 'http://www.w3.org/2000/svg';
+  var L = [{ id: 'extensionPath1', y: 40, x1: 6, x2: 94 }, { id: 'extensionPath2', y: 10, x1: 50, x2: 128 }];
+  var defs = svg.querySelector('defs') || svg.insertBefore(document.createElementNS(NS, 'defs'), svg.firstChild);
+  L.forEach(function (o, i) {
+    o.el = document.getElementById(o.id); if (!o.el) return;
+    var cp = document.createElementNS(NS, 'clipPath'); cp.setAttribute('id', 'gtExtClip' + i);
+    o.rect = document.createElementNS(NS, 'rect'); o.rect.setAttribute('y', 0); o.rect.setAttribute('height', 50); o.rect.setAttribute('x', 0); o.rect.setAttribute('width', 0);
+    cp.appendChild(o.rect); defs.appendChild(cp); o.el.setAttribute('clip-path', 'url(#gtExtClip' + i + ')'); o.lo = o.hi = null;
+  });
+  function draw() {
+    var all = !!document.querySelector('.show-all-on');
+    L.forEach(function (o) {
+      if (!o.rect) return;
+      if (all) { o.rect.setAttribute('x', o.x1 - 1); o.rect.setAttribute('width', o.x2 - o.x1 + 2); }
+      else if (o.lo === null) { o.rect.setAttribute('width', 0); }
+      else { o.rect.setAttribute('x', o.lo - 1.2); o.rect.setAttribute('width', o.hi - o.lo + 2.4); }
+    });
+  }
+  function reveal(i, x) { var o = L[i]; if (!o || !o.rect) return; if (o.lo === null) { o.lo = o.hi = x; } else { if (x < o.lo) o.lo = x; if (x > o.hi) o.hi = x; } draw(); }
+  function full(i) { var o = L[i]; if (!o) return; o.lo = o.x1; o.hi = o.x2; draw(); }
+  /* A line is revealed only when the circle is clearly being dragged ALONG it: the circle must sit exactly on the line (a point of the main curve is never exactly on it, except at the junction itself)
+     and travel at least RUN units along it. Passing through the junction on the curve therefore does nothing. */
+  var RUN = 6;
+  var pf = window.placeFrameAt;
+  if (typeof pf === 'function') window.placeFrameAt = function (pt) {
+    var r = pf.apply(this, arguments);
+    try {
+      if (isStatesMode && pt) L.forEach(function (o, i) {
+        var onLine = Math.abs(pt.y - o.y) < 0.005 && pt.x >= o.x1 - 0.01 && pt.x <= o.x2 + 0.01;
+        if (!onLine) { o.entry = null; return; }
+        if (o.entry === null || o.entry === undefined) o.entry = pt.x;
+        if (Math.abs(pt.x - o.entry) >= RUN || o.lo !== null) {
+          if (o.lo === null) { if (o.entry - o.x1 < 12) o.lo = o.x1; else o.lo = Math.min(o.entry, pt.x); if (o.x2 - o.entry < 12 && i === 0) o.hi = o.x2; else o.hi = Math.max(o.entry, pt.x); }
+          reveal(i, pt.x);
+        }
+      });
+    } catch (e) {}
+    return r;
+  };
+  var ps = window.switchToPath;
+  if (typeof ps === 'function') window.switchToPath = function (name) { var r = ps.apply(this, arguments); if (name === 'ext1') full(0); else if (name === 'ext2') full(1); return r; };
+  function clear() { L.forEach(function (o) { o.lo = o.hi = null; o.entry = null; }); draw(); }
+  var rb = document.getElementById('resetBtn'); if (rb) rb.addEventListener('click', clear);
+  new MutationObserver(draw).observe(document.documentElement, { attributes: true, subtree: true, attributeFilter: ['class'] });
+  draw();
+})();
+</script>
+
+<script>
+/* gtcv-ui3 (2026-11-26) (c) 2026 Alan William Preston */
+(function () {
+  if (window.__gtUi3) return; window.__gtUi3 = true;
+  var $ = function (id) { return document.getElementById(id); };
+  var LB = { tipTitle: 'You have been all the way along. Next, open Tools to:', tipAdd: 'Turn on Translation', tipQuiz: 'and Quiz', transOn: 'Translations are ON', transOff: 'Translations are OFF', tipClose: 'Tap to close', quizClose: 'Almost! Check letter' };
+  if (window.CONCEPTIONARY_UI_LABELS) Object.keys(LB).forEach(function (k) { if (window.CONCEPTIONARY_UI_LABELS[k]) LB[k] = window.CONCEPTIONARY_UI_LABELS[k]; });
+
+  /* ---------- A. the Tools tooltip ---------- */
+  var tip = document.createElement('div'); tip.id = 'gtTip'; tip.setAttribute('role', 'status');
+  tip.innerHTML = '<b></b><b></b><i>\u25BC</i>';
+  document.body.appendChild(tip);
+  var tb = tip.getElementsByTagName('b'); tb[0].textContent = LB.tipAdd; tb[1].textContent = LB.tipQuiz;
+  var shown = false, done = false, lo = 101, hi = -1, hideT = null;
+  function toolsBtn() { return document.querySelector('.tools-button') || $('toolsButton'); }
+  function lineY(cx, below) {                    /* screen y of the curve / line above the button, at the button's x */
+    try {
+      var svg = $('svgCanvas'), el = getPathObject('main'), m = svg.getScreenCTM(), tot = el.getTotalLength(), best = null, bd = 1e9;
+      for (var k = 0; k <= 240; k++) { var q = el.getPointAtLength(tot * k / 240), X = q.x * m.a + q.y * m.c + m.e, Y = q.x * m.b + q.y * m.d + m.f; if (Y < below - 10 && Math.abs(X - cx) < bd) { bd = Math.abs(X - cx); best = Y; } }
+      return best;
+    } catch (e) { return null; }
+  }
+  function place() {
+    var t = toolsBtn(); if (!t) return;
+    var r = t.getBoundingClientRect(); tip.classList.add('on'); tip.style.left = '0px'; tip.style.top = '0px';
+    var w = tip.offsetWidth, ht = tip.offsetHeight, cx = r.left + r.width / 2;
+    var ly = lineY(cx, r.top), mid = ly == null ? r.top - ht - 40 : (ly + r.top) / 2;      /* midway between the line / curve and the Tools button */
+    var top = Math.max(4, Math.min(r.top - ht - 14, mid - ht / 2));
+    tip.style.left = Math.round(Math.max(4, Math.min(innerWidth - w - 4, cx - w / 2))) + 'px'; tip.style.top = Math.round(top) + 'px';
+  }
+  var timers = [];
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+  function shake() { tip.classList.remove('shake'); void tip.offsetWidth; tip.classList.add('shake'); }
+  function show() {
+    if (shown || done) return; shown = true; done = true; place();
+    var t = toolsBtn(); if (t) t.classList.add('gt-tipring');
+    clearTimers(); [[3000, function () { shake(); }], [6000, function () { shake(); }], [10000, function () { tip.classList.add('fade'); }], [10850, hide]].forEach(function (a) { timers.push(setTimeout(a[1], a[0])); });
+  }
+  function hide() {
+    tip.classList.remove('on'); shown = false; clearTimers(); tip.classList.remove('fade'); tip.classList.remove('shake');
+    var t = toolsBtn(); if (t) t.classList.remove('gt-tipring');
+  }
+  function rearm() { hide(); done = false; lo = 101; hi = -1; }
+  tip.addEventListener('click', hide);
+  addEventListener('resize', function () { if (shown) place(); });
+  document.addEventListener('click', function (e) { var t = toolsBtn(); if (shown && t && (e.target === t || t.contains(e.target))) hide(); }, true);
+  ['resetBtn'].forEach(function (id) { var b = $(id); if (b) b.addEventListener('click', rearm); });
+  var prev = window.updateConceptIndicator;
+  if (typeof prev === 'function') window.updateConceptIndicator = function (p) {
+    var r = prev.apply(this, arguments);
+    if (typeof p === 'number') { if (p < lo) lo = p; if (p > hi) hi = p; if (!done && lo <= 6 && hi >= 94) setTimeout(show, 250); }
+    return r;
+  };
+
+  /* ---------- A2. Tools menu: "Translations are ON / OFF" ---------- */
+  (function () {
+    var ab = $('audibleBtn'), cyc = $('auCycle'); if (!ab || !cyc) return;
+    var lbl = ab.querySelector('.lbl'); if (!lbl) return;
+    function sync() { var on = /\+/.test(cyc.textContent), t = on ? LB.transOn : LB.transOff; if (lbl.textContent !== t) lbl.textContent = t; }
+    new MutationObserver(sync).observe(cyc, { childList: true, characterData: true, subtree: true });
+    new MutationObserver(sync).observe(lbl, { childList: true, characterData: true, subtree: true });
+    sync();
+  })();
+
+  /* ---------- B. the Quiz: green / red while typing, and the "check letter N" hint ---------- */
+  var inp = $('quizInput'), fb = $('quizFeedback'), box = $('quizContainer');
+  function correct() {
+    try {
+      var d, i;
+      if (typeof getTransitionItemByIndex === 'function') {          /* ROM templates: one global index */
+        var en;
+        if (isStatesMode) en = currentQuizIndex >= conceptData.length ? extensionData[currentQuizIndex - conceptData.length] : conceptData[currentQuizIndex];
+        else { var it = getTransitionItemByIndex(currentQuizIndex); en = it ? it.data : null; }
+        return en ? String(en[0]) : '';
+      }
+      if (isStatesMode) { if (currentQuizIsExtension) { d = extensionData; i = currentQuizExtIndex; } else { d = conceptData; i = currentQuizIndex; } }
+      else if (currentPath === 'main') { d = transitionsData; i = currentQuizIndex; }
+      else if (currentPath === 'ext1') { d = extension1TransitionData; i = currentQuizIndex - transitionsData.length; }
+      else { d = extension2TransitionData; i = currentQuizIndex - transitionsData.length - extension1TransitionData.length; }
+      return String(d[i][0]);
+    } catch (e) { return ''; }
+  }
+  function near(a, b) {                       /* one slip: returns the 1-based letter to check, or 0 */
+    a = a.toLowerCase(); b = b.toLowerCase(); if (a === b) return 0;
+    var n = Math.min(a.length, b.length), i = 0; while (i < n && a[i] === b[i]) i++;
+    var x = a.slice(i + 1), y = b.slice(i + 1);
+    if (a.length === b.length && (x === y || (a[i] === b[i + 1] && a[i + 1] === b[i] && a.slice(i + 2) === b.slice(i + 2)))) return i + 1;
+    if (a.length === b.length + 1 && x === b.slice(i)) return i + 1;
+    if (b.length === a.length + 1 && a.slice(i) === y) return i + 1;
+    return 0;
+  }
+  window.__gtNear = near;
+  var mir = null, baseCol = '';
+  function paint() {
+    if (!inp) return;
+    var v = inp.value, c = correct();
+    if (!v || !c) { inp.classList.remove('qi-on'); inp.style.caretColor = ''; if (mir) mir.style.display = 'none'; return; }
+    if (!inp.classList.contains('qi-on')) baseCol = getComputedStyle(inp).color;
+    if (!mir) { mir = document.createElement('div'); mir.id = 'qiMirror'; mir.setAttribute('aria-hidden', 'true'); inp.parentNode.style.position = 'relative'; inp.parentNode.insertBefore(mir, inp.nextSibling); }
+    var cs = getComputedStyle(inp), white = document.documentElement.style.getPropertyValue('--cx-scheme').trim() === 'white';
+    var G = white ? '#08801f' : '#1fd13a', R = white ? '#c40000' : '#ff5252', lc = c.toLowerCase();
+    mir.style.display = 'flex'; mir.style.left = inp.offsetLeft + 'px'; mir.style.top = inp.offsetTop + 'px'; mir.style.width = inp.offsetWidth + 'px'; mir.style.height = inp.offsetHeight + 'px';
+    mir.style.font = cs.font; mir.style.letterSpacing = cs.letterSpacing;
+    mir.style.padding = '0 ' + cs.paddingRight + ' 0 ' + cs.paddingLeft; mir.style.borderLeft = cs.borderLeftWidth + ' solid transparent'; mir.style.borderRight = cs.borderRightWidth + ' solid transparent';
+    mir.style.justifyContent = cs.textAlign === 'center' ? 'center' : 'flex-start';
+    var html = '';
+    for (var k = 0; k < v.length; k++) { var ch = v.charAt(k); html += '<span style="color:' + (k < lc.length && ch.toLowerCase() === lc.charAt(k) ? G : R) + '">' + (ch === ' ' ? '&nbsp;' : ch.replace(/&/g, '&amp;').replace(/</g, '&lt;')) + '</span>'; }
+    mir.innerHTML = '<div style="transform:translateX(' + (-inp.scrollLeft) + 'px);white-space:pre">' + html + '</div>';
+    inp.style.caretColor = baseCol;
+    inp.classList.add('qi-on');
+  }
+  if (inp) {
+    inp.addEventListener('input', paint); inp.addEventListener('scroll', paint); addEventListener('resize', paint);
+    if (box) new MutationObserver(paint).observe(box, { attributes: true, attributeFilter: ['style', 'class'] });
+    if (fb) new MutationObserver(function () {
+      paint();
+      if (fb.dataset.gt3 === '1') return;
+      var typed = inp.value.trim(), c = correct();
+      if (!typed || !c || typed.toLowerCase() === c.toLowerCase() || /Check letter/i.test(fb.textContent)) return;
+      var n = near(typed, c); if (!n) return;
+      fb.dataset.gt3 = '1'; fb.textContent = fb.textContent.replace(/\s*[—-]\s*.*$/, '') + ' — ' + LB.quizClose + ' ' + n; setTimeout(function () { fb.dataset.gt3 = ''; }, 50);
+    }).observe(fb, { childList: true, characterData: true, subtree: true });
+  }
+
+  /* ---------- C. Transitions Mode: pull the sliding word OFF the line (or press and hold it, then drag): it lifts off, straightens to horizontal and grows up to 300% ---------- */
+  (function () {
+    var txt = $('interactiveText'), svg = $('svgCanvas'); if (!txt || !svg) return;
+    var HOLD = 380, JIT = 12, MAXS = 3, S0 = 1.7, HOLD_SHOW = 5000, p = null, out = null;
+    function norm(a) { while (a > 90) a -= 180; while (a <= -90) a += 180; return a; }
+    function paths() { var r = []; ['main', 'ext1', 'ext2'].forEach(function (n) { try { var L = (typeof getTransitionList === 'function') ? getTransitionList(n).length : 1; if (L) r.push(getPathObject(n)); } catch (e) {} }); return r; }
+    function pathDist(cx, cy) {                    /* how far (screen px) the pointer is from the nearest line / curve */
+      try { var pt = getSvgPoint(cx, cy), k = svg.getScreenCTM().a, best = 1e9; paths().forEach(function (el) { var d = closestOnPathEl(el, pt.x, pt.y, null).dist; if (d < best) best = d; }); return best * k; } catch (e) { return 0; }
+    }
+    function angle(cx, cy) {                      /* the line's direction under the word, on screen */
+      try {
+        var best = null, bd = 1e9, pt = getSvgPoint(cx, cy);
+        paths().forEach(function (el) { var c = closestOnPathEl(el, pt.x, pt.y, null); if (c.dist < bd) { bd = c.dist; best = [el, c.len]; } });
+        var el = best[0], L = best[1], tot = el.getTotalLength();
+        var a = el.getPointAtLength(Math.max(0, L - 1)), b = el.getPointAtLength(Math.min(tot, L + 1)), m = svg.getScreenCTM();
+        return norm(Math.atan2((b.y - a.y) * m.d + (b.x - a.x) * m.b, (b.x - a.x) * m.a + (b.y - a.y) * m.c) * 180 / Math.PI);
+      } catch (e) { return 0; }
+    }
+    function tf(o) { return 'translate(calc(-50% + ' + o.x + 'px), calc(-50% + ' + o.y + 'px)) rotate(' + o.a + 'deg) scale(' + o.s + ')'; }
+    function close(now) {
+      if (!out) return; var o = out; out = null; clearTimeout(o.timer);
+      var gh = o.gh;
+      if (now) { if (gh.parentNode) gh.parentNode.removeChild(gh); txt.style.visibility = ''; return; }
+      gh.style.transition = 'transform .3s cubic-bezier(.34,1.56,.64,1)'; gh.style.transform = 'translate(-50%, -50%) rotate(' + o.a0 + 'deg) scale(1)';
+      setTimeout(function () { if (gh.parentNode) gh.parentNode.removeChild(gh); txt.style.visibility = ''; }, 330);
+    }
+    function lift(how, e) {
+      if (!p || p.lifted) return; p.lifted = true; p.how = how;
+      var r = txt.getBoundingClientRect(), k = svg.getScreenCTM().a, fs = parseFloat(getComputedStyle(txt).fontSize) || 6;
+      var hx = r.left + r.width / 2, hy = r.top + r.height / 2, a0 = angle(hx, hy);
+      var gh = document.createElement('div'); gh.className = 'gt-ghost gt-slideghost'; gh.textContent = (txt.textContent || '').replace(/\s+/g, ' ').trim(); gh.style.fontSize = Math.max(11, fs * k) + 'px';
+      document.body.appendChild(gh); gh.style.left = hx + 'px'; gh.style.top = hy + 'px';
+      var o = { gh: gh, hx: hx, hy: hy, a0: a0, a: a0, s: 1, x: 0, y: 0, w: gh.offsetWidth, h: gh.offsetHeight, timer: null };
+      out = o; p.o = o;
+      if (e) { p.x0 = e.clientX; p.y0 = e.clientY; }                 /* the ghost follows the pointer from here on */
+      p.ox = 0; p.oy = 0;
+      try { isDraggingText = false; hasMovedDuringDrag = true; txt.classList.remove('dragging'); } catch (_) {}   /* the template's own slide stops; no click-toggle afterwards */
+      txt.style.visibility = 'hidden';
+      gh.style.transform = tf(o);
+      if (how === 'hold') {                                           /* a hold: straighten and enlarge at once */
+        void gh.offsetWidth; o.s = Math.min(S0, (innerWidth - 8) / o.w, (innerHeight - 8) / o.h); o.a = 0;
+        gh.style.transition = 'transform .25s ease-out'; gh.style.transform = tf(o);
+        setTimeout(function () { gh.style.transition = 'none'; }, 270);
+        if (navigator.vibrate) { try { navigator.vibrate(15); } catch (_) {} }
+      } else { gh.style.transition = 'none'; }
+    }
+    function down(e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (typeof isStatesMode !== 'undefined' && isStatesMode) return;
+      var onGhost = e.target.closest && e.target.closest('.gt-slideghost');
+      if (onGhost && out) { clearTimeout(out.timer); p = { id: e.pointerId, x0: e.clientX, y0: e.clientY, lifted: true, how: 'again', o: out, ox: out.x, oy: out.y, again: true, moved: false }; try { onGhost.setPointerCapture(e.pointerId); } catch (_) {} e.preventDefault(); return; }
+      if (!(e.target.closest && e.target.closest('#interactiveText'))) return;
+      close(true);
+      var fs = (parseFloat(getComputedStyle(txt).fontSize) || 6) * svg.getScreenCTM().a;
+      p = { id: e.pointerId, x0: e.clientX, y0: e.clientY, lifted: false, o: null, ox: 0, oy: 0, moved: false, away: Math.max(34, 2.2 * fs) };
+      p.t = setTimeout(function () { if (p && !p.lifted && !p.far) lift('hold', null); }, HOLD);
+    }
+    function move(e) {
+      if (!p || e.pointerId !== p.id) return;
+      var dx = e.clientX - p.x0, dy = e.clientY - p.y0, d = Math.hypot(dx, dy);
+      if (!p.lifted) {
+        if (d > JIT && !p.far) { p.far = true; clearTimeout(p.t); }       /* moved before the hold: the word slides along the line as usual ... */
+        if (p.far && pathDist(e.clientX, e.clientY) > p.away) lift('away', e);   /* ... until the pointer is pulled well away from the line */
+        return;
+      }
+      var o = p.o; if (!o) return; if (d > 4) p.moved = true;
+      var dmax = Math.max(110, Math.min(220, 0.28 * Math.min(innerWidth, innerHeight)));
+      var s, a = 0;
+      if (p.again) s = o.s;
+      else if (p.how === 'hold') { var b0 = Math.min(S0, (innerWidth - 8) / o.w, (innerHeight - 8) / o.h); s = b0 + (MAXS - b0) * Math.min(1, d / dmax); }
+      else { s = 1 + (MAXS - 1) * Math.min(1, d / dmax); a = o.a0 * (1 - Math.min(1, d / (dmax * 0.45))); }   /* pulled away: grows and turns to horizontal */
+      s = Math.min(s, (innerWidth - 8) / o.w, (innerHeight - 8) / o.h);
+      var hw = o.w * s / 2, hh = o.h * s / 2, tx = o.hx + p.ox + dx, ty = o.hy + p.oy + dy;
+      var cx = Math.min(Math.max(tx, hw + 2), innerWidth - hw - 2), cy = Math.min(Math.max(ty, hh + 2), innerHeight - hh - 2);
+      o.x = cx - o.hx; o.y = cy - o.hy; o.s = s; o.a = a; o.gh.style.transform = tf(o);
+      e.preventDefault();
+    }
+    function up(e) {
+      if (!p || e.pointerId !== p.id) return;
+      clearTimeout(p.t); var cur = p; p = null;
+      if (cur.again && !cur.moved) { close(false); return; }                 /* a tap on the lifted word puts it back */
+      if (cur.lifted && out) { clearTimeout(out.timer); out.timer = setTimeout(function () { close(false); }, HOLD_SHOW); }
+    }
+    document.addEventListener('pointerdown', down, true);
+    document.addEventListener('pointermove', move, { passive: false });
+    document.addEventListener('pointerup', up, true); document.addEventListener('pointercancel', up, true);
+    document.addEventListener('contextmenu', function (e) { if (e.target.closest && e.target.closest('#interactiveText, .gt-slideghost')) e.preventDefault(); });
+    ['showAllBtn', 'modeToggle', 'resetBtn'].forEach(function (id) { var b = $(id); if (b) b.addEventListener('click', function () { close(true); }); });
+    addEventListener('resize', function () { close(true); });
+  })();
 })();
 </script>
 </body>
