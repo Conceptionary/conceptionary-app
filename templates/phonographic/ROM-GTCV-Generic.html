@@ -1,5 +1,5 @@
 <!-- gtcv-ui3 -->
-<!-- Last updated: 2026-11-27 @ 1:39 a.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-11-27 @ 4:25 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1224,10 +1224,11 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
 /* gtcv-ui3 (2026-11-26): Quiz typing colours, end-of-drag Tools tip */
 #quizInput.qi-on { color: transparent !important; }
 #qiMirror { position: absolute; z-index: 3; pointer-events: none; overflow: hidden; white-space: pre; display: flex; align-items: center; box-sizing: border-box; }
-#gtTip { position: fixed; z-index: 100000; box-sizing: border-box; padding: 2px 6px; background: none; border: 0; color: var(--word, #fff); font: bold 19px/1.2 Arial, sans-serif; text-transform: uppercase; letter-spacing: .03em; text-shadow: 0 0 4px var(--page-bg, #000), 0 0 2px var(--page-bg, #000); display: none; cursor: pointer; text-align: center; white-space: nowrap; transition: opacity .8s ease; opacity: 1; }
+#gtTip { position: fixed; z-index: 100000; box-sizing: border-box; padding: 2px 6px; background: none; border: 0; color: var(--word, #fff); font: normal 19px/1.2 Arial, sans-serif; text-transform: uppercase; letter-spacing: .03em; text-shadow: 0 0 4px var(--page-bg, #000), 0 0 2px var(--page-bg, #000); display: none; cursor: pointer; text-align: center; white-space: nowrap; transition: opacity .8s ease; opacity: 1; }
 #gtTip.on { display: block; }
 #gtTip.fade { opacity: 0; }
-#gtTip b { display: block; }
+#gtTip b { display: block; font-weight: normal; }
+#gtTip i { display: block; font-style: normal; font-size: 22px; line-height: 1; margin-top: 3px; }
 #gtTip.shake { animation: gtShake .6s ease-in-out; }
 @keyframes gtShake { 0%,100% { transform: translateX(0); } 12% { transform: translateX(-9px) rotate(-1.5deg); } 28% { transform: translateX(9px) rotate(1.5deg); } 44% { transform: translateX(-7px) rotate(-1deg); } 60% { transform: translateX(7px) rotate(1deg); } 76% { transform: translateX(-3px); } 90% { transform: translateX(3px); } }
 @media (prefers-reduced-motion: reduce) { #gtTip.shake { animation: none; } }
@@ -1274,9 +1275,9 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
             <path id="conceptBackground"></path>
             
             <!-- Extension paths (horizontal continuations) -->
-            <path id="extensionPath1" class="extension-path" d="M 0,0 L 0.01,0" style="display:none" />
+            <path id="extensionPath1" class="extension-path" d="M 6,40 L 94,40" /><!-- gtcv-ext: Line 1+ (baseline continued under the hill) -->
             <path id="sideLinePath" d="M 0,0 L 1,0" style="fill:none;stroke:none;pointer-events:none"></path>
-            <path id="extensionPath2" class="extension-path" d="M 0,0 L 0.01,0" style="display:none" />
+            <path id="extensionPath2" class="extension-path" d="M 50,10 L 128,10" /><!-- gtcv-ext: Peak+ -->
             
             <!-- States Mode Elements -->
             <circle id="draggableFrame" cx="-24" cy="37.5" r="3"/>
@@ -1383,12 +1384,19 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
         ];
 
         // Extension vocabulary for continuation paths
-        const extensionData = [];   // GTCV has no continuation lines
+        const extensionData = [
+            ["TL1+", "SL1+", "What is the TL word for 'SL1+'?"],               // Line 1+ (the baseline continued)
+            ["TL-Peak+", "SL-Peak+", "What is the TL word for 'SL-Peak+'?"]    // Peak+ (continuation at the level of the peak)
+        ];
 
         // Extension vocabulary expanded for transitions mode
-        const extension1TransitionData = [];
+        const extension1TransitionData = [
+            ["TL-T1+", "SL-T1+", "What is the TL phrase for 'SL-T1+'?"]
+        ];
 
-        const extension2TransitionData = [];
+        const extension2TransitionData = [
+            ["TL-T-Peak+", "SL-T-Peak+", "What is the TL phrase for 'SL-T-Peak+'?"]
+        ];
 
         // Global variables
         let isStatesMode = true;
@@ -1750,7 +1758,7 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
                     pathIndicator.style.borderColor = '#33cc66';
                     break;
                 case 'ext2':
-                    pathIndicator.textContent = 'Extension: Line 3+ Continues';
+                    pathIndicator.textContent = 'Extension: Peak+ Continues';
                     pathIndicator.style.backgroundColor = '#fffce8';
                     pathIndicator.style.borderColor = '#cccc33';
                     break;
@@ -2207,7 +2215,7 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
                     } else if (closestPathName === 'ext1') {
                         conceptIndicator.textContent = extensionData[0][1] + " (Line 1+)";
                     } else if (closestPathName === 'ext2') {
-                        conceptIndicator.textContent = extensionData[1][1] + " (Line 3+)";
+                        conceptIndicator.textContent = extensionData[1][1] + " (Peak+)";
                     }
                     
                     console.log("Dragging on path:", closestPathName);
@@ -2362,7 +2370,7 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
             extensionTextBoxes.forEach((textBox, extIndex) => {
                 if (!textBox) return;
                 
-                const dataIndex = extIndex + 5;
+                const dataIndex = conceptData.length + extIndex;
                 
                 if (closestIsExtension && extIndex === closestExtIndex && minDistance < activationDistance) {
                     textBox.style.opacity = '1';
@@ -2498,19 +2506,19 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
             const ext1X = 50; // 2026-10-09: directly above TL3 (x 50), on Line 1+ (y 15)
             const ext1Box = document.createElementNS("http://www.w3.org/2000/svg", "text");
             ext1Box.setAttribute("x", ext1X);
-            ext1Box.setAttribute("y", 40);   // on the Line 1 continuation (y=40)
+            ext1Box.setAttribute("y", 38);   // just above the Line 1+ dashes (y=40)
             ext1Box.setAttribute("text-anchor", "middle");
             ext1Box.setAttribute("data-anchor", "middle");
             ext1Box.setAttribute("class", "textBox extension");
             ext1Box.setAttribute("data-extension-index", 0);
-            ext1Box.setAttribute("data-index", 5);
+            ext1Box.setAttribute("data-index", conceptData.length);
             ext1Box.textContent = extensionData[0][0];
             ext1Box.style.opacity = '0';
             ext1Box.style.transform = 'scale(0.5)';
             
             ext1Box.addEventListener('click', function() {
                 const extIndex = 0;
-                const dataIndex = 5;
+                const dataIndex = conceptData.length;
                 
                 if (learnedItemsStates[dataIndex] || !quizEnabled) {
                     if (extensionTextLayers[extIndex] === 0) {
@@ -2539,22 +2547,22 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
             
             // Extension 2 text box (on Line 3+ path) - positioned at MIDPOINT of extension path 2
             // Extension path 2 goes from x=76.67 to x=130 at y=20
-            const ext2MidX = (76.67 + 130) / 2; // 103.335
+            const ext2MidX = (50 + 128) / 2 + 11;   // 100: well out along the Peak+ line
             const ext2Box = document.createElementNS("http://www.w3.org/2000/svg", "text");
             ext2Box.setAttribute("x", ext2MidX);
-            ext2Box.setAttribute("y", 20);   // on the Line 3 continuation (y=20)
+            ext2Box.setAttribute("y", 8);   // just above the Peak+ dashes (y=10, the level of the peak)
             ext2Box.setAttribute("text-anchor", "middle");
             ext2Box.setAttribute("data-anchor", "middle");
             ext2Box.setAttribute("class", "textBox extension");
             ext2Box.setAttribute("data-extension-index", 1);
-            ext2Box.setAttribute("data-index", 6);
+            ext2Box.setAttribute("data-index", conceptData.length + 1);
             ext2Box.textContent = extensionData[1][0];
             ext2Box.style.opacity = '0';
             ext2Box.style.transform = 'scale(0.5)';
             
             ext2Box.addEventListener('click', function() {
                 const extIndex = 1;
-                const dataIndex = 6;
+                const dataIndex = conceptData.length + 1;
                 
                 if (learnedItemsStates[dataIndex] || !quizEnabled) {
                     if (extensionTextLayers[extIndex] === 0) {
@@ -4761,6 +4769,70 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
 </script>
 
 <script>
+/* gtcv-ext (2026-11-27) (c) 2026 Alan William Preston: the continuation lines are hidden until the yellow circle is dragged ALONG them from their left-hand start.
+   The line draws in to the left of the circle and retracts if the circle goes back or leaves; once the far end is reached the line stays for 30 s (then fades) unless its word is learned in the Quiz. */
+(function () {
+  if (window.__gtExt) return; window.__gtExt = true;
+  var svg = document.getElementById('svgCanvas'); if (!svg) return;
+  var NS = 'http://www.w3.org/2000/svg', RUN = 6, ENTRY = 8, FADE_AFTER = 30000;
+  var L = [{ id: 'extensionPath1', y: 40, x1: 6, x2: 94 }, { id: 'extensionPath2', y: 10, x1: 50, x2: 128 }];
+  var defs = svg.querySelector('defs') || svg.insertBefore(document.createElementNS(NS, 'defs'), svg.firstChild);
+  L.forEach(function (o, i) {
+    o.el = document.getElementById(o.id); if (!o.el) return;
+    var cp = document.createElementNS(NS, 'clipPath'); cp.setAttribute('id', 'gtExtClip' + i);
+    o.rect = document.createElementNS(NS, 'rect'); o.rect.setAttribute('y', 0); o.rect.setAttribute('height', 50); o.rect.setAttribute('x', 0); o.rect.setAttribute('width', 0);
+    cp.appendChild(o.rect); defs.appendChild(cp); o.el.setAttribute('clip-path', 'url(#gtExtClip' + i + ')');
+    o.el.style.transition = 'opacity 1s ease'; o.state = 'idle'; o.hi = null; o.perm = false; o.wasOn = false; o.timer = null;
+  });
+  function draw() {
+    var all = !!document.querySelector('.show-all-on');
+    L.forEach(function (o) {
+      if (!o.rect) return;
+      if (all || o.perm || o.state === 'full') { o.rect.setAttribute('x', o.x1 - 1); o.rect.setAttribute('width', o.x2 - o.x1 + 2); }
+      else if (o.state === 'run' && o.hi !== null && o.hi - o.x1 >= RUN) { o.rect.setAttribute('x', o.x1 - 1); o.rect.setAttribute('width', o.hi - o.x1 + 2.2); }
+      else o.rect.setAttribute('width', 0);
+    });
+  }
+  function startFade(o) {
+    clearTimeout(o.timer);
+    o.timer = setTimeout(function () {
+      if (o.perm) return;
+      o.el.style.opacity = '0';
+      setTimeout(function () { if (o.perm) { o.el.style.opacity = ''; return; } o.state = 'idle'; o.hi = null; draw(); o.el.style.opacity = ''; }, 1050);
+    }, FADE_AFTER);
+  }
+  var pf = window.placeFrameAt;
+  if (typeof pf === 'function') window.placeFrameAt = function (pt) {
+    var r = pf.apply(this, arguments);
+    try {
+      if (isStatesMode && pt) L.forEach(function (o) {
+        if (!o.rect || o.perm || o.state === 'full') return;
+        var on = Math.abs(pt.y - o.y) < 0.005 && pt.x >= o.x1 - 0.01 && pt.x <= o.x2 + 0.01;
+        if (on) {
+          if (o.state === 'idle' && !o.wasOn && pt.x <= o.x1 + ENTRY) { o.state = 'run'; }      /* a start only from the left-hand end, arriving from the curve */
+          if (o.state === 'run') { o.hi = pt.x; if (pt.x >= o.x2 - 4) { o.state = 'full'; startFade(o); } }
+        } else if (o.state === 'run') { o.state = 'idle'; o.hi = null; }                              /* the circle left the line: it retracts */
+        o.wasOn = on; draw();
+      });
+    } catch (e) {}
+    return r;
+  };
+  var ps = window.switchToPath;
+  if (typeof ps === 'function') window.switchToPath = function (name) { var r = ps.apply(this, arguments); var o = L[name === 'ext1' ? 0 : name === 'ext2' ? 1 : -1]; if (o && o.rect) { o.state = 'full'; draw(); } return r; };
+  function clear() { L.forEach(function (o) { clearTimeout(o.timer); o.state = 'idle'; o.hi = null; o.perm = false; o.wasOn = false; if (o.el) o.el.style.opacity = ''; }); draw(); }
+  var rb = document.getElementById('resetBtn'); if (rb) rb.addEventListener('click', clear);
+  /* a word learned in the Quiz keeps its line for good */
+  function checkLearned() {
+    var changed = false;
+    (window.extensionTextBoxes || extensionTextBoxes || []).forEach(function (b, i) { var o = L[i]; if (o && b && b.classList.contains('learned') && !o.perm) { o.perm = true; clearTimeout(o.timer); changed = true; } });
+    if (changed) draw();
+  }
+  new MutationObserver(function () { draw(); try { checkLearned(); } catch (e) {} }).observe(document.documentElement, { attributes: true, subtree: true, attributeFilter: ['class'] });
+  draw();
+})();
+</script>
+
+<script>
 /* gtcv-ui3 (2026-11-26) (c) 2026 Alan William Preston */
 (function () {
   if (window.__gtUi3) return; window.__gtUi3 = true;
@@ -4770,7 +4842,7 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
 
   /* ---------- A. the Tools tooltip ---------- */
   var tip = document.createElement('div'); tip.id = 'gtTip'; tip.setAttribute('role', 'status');
-  tip.innerHTML = '<b></b><b></b>';
+  tip.innerHTML = '<b></b><b></b><i>\u25BC</i>';
   document.body.appendChild(tip);
   var tb = tip.getElementsByTagName('b'); tb[0].textContent = LB.tipAdd; tb[1].textContent = LB.tipQuiz;
   var shown = false, done = false, lo = 101, hi = -1, hideT = null;
