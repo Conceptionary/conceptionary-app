@@ -1,5 +1,5 @@
 <!-- gtcv-ui3 -->
-<!-- Last updated: 2026-11-27 @ 4:25 p.m. (Mangawhai, NZ) -->
+<!-- Last updated: 2026-11-27 @ 5:07 p.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -4801,8 +4801,8 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
       setTimeout(function () { if (o.perm) { o.el.style.opacity = ''; return; } o.state = 'idle'; o.hi = null; draw(); o.el.style.opacity = ''; }, 1050);
     }, FADE_AFTER);
   }
-  var pf = window.placeFrameAt;
-  if (typeof pf === 'function') window.placeFrameAt = function (pt) {
+  var pf = window.updateVisibleTextBoxes;   /* called with the frame's new position every time it moves (ROM and LOG) */
+  if (typeof pf === 'function') window.updateVisibleTextBoxes = function (pt) {
     var r = pf.apply(this, arguments);
     try {
       if (isStatesMode && pt) L.forEach(function (o) {
