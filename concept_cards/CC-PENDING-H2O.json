@@ -251,7 +251,33 @@
           ]
         ],
         "diacritic_map": [],
-        "collapse_double_vowels": false
+        "collapse_double_vowels": false,
+        "extensionData": [
+          [
+            "tetap beku",
+            "stays frozen",
+            "Bagaimana mengatakan 'stays frozen' dalam Bahasa Indonesia?"
+          ],
+          [
+            "terus mendidih",
+            "keeps boiling",
+            "Bagaimana mengatakan 'keeps boiling' dalam Bahasa Indonesia?"
+          ]
+        ],
+        "extension1TransitionData": [
+          [
+            "terus membeku",
+            "keeps freezing",
+            "Bagaimana mengatakan 'keeps freezing' dalam Bahasa Indonesia?"
+          ]
+        ],
+        "extension2TransitionData": [
+          [
+            "terus menguap",
+            "keeps evaporating",
+            "Bagaimana mengatakan 'keeps evaporating' dalam Bahasa Indonesia?"
+          ]
+        ]
       }
     },
     "EN-JA": {
@@ -535,6 +561,34 @@
             "How do you say 'freezing up' in Japanese? (romaji)",
             78,
             "Kōru"
+          ]
+        ],
+        "extensionData": [
+          [
+            "Kōtta mama da",
+            "凍ったままだ",
+            "stays frozen",
+            "How do you say 'stays frozen' in Japanese? (romaji)"
+          ],
+          [
+            "Futtō shitsuzukeru",
+            "沸騰し続ける",
+            "keeps boiling",
+            "How do you say 'keeps boiling' in Japanese? (romaji)"
+          ]
+        ],
+        "extension1TransitionData": [
+          [
+            "Kōri tsuzukeru",
+            "凍り続ける",
+            "keeps freezing"
+          ]
+        ],
+        "extension2TransitionData": [
+          [
+            "Jōhatsu shitsuzukeru",
+            "蒸発し続ける",
+            "keeps evaporating"
           ]
         ]
       }
