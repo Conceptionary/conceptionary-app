@@ -1,4 +1,5 @@
-<!-- Last updated: 2026-11-26 @ 5:45 p.m. (Mangawhai, NZ) -->
+<!-- gtcv-ui3 -->
+<!-- Last updated: 2026-11-29 @ 12:20 a.m. (Mangawhai, NZ) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1220,6 +1221,25 @@ html[style*="--cx-env"] #gradualChangePath { stroke-width: .7; }
 html[style*="--cx-env: forest"] .watermark, html[style*="--cx-env: sea"] .watermark { color: rgba(255,255,255,.9) !important; }
 html[style*="--cx-env"] .watermark { text-shadow: none; }
 </style>
+
+<style id="gtcv-ui3-css">
+/* gtcv-ui3 (2026-11-26): Quiz typing colours, end-of-drag Tools tip */
+#quizInput.qi-on { color: transparent !important; }
+#qiMirror { position: absolute; z-index: 3; pointer-events: none; overflow: hidden; white-space: pre; display: flex; align-items: center; box-sizing: border-box; }
+#gtTip { position: fixed; z-index: 100000; box-sizing: border-box; padding: 2px 6px; background: none; border: 0; color: var(--word, #fff); font: normal 19px/1.2 Arial, sans-serif; text-transform: uppercase; letter-spacing: .03em; text-shadow: 0 0 4px var(--page-bg, #000), 0 0 2px var(--page-bg, #000); display: none; cursor: pointer; text-align: center; white-space: nowrap; transition: opacity .8s ease; opacity: 1; }
+#gtTip.on { display: block; }
+#gtTip.fade { opacity: 0; }
+#gtTip b { display: block; font-weight: normal; }
+#gtTip i { display: block; font-style: normal; font-size: 22px; line-height: 1; margin-top: 3px; }
+#gtTip.shake { animation: gtShake .6s ease-in-out; }
+@keyframes gtShake { 0%,100% { transform: translateX(0); } 12% { transform: translateX(-9px) rotate(-1.5deg); } 28% { transform: translateX(9px) rotate(1.5deg); } 44% { transform: translateX(-7px) rotate(-1deg); } 60% { transform: translateX(7px) rotate(1deg); } 76% { transform: translateX(-3px); } 90% { transform: translateX(3px); } }
+@media (prefers-reduced-motion: reduce) { #gtTip.shake { animation: none; } }
+.tools-dropdown #audibleBtn .state { display: none !important; }
+.tools-button.gt-tipring { outline: 3px solid #ffe600; outline-offset: 2px; animation: gtRing 1s ease-in-out infinite alternate; }
+@keyframes gtRing { from { outline-color: #ffe600; } to { outline-color: rgba(255,230,0,.2); } }
+@media (pointer: coarse) { #gtTip { font-size: 16px; } }
+.gt-slideghost { transform-origin: 50% 50%; }
+</style>
 </head>
 <body>
     <div class="page-wrapper">
@@ -1256,7 +1276,7 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
             <path id="conceptBackground"></path>
             
             <!-- Extension paths (horizontal continuations) -->
-            <path id="extensionPath1" class="extension-path" d="M 0,0 L 0.01,0" style="display:none" />
+            <path id="extensionPath1" class="extension-path" d="M 7,40 L 128,40" /><!-- gtcv-ext: Line 1+ (baseline continued under the hill) -->
             <path id="sideLinePath" d="M 0,0 L 1,0" style="fill:none;stroke:none;pointer-events:none"></path>
             <path id="extensionPath2" class="extension-path" d="M 0,0 L 0.01,0" style="display:none" />
             
@@ -1308,7 +1328,7 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
             <button id="startQuiz">Random Quiz</button>
             <button id="colourToggle" type="button" title="Try different colour schemes">Colours: Positive</button>
             <button id="textSizeBtn" type="button" title="Enlarge or shrink any word">Text size…</button>
-            <button id="quizToggle" type="button" title="Quiz is on: the Quiz box opens after the last language, and correct answers go into Learned Vocabulary. Turn it off and clicking a word just cycles its languages.">Turn Quiz OFF</button>
+            <button id="quizToggle" type="button" title="Quiz on / off. When it is on, the Quiz box opens after the last language, and correct answers go into Learned Vocabulary. When it is off, clicking a word just cycles its languages.">Turn Quiz ON</button>
             <button id="printBtn" type="button" title="Print this template on one A4 landscape page">Print</button>
         </div>
         <div class="tools-bar">
@@ -1350,10 +1370,14 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
 
         // Extension vocabulary for continuation paths
         // Format: [TLR, TL, SL, Quiz]
-        const extensionData = [];   // GPCVP has no continuation lines
+        const extensionData = [
+            ["TLR1+", "TL1+", "SL1+", "What is the TLR for 'SL1+'?"]                      // Line 1+ (the baseline continued)
+        ];
 
         // Extension vocabulary expanded for transitions mode
-        const extension1TransitionData = [];
+        const extension1TransitionData = [
+            ["TLR-T1+", "TL-T1+", "SL-T1+"]
+        ];
 
         const extension2TransitionData = [];
 
@@ -1367,7 +1391,7 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
         };
         let pathLength = 0;
         let currentQuizIndex = -1;
-        let quizEnabled = true;   // 2026-10-09: the Quiz is ON by default. Tools > Turn Quiz ON/OFF. Off: a word click just cycles its layers; no quiz box, nothing added to the array
+        let quizEnabled = false; /* 2026-11-26 gtcv-ui3: Quiz OFF on opening */   // 2026-10-09: the Quiz is ON by default. Tools > Turn Quiz ON/OFF. Off: a word click just cycles its layers; no quiz box, nothing added to the array
         let currentQuizIsExtension = false; // Track if current quiz is for extension textbox
         let currentQuizExtIndex = -1; // Extension index for extension textboxes
         
@@ -1723,7 +1747,7 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
                     pathIndicator.style.borderColor = '#33cc66';
                     break;
                 case 'ext2':
-                    pathIndicator.textContent = 'Extension: Line 3+ Continues';
+                    pathIndicator.textContent = 'Extension: Peak+ Continues';
                     pathIndicator.style.backgroundColor = '#fffce8';
                     pathIndicator.style.borderColor = '#cccc33';
                     break;
@@ -2010,7 +2034,7 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
             let bestLen = cur.len;
             let bestDist = cur.dist;
             ['main', 'ext1', 'ext2'].forEach(name => {
-                if (name === currentPath) return;
+                if (name === currentPath || !getTransitionList(name).length) return;   /* gtcv-ui3: never hop onto an empty extension line */
                 const c = closestOnPathEl(getPathObject(name), pt.x, pt.y, null);
                 if (c.dist < bestDist - 0.05) {
                     bestPath = name;
@@ -2202,7 +2226,7 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
                     } else if (closestPathName === 'ext1') {
                         conceptIndicator.textContent = extensionData[0][1] + " (Line 1+)";
                     } else if (closestPathName === 'ext2') {
-                        conceptIndicator.textContent = extensionData[1][1] + " (Line 3+)";
+                        conceptIndicator.textContent = extensionData[1][1] + " (Peak+)";
                     }
                     
                 }
@@ -2482,15 +2506,15 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
             
             // Extension 1 text box (on Line 1+ path) - positioned at 50% of x-axis (middle of screen)
             // ViewBox x-axis goes from -30 to 130, so 50% is at x = 50
-            const ext1X = 50;   // UPRIGHT: mid-notch, just above the Line 1 continuation (y=40)
+            const ext1X = 67;   // midway along the continuation line
             const ext1Box = document.createElementNS("http://www.w3.org/2000/svg", "text");
             ext1Box.setAttribute("x", ext1X);
-            ext1Box.setAttribute("y", 40);   // 2026-10-11: on the Line 1 continuation, directly below TLR6
+            ext1Box.setAttribute("y", 38);   // just above the Line 1+ dashes
             ext1Box.setAttribute("text-anchor", "middle");
             ext1Box.setAttribute("data-anchor", "middle");
             ext1Box.setAttribute("class", "textBox extension");
             ext1Box.setAttribute("data-extension-index", 0);
-            ext1Box.setAttribute("data-index", 5);
+            ext1Box.setAttribute("data-index", conceptData.length);
             ext1Box.textContent = extensionData[0][0];
             ext1Box.style.fontSize = calculateFontSize(extensionData[0][0]) + "px";
             ext1Box.style.opacity = '0';
@@ -2541,15 +2565,16 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
             
             // Extension 2 text box (on Line 3+ path) - positioned at MIDPOINT of extension path 2
             // Extension path 2 goes from x=66.67 to x=100 at y=24.77
-            const ext2MidX = (76.67 + 130) / 2;   // 103.335: midpoint of the Line 3 continuation (x=76.67 to 130, y=35)
+            if (extensionData.length > 1) {
+            const ext2MidX = (50 + 128) / 2 + 11;   // 100: well out along the Peak+ line
             const ext2Box = document.createElementNS("http://www.w3.org/2000/svg", "text");
             ext2Box.setAttribute("x", ext2MidX);
-            ext2Box.setAttribute("y", 20);   // 2026-10-10: on the Line 3 continuation, centred at its mid-point
+            ext2Box.setAttribute("y", -2);   // just above the Peak+ dashes (the level of the peak)
             ext2Box.setAttribute("text-anchor", "middle");
             ext2Box.setAttribute("data-anchor", "middle");
             ext2Box.setAttribute("class", "textBox extension");
             ext2Box.setAttribute("data-extension-index", 1);
-            ext2Box.setAttribute("data-index", 6);
+            ext2Box.setAttribute("data-index", conceptData.length + 1);
             ext2Box.textContent = extensionData[1][0];
             ext2Box.style.fontSize = calculateFontSize(extensionData[1][0]) + "px";
             ext2Box.style.opacity = '0';
@@ -2597,6 +2622,7 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
             
             svg.appendChild(ext2Box);
             extensionTextBoxes.push(ext2Box);
+            }
             
             // Ensure frame is on top after creating extension text boxes
             bringFrameToFront();
@@ -4558,7 +4584,7 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
     if (!api || !oldBtn || document.getElementById('auCycle')) return;
     const AB = { en: 'ENG', id: 'IND', ms: 'MSA', ja: 'JPN', ko: 'KOR', zh: '中文', fr: 'FRA', de: 'DEU', es: 'SPA', it: 'ITA', pt: 'POR', ru: 'RUS', ar: 'ARA', hi: 'HIN', th: 'THA', vi: 'VIE', mi: 'MRI', fil: 'FIL', tl: 'FIL', nl: 'NLD', sv: 'SWE', tr: 'TUR', pl: 'POL', el: 'ELL', he: 'HEB', sm: 'SMO', to: 'TON', fj: 'FIJ' };
     const AUDIO_API_URL = window.CONCEPTIONARY_AUDIO_API_URL || '';
-    const st = { mode: 0, vol: 0.8, last: '', lastT: 0, timer: null, cur: null, pt: 'mouse' };      // mode 0 = TL+SL, 1 = TL only, 2 = silent
+    const st = { mode: 1, vol: 0.8, last: '', lastT: 0, timer: null, cur: null, pt: 'mouse' }; /* gtcv-ui3: TL only on opening */      // mode 0 = TL+SL, 1 = TL only, 2 = silent
     const tlCode = function () { return window.CONCEPTIONARY_AUDIO_LANG || ''; };
     const slCode = function () { return window.CONCEPTIONARY_AUDIO_SL_LANG || ''; };
     function abbr(code, fallback, override) { if (override) return override; if (!code) return fallback; const b = code.toLowerCase().split(/[-_]/)[0]; return AB[b] || b.toUpperCase(); }
@@ -4669,7 +4695,7 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
 
     cyc.addEventListener('click', function (e) {
         e.stopPropagation();
-        st.mode = (st.mode + 1) % 3; label(); if (st.mode === 2) stop();
+        st.mode = (st.mode === 0) ? 1 : 0; label();   /* gtcv-ui3: Translations ON / OFF */
         if (window.speechSynthesis) speechSynthesis.getVoices();
         note(describe());
     });
@@ -4944,6 +4970,287 @@ html[style*="--cx-env"] .watermark { text-shadow: none; }
       for (var i = 0; i < 12; i++) { if (de.style.getPropertyValue('--cx-env') === want.toLowerCase()) break; cb.click(); }
     }
     if (document.readyState === 'complete') applyEnv(); else window.addEventListener('load', function () { setTimeout(applyEnv, 0); });
+  })();
+})();
+</script>
+
+<script>
+/* gtcv-ext (2026-11-27) (c) 2026 Alan William Preston: the continuation lines are hidden until the yellow circle is dragged ALONG them from their left-hand start.
+   The line draws in to the left of the circle and retracts if the circle goes back or leaves; once the far end is reached the line stays for 30 s (then fades) unless its word is learned in the Quiz. */
+(function () {
+  if (window.__gtExt) return; window.__gtExt = true;
+  var svg = document.getElementById('svgCanvas'); if (!svg) return;
+  var NS = 'http://www.w3.org/2000/svg', RUN = 6, ENTRY = 8, FADE_AFTER = 30000;
+  var L = [{ id: 'extensionPath1', y: 40, x1: 7, x2: 128 }, { id: 'extensionPath2', y: 0, x1: 50, x2: 128 }].slice(0, 1);
+  var defs = svg.querySelector('defs') || svg.insertBefore(document.createElementNS(NS, 'defs'), svg.firstChild);
+  L.forEach(function (o, i) {
+    o.el = document.getElementById(o.id); if (!o.el) return;
+    var cp = document.createElementNS(NS, 'clipPath'); cp.setAttribute('id', 'gtExtClip' + i);
+    o.rect = document.createElementNS(NS, 'rect'); o.rect.setAttribute('y', 0); o.rect.setAttribute('height', 50); o.rect.setAttribute('x', 0); o.rect.setAttribute('width', 0);
+    cp.appendChild(o.rect); defs.appendChild(cp); o.el.setAttribute('clip-path', 'url(#gtExtClip' + i + ')');
+    o.el.style.transition = 'opacity 1s ease'; o.state = 'idle'; o.hi = null; o.perm = false; o.wasOn = false; o.timer = null;
+  });
+  function draw() {
+    var all = !!document.querySelector('.show-all-on');
+    L.forEach(function (o) {
+      if (!o.rect) return;
+      if (all || o.perm || o.state === 'full') { o.rect.setAttribute('x', o.x1 - 1); o.rect.setAttribute('width', o.x2 - o.x1 + 2); }
+      else if (o.state === 'run' && o.hi !== null && o.hi - o.x1 >= RUN) { o.rect.setAttribute('x', o.x1 - 1); o.rect.setAttribute('width', o.hi - o.x1 + 2.2); }
+      else o.rect.setAttribute('width', 0);
+    });
+  }
+  function startFade(o) {
+    clearTimeout(o.timer);
+    o.timer = setTimeout(function () {
+      if (o.perm) return;
+      o.el.style.opacity = '0';
+      setTimeout(function () { if (o.perm) { o.el.style.opacity = ''; return; } o.state = 'idle'; o.hi = null; draw(); o.el.style.opacity = ''; }, 1050);
+    }, FADE_AFTER);
+  }
+  var pf = window.updateVisibleTextBoxes;   /* called with the frame's new position every time it moves (ROM and LOG) */
+  if (typeof pf === 'function') window.updateVisibleTextBoxes = function (pt) {
+    var r = pf.apply(this, arguments);
+    try {
+      if (isStatesMode && pt) L.forEach(function (o) {
+        if (!o.rect || o.perm || o.state === 'full') return;
+        var on = Math.abs(pt.y - o.y) < 0.005 && pt.x >= o.x1 - 0.01 && pt.x <= o.x2 + 0.01;
+        if (on) {
+          if (o.state === 'idle' && !o.wasOn && pt.x <= o.x1 + ENTRY) { o.state = 'run'; }      /* a start only from the left-hand end, arriving from the curve */
+          if (o.state === 'run') { o.hi = pt.x; if (pt.x >= o.x2 - 4) { o.state = 'full'; startFade(o); } }
+        } else if (o.state === 'run') { o.state = 'idle'; o.hi = null; }                              /* the circle left the line: it retracts */
+        o.wasOn = on; draw();
+      });
+    } catch (e) {}
+    return r;
+  };
+  var ps = window.switchToPath;
+  if (typeof ps === 'function') window.switchToPath = function (name) { var r = ps.apply(this, arguments); var o = L[name === 'ext1' ? 0 : name === 'ext2' ? 1 : -1]; if (o && o.rect) { o.state = 'full'; draw(); } return r; };
+  function clear() { L.forEach(function (o) { clearTimeout(o.timer); o.state = 'idle'; o.hi = null; o.perm = false; o.wasOn = false; if (o.el) o.el.style.opacity = ''; }); draw(); }
+  var rb = document.getElementById('resetBtn'); if (rb) rb.addEventListener('click', clear);
+  /* a word learned in the Quiz keeps its line for good */
+  function checkLearned() {
+    var changed = false;
+    (window.extensionTextBoxes || extensionTextBoxes || []).forEach(function (b, i) { var o = L[i]; if (o && b && b.classList.contains('learned') && !o.perm) { o.perm = true; clearTimeout(o.timer); changed = true; } });
+    if (changed) draw();
+  }
+  new MutationObserver(function () { draw(); try { checkLearned(); } catch (e) {} }).observe(document.documentElement, { attributes: true, subtree: true, attributeFilter: ['class'] });
+  draw();
+})();
+</script>
+
+<script>
+/* gtcv-ui3 (2026-11-26) (c) 2026 Alan William Preston */
+(function () {
+  if (window.__gtUi3) return; window.__gtUi3 = true;
+  var $ = function (id) { return document.getElementById(id); };
+  var LB = { tipTitle: 'You have been all the way along. Next, open Tools to:', tipAdd: 'Turn on Translation', tipQuiz: 'and Quiz', transOn: 'Translations are ON', transOff: 'Translations are OFF', tipClose: 'Tap to close', quizClose: 'Almost! Check letter' };
+  if (window.CONCEPTIONARY_UI_LABELS) Object.keys(LB).forEach(function (k) { if (window.CONCEPTIONARY_UI_LABELS[k]) LB[k] = window.CONCEPTIONARY_UI_LABELS[k]; });
+
+  /* ---------- A. the Tools tooltip ---------- */
+  var tip = document.createElement('div'); tip.id = 'gtTip'; tip.setAttribute('role', 'status');
+  tip.innerHTML = '<b></b><b></b><i>\u25BC</i>';
+  document.body.appendChild(tip);
+  var tb = tip.getElementsByTagName('b'); tb[0].textContent = LB.tipAdd; tb[1].textContent = LB.tipQuiz;
+  var shown = false, done = false, lo = 101, hi = -1, hideT = null;
+  function toolsBtn() { return document.querySelector('.tools-button') || $('toolsButton'); }
+  function lineY(cx, below) {                    /* screen y of the curve / line above the button, at the button's x */
+    try {
+      var svg = $('svgCanvas'), el = getPathObject('main'), m = svg.getScreenCTM(), tot = el.getTotalLength(), best = null, bd = 1e9;
+      for (var k = 0; k <= 240; k++) { var q = el.getPointAtLength(tot * k / 240), X = q.x * m.a + q.y * m.c + m.e, Y = q.x * m.b + q.y * m.d + m.f; if (Y < below - 10 && Math.abs(X - cx) < bd) { bd = Math.abs(X - cx); best = Y; } }
+      return best;
+    } catch (e) { return null; }
+  }
+  function place() {
+    var t = toolsBtn(); if (!t) return;
+    var r = t.getBoundingClientRect(); tip.classList.add('on'); tip.style.left = '0px'; tip.style.top = '0px';
+    var w = tip.offsetWidth, ht = tip.offsetHeight, cx = r.left + r.width / 2;
+    var ly = lineY(cx, r.top), mid = ly == null ? r.top - ht - 40 : (ly + r.top) / 2;      /* midway between the line / curve and the Tools button */
+    var top = Math.max(4, Math.min(r.top - ht - 14, mid - ht / 2));
+    tip.style.left = Math.round(Math.max(4, Math.min(innerWidth - w - 4, cx - w / 2))) + 'px'; tip.style.top = Math.round(top) + 'px';
+  }
+  var timers = [];
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+  function shake() { tip.classList.remove('shake'); void tip.offsetWidth; tip.classList.add('shake'); }
+  function show() {
+    if (shown || done) return; shown = true; done = true; place();
+    var t = toolsBtn(); if (t) t.classList.add('gt-tipring');
+    clearTimers(); [[3000, function () { shake(); }], [6000, function () { shake(); }], [10000, function () { tip.classList.add('fade'); }], [10850, hide]].forEach(function (a) { timers.push(setTimeout(a[1], a[0])); });
+  }
+  function hide() {
+    tip.classList.remove('on'); shown = false; clearTimers(); tip.classList.remove('fade'); tip.classList.remove('shake');
+    var t = toolsBtn(); if (t) t.classList.remove('gt-tipring');
+  }
+  function rearm() { hide(); done = false; lo = 101; hi = -1; }
+  tip.addEventListener('click', hide);
+  addEventListener('resize', function () { if (shown) place(); });
+  document.addEventListener('click', function (e) { var t = toolsBtn(); if (shown && t && (e.target === t || t.contains(e.target))) hide(); }, true);
+  ['resetBtn'].forEach(function (id) { var b = $(id); if (b) b.addEventListener('click', rearm); });
+  var prev = window.updateConceptIndicator;
+  if (typeof prev === 'function') window.updateConceptIndicator = function (p) {
+    var r = prev.apply(this, arguments);
+    if (typeof p === 'number') { if (p < lo) lo = p; if (p > hi) hi = p; if (!done && lo <= 6 && hi >= 94) setTimeout(show, 250); }
+    return r;
+  };
+
+  /* ---------- A2. Tools menu: "Translations are ON / OFF" ---------- */
+  (function () {
+    var ab = $('audibleBtn'), cyc = $('auCycle'); if (!ab || !cyc) return;
+    var lbl = ab.querySelector('.lbl'); if (!lbl) return;
+    function sync() { var on = /\+/.test(cyc.textContent), t = on ? LB.transOn : LB.transOff; if (lbl.textContent !== t) lbl.textContent = t; }
+    new MutationObserver(sync).observe(cyc, { childList: true, characterData: true, subtree: true });
+    new MutationObserver(sync).observe(lbl, { childList: true, characterData: true, subtree: true });
+    sync();
+  })();
+
+  /* ---------- B. the Quiz: green / red while typing, and the "check letter N" hint ---------- */
+  var inp = $('quizInput'), fb = $('quizFeedback'), box = $('quizContainer');
+  function correct() {
+    try {
+      var d, i;
+      if (typeof getTransitionItemByIndex === 'function') {          /* ROM templates: one global index */
+        var en;
+        if (isStatesMode) en = currentQuizIndex >= conceptData.length ? extensionData[currentQuizIndex - conceptData.length] : conceptData[currentQuizIndex];
+        else { var it = getTransitionItemByIndex(currentQuizIndex); en = it ? it.data : null; }
+        return en ? String(en[0]) : '';
+      }
+      if (isStatesMode) { if (currentQuizIsExtension) { d = extensionData; i = currentQuizExtIndex; } else { d = conceptData; i = currentQuizIndex; } }
+      else if (currentPath === 'main') { d = transitionsData; i = currentQuizIndex; }
+      else if (currentPath === 'ext1') { d = extension1TransitionData; i = currentQuizIndex - transitionsData.length; }
+      else { d = extension2TransitionData; i = currentQuizIndex - transitionsData.length - extension1TransitionData.length; }
+      return String(d[i][0]);
+    } catch (e) { return ''; }
+  }
+  function near(a, b) {                       /* one slip: returns the 1-based letter to check, or 0 */
+    a = a.toLowerCase(); b = b.toLowerCase(); if (a === b) return 0;
+    var n = Math.min(a.length, b.length), i = 0; while (i < n && a[i] === b[i]) i++;
+    var x = a.slice(i + 1), y = b.slice(i + 1);
+    if (a.length === b.length && (x === y || (a[i] === b[i + 1] && a[i + 1] === b[i] && a.slice(i + 2) === b.slice(i + 2)))) return i + 1;
+    if (a.length === b.length + 1 && x === b.slice(i)) return i + 1;
+    if (b.length === a.length + 1 && a.slice(i) === y) return i + 1;
+    return 0;
+  }
+  window.__gtNear = near;
+  var mir = null, baseCol = '';
+  function paint() {
+    if (!inp) return;
+    var v = inp.value, c = correct();
+    if (!v || !c) { inp.classList.remove('qi-on'); inp.style.caretColor = ''; if (mir) mir.style.display = 'none'; return; }
+    if (!inp.classList.contains('qi-on')) baseCol = getComputedStyle(inp).color;
+    if (!mir) { mir = document.createElement('div'); mir.id = 'qiMirror'; mir.setAttribute('aria-hidden', 'true'); inp.parentNode.style.position = 'relative'; inp.parentNode.insertBefore(mir, inp.nextSibling); }
+    var cs = getComputedStyle(inp), white = document.documentElement.style.getPropertyValue('--cx-scheme').trim() === 'white';
+    var G = white ? '#08801f' : '#1fd13a', R = white ? '#c40000' : '#ff5252', lc = c.toLowerCase();
+    mir.style.display = 'flex'; mir.style.left = inp.offsetLeft + 'px'; mir.style.top = inp.offsetTop + 'px'; mir.style.width = inp.offsetWidth + 'px'; mir.style.height = inp.offsetHeight + 'px';
+    mir.style.font = cs.font; mir.style.letterSpacing = cs.letterSpacing;
+    mir.style.padding = '0 ' + cs.paddingRight + ' 0 ' + cs.paddingLeft; mir.style.borderLeft = cs.borderLeftWidth + ' solid transparent'; mir.style.borderRight = cs.borderRightWidth + ' solid transparent';
+    mir.style.justifyContent = cs.textAlign === 'center' ? 'center' : 'flex-start';
+    var html = '';
+    for (var k = 0; k < v.length; k++) { var ch = v.charAt(k); html += '<span style="color:' + (k < lc.length && ch.toLowerCase() === lc.charAt(k) ? G : R) + '">' + (ch === ' ' ? '&nbsp;' : ch.replace(/&/g, '&amp;').replace(/</g, '&lt;')) + '</span>'; }
+    mir.innerHTML = '<div style="transform:translateX(' + (-inp.scrollLeft) + 'px);white-space:pre">' + html + '</div>';
+    inp.style.caretColor = baseCol;
+    inp.classList.add('qi-on');
+  }
+  if (inp) {
+    inp.addEventListener('input', paint); inp.addEventListener('scroll', paint); addEventListener('resize', paint);
+    if (box) new MutationObserver(paint).observe(box, { attributes: true, attributeFilter: ['style', 'class'] });
+    if (fb) new MutationObserver(function () {
+      paint();
+      if (fb.dataset.gt3 === '1') return;
+      var typed = inp.value.trim(), c = correct();
+      if (!typed || !c || typed.toLowerCase() === c.toLowerCase() || /Check letter/i.test(fb.textContent)) return;
+      var n = near(typed, c); if (!n) return;
+      fb.dataset.gt3 = '1'; fb.textContent = fb.textContent.replace(/\s*[—-]\s*.*$/, '') + ' — ' + LB.quizClose + ' ' + n; setTimeout(function () { fb.dataset.gt3 = ''; }, 50);
+    }).observe(fb, { childList: true, characterData: true, subtree: true });
+  }
+
+  /* ---------- C. Transitions Mode: pull the sliding word OFF the line (or press and hold it, then drag): it lifts off, straightens to horizontal and grows up to 300% ---------- */
+  (function () {
+    var txt = $('interactiveText'), svg = $('svgCanvas'); if (!txt || !svg) return;
+    var HOLD = 380, JIT = 12, MAXS = 3, S0 = 1.7, HOLD_SHOW = 5000, p = null, out = null;
+    function norm(a) { while (a > 90) a -= 180; while (a <= -90) a += 180; return a; }
+    function paths() { var r = []; ['main', 'ext1', 'ext2'].forEach(function (n) { try { var L = (typeof getTransitionList === 'function') ? getTransitionList(n).length : 1; if (L) r.push(getPathObject(n)); } catch (e) {} }); return r; }
+    function pathDist(cx, cy) {                    /* how far (screen px) the pointer is from the nearest line / curve */
+      try { var pt = getSvgPoint(cx, cy), k = svg.getScreenCTM().a, best = 1e9; paths().forEach(function (el) { var d = closestOnPathEl(el, pt.x, pt.y, null).dist; if (d < best) best = d; }); return best * k; } catch (e) { return 0; }
+    }
+    function angle(cx, cy) {                      /* the line's direction under the word, on screen */
+      try {
+        var best = null, bd = 1e9, pt = getSvgPoint(cx, cy);
+        paths().forEach(function (el) { var c = closestOnPathEl(el, pt.x, pt.y, null); if (c.dist < bd) { bd = c.dist; best = [el, c.len]; } });
+        var el = best[0], L = best[1], tot = el.getTotalLength();
+        var a = el.getPointAtLength(Math.max(0, L - 1)), b = el.getPointAtLength(Math.min(tot, L + 1)), m = svg.getScreenCTM();
+        return norm(Math.atan2((b.y - a.y) * m.d + (b.x - a.x) * m.b, (b.x - a.x) * m.a + (b.y - a.y) * m.c) * 180 / Math.PI);
+      } catch (e) { return 0; }
+    }
+    function tf(o) { return 'translate(calc(-50% + ' + o.x + 'px), calc(-50% + ' + o.y + 'px)) rotate(' + o.a + 'deg) scale(' + o.s + ')'; }
+    function close(now) {
+      if (!out) return; var o = out; out = null; clearTimeout(o.timer);
+      var gh = o.gh;
+      if (now) { if (gh.parentNode) gh.parentNode.removeChild(gh); txt.style.visibility = ''; return; }
+      gh.style.transition = 'transform .3s cubic-bezier(.34,1.56,.64,1)'; gh.style.transform = 'translate(-50%, -50%) rotate(' + o.a0 + 'deg) scale(1)';
+      setTimeout(function () { if (gh.parentNode) gh.parentNode.removeChild(gh); txt.style.visibility = ''; }, 330);
+    }
+    function lift(how, e) {
+      if (!p || p.lifted) return; p.lifted = true; p.how = how;
+      var r = txt.getBoundingClientRect(), k = svg.getScreenCTM().a, fs = parseFloat(getComputedStyle(txt).fontSize) || 6;
+      var hx = r.left + r.width / 2, hy = r.top + r.height / 2, a0 = angle(hx, hy);
+      var gh = document.createElement('div'); gh.className = 'gt-ghost gt-slideghost'; gh.textContent = (txt.textContent || '').replace(/\s+/g, ' ').trim(); gh.style.fontSize = Math.max(11, fs * k) + 'px';
+      document.body.appendChild(gh); gh.style.left = hx + 'px'; gh.style.top = hy + 'px';
+      var o = { gh: gh, hx: hx, hy: hy, a0: a0, a: a0, s: 1, x: 0, y: 0, w: gh.offsetWidth, h: gh.offsetHeight, timer: null };
+      out = o; p.o = o;
+      if (e) { p.x0 = e.clientX; p.y0 = e.clientY; }                 /* the ghost follows the pointer from here on */
+      p.ox = 0; p.oy = 0;
+      try { isDraggingText = false; hasMovedDuringDrag = true; txt.classList.remove('dragging'); } catch (_) {}   /* the template's own slide stops; no click-toggle afterwards */
+      txt.style.visibility = 'hidden';
+      gh.style.transform = tf(o);
+      if (how === 'hold') {                                           /* a hold: straighten and enlarge at once */
+        void gh.offsetWidth; o.s = Math.min(S0, (innerWidth - 8) / o.w, (innerHeight - 8) / o.h); o.a = 0;
+        gh.style.transition = 'transform .25s ease-out'; gh.style.transform = tf(o);
+        setTimeout(function () { gh.style.transition = 'none'; }, 270);
+        if (navigator.vibrate) { try { navigator.vibrate(15); } catch (_) {} }
+      } else { gh.style.transition = 'none'; }
+    }
+    function down(e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (typeof isStatesMode !== 'undefined' && isStatesMode) return;
+      var onGhost = e.target.closest && e.target.closest('.gt-slideghost');
+      if (onGhost && out) { clearTimeout(out.timer); p = { id: e.pointerId, x0: e.clientX, y0: e.clientY, lifted: true, how: 'again', o: out, ox: out.x, oy: out.y, again: true, moved: false }; try { onGhost.setPointerCapture(e.pointerId); } catch (_) {} e.preventDefault(); return; }
+      if (!(e.target.closest && e.target.closest('#interactiveText'))) return;
+      close(true);
+      var fs = (parseFloat(getComputedStyle(txt).fontSize) || 6) * svg.getScreenCTM().a;
+      p = { id: e.pointerId, x0: e.clientX, y0: e.clientY, lifted: false, o: null, ox: 0, oy: 0, moved: false, away: Math.max(34, 2.2 * fs) };
+      p.t = setTimeout(function () { if (p && !p.lifted && !p.far) lift('hold', null); }, HOLD);
+    }
+    function move(e) {
+      if (!p || e.pointerId !== p.id) return;
+      var dx = e.clientX - p.x0, dy = e.clientY - p.y0, d = Math.hypot(dx, dy);
+      if (!p.lifted) {
+        if (d > JIT && !p.far) { p.far = true; clearTimeout(p.t); }       /* moved before the hold: the word slides along the line as usual ... */
+        if (p.far && pathDist(e.clientX, e.clientY) > p.away) lift('away', e);   /* ... until the pointer is pulled well away from the line */
+        return;
+      }
+      var o = p.o; if (!o) return; if (d > 4) p.moved = true;
+      var dmax = Math.max(110, Math.min(220, 0.28 * Math.min(innerWidth, innerHeight)));
+      var s, a = 0;
+      if (p.again) s = o.s;
+      else if (p.how === 'hold') { var b0 = Math.min(S0, (innerWidth - 8) / o.w, (innerHeight - 8) / o.h); s = b0 + (MAXS - b0) * Math.min(1, d / dmax); }
+      else { s = 1 + (MAXS - 1) * Math.min(1, d / dmax); a = o.a0 * (1 - Math.min(1, d / (dmax * 0.45))); }   /* pulled away: grows and turns to horizontal */
+      s = Math.min(s, (innerWidth - 8) / o.w, (innerHeight - 8) / o.h);
+      var hw = o.w * s / 2, hh = o.h * s / 2, tx = o.hx + p.ox + dx, ty = o.hy + p.oy + dy;
+      var cx = Math.min(Math.max(tx, hw + 2), innerWidth - hw - 2), cy = Math.min(Math.max(ty, hh + 2), innerHeight - hh - 2);
+      o.x = cx - o.hx; o.y = cy - o.hy; o.s = s; o.a = a; o.gh.style.transform = tf(o);
+      e.preventDefault();
+    }
+    function up(e) {
+      if (!p || e.pointerId !== p.id) return;
+      clearTimeout(p.t); var cur = p; p = null;
+      if (cur.again && !cur.moved) { close(false); return; }                 /* a tap on the lifted word puts it back */
+      if (cur.lifted && out) { clearTimeout(out.timer); out.timer = setTimeout(function () { close(false); }, HOLD_SHOW); }
+    }
+    document.addEventListener('pointerdown', down, true);
+    document.addEventListener('pointermove', move, { passive: false });
+    document.addEventListener('pointerup', up, true); document.addEventListener('pointercancel', up, true);
+    document.addEventListener('contextmenu', function (e) { if (e.target.closest && e.target.closest('#interactiveText, .gt-slideghost')) e.preventDefault(); });
+    ['showAllBtn', 'modeToggle', 'resetBtn'].forEach(function (id) { var b = $(id); if (b) b.addEventListener('click', function () { close(true); }); });
+    addEventListener('resize', function () { close(true); });
   })();
 })();
 </script>
